@@ -15,6 +15,23 @@ table .incorrect {
   color: white;
 }
 
+button {
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+}
+
+button.winner {
+  background-color: var(--winner-color);
+  color: white;
+}
+
+button.loser {
+  background-color: var(--loser-color);
+  color: white;
+}
+
+
 .content {
   padding-top: 2.5rem;
 }
@@ -76,6 +93,34 @@ table .incorrect {
   height: 2px;
   background-color: var(--ncaa-gold);  /* Gold underline */
   border-radius: 1px;
+}
+
+/* Pick winner table styles */
+.pick-winner-table-container {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  padding-top: 20px;
+  margin-left: 0;
+}
+
+.pick-winner-table {
+  width: 100%;
+  margin: 0;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.pick-winner-table th,
+.pick-winner-table td {
+  padding: 15px;
+  min-width: 120px;
+  border: 1px solid #ddd;
+}
+
+.pick-winner-table thead {
+  background-color: #808080;
+  color: white;
 }
 
 /* Full view table styles */
