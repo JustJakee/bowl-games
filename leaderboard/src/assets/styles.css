@@ -1,0 +1,16 @@
+:root {
+    --winner-color: rgba(40, 167, 69, 0.6);  /* Custom green for winner */
+    --loser-color: rgba(255, 99, 71, 0.6);   /* Custom red for loser */
+  }
+  
+  table .correct {
+    background-color: var(--winner-color);
+    color: white;
+  }
+  
+  table .incorrect {
+    background-color: var(--loser-color);
+    color: white;
+  }
+  
+  

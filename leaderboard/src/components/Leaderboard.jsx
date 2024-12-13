@@ -1,25 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-const Leaderboard = () => {
+const Leaderboard = ({ playerPicks, correctAnswers }) => { 
 
-const player = {
-    name: "test",
-    pick: "test",
-}
+  // Calculate the score for each player
+  const playersWithScores = playerPicks.map(player => {
+    const score = player.picks.reduce((total, pick, index) => {
+      return pick === correctAnswers[index] ? total + 1 : total;
+    }, 0);
+    return {
+      ...player,
+      score
+    };
+  });
+
+  // Sort players by score (descending order)
+  playersWithScores.sort((a, b) => b.score - a.score);
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Correct Picks</th>
-        </tr>
-      </thead>
-      <tbody>
-        <td>1</td>
-        <td>1</td>
-      </tbody>
-    </table>
+    <div>
+      <h2 className="mb-3">Leaderboard</h2>
+      <table className="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Player</th>
+            <th scope="col">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {playersWithScores.map((player, index) => (
+            <tr key={index} className={index === 0 ? "table-success" : ""}>
+              <td>{index + 1}</td>
+              <td>{player.name}</td>
+              <td>{player.score}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
