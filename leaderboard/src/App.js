@@ -7,6 +7,14 @@ import FullView from './components/full-view';
 import Header from './components/header';
 
 const App = () => {
+  // var cfb = require('cfb.js');
+  // var defaultClient = cfb.ApiClient.instance;
+  // const apiKey = process.env.PRIVATE_API_KEY;
+  // var ApiKeyAuth = defaultClient.authentications['ApiKeyAuth'];
+  // ApiKeyAuth.apiKey = `Bearer ${apiKey}`
+  // var api = new cfb.GamesApi();
+  // https://www.npmjs.com/package/cfb.js#installation
+
   const [currentPage, setCurrentPage] = useState('leaderboard');
   const [playerPicks, setPlayerPicks] = useState([]);
   // A test set of Answers to test scoring
@@ -18,7 +26,7 @@ const App = () => {
       skipEmptyLines: true,
       complete: (results) => {
         const rawData = results.data;
-        const playerNames = rawData[0].slice(2);  
+        const playerNames = rawData[0].slice(2);
         // Skip the first two columns (Date, and placeholders)
 
         const picks = playerNames.map((name) => ({
