@@ -1,4 +1,4 @@
-const teamNames = {};
+let teamNames = {};
 teamNames["South Alabama"] = "SA";
 teamNames["Western Michigan"] = "WM";
 teamNames["South Carolina State"] = "SCS"
