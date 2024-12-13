@@ -4,6 +4,7 @@ import Papa from 'papaparse';  // CSV parsing library
 import csvFile from './assets/test.csv';
 import Leaderboard from './components/leaderboard';
 import FullView from './components/full-view';
+import PickWinners from './components/pick-winners';
 import Header from './components/header';
 
 const App = () => {
@@ -18,7 +19,7 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState('leaderboard');
   const [playerPicks, setPlayerPicks] = useState([]);
   // A test set of Answers to test scoring
-  const correctAnswers = [];
+  const [winnerPicks, setWinnerPicks] = useState([]);
 
   useEffect(() => {
     Papa.parse(csvFile, {
@@ -52,8 +53,9 @@ const App = () => {
       <title>College Bowl Game Picks 🏆</title>
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
       <div className="content">
-        {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} correctAnswers={correctAnswers} />}
-        {currentPage === 'full-view' && <FullView playerPicks={playerPicks} correctAnswers={correctAnswers} />}
+        {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} winnerPicks={winnerPicks} />}
+        {currentPage === 'full-view' && <FullView playerPicks={playerPicks} winnerPicks={winnerPicks} />}
+        {currentPage === 'pick-winners' && <PickWinners winnerPicks={winnerPicks} />}
       </div>
     </div>
   );

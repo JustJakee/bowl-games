@@ -1,7 +1,7 @@
 import React from 'react';
 import '../assets/styles.css'
 
-const FullView = ({ playerPicks, correctAnswers }) => {
+const FullView = ({ playerPicks, winnerPicks }) => {
 
   return (
     <div>
@@ -24,7 +24,7 @@ const FullView = ({ playerPicks, correctAnswers }) => {
                 <td>Game {gameIndex + 1}</td>
                 {playerPicks.map((player) => {
                   const pick = player.picks[gameIndex];
-                  const correctAnswer = correctAnswers[gameIndex];
+                  const correctAnswer = winnerPicks[gameIndex];
 
                   const isCorrect = correctAnswer && pick === correctAnswer;
 

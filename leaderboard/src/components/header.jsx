@@ -20,6 +20,12 @@ const Header = ({ currentPage, setCurrentPage }) => {
         >
           Full View
         </button>
+        <button
+          className={`nav-link ${currentPage === 'pick-winners' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('pick-winners')}
+        >
+         Pick Winners
+        </button>
       </div>
     </div>
   );
