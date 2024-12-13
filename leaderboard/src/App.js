@@ -10,7 +10,7 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState('leaderboard');
   const [playerPicks, setPlayerPicks] = useState([]);
   // A test set of Answers to test scoring
-  const correctAnswers = ["UAB", "UTSA", "CINN", "JACK", "BYU", "WASH S"];
+  const correctAnswers = [];
 
   useEffect(() => {
     Papa.parse(csvFile, {
