@@ -1,16 +1,133 @@
 :root {
-    --winner-color: rgba(40, 167, 69, 0.6);  /* Custom green for winner */
-    --loser-color: rgba(255, 99, 71, 0.6);   /* Custom red for loser */
-  }
-  
-  table .correct {
-    background-color: var(--winner-color);
-    color: white;
-  }
-  
-  table .incorrect {
-    background-color: var(--loser-color);
-    color: white;
-  }
-  
-  
+  --winner-color: rgba(40, 167, 69, 0.6);
+  --loser-color: rgba(255, 99, 71, 0.6);
+  --ncaa-blue: #4b92db;
+  --ncaa-gold: #ffcb05;
+}
+
+table .correct {
+  background-color: var(--winner-color);
+  color: white;
+}
+
+table .incorrect {
+  background-color: var(--loser-color);
+  color: white;
+}
+
+.content {
+  padding-top: 2.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 2rem;
+  background-color: #0091D4; /* Light NCAA Blue */
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+
+.nav-link:hover {
+  background-color: white;
+  color: var(--ncaa-blue);
+  border-radius: 5px;
+}
+
+.nav-link.active {
+  text-decoration: none;
+}
+
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--ncaa-gold);  /* Gold underline */
+  border-radius: 1px;
+}
+
+/* Full view table styles */
+.full-view-table-container {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  padding-top: 20px;
+  margin-left: 0;
+}
+
+.full-view-table {
+  width: 100%;
+  margin: 0;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.full-view-table th,
+.full-view-table td {
+  padding: 15px;
+  min-width: 120px;
+  border: 1px solid #ddd;
+}
+
+.full-view-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Add a hover effect for rows */
+.full-view-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.full-view-table thead {
+  background-color: #808080;
+  color: white;
+}
+
+.full-view-table thead tr:hover {
+  background-color: #808080; 
+  cursor: default; 
+}
+
+.full-view-table td.correct {
+  background-color: var(--winner-color);
+  color: white;
+}
+
+.full-view-table td.incorrect {
+  background-color: var(--loser-color); 
+  color: white;
+}
+
+

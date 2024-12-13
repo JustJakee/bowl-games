@@ -18,13 +18,12 @@ const Leaderboard = ({ playerPicks, correctAnswers }) => {
 
   return (
     <div>
-      <h2 className="mb-3">Leaderboard</h2>
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
             <th scope="col">Rank</th>
             <th scope="col">Player</th>
-            <th scope="col">Score</th>
+            <th scope="col">Correct Picks</th>
           </tr>
         </thead>
         <tbody>
