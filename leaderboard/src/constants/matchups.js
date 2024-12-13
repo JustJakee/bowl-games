@@ -17,7 +17,8 @@ const matchups = [
     team2: "West Virginia",
     winner: ""
   },
-  { game: "Boca Raton Bowl",
+  {
+    game: "Boca Raton Bowl",
     team1: "James Madison",
     team2: "Western Kentucky",
     winner: ""
