@@ -9,6 +9,7 @@ export const getMatchup = /* GraphQL */ `
       team1
       team2
       winner
+      date
       createdAt
       updatedAt
       __typename
@@ -28,6 +29,7 @@ export const listMatchups = /* GraphQL */ `
         team1
         team2
         winner
+        date
         createdAt
         updatedAt
         __typename

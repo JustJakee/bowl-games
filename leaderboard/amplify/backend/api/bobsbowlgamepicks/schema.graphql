@@ -8,4 +8,5 @@ type Matchup @model {
   team1: String!
   team2: String!
   winner: String
+  date: String
 }

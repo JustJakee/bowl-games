@@ -9,6 +9,7 @@ export const onCreateMatchup = /* GraphQL */ `
       team1
       team2
       winner
+      date
       createdAt
       updatedAt
       __typename
@@ -23,6 +24,7 @@ export const onUpdateMatchup = /* GraphQL */ `
       team1
       team2
       winner
+      date
       createdAt
       updatedAt
       __typename
@@ -37,6 +39,7 @@ export const onDeleteMatchup = /* GraphQL */ `
       team1
       team2
       winner
+      date
       createdAt
       updatedAt
       __typename
