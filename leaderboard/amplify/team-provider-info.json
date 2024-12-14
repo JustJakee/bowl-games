@@ -10,6 +10,11 @@
       "StackName": "amplify-leaderboard-dev-d7a37",
       "StackId": "arn:aws:cloudformation:us-east-2:366318196751:stack/amplify-leaderboard-dev-d7a37/863a9c70-b9d7-11ef-a34f-061066ff23df",
       "AmplifyAppId": "d17heeh61knbob"
+    },
+    "categories": {
+      "api": {
+        "leaderboard": {}
+      }
     }
   }
 }
