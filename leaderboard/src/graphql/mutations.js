@@ -1,45 +1,51 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createTodo = /* GraphQL */ `
-  mutation CreateTodo(
-    $input: CreateTodoInput!
-    $condition: ModelTodoConditionInput
+export const createMatchup = /* GraphQL */ `
+  mutation CreateMatchup(
+    $input: CreateMatchupInput!
+    $condition: ModelMatchupConditionInput
   ) {
-    createTodo(input: $input, condition: $condition) {
+    createMatchup(input: $input, condition: $condition) {
       id
-      name
-      description
+      game
+      team1
+      team2
+      winner
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const updateTodo = /* GraphQL */ `
-  mutation UpdateTodo(
-    $input: UpdateTodoInput!
-    $condition: ModelTodoConditionInput
+export const updateMatchup = /* GraphQL */ `
+  mutation UpdateMatchup(
+    $input: UpdateMatchupInput!
+    $condition: ModelMatchupConditionInput
   ) {
-    updateTodo(input: $input, condition: $condition) {
+    updateMatchup(input: $input, condition: $condition) {
       id
-      name
-      description
+      game
+      team1
+      team2
+      winner
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const deleteTodo = /* GraphQL */ `
-  mutation DeleteTodo(
-    $input: DeleteTodoInput!
-    $condition: ModelTodoConditionInput
+export const deleteMatchup = /* GraphQL */ `
+  mutation DeleteMatchup(
+    $input: DeleteMatchupInput!
+    $condition: ModelMatchupConditionInput
   ) {
-    deleteTodo(input: $input, condition: $condition) {
+    deleteMatchup(input: $input, condition: $condition) {
       id
-      name
-      description
+      game
+      team1
+      team2
+      winner
       createdAt
       updatedAt
       __typename

@@ -6,6 +6,13 @@ import Leaderboard from './components/leaderboard';
 import FullView from './components/full-view';
 import PickWinners from './components/pick-winners';
 import Header from './components/header';
+import { insertMatchups } from './utils/insertMatchups' // this script added everything to DB
+import { fetchMatchups } from './utils/fetchMatchups' // this script pulls everything from DB
+import { deleteMatchups } from './utils/deleteMatchups' // this script deletes everything from DB
+import { Amplify } from 'aws-amplify';
+import config from './aws-exports.js';
+
+Amplify.configure(config);
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('leaderboard');
@@ -19,6 +26,13 @@ const App = () => {
     if (storedWinnerPicks) {
       setWinnerPicks(JSON.parse(storedWinnerPicks)); // Parse and set state
     }
+
+    /* Only run fetchAndLogMatchups(); if you need to see a full list of data in the console. */
+    const fetchAndLogMatchups = async () => {
+      const matchups = await fetchMatchups();
+      console.log('Current Matchups:', matchups);
+    };
+    fetchAndLogMatchups();
 
     Papa.parse(csvFile, {
       download: true,
@@ -47,6 +61,7 @@ const App = () => {
   }, []);
 
   // Save winnerPicks to localStorage whenever it changes
+  // Once we use API data this will no longer be needed
   useEffect(() => {
     if (winnerPicks.length > 0) {
       localStorage.setItem('winnerPicks', JSON.stringify(winnerPicks));
@@ -72,11 +87,24 @@ const App = () => {
     setWinnerPicks((prevState) => prevState.filter((pick) => pick.gameId !== gameId));
   };
 
+  /* Only run insertData(); once to add matchups to DB */
+  const insertData = async () => {
+    await insertMatchups();
+  };
+
+  /* Only run clearData(); if the DB needs to be purged */
+  const clearData = async () => {
+    await deleteMatchups();  // Delete all matchups first
+  };
+
   return (
     <div className="container mt-5">
       <title>College Bowl Game Picks 🏆</title>
+
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
       <div className="content">
+        {/*This button is only used to add or delete the data*/}
+        {/*<button onClick={insertData}>Insert Data</button>*/}
         {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} winnerPicks={winnerPicks} />}
         {currentPage === 'full-view' && <FullView playerPicks={playerPicks} winnerPicks={winnerPicks} />}
         {currentPage === 'pick-winners' && <PickWinners

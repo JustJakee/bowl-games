@@ -1,29 +1,33 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const getTodo = /* GraphQL */ `
-  query GetTodo($id: ID!) {
-    getTodo(id: $id) {
+export const getMatchup = /* GraphQL */ `
+  query GetMatchup($id: ID!) {
+    getMatchup(id: $id) {
       id
-      name
-      description
+      game
+      team1
+      team2
+      winner
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const listTodos = /* GraphQL */ `
-  query ListTodos(
-    $filter: ModelTodoFilterInput
+export const listMatchups = /* GraphQL */ `
+  query ListMatchups(
+    $filter: ModelMatchupFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listTodos(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listMatchups(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        name
-        description
+        game
+        team1
+        team2
+        winner
         createdAt
         updatedAt
         __typename

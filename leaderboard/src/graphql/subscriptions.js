@@ -1,36 +1,42 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreateTodo = /* GraphQL */ `
-  subscription OnCreateTodo($filter: ModelSubscriptionTodoFilterInput) {
-    onCreateTodo(filter: $filter) {
+export const onCreateMatchup = /* GraphQL */ `
+  subscription OnCreateMatchup($filter: ModelSubscriptionMatchupFilterInput) {
+    onCreateMatchup(filter: $filter) {
       id
-      name
-      description
+      game
+      team1
+      team2
+      winner
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onUpdateTodo = /* GraphQL */ `
-  subscription OnUpdateTodo($filter: ModelSubscriptionTodoFilterInput) {
-    onUpdateTodo(filter: $filter) {
+export const onUpdateMatchup = /* GraphQL */ `
+  subscription OnUpdateMatchup($filter: ModelSubscriptionMatchupFilterInput) {
+    onUpdateMatchup(filter: $filter) {
       id
-      name
-      description
+      game
+      team1
+      team2
+      winner
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onDeleteTodo = /* GraphQL */ `
-  subscription OnDeleteTodo($filter: ModelSubscriptionTodoFilterInput) {
-    onDeleteTodo(filter: $filter) {
+export const onDeleteMatchup = /* GraphQL */ `
+  subscription OnDeleteMatchup($filter: ModelSubscriptionMatchupFilterInput) {
+    onDeleteMatchup(filter: $filter) {
       id
-      name
-      description
+      game
+      team1
+      team2
+      winner
       createdAt
       updatedAt
       __typename
