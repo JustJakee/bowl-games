@@ -5,6 +5,7 @@
   --ncaa-gold: #ffcb05;
 }
 
+/* Correct and Incorrect table row styling */
 table .correct {
   background-color: var(--winner-color);
   color: white;
@@ -15,10 +16,13 @@ table .incorrect {
   color: white;
 }
 
+/* Button base styles */
 button {
   padding: 10px 15px;
   border: none;
   cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
 }
 
 button.winner {
@@ -31,11 +35,12 @@ button.loser {
   color: white;
 }
 
-
+/* General content styling */
 .content {
   padding-top: 2.5rem;
 }
 
+/* Header styling */
 .header {
   display: flex;
   justify-content: space-between;
@@ -175,4 +180,115 @@ button.loser {
   color: white;
 }
 
+/* Mobile styles */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    padding: 0 10px;
+  }
 
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .header-title h1 {
+    font-size: 1.5rem;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    padding: 0.3rem 0.8rem;
+  }
+
+  /* Responsive pick-winner-table */
+  .pick-winner-table-container {
+    padding-top: 10px;
+  }
+
+  .pick-winner-table th,
+  .pick-winner-table td {
+    padding: 12px 8px;
+    text-align: center;
+    min-width: auto;
+  }
+
+  .pick-winner-table td button {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 18px;
+  }
+
+  /* Full view table styles for mobile */
+  .full-view-table th,
+  .full-view-table td {
+    padding: 10px 8px;
+    text-align: left;
+  }
+
+  .full-view-table td {
+    font-size: 14px;
+  }
+
+  .full-view-table td.correct,
+  .full-view-table td.incorrect {
+    font-size: 12px;
+  }
+
+  .clear-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* Stack table layout on small screens */
+  .pick-winner-table-container {
+    display: block;
+  }
+
+  .pick-winner-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .pick-winner-table th, .pick-winner-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 480px) {
+  button {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  .header {
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .header-title h1 {
+    font-size: 1.2rem;
+    padding-left: 40px;
+    padding-bottom: 8px;
+  }
+
+  .nav-link {
+    font-size: 13px;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .pick-winner-table th,
+  .pick-winner-table td {
+    padding: 10px 6px;
+  }
+
+  .clear-button {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
