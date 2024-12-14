@@ -10,7 +10,7 @@ import { insertMatchups } from './utils/insertMatchups' // this script added eve
 import { fetchMatchups } from './utils/fetchMatchups' // this script pulls everything from DB
 import { deleteMatchups } from './utils/deleteMatchups' // this script deletes everything from DB
 import { Amplify } from 'aws-amplify';
-import config from './aws-exports.js';
+import config from './aws-exports';
 
 Amplify.configure(config);
 
