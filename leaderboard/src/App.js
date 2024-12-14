@@ -8,13 +8,6 @@ import PickWinners from './components/pick-winners';
 import Header from './components/header';
 
 const App = () => {
-  // var cfb = require('cfb.js');
-  // var defaultClient = cfb.ApiClient.instance;
-  // const apiKey = process.env.PRIVATE_API_KEY;
-  // var ApiKeyAuth = defaultClient.authentications['ApiKeyAuth'];
-  // ApiKeyAuth.apiKey = `Bearer ${apiKey}`
-  // var api = new cfb.GamesApi();
-  // https://www.npmjs.com/package/cfb.js#installation
 
   const [currentPage, setCurrentPage] = useState('leaderboard');
   const [playerPicks, setPlayerPicks] = useState([]);
@@ -46,7 +39,27 @@ const App = () => {
         setPlayerPicks(picks);
       },
     });
-  }, []);
+    console.log('Updated Winner Picks:', winnerPicks);
+  }, [winnerPicks]);
+
+  const handlePickWinner = (gameId, team) => {
+    setWinnerPicks((prevState) => {
+      const updatedPicks = [...prevState];
+      const existingPickIndex = updatedPicks.findIndex(pick => pick.gameId === gameId);
+
+      if (existingPickIndex !== -1) {
+        updatedPicks[existingPickIndex] = { gameId, team };
+      } else {
+        updatedPicks.push({ gameId, team });
+      }
+
+      return updatedPicks;
+    });
+  };
+
+  const handleClearPick = (gameId) => {
+    setWinnerPicks((prevState) => prevState.filter((pick) => pick.gameId !== gameId));
+  };
 
   return (
     <div className="container mt-5">
@@ -55,7 +68,11 @@ const App = () => {
       <div className="content">
         {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} winnerPicks={winnerPicks} />}
         {currentPage === 'full-view' && <FullView playerPicks={playerPicks} winnerPicks={winnerPicks} />}
-        {currentPage === 'pick-winners' && <PickWinners winnerPicks={winnerPicks} />}
+        {currentPage === 'pick-winners' && <PickWinners
+          winnerPicks={winnerPicks}
+          onPickWinner={handlePickWinner}
+          onClearPick={handleClearPick}
+        />}
       </div>
     </div>
   );

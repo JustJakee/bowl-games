@@ -48,25 +48,25 @@ const matchups = [
     winner: ""
   },
   {
-    game: "College Football Playoff First Round Game",
+    game: " College Football Playoff First Round Game  ",
     team1: "Indiana",
     team2: "Notre Dame",
     winner: ""
   },
   {
-    game: "College Football Playoff First Round Game",
+    game: "College Football Playoff First Round Game ",
     team1: "SMU",
     team2: "Penn State",
     winner: ""
   },
   {
-    game: "College Football Playoff First Round Game",
+    game: " College Football Playoff First Round Game ",
     team1: "Clemson",
     team2: "Texas",
     winner: ""
   },
   {
-    game: "College Football Playoff First Round Game",
+    game: " College Football Playoff First Round Game",
     team1: "Tennessee",
     team2: "Ohio State",
     winner: ""
