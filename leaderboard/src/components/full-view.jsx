@@ -1,7 +1,8 @@
 import React from 'react';
 import '../assets/styles.css'
+import teamNamesDict from '../constants/teamNames'
 
-const FullView = ({ playerPicks, winnerPicks }) => {
+const FullView = ({ playerPicks, matchups }) => {
 
   return (
     <div>
@@ -19,25 +20,37 @@ const FullView = ({ playerPicks, winnerPicks }) => {
             </tr>
           </thead>
           <tbody>
-            {playerPicks[0].picks.map((_, gameIndex) => (
+            {playerPicks[0].picks.slice(0,39).map((_, gameIndex) => (
               <tr key={gameIndex}>
                 <td>Game {gameIndex + 1}</td>
                 {playerPicks.map((player) => {
                   const pick = player.picks[gameIndex];
-                  const correctAnswer = winnerPicks[gameIndex];
 
-                  const isCorrect = correctAnswer && pick === correctAnswer;
+                  let winnersArray = [];
+                  for (let i = 0; i < matchups.length; i++) {
+                    winnersArray.push([matchups[i].team1, matchups[i].team2 ,teamNamesDict[matchups[i].winner]]);
+                  }
+                  console.log(winnersArray)
+
+                  // find key from value. value is "pick" in this case
+
+                  let isCorrect = false;
+                  if (winnersArray.includes(pick)) {
+                    isCorrect = true;
+                  } else {
+                    isCorrect = false;
+                  }
 
                   return (
                     <td
                       key={player.name}
-                      className={correctAnswer ? (isCorrect ? 'correct' : 'incorrect') : ''}
+                      className={isCorrect ? 'correct' : 'incorrect'}
                     >
                       {pick}{' '}
-                      {correctAnswer && isCorrect && (
+                      {isCorrect && (
                         <span className="text-success">✔️</span>
                       )}
-                      {correctAnswer && !isCorrect && (
+                      {!isCorrect && (
                         <span className="text-danger">❌</span>
                       )}
                     </td>

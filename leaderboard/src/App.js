@@ -9,6 +9,7 @@ import Header from './components/header';
 import { insertMatchups } from './utils/insertMatchups' // this script added everything to DB
 import { fetchMatchups } from './utils/fetchMatchups' // this script pulls everything from DB
 import { deleteMatchups } from './utils/deleteMatchups' // this script deletes everything from DB
+import { updateMatchups } from './utils/updateMatchups' // this script updates a matchup winner
 import { Amplify } from 'aws-amplify';
 import config from './aws-exports.js';
 
@@ -17,23 +18,10 @@ Amplify.configure(config);
 const App = () => {
   const [currentPage, setCurrentPage] = useState('leaderboard');
   const [playerPicks, setPlayerPicks] = useState([]);
-  // A test set of Answers to test scoring
-  const [winnerPicks, setWinnerPicks] = useState([]);
+  const [matchups, setMatchups] = useState([]);
 
   // Load winnerPicks from localStorage when the app first renders
   useEffect(() => {
-    const storedWinnerPicks = localStorage.getItem('winnerPicks');
-    if (storedWinnerPicks) {
-      setWinnerPicks(JSON.parse(storedWinnerPicks)); // Parse and set state
-    }
-
-    /* Only run fetchAndLogMatchups(); if you need to see a full list of data in the console. */
-    const fetchAndLogMatchups = async () => {
-      const matchups = await fetchMatchups();
-      console.log('Current Matchups:', matchups);
-    };
-    fetchAndLogMatchups();
-
     Papa.parse(csvFile, {
       download: true,
       skipEmptyLines: true,
@@ -58,33 +46,17 @@ const App = () => {
         setPlayerPicks(picks);
       },
     });
+
+    const fetchAndSetMatchups = async () => {
+      const fetchedMatchups = await fetchMatchups();
+      setMatchups(fetchedMatchups);
+      console.log("FETCHANDSET: " + matchups)
+    };
+    fetchAndSetMatchups();
   }, []);
 
-  // Save winnerPicks to localStorage whenever it changes
-  // Once we use API data this will no longer be needed
-  useEffect(() => {
-    if (winnerPicks.length > 0) {
-      localStorage.setItem('winnerPicks', JSON.stringify(winnerPicks));
-    }
-  }, [winnerPicks]);
-
-  const handlePickWinner = (gameId, team) => {
-    setWinnerPicks((prevState) => {
-      const updatedPicks = [...prevState];
-      const existingPickIndex = updatedPicks.findIndex(pick => pick.gameId === gameId);
-
-      if (existingPickIndex !== -1) {
-        updatedPicks[existingPickIndex] = { gameId, team };
-      } else {
-        updatedPicks.push({ gameId, team });
-      }
-
-      return updatedPicks;
-    });
-  };
-
-  const handleClearPick = (gameId) => {
-    setWinnerPicks((prevState) => prevState.filter((pick) => pick.gameId !== gameId));
+  const handlePickWinner = async (gameId, team) => { 
+    await updateMatchups(gameId, team);
   };
 
   /* Only run insertData(); once to add matchups to DB */
@@ -105,12 +77,11 @@ const App = () => {
       <div className="content">
         {/*This button is only used to add or delete the data*/}
         {/*<button onClick={insertData}>Insert Data</button>*/}
-        {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} winnerPicks={winnerPicks} />}
-        {currentPage === 'full-view' && <FullView playerPicks={playerPicks} winnerPicks={winnerPicks} />}
+        {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} matchups={matchups} />}
+        {currentPage === 'full-view' && <FullView playerPicks={playerPicks} matchups={matchups} />}
         {currentPage === 'pick-winners' && <PickWinners
-          winnerPicks={winnerPicks}
+          matchups={matchups}
           onPickWinner={handlePickWinner}
-          onClearPick={handleClearPick}
         />}
       </div>
     </div>

@@ -79,3 +79,5 @@ teamNamesDict["Minnesota"] = "MINN";
 teamNamesDict["Virginia Tech"] = "VT";
 teamNamesDict["Liberty"] = "LIB";
 teamNamesDict["Buffalo"] = "BUF";
+
+export default teamNamesDict;

@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Leaderboard = ({ playerPicks, winnerPicks }) => { 
+const Leaderboard = ({ playerPicks, matchups }) => { 
 
   // Calculate the score for each player
   const playersWithScores = playerPicks.map(player => {
     const score = player.picks.reduce((total, pick, index) => {
-      return pick === winnerPicks[index] ? total + 1 : total;
+      return pick === matchups[index] ? total + 1 : total;
     }, 0);
     return {
       ...player,

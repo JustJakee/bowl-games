@@ -1,10 +1,10 @@
 import React from 'react';
 import '../assets/styles.css';
-import matchups from '../constants/matchups';
 
-const PickWinners = ({ winnerPicks, onPickWinner, onClearPick }) => {
-  const getButtonClass = (gameId, team) => {
-    const selectedPick = winnerPicks.find(pick => pick.gameId === gameId);
+const PickWinners = ({ matchups, onPickWinner}) => {
+  const getButtonClass = (team) => {
+    const selectedPick = matchups.find(pick => pick.team === team);
+    console.log("selectedPick: " + JSON.stringify(selectedPick))
     if (!selectedPick) return '';
     return selectedPick.team === team ? 'winner' : 'loser';
   };
@@ -12,8 +12,6 @@ const PickWinners = ({ winnerPicks, onPickWinner, onClearPick }) => {
   return (
     <div>
       <div className="pick-winner-table-container">
-        {/*This Pre Tag is only for displaying the array as we build it , this will be removed*/}
-      <pre>{JSON.stringify(winnerPicks, null, 2)}</pre>
         <table className="pick-winner-table">
           <thead>
             <tr>
@@ -29,23 +27,23 @@ const PickWinners = ({ winnerPicks, onPickWinner, onClearPick }) => {
                 <td align="center">{matchup.game}</td>
                 <td align="center">
                   <button
-                    className={getButtonClass(matchup.game, matchup.team1)}
-                    onClick={() => onPickWinner(matchup.game, matchup.team1)}
+                    className={getButtonClass(matchup.team1)}
+                    onClick={() => onPickWinner(matchup.id, matchup.team1)}
                   >
                     {matchup.team1}
                   </button>
                 </td>
                 <td align="center">
                   <button
-                    className={getButtonClass(matchup.game, matchup.team2)}
-                    onClick={() => onPickWinner(matchup.game, matchup.team2)}
+                    className={getButtonClass(matchup.team2)}
+                    onClick={() => onPickWinner(matchup.id, matchup.team2)}
                   >
                     {matchup.team2}
                   </button>
                 </td>
                 <td align="center">
                   <button
-                    onClick={() => onClearPick(matchup.game)}
+                    onClick={() => onPickWinner(matchup.id, "")}
                     className="clear-button"
                   >
                     Clear
