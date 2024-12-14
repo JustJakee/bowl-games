@@ -1,6 +1,6 @@
 {
   "api": {
-    "leaderboard": {
+    "bobsbowlgamepicks": {
       "dependsOn": [],
       "output": {
         "authConfig": {
