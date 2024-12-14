@@ -2,10 +2,9 @@ import React from 'react';
 import '../assets/styles.css';
 
 const PickWinners = ({ matchups, onPickWinner}) => {
-  const getButtonClass = (team) => {
-    const selectedPick = matchups.find(pick => pick.team === team);
-    if (!selectedPick) return '';
-    return selectedPick.team === team ? 'winner' : 'loser';
+  const getButtonClass = (matchup, team) => {
+    if (!matchup.winner) return '';
+    return matchup.winner === team ? 'winner' : 'loser'; 
   };
 
   return (
@@ -26,7 +25,7 @@ const PickWinners = ({ matchups, onPickWinner}) => {
                 <td align="center">{matchup.game}</td>
                 <td align="center">
                   <button
-                    className={getButtonClass(matchup.team1)}
+                    className={getButtonClass(matchup, matchup.team1)}
                     onClick={() => onPickWinner(matchup.id, matchup.team1)}
                   >
                     {matchup.team1}
@@ -34,7 +33,7 @@ const PickWinners = ({ matchups, onPickWinner}) => {
                 </td>
                 <td align="center">
                   <button
-                    className={getButtonClass(matchup.team2)}
+                    className={getButtonClass(matchup, matchup.team2)}
                     onClick={() => onPickWinner(matchup.id, matchup.team2)}
                   >
                     {matchup.team2}

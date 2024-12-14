@@ -16,6 +16,10 @@ table .incorrect {
   color: white;
 }
 
+table .no-winner {
+  color: black;
+}
+
 /* Button base styles */
 button {
   padding: 10px 15px;

@@ -20,7 +20,7 @@ const FullView = ({ playerPicks, matchups }) => {
             </tr>
           </thead>
           <tbody>
-            {playerPicks[0].picks.slice(0,39).map((_, gameIndex) => (
+            {playerPicks[0].picks.slice(0, 39).map((_, gameIndex) => (
               <tr key={gameIndex}>
                 <td>{matchups[gameIndex].game}</td>
                 {playerPicks.map((player) => {
@@ -28,7 +28,7 @@ const FullView = ({ playerPicks, matchups }) => {
 
                   let winnersArray = [];
                   for (let i = 0; i < matchups.length; i++) {
-                    winnersArray.push([parseInt(matchups[i].date) ,teamNamesDict[matchups[i].winner]]);
+                    winnersArray.push([parseInt(matchups[i].date), teamNamesDict[matchups[i].winner]]);
                     winnersArray.sort()
                   }
 
@@ -45,7 +45,13 @@ const FullView = ({ playerPicks, matchups }) => {
                   return (
                     <td
                       key={player.name}
-                      className={isCorrect ? 'correct' : 'incorrect'}
+                      className={
+                        noWinner
+                          ? 'no-winner'
+                          : isCorrect && !noWinner
+                          ? 'correct'
+                          : 'incorrect'
+                      }
                     >
                       {pick}{' '}
                       {(isCorrect && !noWinner) && (
@@ -55,7 +61,7 @@ const FullView = ({ playerPicks, matchups }) => {
                         <span className="text-danger">❌</span>
                       )}
                       {(noWinner) && (
-                        <span></span>
+                        <span className='no-winner'></span>
                       )}
                     </td>
                   );

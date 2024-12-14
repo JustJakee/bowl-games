@@ -50,10 +50,9 @@ const App = () => {
     const fetchAndSetMatchups = async () => {
       const fetchedMatchups = await fetchMatchups();
       setMatchups(fetchedMatchups);
-      console.log("FETCHANDSET: " + matchups)
     };
     fetchAndSetMatchups();
-  }, []);
+  }, [matchups]);
 
   const handlePickWinner = async (gameId, team) => { 
     await updateMatchups(gameId, team);
