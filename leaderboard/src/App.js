@@ -8,13 +8,18 @@ import PickWinners from './components/pick-winners';
 import Header from './components/header';
 
 const App = () => {
-
   const [currentPage, setCurrentPage] = useState('leaderboard');
   const [playerPicks, setPlayerPicks] = useState([]);
   // A test set of Answers to test scoring
   const [winnerPicks, setWinnerPicks] = useState([]);
 
+  // Load winnerPicks from localStorage when the app first renders
   useEffect(() => {
+    const storedWinnerPicks = localStorage.getItem('winnerPicks');
+    if (storedWinnerPicks) {
+      setWinnerPicks(JSON.parse(storedWinnerPicks)); // Parse and set state
+    }
+
     Papa.parse(csvFile, {
       download: true,
       skipEmptyLines: true,
@@ -39,7 +44,13 @@ const App = () => {
         setPlayerPicks(picks);
       },
     });
-    console.log('Updated Winner Picks:', winnerPicks);
+  }, []);
+
+  // Save winnerPicks to localStorage whenever it changes
+  useEffect(() => {
+    if (winnerPicks.length > 0) {
+      localStorage.setItem('winnerPicks', JSON.stringify(winnerPicks));
+    }
   }, [winnerPicks]);
 
   const handlePickWinner = (gameId, team) => {

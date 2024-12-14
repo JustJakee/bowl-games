@@ -12,6 +12,7 @@ const PickWinners = ({ winnerPicks, onPickWinner, onClearPick }) => {
   return (
     <div>
       <div className="pick-winner-table-container">
+        {/*This Pre Tag is only for displaying the array as we build it , this will be removed*/}
       <pre>{JSON.stringify(winnerPicks, null, 2)}</pre>
         <table className="pick-winner-table">
           <thead>
