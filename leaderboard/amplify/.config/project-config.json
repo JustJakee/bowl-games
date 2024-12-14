@@ -1,6 +1,9 @@
 {
   "whyContinueWithGen1": "I am a current Gen 1 user",
-  "projectName": "leaderboard",
+  "projectName": "bobs-bowl-game-picks",
+  "appId":"d17heeh61knbob",
+  "envName": "dev",
+  "defaultEditor": "code",
   "version": "3.1",
   "frontend": "javascript",
   "javascript": {
