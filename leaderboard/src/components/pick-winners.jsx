@@ -4,7 +4,6 @@ import '../assets/styles.css';
 const PickWinners = ({ matchups, onPickWinner}) => {
   const getButtonClass = (team) => {
     const selectedPick = matchups.find(pick => pick.team === team);
-    console.log("selectedPick: " + JSON.stringify(selectedPick))
     if (!selectedPick) return '';
     return selectedPick.team === team ? 'winner' : 'loser';
   };

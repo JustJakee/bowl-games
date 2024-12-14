@@ -22,20 +22,21 @@ const FullView = ({ playerPicks, matchups }) => {
           <tbody>
             {playerPicks[0].picks.slice(0,39).map((_, gameIndex) => (
               <tr key={gameIndex}>
-                <td>Game {gameIndex + 1}</td>
+                <td>{matchups[gameIndex].game}</td>
                 {playerPicks.map((player) => {
                   const pick = player.picks[gameIndex];
 
                   let winnersArray = [];
                   for (let i = 0; i < matchups.length; i++) {
-                    winnersArray.push([matchups[i].team1, matchups[i].team2 ,teamNamesDict[matchups[i].winner]]);
+                    winnersArray.push([parseInt(matchups[i].date) ,teamNamesDict[matchups[i].winner]]);
+                    winnersArray.sort()
                   }
-                  console.log(winnersArray)
-
-                  // find key from value. value is "pick" in this case
 
                   let isCorrect = false;
-                  if (winnersArray.includes(pick)) {
+                  let noWinner = false;
+                  if (winnersArray[gameIndex][1] === undefined || winnersArray[gameIndex][1] === "") {
+                    noWinner = true;
+                  } else if (winnersArray[gameIndex][1] === pick) {
                     isCorrect = true;
                   } else {
                     isCorrect = false;
@@ -47,11 +48,14 @@ const FullView = ({ playerPicks, matchups }) => {
                       className={isCorrect ? 'correct' : 'incorrect'}
                     >
                       {pick}{' '}
-                      {isCorrect && (
+                      {(isCorrect && !noWinner) && (
                         <span className="text-success">✔️</span>
                       )}
-                      {!isCorrect && (
+                      {(!isCorrect && !noWinner) && (
                         <span className="text-danger">❌</span>
+                      )}
+                      {(noWinner) && (
+                        <span></span>
                       )}
                     </td>
                   );
