@@ -3,6 +3,11 @@ import '../assets/styles.css';
 
 const PickWinners = ({ matchups, onPickWinner }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const [password, setPassword] = useState('');
+  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
+  const [error, setError] = useState(false);
+
+  const correctPassword = "7427"; // Temp Pin
 
   useEffect(() => {
     const handleResize = () => {
@@ -17,8 +22,40 @@ const PickWinners = ({ matchups, onPickWinner }) => {
 
   const getButtonClass = (matchup, team) => {
     if (!matchup.winner) return '';
-    return matchup.winner === team ? 'winner' : 'loser'; 
+    return matchup.winner === team ? 'winner' : 'loser';
   };
+
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (password === correctPassword) {
+      setError(false);
+      setIsPasswordCorrect(true);
+    } else {
+      setError(true);
+    }
+  };
+
+  if (!isPasswordCorrect) {
+    return (
+      <div className="password-protection">
+        <form onSubmit={handlePasswordSubmit}>
+          <label htmlFor="password">Enter Pin Number:</label>
+          <input
+            type="tel"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter PIN"
+            className={error ? 'error-input' : ''}
+            pattern="[0-9]*"
+            inputMode="numeric"
+            maxLength="4"
+          />
+          {error && <div className="error-message">Incorrect Pin. Please try again.</div>}
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    );
+  }
 
   if (isMobile) {
     return (
@@ -52,7 +89,7 @@ const PickWinners = ({ matchups, onPickWinner }) => {
         </div>
       </div>
     );
-  } 
+  }
   return (
     <div>
       <div className="pick-winner-table-container">
