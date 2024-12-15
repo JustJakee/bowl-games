@@ -7,7 +7,9 @@ const client = generateClient();
     const matchupData = await client.graphql({
       query: listMatchups,
     });
-    const matchups = matchupData.data.listMatchups.items;
+    let matchups = matchupData.data.listMatchups.items;
+
+    matchups = matchups.sort((a, b) => Number(a.date) - Number(b.date));
     return matchups;
   } catch (error) {
     console.error('Error fetching matchups:', error);
