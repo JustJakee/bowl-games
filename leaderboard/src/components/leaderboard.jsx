@@ -1,12 +1,19 @@
 import React from 'react';
+import teamNamesDict from '../constants/teamNames'
 
 const Leaderboard = ({ playerPicks, matchups }) => { 
 
   // Calculate the score for each player
   const playersWithScores = playerPicks.map(player => {
-    const score = player.picks.reduce((total, pick, index) => {
-      return pick === matchups[index] ? total + 1 : total;
-    }, 0);
+    let score = 0;
+    for (let i = 0; i < player.picks.length; i++) {
+      for (let j = 0; j < matchups.length; j++) {
+        if (player.picks[i] === teamNamesDict[matchups[j].winner]) {
+          score++;
+        }
+      }
+    }
+
     return {
       ...player,
       score
