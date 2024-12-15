@@ -47,7 +47,8 @@ button.loser {
 /* Header styling */
 .header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
   padding: 1rem 2rem;
@@ -63,11 +64,16 @@ button.loser {
   margin: 0;
   font-size: 1.8rem;
   font-weight: bold;
+  text-align: center; 
 }
 
+/* Navigation links styling */
 .header-nav {
   display: flex;
+  justify-content: center; 
+  align-items: center;
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .nav-link {
@@ -100,7 +106,7 @@ button.loser {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: var(--ncaa-gold);  /* Gold underline */
+  background-color: var(--ncaa-gold);
   border-radius: 1px;
 }
 
@@ -109,7 +115,7 @@ button.loser {
   display: block;
   width: 100%;
   overflow-x: auto;
-  padding-top: 20px;
+  padding-top: 40px;
   margin-left: 0;
 }
 
@@ -137,7 +143,7 @@ button.loser {
   display: block;
   width: 100%;
   overflow-x: auto;
-  padding-top: 20px;
+  padding-top: 40px;
   margin-left: 0;
 }
 
@@ -146,6 +152,7 @@ button.loser {
   margin: 0;
   text-align: left;
   border-collapse: collapse;
+  padding-top: 25px;
 }
 
 .full-view-table th,
@@ -193,13 +200,17 @@ button.loser {
 
   .header {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 1rem;
-    text-align: center;
+    align-items: center;
   }
 
   .header-title h1 {
     font-size: 1.5rem;
+  }
+
+  .header-nav {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: .5rem;
   }
 
   .nav-link {
@@ -294,5 +305,53 @@ button.loser {
   .clear-button {
     padding: 10px;
     font-size: 14px;
+  }
+
+  /* Mobile Pick Winner Layout Adjustments */
+  .pick-winner-mobile-container {
+    padding: 20px;
+  }
+
+  .pick-winner-mobile-game {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .pick-winner-mobile-game-header {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .pick-winner-mobile-teams {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .pick-winner-mobile-teams button {
+    width: 48%;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  .clear-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #f1f1f1;
+    color: #333;
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+
+  .clear-button:hover {
+    background-color: #ddd;
   }
 }

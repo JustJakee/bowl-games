@@ -1,12 +1,58 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../assets/styles.css';
 
-const PickWinners = ({ matchups, onPickWinner}) => {
+const PickWinners = ({ matchups, onPickWinner }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768); // Adjust for mobile breakpoint
+    };
+
+    handleResize(); // Check initial window size
+    window.addEventListener('resize', handleResize); // Update on window resize
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const getButtonClass = (matchup, team) => {
     if (!matchup.winner) return '';
     return matchup.winner === team ? 'winner' : 'loser'; 
   };
 
+  if (isMobile) {
+    return (
+      <div>
+        <div className="pick-winner-mobile-container">
+          {matchups.map((matchup) => (
+            <div key={matchup.game} className="pick-winner-mobile-game">
+              <div className="pick-winner-mobile-game-header">{matchup.game}</div>
+              <div className="pick-winner-mobile-teams">
+                <button
+                  className={getButtonClass(matchup, matchup.team1)}
+                  onClick={() => onPickWinner(matchup.id, matchup.team1)}
+                >
+                  {matchup.team1}
+                </button>
+                <button
+                  className={getButtonClass(matchup, matchup.team2)}
+                  onClick={() => onPickWinner(matchup.id, matchup.team2)}
+                >
+                  {matchup.team2}
+                </button>
+              </div>
+              <button
+                onClick={() => onPickWinner(matchup.id, "")}
+                className="clear-button"
+              >
+                Clear
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  } 
   return (
     <div>
       <div className="pick-winner-table-container">
