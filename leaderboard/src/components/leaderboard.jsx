@@ -1,5 +1,5 @@
 import React from 'react';
-import teamNamesDict from '../constants/teamNames'
+import teamNamesDict from '../constants/teamNames';
 
 const Leaderboard = ({ playerPicks, matchups }) => { 
 
@@ -24,13 +24,13 @@ const Leaderboard = ({ playerPicks, matchups }) => {
   playersWithScores.sort((a, b) => b.score - a.score);
 
   return (
-    <div>
-      <table className="table table-striped table-bordered">
+    <div className="leaderboard-container">
+      <table className="leaderboard-table">
         <thead>
           <tr>
-            <th scope="col">Rank</th>
-            <th scope="col">Player</th>
-            <th scope="col">Correct Picks</th>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Correct Picks</th>
           </tr>
         </thead>
         <tbody>
