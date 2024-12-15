@@ -44,6 +44,12 @@ button.loser {
   padding-top: 2.5rem;
 }
 
+@media (max-width: 768px) {
+  .content {
+    padding-top: 1rem;
+  }
+}
+
 /* Header styling */
 .header {
   display: flex;
@@ -142,17 +148,24 @@ button.loser {
 .full-view-table-container {
   display: block;
   width: 100%;
-  overflow-x: auto;
-  padding-top: 40px;
-  margin-left: 0;
+  max-height: 90vh; 
+  overflow-y: auto; 
+  margin-top: 3rem; 
+}
+
+@media (max-width: 768px) {
+  .full-view-table-container {
+    display: block;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto; 
+    margin-top: 2.8rem; 
+  }
 }
 
 .full-view-table {
   width: 100%;
-  margin: 0;
-  text-align: left;
   border-collapse: collapse;
-  padding-top: 25px;
 }
 
 .full-view-table th,
@@ -174,11 +187,18 @@ button.loser {
 .full-view-table thead {
   background-color: #808080;
   color: white;
+  position: sticky;
+  top: .01rem;
+  background-color: #808080;
+  color: white;
+  z-index: 1;
+  text-align: center;
 }
 
 .full-view-table thead tr:hover {
   background-color: #808080; 
   cursor: default; 
+
 }
 
 .full-view-table td.correct {
@@ -309,6 +329,7 @@ button.loser {
 
   /* Mobile Pick Winner Layout Adjustments */
   .pick-winner-mobile-container {
+    margin-top: 2.15rem;
     padding: 20px;
   }
 
