@@ -52,14 +52,12 @@ const PickWinners = ({ matchups, onPickWinner }) => {
           />
           {error && <div className="error-message">Incorrect Pin. Please try again.</div>}
           <button type="submit">Submit</button>
-          {error &&
-            <button
-              className="return-button"
-              onClick={() => window.location.href = '/leaderboard'}
-              type="button">
-              Return to Leaderboard
-            </button>
-          }
+          <button
+            className="return-button"
+            onClick={() => window.location.href = '/leaderboard'}
+            type="button">
+            Return to Leaderboard
+          </button>
         </form>
       </div>
     );
