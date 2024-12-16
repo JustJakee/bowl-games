@@ -20,6 +20,38 @@ const Leaderboard = ({ playerPicks, matchups }) => {
     };
   });
 
+  const setRowStyle = (index) => {
+    let style = "";
+    if (index === 0) {
+      style = "first";
+    } else if (index === 1) {
+      style = "second";
+    } else if (index === 2) {
+      style = "third";
+    } else if (index === 3) {
+      style = "fourth";
+    }
+
+    return style;
+  }
+
+  const setPlacePayments = (index) => {
+    let place = index;
+    if (index === 0) {
+      place = "🥇 1 ($90)";
+    } else if (index === 1) {
+      place = "🥈 2 ($30)";
+    } else if (index === 2) {
+      place = "🥉 3 ($20)";
+    } else if (index === 3) {
+      place = "💸 4 ($10)";
+    } else {
+      place = index + 1;
+    }
+
+    return place;
+  }
+
   // Sort players by score (descending order)
   playersWithScores.sort((a, b) => b.score - a.score);
 
@@ -35,8 +67,8 @@ const Leaderboard = ({ playerPicks, matchups }) => {
         </thead>
         <tbody>
           {playersWithScores.map((player, index) => (
-            <tr key={index} className={index === 0 ? "table-success" : ""}>
-              <td>{index + 1}</td>
+            <tr key={index} className={setRowStyle(index)}>
+              <td>{setPlacePayments(index)}</td>
               <td>{player.name}</td>
               <td>{player.score}</td>
             </tr>

@@ -251,6 +251,32 @@ button.loser {
   background-color: #f1f1f1;
 }
 
+.leaderboard-table tr.first {
+  background-color: #AF9500;
+  font-weight: bold;
+  box-shadow: 10px 5px 5px rgba(0,0,0,0.3);
+  transform: scale(1.1);
+}
+
+.leaderboard-table tr.second {
+  background-color: #C9B037;
+  font-weight: bold;
+  box-shadow: 10px 5px 5px rgba(0,0,0,0.3);
+}
+
+.leaderboard-table tr.third {
+  background-color: #D7D7D7;
+  font-weight: bold;
+  box-shadow: 10px 5px 5px rgba(0,0,0,0.3);
+}
+
+.leaderboard-table tr.fourth {
+  background-color: #B4B4B4;
+  font-weight: bold;
+  box-shadow: 10px 5px 5px rgba(0,0,0,0.3);
+  transform: translateY(0px);
+}
+
 .leaderboard-table td {
   padding: 15px;
   text-align: center;
