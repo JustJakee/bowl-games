@@ -43,7 +43,7 @@ const ScheduleView = ({ matchups }) => {
                     <div
                         className={`schedule-card ${matchup.winner ? 'completed' : ''}`}
                         key={index}
-                        style={{ position: 'relative', padding: '20px' }} // Ensure proper positioning
+                        style={{ position: 'relative', padding: '20px' }}
                     >
                         <h3 className="game-title">{matchup.game}</h3>
                         <div className="teams">
@@ -59,7 +59,6 @@ const ScheduleView = ({ matchups }) => {
                             {gameTime && (
                                 <>
                                     <span className="game-time">{formatTime(gameTime.time)} CST</span>
-                                    {/* Display game status icon */}
                                     {gameStatus === 'completed' && <FaCheckCircle style={{ color: 'green', position: 'absolute', top: 10, right: 10, fontSize: '20px' }} />}
                                     {gameStatus === 'upcoming' && (
                                         <span
@@ -69,7 +68,7 @@ const ScheduleView = ({ matchups }) => {
                                                 top: 10,
                                                 right: 10,
                                                 fontSize: '24px',
-                                                color: '#e8eaed', // Light grey color
+                                                color: '#e8eaed',
                                             }}
                                         >
                                             calendar_today
