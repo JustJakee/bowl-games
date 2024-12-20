@@ -15,6 +15,12 @@ const Header = ({ currentPage, setCurrentPage }) => {
           Leaderboard
         </button>
         <button
+          className={`nav-link ${currentPage === 'schedule-view' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('schedule-view')}
+        >
+          Games
+        </button>
+        <button
           className={`nav-link ${currentPage === 'full-view' ? 'active' : ''}`}
           onClick={() => setCurrentPage('full-view')}
         >

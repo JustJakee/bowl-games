@@ -6,6 +6,7 @@ import Leaderboard from './components/leaderboard';
 import FullView from './components/full-view';
 import PickWinners from './components/pick-winners';
 import Header from './components/header';
+import ScheduleView from './components/schedule-view.jsx'
 import { insertMatchups } from './utils/insertMatchups' // this script added everything to DB
 import { fetchMatchups } from './utils/fetchMatchups' // this script pulls everything from DB
 import { deleteMatchups } from './utils/deleteMatchups' // this script deletes everything from DB
@@ -54,7 +55,7 @@ const App = () => {
     fetchAndSetMatchups();
   }, [matchups]);
 
-  const handlePickWinner = async (gameId, team) => { 
+  const handlePickWinner = async (gameId, team) => {
     await updateMatchups(gameId, team);
   };
 
@@ -76,6 +77,7 @@ const App = () => {
       <div className="content">
         {/*This button is only used to add or delete the data*/}
         {/*<button onClick={insertData}>Insert Data</button>*/}
+        {currentPage === 'schedule-view' && <ScheduleView playerPicks={playerPicks} matchups={matchups} />}
         {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} matchups={matchups} />}
         {currentPage === 'full-view' && <FullView playerPicks={playerPicks} matchups={matchups} />}
         {currentPage === 'pick-winners' && <PickWinners

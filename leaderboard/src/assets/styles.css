@@ -519,3 +519,88 @@ button.loser {
   outline: none;
   box-shadow: 0 0 5px #d9363e;
 }
+
+/* Schedule Table */.schedule-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  margin-top: 3.25rem;
+}
+
+.schedule-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  text-align: left;
+}
+
+.schedule-card.completed {
+  background-color: #f4f4f4;
+}
+
+.game-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.teams {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.team {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: left;
+}
+
+.vs {
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+  margin: 0.2rem 0;
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.game-time {
+  font-size: 0.9rem;
+  color: var(--ncaa-blue);
+}
+
+.winner {
+  font-size: 1rem;
+  font-weight: bold;
+  color:  var(--winner-color);
+}
+
+.loser {
+  font-size: 1rem;
+  font-weight: bold;
+  color:  var(--loser-color);
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .schedule-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 items per row on desktop */
+    gap: 1rem;
+  }
+
+  .schedule-card {
+    padding: 1.5rem;
+  }
+}
