@@ -319,7 +319,6 @@ const gamesWithTimes = [
       date: "39",
       time: "2025-01-03T13:00:00",
     },
-    
   ];
   
   export default gamesWithTimes;

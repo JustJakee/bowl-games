@@ -217,7 +217,7 @@ button.loser {
   width: 100%;
   overflow-x: auto;
   margin-top: 3rem;
-  padding: 0 1rem;
+  padding: 1rem;
 }
 
 .leaderboard-table {
