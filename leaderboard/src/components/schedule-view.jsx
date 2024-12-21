@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import gamesWithTimes from '../constants/gamesWithTimes';
-import { FaCheckCircle } from "react-icons/fa"; // Icons for completed games
-import { MdFiberManualRecord } from "react-icons/md"; // Red dot for live games
+import { FaCheckCircle } from "react-icons/fa";
+import { RiCalendarScheduleFill } from "react-icons/ri";
 
 const ScheduleView = ({ matchups }) => {
     const formatTime = (time) => {
@@ -18,18 +18,16 @@ const ScheduleView = ({ matchups }) => {
     };
 
     const getGameStatus = (gameTime) => {
-        const currentDate = new Date();
-        const gameDate = new Date(gameTime);
-        const timeDifference = gameDate - currentDate;
-    
-        if (timeDifference < -5 * 60 * 60 * 1000) {
-            return 'completed'; // More than 5 hours ago
-        } 
-        else if (timeDifference <= 5 * 60 * 60 * 1000) {
-            return 'live'; // Between 0 and 5 hours in the future
-        } 
-        else {
-            return 'upcoming'; // More than 5 hours from now
+        const currentTime = new Date(); // Current time
+        const gameStartTime = new Date(gameTime); // Game start time
+        const gameEndTime = new Date(gameStartTime.getTime() + 5 * 60 * 60 * 1000); // 5 hours after game start
+
+        if (currentTime >= gameStartTime && currentTime <= gameEndTime) {
+            return 'live';
+        } else if (currentTime < gameStartTime) {
+            return 'upcoming';
+        } else {
+            return 'completed';
         }
     };
 
@@ -41,7 +39,7 @@ const ScheduleView = ({ matchups }) => {
 
                 return (
                     <div
-                        className={`schedule-card ${matchup.winner ? 'completed' : ''}`}
+                        className={`schedule-card ${gameStatus === 'live' ? 'live' : ''} ${matchup.winner ? 'completed' : ''}`}
                         key={index}
                         style={{ position: 'relative', padding: '20px' }}
                     >
@@ -61,20 +59,17 @@ const ScheduleView = ({ matchups }) => {
                                     <span className="game-time">{formatTime(gameTime.time)} CST</span>
                                     {gameStatus === 'completed' && <FaCheckCircle style={{ color: 'green', position: 'absolute', top: 10, right: 10, fontSize: '20px' }} />}
                                     {gameStatus === 'upcoming' && (
-                                        <span
+                                        <RiCalendarScheduleFill
                                             className="material-icons-outlined"
                                             style={{
                                                 position: 'absolute',
                                                 top: 10,
                                                 right: 10,
                                                 fontSize: '24px',
-                                                color: '#e8eaed',
+                                                color: '#b9b9b9',
                                             }}
-                                        >
-                                            calendar_today
-                                        </span>
+                                        />
                                     )}
-                                    {gameStatus === 'live' && <MdFiberManualRecord style={{ color: 'red', position: 'absolute', top: 10, right: 10, fontSize: '20px' }} />}
                                 </>
                             )}
                         </div>

@@ -541,6 +541,23 @@ button.loser {
   background-color: #f4f4f4;
 }
 
+.schedule-card.live {
+  border: 3px solid var(--loser-color); /* Base border for live games */
+  animation: pulse 1.5s infinite; /* Infinite pulsing animation */
+}
+
+@keyframes pulse {
+  0% {
+      box-shadow: 0 0 10px 2px var(--loser-color);
+  }
+  50% {
+      box-shadow: 0 0 20px 5px var(--loser-color);
+  }
+  100% {
+      box-shadow: 0 0 10px 2px var(--loser-color);
+  }
+}
+
 .game-title {
   font-weight: bold;
   font-size: 1.2rem;
@@ -590,6 +607,14 @@ button.loser {
   font-size: 1rem;
   font-weight: bold;
   color:  var(--loser-color);
+}
+
+.upcoming {
+    position: 'absolute';
+    top: 10;
+    right: 10;
+    font-size: '24px';
+    color: #b9b9b9;
 }
 
 /* Responsive Design */
