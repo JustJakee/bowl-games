@@ -53,7 +53,7 @@ const App = () => {
       setMatchups(fetchedMatchups);
     };
     fetchAndSetMatchups();
-  }, [matchups]);
+  }, []);
 
   const handlePickWinner = async (gameId, team) => {
     await updateMatchups(gameId, team);

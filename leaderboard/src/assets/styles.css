@@ -50,6 +50,23 @@ button.loser {
   }
 }
 
+/* Banner styling */
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: red;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* Header styling */
 .header {
   display: flex;
@@ -61,9 +78,10 @@ button.loser {
   background-color: #0091D4; /* Light NCAA Blue */
   color: white;
   position: fixed;
-  top: 0;
+  top: 2rem; /* Adjusted to account for the height of the banner */
   left: 0;
-  z-index: 10;
+  z-index: 9; /* Ensure it stays below the banner */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .header-title h1 {
@@ -123,6 +141,7 @@ button.loser {
   overflow-x: auto;
   padding-top: 40px;
   margin-left: 0;
+  margin-top: 2.5rem;
 }
 
 .pick-winner-table {
@@ -150,7 +169,7 @@ button.loser {
   width: 100%;
   max-height: 90vh; 
   overflow-y: auto; 
-  margin-top: 3rem; 
+  margin-top: 5.3rem; 
 }
 
 @media (max-width: 768px) {
@@ -159,7 +178,7 @@ button.loser {
     width: 100%;
     max-height: 80vh;
     overflow-y: auto; 
-    margin-top: 2.8rem; 
+    padding-top: .1rem; 
   }
 }
 
@@ -216,7 +235,7 @@ button.loser {
   display: block;
   width: 100%;
   overflow-x: auto;
-  margin-top: 3rem;
+  margin-top: 5.3rem;
   padding: 1rem;
 }
 
@@ -390,7 +409,7 @@ button.loser {
   }
 
   .pick-winner-mobile-container {
-    margin-top: 2.15rem;
+    margin-top: 5.25rem;
     padding: 20px;
   }
 
@@ -525,7 +544,7 @@ button.loser {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  margin-top: 3.25rem;
+  margin-top: 5.25rem;
 }
 
 .schedule-card {
