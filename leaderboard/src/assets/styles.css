@@ -12,7 +12,9 @@
   --color-hover: #1b1f27;
   --accent: #cc0000;
   --accent-contrast: #ffffff;
-  /* Legacy tokens */
+  --banner-h: 28px;  /* Layout offsets */
+  --appbar-h: 48px; /* Toolbar dense height */
+  --content-gap: 48px;
   --ncaa-blue: #4b92db;
   --ncaa-gold: #ffcb05;
 }
@@ -72,15 +74,7 @@ button.loser {
 }
 
 /* General content styling */
-.content {
-  padding-top: 2.5rem;
-}
-
-@media (max-width: 768px) {
-  .content {
-    padding-top: 1rem;
-  }
-}
+.content { padding-top: 0; }
 
 /* Banner styling */
 .banner {
@@ -173,7 +167,7 @@ button.loser {
   overflow-x: auto;
   padding-top: 40px;
   margin-left: 0;
-  margin-top: 2.5rem;
+  margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap));
 }
 
 .pick-winner-table {
@@ -201,7 +195,7 @@ button.loser {
   width: 100%;
   max-height: 90vh; 
   overflow-y: auto; 
-  margin-top: 5.3rem; 
+  margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap)); 
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -269,7 +263,7 @@ button.loser {
   display: block;
   width: 100%;
   overflow-x: auto;
-  margin-top: 5.3rem;
+  margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap));
   padding: 1rem;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -340,7 +334,7 @@ button.loser {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 5.3rem;
+  margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap));
 }
 
 .podium {
@@ -690,7 +684,7 @@ button.loser {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  margin-top: 5.25rem;
+  margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap));
 }
 
 .schedule-card {
