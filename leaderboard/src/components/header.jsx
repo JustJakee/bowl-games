@@ -100,9 +100,6 @@ const Header = ({ currentPage, setCurrentPage }) => {
         onClose={() => setMobileOpen(false)}
         PaperProps={{ sx: { bgcolor: 'var(--color-surface)', color: 'var(--color-text)', width: 260, mt: '28px' } }}
       >
-        {/* <Box sx={{ px: 2, py: 1, borderBottom: '1px solid var(--color-border)' }}>
-          <Typography variant="subtitle1" fontWeight={800}>Menu</Typography>
-        </Box> */}
         <List role="menu" aria-label="Mobile Navigation">
           {navItems.map((item) => (
             <ListItemButton
@@ -117,8 +114,6 @@ const Header = ({ currentPage, setCurrentPage }) => {
           ))}
         </List>
       </Drawer>
-
-      {/* Content containers handle top spacing via CSS vars; no extra spacers here. */}
     </>
   );
 };
