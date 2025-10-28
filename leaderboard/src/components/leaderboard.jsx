@@ -1,82 +1,66 @@
 import React from 'react';
 import teamNamesDict from '../constants/teamNames';
 
+const initials = (name = '') => name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+
 const Leaderboard = ({ playerPicks, matchups }) => { 
-
-  // Calculate the score for each player
-  const playersWithScores = playerPicks.map(player => {
+  const computeScore = (player) => {
     let score = 0;
-    for (let i = 0; i < player.picks.length; i++) {
-      for (let j = 0; j < matchups.length; j++) {
-        if (player.picks[i] === teamNamesDict[matchups[j].winner]) {
-          score++;
-        }
-      }
+    const len = Math.min(player.picks.length, matchups.length);
+    for (let i = 0; i < len; i++) {
+      const winner = matchups[i]?.winner;
+      if (winner && teamNamesDict[winner] === player.picks[i]) score++;
     }
+    return score;
+  };
 
-    return {
-      ...player,
-      score
-    };
-  });
+  const playersWithScores = (playerPicks || []).map(p => ({
+    ...p,
+    score: computeScore(p)
+  })).sort((a, b) => b.score - a.score);
 
-  const setRowStyle = (index) => {
-    let style = "";
-    if (index === 0) {
-      style = "first";
-    } else if (index === 1) {
-      style = "second";
-    } else if (index === 2) {
-      style = "third";
-    } else if (index === 3) {
-      style = "fourth";
-    }
-
-    return style;
-  }
-
-  const setPlacePayments = (index) => {
-    let place = index;
-    if (index === 0) {
-      place = "🥇 1 ($90)";
-    } else if (index === 1) {
-      place = "🥈 2 ($30)";
-    } else if (index === 2) {
-      place = "🥉 3 ($20)";
-    } else if (index === 3) {
-      place = "💸 4 ($10)";
-    } else {
-      place = index + 1;
-    }
-
-    return place;
-  }
-
-  // Sort players by score (descending order)
-  playersWithScores.sort((a, b) => b.score - a.score);
+  const top3 = playersWithScores.slice(0, 3);
+  const rest = playersWithScores.slice(3);
 
   return (
-    <div className="leaderboard-container">
-      <table className="leaderboard-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Correct Picks</th>
-          </tr>
-        </thead>
-        <tbody>
-          {playersWithScores.map((player, index) => (
-            <tr key={index} className={setRowStyle(index)}>
-              <td>{setPlacePayments(index)}</td>
-              <td>{player.name}</td>
-              <td>{player.score}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="leaderboard-v2">
+      <div className="podium">
+        {top3[1] && (
+          <div className="podium-card second">
+            <div className="avatar" aria-hidden>{initials(top3[1].name)}</div>
+            <div className="name">{top3[1].name}</div>
+            <div className="meta"><span className="trophy">🥈</span> {top3[1].score} pts</div>
+          </div>
+        )}
+        {top3[0] && (
+          <div className="podium-card first">
+            <div className="avatar" aria-hidden>{initials(top3[0].name)}</div>
+            <div className="name">{top3[0].name}</div>
+            <div className="meta"><span className="trophy">🥇</span> {top3[0].score} pts</div>
+          </div>
+        )}
+        {top3[2] && (
+          <div className="podium-card third">
+            <div className="avatar" aria-hidden>{initials(top3[2].name)}</div>
+            <div className="name">{top3[2].name}</div>
+            <div className="meta"><span className="trophy">🥉</span> {top3[2].score} pts</div>
+          </div>
+        )}
+      </div>
+
+      <div className="leaderboard-rows">
+        {rest.map((p, idx) => (
+          <div key={p.name} className="row-item">
+            <div className="rank-badge">{idx + 4}</div>
+            <div className="row-name">{p.name}</div>
+            <div className="spacer" />
+            <div className="score-pill">{p.score} pts</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
 export default Leaderboard;
+
