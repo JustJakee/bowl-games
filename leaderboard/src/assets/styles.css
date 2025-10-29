@@ -15,8 +15,17 @@
   --banner-h: 28px;  /* Layout offsets */
   --appbar-h: 48px; /* Toolbar dense height */
   --content-gap: 48px;
+  --page-bottom-gap: 72px;
   --ncaa-blue: #4b92db;
   --ncaa-gold: #ffcb05;
+}
+
+/* Tighter top/bottom gaps on mobile */
+@media (max-width: 768px) {
+  :root {
+    --content-gap: 20px;
+    --page-bottom-gap: 56px;
+  }
 }
 
 /* Optional light mode */
@@ -335,6 +344,7 @@ button.loser {
   flex-direction: column;
   gap: 1rem;
   margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap));
+  margin-bottom: var(--page-bottom-gap);
 }
 
 .podium {
@@ -349,7 +359,7 @@ button.loser {
   border: 1px solid var(--color-border);
   border-radius: 16px;
   text-align: center;
-  padding: 1rem;
+  padding: 0.25rem 1rem 1rem;
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
 }
 
@@ -367,6 +377,15 @@ button.loser {
   border: 2px solid var(--color-border);
 }
 
+/* Image avatar for podium medals */
+.podium-card .avatar-image {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  display: block;
+  margin: -4px auto 0.5rem;
+}
+
 .podium-card .name {
   font-family: "Roboto Condensed", system-ui, sans-serif;
   font-size: 1.1rem;
@@ -381,12 +400,56 @@ button.loser {
 .podium-card.second { transform: translateY(0); }
 .podium-card.third { transform: translateY(6px); }
 
+/* Medal gradients */
+.podium-card.first {
+  background:
+    linear-gradient(180deg, rgba(255, 215, 0, 0.22), rgba(255, 215, 0, 0.06)),
+    radial-gradient(120% 120% at 50% 10%, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.0) 60%),
+    var(--color-surface);
+  border-color: rgba(255, 215, 0, 0.35);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.12);
+}
+.podium-card.second {
+  background:
+    linear-gradient(180deg, rgba(192, 192, 192, 0.22), rgba(192, 192, 192, 0.06)),
+    radial-gradient(120% 120% at 50% 10%, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.0) 60%),
+    var(--color-surface);
+  border-color: rgba(192, 192, 192, 0.35);
+  box-shadow: 0 12px 30px rgba(192, 192, 192, 0.10);
+}
+.podium-card.third {
+  background:
+    linear-gradient(180deg, rgba(205, 127, 50, 0.22), rgba(205, 127, 50, 0.06)),
+    radial-gradient(120% 120% at 50% 10%, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.0) 60%),
+    var(--color-surface);
+  border-color: rgba(205, 127, 50, 0.35);
+  box-shadow: 0 12px 30px rgba(205, 127, 50, 0.10);
+}
+
 .leaderboard-rows {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
 }
+
+/* Header for list columns */
+.rows-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.rows-header .rank-col { width: 36px; text-align: center; }
+.rows-header .player-col { flex: 1; padding-left: 8px; }
+.rows-header .score-col { min-width: 96px; text-align: right; }
 
 .row-item {
   display: flex;
@@ -410,13 +473,27 @@ button.loser {
   font-weight: 700;
 }
 
+/* Wider badge for 4th-place text */
+.row-item.fourth .rank-badge {
+  width: auto;
+  padding: 0 8px;
+}
+
+/* Medal icon inside rank badge (e.g., 4th place) */
+.rank-medal {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}
+
 .avatar.small {
   width: 32px;
   height: 32px;
   font-size: 0.85rem;
 }
 
-.row-name { font-weight: 600; }
+.row-name { font-weight: 600; margin-left: 8px; }
 .spacer { flex: 1; }
 
 .score-pill {
@@ -428,9 +505,30 @@ button.loser {
   font-weight: 700;
 }
 
+/* Prize badge shown next to 4th-place player name */
+.prize-badge {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(180deg, rgba(46,204,113,0.35), rgba(46,204,113,0.20));
+  border: 1px solid rgba(46,204,113,0.45);
+  white-space: nowrap;
+}
+
+.row-item.fourth {
+  background: rgba(46, 204, 113, 0.12);
+}
+
 @media (max-width: 768px) {
   .podium { grid-template-columns: 1fr; }
   .podium-card.first, .podium-card.second, .podium-card.third { transform: none; }
+  /* Reorder podium on mobile: first on top, then second, then third */
+  .podium-card.first { order: 1; }
+  .podium-card.second { order: 2; }
+  .podium-card.third { order: 3; }
 }
 
 /* Utility text colors if Bootstrap is absent */

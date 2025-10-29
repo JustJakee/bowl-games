@@ -1,9 +1,12 @@
-import React from 'react';
 import teamNamesDict from '../constants/teamNames';
+import firstMedal from '../assets/medals/first.png';
+import secondMedal from '../assets/medals/second.png';
+import thirdMedal from '../assets/medals/third.png';
+
 
 const initials = (name = '') => name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
 
-const Leaderboard = ({ playerPicks, matchups }) => { 
+const Leaderboard = ({ playerPicks, matchups }) => {
   const computeScore = (player) => {
     let score = 0;
     const len = Math.min(player.picks.length, matchups.length);
@@ -22,39 +25,53 @@ const Leaderboard = ({ playerPicks, matchups }) => {
   const top3 = playersWithScores.slice(0, 3);
   const rest = playersWithScores.slice(3);
 
+  const medalSrc = {
+    1: firstMedal,
+    2: secondMedal,
+    3: thirdMedal
+  };
+
   return (
     <div className="leaderboard-v2">
       <div className="podium">
         {top3[1] && (
           <div className="podium-card second">
-            <div className="avatar" aria-hidden>{initials(top3[1].name)}</div>
+            <img className="avatar-image" src={medalSrc[2]} alt="Second place medal" width="84" height="84" />
             <div className="name">{top3[1].name}</div>
-            <div className="meta"><span className="trophy">🥈</span> {top3[1].score} pts</div>
+            <div className="meta">{top3[1].score} picks</div>
           </div>
         )}
         {top3[0] && (
           <div className="podium-card first">
-            <div className="avatar" aria-hidden>{initials(top3[0].name)}</div>
+            <img className="avatar-image" src={medalSrc[1]} alt="First place medal" width="84" height="84" />
             <div className="name">{top3[0].name}</div>
-            <div className="meta"><span className="trophy">🥇</span> {top3[0].score} pts</div>
+            <div className="meta">{top3[0].score} picks</div>
           </div>
         )}
         {top3[2] && (
           <div className="podium-card third">
-            <div className="avatar" aria-hidden>{initials(top3[2].name)}</div>
+            <img className="avatar-image" src={medalSrc[3]} alt="Third place medal" width="84" height="84" />
             <div className="name">{top3[2].name}</div>
-            <div className="meta"><span className="trophy">🥉</span> {top3[2].score} pts</div>
+            <div className="meta">{top3[2].score} picks</div>
           </div>
         )}
       </div>
 
       <div className="leaderboard-rows">
-        {rest.map((p, idx) => (
-          <div key={p.name} className="row-item">
-            <div className="rank-badge">{idx + 4}</div>
-            <div className="row-name">{p.name}</div>
+        <div className="rows-header" role="row">
+          <div className="rank-col" role="columnheader">Rank</div>
+          <div className="player-col" role="columnheader">Player</div>
+          <div className="score-col" role="columnheader">Correct Picks</div>
+        </div>
+        {rest.map((player, rank) => (
+          <div key={player.name} className={`row-item ${rank === 0 ? 'fourth' : ''}`}>
+            <div className="rank-badge">{rank + 4}</div>
+            <div className="row-name">{player.name}</div>
+            {rank === 0 && (
+              <span className="prize-badge">$10</span>
+            )}
             <div className="spacer" />
-            <div className="score-pill">{p.score} pts</div>
+            <div className="score-pill">{player.score} picks</div>
           </div>
         ))}
       </div>
@@ -63,4 +80,3 @@ const Leaderboard = ({ playerPicks, matchups }) => {
 };
 
 export default Leaderboard;
-
