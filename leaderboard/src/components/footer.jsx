@@ -13,7 +13,11 @@ const Footer = () => {
       }}
     >
       <Typography variant="body2">
-        Built by <span role="img" aria-label="bicep">💪</span> Two-Jakes ·{" "}
+        Built by{" "}
+        <span role="img" aria-label="bicep">
+          💪
+        </span>{" "}
+        Two-Jakes ·{" "}
         <Link
           href="https://github.com/JustJakee/bowl-games?tab=readme-ov-file"
           target="_blank"
@@ -45,4 +49,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

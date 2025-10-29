@@ -1,24 +1,24 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useEffect } from 'react';
-import Papa from 'papaparse';  // CSV parsing library
-import csvFile from './assets/test.csv';
-import Leaderboard from './components/leaderboard';
-import FullView from './components/full-view';
-import PickWinners from './components/pick-winners';
-import Header from './components/header';
-import Footer from './components/footer';
-import ScheduleView from './components/schedule-view.jsx'
-import { insertMatchups } from './utils/insertMatchups' // this script added everything to DB
-import { fetchMatchups } from './utils/fetchMatchups' // this script pulls everything from DB
-import { deleteMatchups } from './utils/deleteMatchups' // this script deletes everything from DB
-import { updateMatchups } from './utils/updateMatchups' // this script updates a matchup winner
-import { Amplify } from 'aws-amplify';
-import config from './aws-exports.js';
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useState, useEffect } from "react";
+import Papa from "papaparse"; // CSV parsing library
+import csvFile from "./assets/test.csv";
+import ScheduleView from "./components/ScheduleView.jsx";
+import Leaderboard from "./components/Leaderboard.jsx";
+import FullView from "./components/FullView.jsx";
+import Footer from "./components/Footer.jsx";
+import PickWinners from "./components/PickWinners.jsx";
+import Header from "./components/Header.jsx";
+import { insertMatchups } from "./utils/insertMatchups"; // this script added everything to DB
+import { fetchMatchups } from "./utils/fetchMatchups"; // this script pulls everything from DB
+import { deleteMatchups } from "./utils/deleteMatchups"; // this script deletes everything from DB
+import { updateMatchups } from "./utils/updateMatchups"; // this script updates a matchup winner
+import { Amplify } from "aws-amplify";
+import config from "./aws-exports.js";
 
 Amplify.configure(config);
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState('leaderboard');
+  const [currentPage, setCurrentPage] = useState("leaderboard");
   const [playerPicks, setPlayerPicks] = useState([]);
   const [matchups, setMatchups] = useState([]);
 
@@ -42,7 +42,7 @@ const App = () => {
           if (!gameRow) continue;
 
           playerNames.forEach((_, index) => {
-            picks[index].picks.push(gameRow[index + 2]?.trim() || '-');
+            picks[index].picks.push(gameRow[index + 2]?.trim() || "-");
           });
         }
         setPlayerPicks(picks);
@@ -67,7 +67,7 @@ const App = () => {
 
   /* Only run clearData(); if the DB needs to be purged */
   const clearData = async () => {
-    await deleteMatchups();  // Delete all matchups first
+    await deleteMatchups(); // Delete all matchups first
   };
 
   return (
@@ -78,13 +78,18 @@ const App = () => {
       <div className="content">
         {/*This button is only used to add or delete the data*/}
         {/*<button onClick={insertData}>Insert Data</button>*/}
-        {currentPage === 'schedule-view' && <ScheduleView playerPicks={playerPicks} matchups={matchups} />}
-        {currentPage === 'leaderboard' && <Leaderboard playerPicks={playerPicks} matchups={matchups} />}
-        {currentPage === 'full-view' && <FullView playerPicks={playerPicks} matchups={matchups} />}
-        {currentPage === 'pick-winners' && <PickWinners
-          matchups={matchups}
-          onPickWinner={handlePickWinner}
-        />}
+        {currentPage === "schedule-view" && (
+          <ScheduleView playerPicks={playerPicks} matchups={matchups} />
+        )}
+        {currentPage === "leaderboard" && (
+          <Leaderboard playerPicks={playerPicks} matchups={matchups} />
+        )}
+        {currentPage === "full-view" && (
+          <FullView playerPicks={playerPicks} matchups={matchups} />
+        )}
+        {currentPage === "pick-winners" && (
+          <PickWinners matchups={matchups} onPickWinner={handlePickWinner} />
+        )}
       </div>
       <Footer />
     </div>

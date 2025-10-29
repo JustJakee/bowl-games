@@ -1,13 +1,12 @@
-import React from 'react';
-import '../assets/styles.css'
-import teamNamesDict from '../constants/teamNames'
+import "../assets/styles.css";
+import teamNamesDict from "../constants/teamNames";
 
 const HeaderRow = ({ playerPicks }) => (
   <thead>
     <tr>
-      <th style={{ padding: '15px', minWidth: '140px' }}>Matchup</th>
+      <th style={{ padding: "15px", minWidth: "140px" }}>Matchup</th>
       {playerPicks.map((player) => (
-        <th key={player.name} style={{ padding: '15px', minWidth: '120px' }}>
+        <th key={player.name} style={{ padding: "15px", minWidth: "120px" }}>
           {player.name}
         </th>
       ))}
@@ -16,29 +15,34 @@ const HeaderRow = ({ playerPicks }) => (
 );
 
 const pickStatus = (winner, pick) => {
-  if (winner === undefined || winner === '') return 'no-winner';
-  return teamNamesDict[winner] === pick ? 'correct' : 'incorrect';
+  if (winner === undefined || winner === "") return "no-winner";
+  return teamNamesDict[winner] === pick ? "correct" : "incorrect";
 };
 
 const PickCell = ({ status, label }) => (
   <td className={status}>
-    {label}{' '}
-    {status === 'correct' && (
-      <span className="text-success" aria-label="correct" title="Correct">✓</span>
+    {label}{" "}
+    {status === "correct" && (
+      <span className="text-success" aria-label="correct" title="Correct">
+        �o"
+      </span>
     )}
-    {status === 'incorrect' && (
-      <span className="text-danger" aria-label="incorrect" title="Incorrect">✗</span>
+    {status === "incorrect" && (
+      <span className="text-danger" aria-label="incorrect" title="Incorrect">
+        �o-
+      </span>
     )}
   </td>
 );
 
 const FullView = ({ playerPicks, matchups }) => {
-  const hasData = playerPicks && playerPicks.length > 0 && matchups && matchups.length > 0;
+  const hasData =
+    playerPicks && playerPicks.length > 0 && matchups && matchups.length > 0;
 
   if (!hasData) {
     return (
       <div className="full-view-table-container">
-        <div>Loading picks and matchups…</div>
+        <div>Loading picks and matchups�?�</div>
       </div>
     );
   }
