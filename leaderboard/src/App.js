@@ -6,6 +6,7 @@ import Leaderboard from './components/leaderboard';
 import FullView from './components/full-view';
 import PickWinners from './components/pick-winners';
 import Header from './components/header';
+import Footer from './components/footer';
 import ScheduleView from './components/schedule-view.jsx'
 import { insertMatchups } from './utils/insertMatchups' // this script added everything to DB
 import { fetchMatchups } from './utils/fetchMatchups' // this script pulls everything from DB
@@ -85,6 +86,7 @@ const App = () => {
           onPickWinner={handlePickWinner}
         />}
       </div>
+      <Footer />
     </div>
   );
 };

@@ -15,7 +15,7 @@
   --banner-h: 28px;  /* Layout offsets */
   --appbar-h: 48px; /* Toolbar dense height */
   --content-gap: 48px;
-  --page-bottom-gap: 72px;
+  --page-bottom-gap: 48px;
   --ncaa-blue: #4b92db;
   --ncaa-gold: #ffcb05;
 }
@@ -24,7 +24,7 @@
 @media (max-width: 768px) {
   :root {
     --content-gap: 20px;
-    --page-bottom-gap: 56px;
+    --page-bottom-gap: 40px;
   }
 }
 
@@ -473,10 +473,10 @@ button.loser {
   font-weight: 700;
 }
 
-/* Wider badge for 4th-place text */
+/* 4th-place uses same badge sizing as others (text moved next to name) */
 .row-item.fourth .rank-badge {
-  width: auto;
-  padding: 0 8px;
+  width: 36px;
+  padding: 0;
 }
 
 /* Medal icon inside rank badge (e.g., 4th place) */

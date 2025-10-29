@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Bob's Pick'em",
+  "name": "Bob's Bowl Game Pick'em",
   "icons": [
     {
       "src": "favicon.ico",
