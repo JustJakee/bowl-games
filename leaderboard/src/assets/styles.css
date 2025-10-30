@@ -12,7 +12,8 @@
   --color-hover: #1b1f27;
   --accent: #cc0000;
   --accent-contrast: #ffffff;
-  --banner-h: 28px; /* Layout offsets */
+  --banner-h: 28px; /* Demo strip height */
+  --gamesbar-h: 100px; /* Games banner height for readability */
   --appbar-h: 48px; /* Toolbar dense height */
   --content-gap: 48px;
   --page-bottom-gap: 48px;
@@ -85,7 +86,14 @@ button.loser {
 
 /* General content styling */
 .content {
+  /* Mobile: banner + appbar only (games bar hidden) */
   padding-top: 0;
+}
+@media (min-width: 600px) {
+  .content {
+    /* Desktop/Tablet: exactly the sum of fixed bars; no extra padding */
+    padding-top: calc(var(--banner-h) + var(--gamesbar-h) - 12px);
+  }
 }
 
 /* Banner styling */
@@ -238,6 +246,174 @@ button.loser {
 
 .full-view-table tr:nth-child(even) {
   background-color: transparent;
+}
+
+/* Games banner (ESPN-inspired) */
+.games-banner {
+  position: fixed;
+  top: var(--banner-h);
+  left: 0;
+  right: 0;
+  height: var(--gamesbar-h);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background-color: var(--color-surface-2);
+  color: var(--color-text);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.games-banner__label {
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  border-radius: 999px;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+
+.games-banner__carousel {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.games-banner__scroller {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  width: 100%;
+  padding: 0 12px;
+}
+
+.games-banner__scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.games-banner__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(10, 12, 16, 0.82);
+  color: var(--color-text);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.games-banner__arrow:hover {
+  background-color: rgba(10, 12, 16, 0.95);
+}
+
+.games-banner__arrow--left {
+  left: 4px;
+}
+
+.games-banner__arrow--right {
+  right: 4px;
+}
+
+.games-banner__arrow.Mui-disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.games-banner__card {
+  min-width: 280px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 18px;
+  border-left: 1px solid var(--color-border);
+}
+
+.games-banner__card:first-of-type {
+  border-left: none;
+}
+
+.games-banner__bowl {
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--color-text);
+}
+
+.games-banner__meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.games-banner__meta-network {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.games-banner__teams {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.games-banner__team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.games-banner__team-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.games-banner__team-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.games-banner__team-logo--placeholder {
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--color-muted);
+}
+
+.games-banner__team-rank {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.games-banner__team-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.games-banner__score {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: right;
 }
 
 /* Add a hover effect for rows */
@@ -604,6 +780,20 @@ button.loser {
   }
 }
 
+.games-banner {
+  display: flex;
+  overflow: hidden;
+}
+.ticker-track {
+  display: flex;
+  gap: 8px;
+  animation: scroll 40s linear infinite;
+}
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* Utility text colors if Bootstrap is absent */
 .text-success {
   color: #2ecc71;
@@ -860,7 +1050,6 @@ button.loser {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap));
 }
 
 .schedule-card {

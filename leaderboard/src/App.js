@@ -71,7 +71,7 @@ const App = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container">
       <title>College Bowl Game Picks 🏆</title>
 
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />

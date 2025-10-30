@@ -74,11 +74,14 @@ const Header = ({ currentPage, setCurrentPage }) => {
         </Tooltip>
       </Box>
 
+      {/* Games banner sits between demo bar and the app bar */}
+      <GamesBanner />
+
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
-          top: 28,
+          top: { xs: "var(--banner-h)", sm: "calc(var(--banner-h) + var(--gamesbar-h))" },
           bgcolor: "var(--color-surface-2)",
           color: "var(--color-text)",
           borderBottom: "1px solid var(--color-border)",
