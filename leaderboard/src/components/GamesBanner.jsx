@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -16,9 +10,6 @@ import {
 import { useTheme } from "@mui/material/styles";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SportsFootballIcon from "@mui/icons-material/SportsFootball";
 import { fetchNcaafScoreboard } from "../api/espn";
 
@@ -83,9 +74,6 @@ const GamesBanner = ({
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
   const mounted = useRef(true);
-  const scrollerRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const load = async () => {
     try {
@@ -126,45 +114,6 @@ const GamesBanner = ({
       })
       .slice(0, 20);
   }, [data]);
-
-  const updateScrollState = useCallback(() => {
-    const node = scrollerRef.current;
-    if (!node) {
-      setCanScrollLeft(false);
-      setCanScrollRight(false);
-      return;
-    }
-    const { scrollLeft, scrollWidth, clientWidth } = node;
-    setCanScrollLeft(scrollLeft > 8);
-    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 8);
-  }, []);
-
-  useEffect(() => {
-    const node = scrollerRef.current;
-    if (!node) return undefined;
-    updateScrollState();
-    const handleResize = () => updateScrollState();
-    node.addEventListener("scroll", updateScrollState, { passive: true });
-    window.addEventListener("resize", handleResize);
-    return () => {
-      node.removeEventListener("scroll", updateScrollState);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [updateScrollState]);
-
-  useEffect(() => {
-    updateScrollState();
-  }, [items, loading, updateScrollState]);
-
-  const handleArrowClick = (direction) => {
-    const node = scrollerRef.current;
-    if (!node) return;
-    const distance = node.clientWidth * 0.8 || 320;
-    node.scrollBy({
-      left: direction === "left" ? -distance : distance,
-      behavior: "smooth",
-    });
-  };
 
   const renderTeamRow = (team, key, gameState) => {
     if (!team) return null;
@@ -218,7 +167,6 @@ const GamesBanner = ({
         <Typography variant="caption" fontWeight={800}>
           {header}
         </Typography>
-        <ArrowDropDownIcon fontSize="small" sx={{ opacity: 0.7 }} />
       </Box>
 
       {loading && (
@@ -244,17 +192,10 @@ const GamesBanner = ({
 
       {!loading && !error && (
         <Box className="games-banner__carousel">
-          <IconButton
-            size="small"
-            className="games-banner__arrow games-banner__arrow--left"
-            onClick={() => handleArrowClick("left")}
-            disabled={!canScrollLeft}
-            aria-label="Scroll left"
+          <Box
+            className="games-banner__scroller"
+            tabIndex={0}
           >
-            <ChevronLeftIcon fontSize="small" />
-          </IconButton>
-
-          <Box ref={scrollerRef} className="games-banner__scroller">
             {items.length === 0 && (
               <Typography
                 variant="body2"
@@ -266,12 +207,12 @@ const GamesBanner = ({
             )}
 
             {items.map((g, idx) => (
-              <Box key={g.id || `${g.bowl}-${idx}`} className="games-banner__card">
+              <Box
+                key={g.id || `${g.bowl}-${idx}`}
+                className="games-banner__card"
+              >
                 {g.bowl && (
-                  <Typography
-                    variant="overline"
-                    className="games-banner__bowl"
-                  >
+                  <Typography variant="overline" className="games-banner__bowl">
                     {g.bowl}
                   </Typography>
                 )}
@@ -290,32 +231,8 @@ const GamesBanner = ({
               </Box>
             ))}
           </Box>
-
-          <IconButton
-            size="small"
-            className="games-banner__arrow games-banner__arrow--right"
-            onClick={() => handleArrowClick("right")}
-            disabled={!canScrollRight}
-            aria-label="Scroll right"
-          >
-            <ChevronRightIcon fontSize="small" />
-          </IconButton>
         </Box>
       )}
-
-      <Tooltip title="Refresh">
-        <span>
-          <IconButton
-            size="small"
-            onClick={load}
-            disabled={loading}
-            sx={{ color: "var(--color-text)" }}
-            aria-label="Refresh games"
-          >
-            <RefreshIcon fontSize="inherit" />
-          </IconButton>
-        </span>
-      </Tooltip>
     </Box>
   );
 };

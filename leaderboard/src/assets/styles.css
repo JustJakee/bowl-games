@@ -264,7 +264,7 @@ button.loser {
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
   z-index: 1200;
-  overflow: hidden;
+  overflow-x: none;
 }
 
 .games-banner__label {
@@ -290,42 +290,14 @@ button.loser {
   align-items: stretch;
   gap: 0;
   height: 100%;
-  overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: none;
-  width: 100%;
+  width: 70%;
   padding: 0 12px;
-}
-
-.games-banner__scroller::-webkit-scrollbar {
-  display: none;
-}
-
-.games-banner__arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(10, 12, 16, 0.82);
-  color: var(--color-text);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-  z-index: 1;
-}
-
-.games-banner__arrow:hover {
-  background-color: rgba(10, 12, 16, 0.95);
-}
-
-.games-banner__arrow--left {
-  left: 4px;
-}
-
-.games-banner__arrow--right {
-  right: 4px;
-}
-
-.games-banner__arrow.Mui-disabled {
-  opacity: 0;
-  pointer-events: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) rgba(255, 255, 255, 0.12);
+  scroll-behavior: smooth;
+  scroll-padding: 10px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .games-banner__card {
@@ -779,19 +751,18 @@ button.loser {
     order: 3;
   }
 }
-
-.games-banner {
-  display: flex;
-  overflow: hidden;
-}
 .ticker-track {
   display: flex;
   gap: 8px;
   animation: scroll 40s linear infinite;
 }
 @keyframes scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 /* Utility text colors if Bootstrap is absent */
