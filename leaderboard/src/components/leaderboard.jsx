@@ -2,6 +2,7 @@ import teamNamesDict from "../constants/teamNames";
 import firstMedal from "../assets/medals/first.png";
 import secondMedal from "../assets/medals/second.png";
 import thirdMedal from "../assets/medals/third.png";
+import "../styles/leaderboard.css";
 
 const initials = (name = "") =>
   name

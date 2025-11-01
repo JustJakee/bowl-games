@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "../assets/styles.css";
+import "../styles/pick-winners.css";
 
 const PickWinners = ({ matchups, onPickWinner }) => {
   const [isMobile, setIsMobile] = useState(false);

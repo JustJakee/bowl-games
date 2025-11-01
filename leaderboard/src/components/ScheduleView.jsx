@@ -1,6 +1,7 @@
 import gamesWithTimes from "../constants/gamesWithTimes";
 import { FaCheckCircle } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
+import "../styles/schedule-view.css";
 
 const ScheduleView = ({ matchups }) => {
   const formatTime = (time) => {

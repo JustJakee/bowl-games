@@ -1,17 +1,16 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Typography,
-  IconButton,
-  Tooltip,
   CircularProgress,
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import SportsFootballIcon from "@mui/icons-material/SportsFootball";
+import LiveGlowIcon from "../constants/LiveGlowIcon"
 import { fetchNcaafScoreboard } from "../api/espn";
+import "../styles/games-banner.css";
 
 const getNetwork = (comp) =>
   comp?.broadcasts?.[0]?.shortName || comp?.broadcasts?.[0]?.names?.[0] || "";
@@ -100,7 +99,7 @@ const GamesBanner = ({
     };
   }, [pollMs]);
 
-  const items = useMemo(() => {
+  const games = useMemo(() => {
     const events = data?.events || [];
     return events
       .map(formatGame)
@@ -114,6 +113,8 @@ const GamesBanner = ({
       })
       .slice(0, 20);
   }, [data]);
+
+  console.log(games)
 
   const renderTeamRow = (team, key, gameState) => {
     if (!team) return null;
@@ -192,11 +193,8 @@ const GamesBanner = ({
 
       {!loading && !error && (
         <Box className="games-banner__carousel">
-          <Box
-            className="games-banner__scroller"
-            tabIndex={0}
-          >
-            {items.length === 0 && (
+          <Box className="games-banner__scroller" tabIndex={0}>
+            {games.length === 0 && (
               <Typography
                 variant="body2"
                 color="var(--color-muted)"
@@ -206,27 +204,32 @@ const GamesBanner = ({
               </Typography>
             )}
 
-            {items.map((g, idx) => (
+            {games.map((game, idx) => (
               <Box
-                key={g.id || `${g.bowl}-${idx}`}
+                key={game.id || `${game.bowl}-${idx}`}
                 className="games-banner__card"
               >
-                {g.bowl && (
+                {game.bowl && (
                   <Typography variant="overline" className="games-banner__bowl">
-                    {g.bowl}
+                    {game.bowl}
                   </Typography>
                 )}
                 <Typography variant="caption" className="games-banner__meta">
-                  <span>{g.statusText}</span>
-                  {g.network ? (
+                  <span>
+                    {game.statusText}
+                    {game.state === "in" && (
+                      <LiveGlowIcon className="games-banner__live-badge" />
+                    )}
+                  </span>
+                  {game.network ? (
                     <span className="games-banner__meta-network">
-                      {g.network}
+                      {game.network}
                     </span>
                   ) : null}
                 </Typography>
                 <Box className="games-banner__teams">
-                  {renderTeamRow(g.away, "away", g.state)}
-                  {renderTeamRow(g.home, "home", g.state)}
+                  {renderTeamRow(game.away, "away", game.state)}
+                  {renderTeamRow(game.home, "home", game.state)}
                 </Box>
               </Box>
             ))}

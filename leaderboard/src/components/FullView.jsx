@@ -1,4 +1,4 @@
-import "../assets/styles.css";
+import "../styles/full-view.css";
 import teamNamesDict from "../constants/teamNames";
 
 const HeaderRow = ({ playerPicks }) => (

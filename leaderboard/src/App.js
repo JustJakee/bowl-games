@@ -1,4 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/global.css";
 import { useState, useEffect } from "react";
 import Papa from "papaparse"; // CSV parsing library
 import csvFile from "./assets/test.csv";
