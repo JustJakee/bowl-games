@@ -9,6 +9,7 @@ import FullView from "./components/FullView.jsx";
 import Footer from "./components/Footer.jsx";
 import PickWinners from "./components/PickWinners.jsx";
 import Header from "./components/Header.jsx";
+import { ScoreboardProvider } from "./context/NCAAFDataContext";
 import { insertMatchups } from "./utils/insertMatchups"; // this script added everything to DB
 import { fetchMatchups } from "./utils/fetchMatchups"; // this script pulls everything from DB
 import { deleteMatchups } from "./utils/deleteMatchups"; // this script deletes everything from DB
@@ -72,28 +73,30 @@ const App = () => {
   };
 
   return (
-    <div className="container">
+    <ScoreboardProvider>
+      <div className="container">
       <title>College Bowl Game Picks 🏆</title>
 
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <div className="content">
-        {/*This button is only used to add or delete the data*/}
-        {/*<button onClick={insertData}>Insert Data</button>*/}
-        {currentPage === "schedule-view" && (
-          <ScheduleView playerPicks={playerPicks} matchups={matchups} />
-        )}
-        {currentPage === "leaderboard" && (
-          <Leaderboard playerPicks={playerPicks} matchups={matchups} />
-        )}
-        {currentPage === "full-view" && (
-          <FullView playerPicks={playerPicks} matchups={matchups} />
-        )}
-        {currentPage === "pick-winners" && (
-          <PickWinners matchups={matchups} onPickWinner={handlePickWinner} />
-        )}
+        <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="content">
+          {/*This button is only used to add or delete the data*/}
+          {/*<button onClick={insertData}>Insert Data</button>*/}
+          {currentPage === "schedule-view" && (
+            <ScheduleView playerPicks={playerPicks} matchups={matchups} />
+          )}
+          {currentPage === "leaderboard" && (
+            <Leaderboard playerPicks={playerPicks} matchups={matchups} />
+          )}
+          {currentPage === "full-view" && (
+            <FullView playerPicks={playerPicks} matchups={matchups} />
+          )}
+          {currentPage === "pick-winners" && (
+            <PickWinners matchups={matchups} onPickWinner={handlePickWinner} />
+          )}
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </ScoreboardProvider>
   );
 };
 

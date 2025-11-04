@@ -1,116 +1,46 @@
-import gamesWithTimes from "../constants/gamesWithTimes";
-import { FaCheckCircle } from "react-icons/fa";
-import { RiCalendarScheduleFill } from "react-icons/ri";
+import ScoreBug from "../constants/ScoreBug";
+import { useScoreboard } from "../context/NCAAFDataContext";
 import "../styles/schedule-view.css";
 
-const ScheduleView = ({ matchups }) => {
-  const formatTime = (time) => {
-    const date = new Date(time);
-    return date.toLocaleString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-      timeZone: "America/Chicago",
-    });
-  };
+const ScheduleView = () => {
+  const { games: scoreboardGames, loading, error } = useScoreboard();
 
-  const getGameStatus = (gameTime) => {
-    const currentTime = new Date(); // Current time
-    const gameStartTime = new Date(gameTime); // Game start time
-    const gameEndTime = new Date(gameStartTime.getTime() + 5 * 60 * 60 * 1000); // 5 hours after game start
+  const bowlGames = scoreboardGames.map((game) => ({
+    awayTeam: { code: game?.away?.abbr, logoUrl: game?.away?.logo },
+    homeTeam: { code: game?.home?.abbr, logoUrl: game?.home?.logo },
+    awayScore: game?.away?.score,
+    homeScore: game?.home?.score,
+    statusLine: game?.statusText,
+    bowlGame: game?.bowl,
+    network: game?.network,
+    isLive: game.state === "in",
+  }));
 
-    if (currentTime >= gameStartTime && currentTime <= gameEndTime) {
-      return "live";
-    } else if (currentTime < gameStartTime) {
-      return "upcoming";
-    } else {
-      return "completed";
-    }
-  };
+  if (loading) {
+    return <div className="schedule-container loading">Loading games...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="schedule-container error" role="alert">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="schedule-container">
-      {matchups.map((matchup, index) => {
-        const gameTime = gamesWithTimes.find(
-          (time) => time.game === matchup.game
-        );
-        const gameStatus = gameTime ? getGameStatus(gameTime.time) : null;
-
-        return (
-          <div
-            className={`schedule-card ${gameStatus === "live" ? "live" : ""} ${
-              matchup.winner ? "completed" : ""
-            }`}
-            key={index}
-            style={{ position: "relative", padding: "20px" }}
-          >
-            <h3 className="game-title">{matchup.game}</h3>
-            <div className="teams">
-              <span
-                className={`team ${
-                  matchup.winner === matchup.team1
-                    ? "winner"
-                    : matchup.winner === matchup.team2
-                    ? "loser"
-                    : ""
-                }`}
-              >
-                {matchup.team1}
-              </span>
-              <span className="vs">vs</span>
-              <span
-                className={`team ${
-                  matchup.winner === matchup.team2
-                    ? "winner"
-                    : matchup.winner === matchup.team1
-                    ? "loser"
-                    : ""
-                }`}
-              >
-                {matchup.team2}
-              </span>
-            </div>
-            <div className="game-info">
-              {gameTime && (
-                <>
-                  <span className="game-time">
-                    {formatTime(gameTime.time)} CST
-                  </span>
-                  {gameStatus === "completed" && (
-                    <FaCheckCircle
-                      style={{
-                        color: "green",
-                        position: "absolute",
-                        top: 10,
-                        right: 10,
-                        fontSize: "20px",
-                      }}
-                    />
-                  )}
-                  {gameStatus === "upcoming" && (
-                    <RiCalendarScheduleFill
-                      className="material-icons-outlined"
-                      style={{
-                        position: "absolute",
-                        top: 10,
-                        right: 10,
-                        fontSize: "24px",
-                        color: "#b9b9b9",
-                      }}
-                    />
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        );
-      })}
+      {bowlGames.length === 0 && (
+        <div className="empty-state">No games scheduled right now.</div>
+      )}
+      {bowlGames.map((game, index) => (
+        <ScoreBug
+          key={`${game.awayTeam?.code}-${game.homeTeam?.code}-${index}`}
+          {...game}
+        />
+      ))}
     </div>
   );
 };
 
 export default ScheduleView;
-

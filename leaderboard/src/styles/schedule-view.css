@@ -3,87 +3,24 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
+  margin-top: calc(var(--banner-h) + var(--appbar-h) + 8px);
+  margin-bottom: var(--page-bottom-gap);
 }
 
-.schedule-card {
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: var(--color-surface);
-  text-align: left;
-}
-
-.schedule-card.completed {
-  background-color: var(--color-surface-2);
-}
-
-.schedule-card.live {
-  border: 3px solid var(--loser-color);
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 10px 2px var(--loser-color);
-  }
-  50% {
-    box-shadow: 0 0 20px 5px var(--loser-color);
-  }
-  100% {
-    box-shadow: 0 0 10px 2px var(--loser-color);
-  }
-}
-
-.game-title {
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--color-text);
-  margin-bottom: 0.5rem;
-}
-
-.teams {
+.schedule-container.error,
+.schedule-container.loading,
+.schedule-container .empty-state {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-  gap: 0.2rem;
-}
-
-.team {
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.vs {
-  font-size: 1rem;
-  color: #555;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  margin: 0.2rem 0;
+  gap: 0.5rem;
+  min-height: 160px;
+  color: var(--color-muted);
 }
 
-.game-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-}
-
-.game-time {
-  font-size: 0.9rem;
-  color: var(--ncaa-blue);
-}
-
-.winner {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--winner-color);
-}
-
-.loser {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--loser-color);
+.schedule-container.error {
+  color: #ffb4ab;
 }
 
 @media (min-width: 768px) {
@@ -95,5 +32,11 @@
 
   .schedule-card {
     padding: 1.5rem;
+  }
+}
+
+@media (min-width: 600px) {
+  .schedule-container {
+    margin-top: calc(var(--appbar-h) + 12px);
   }
 }
