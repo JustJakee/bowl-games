@@ -1,0 +1,77 @@
+:root {
+  /* Status colors */
+  --winner-color: rgba(46, 204, 113, 0.25);
+  --loser-color: rgba(231, 76, 60, 0.25);
+  /* ESPN-like dark theme tokens */
+  --color-bg: #0b0d10;
+  --color-surface: #121417;
+  --color-surface-2: #1a1e24;
+  --color-border: #2a2f38;
+  --color-text: #e6e9ef;
+  --color-muted: #a5adba;
+  --color-hover: #1b1f27;
+  --accent: #cc0000;
+  --accent-contrast: #ffffff;
+  --banner-h: 28px;
+  --gamesbar-h: 100px;
+  --appbar-h: 48px;
+  --content-gap: 48px;
+  --page-bottom-gap: 48px;
+  --ncaa-blue: #4b92db;
+  --ncaa-gold: #ffcb05;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --content-gap: 20px;
+    --page-bottom-gap: 40px;
+  }
+}
+
+[data-theme="light"] {
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-2: #e9ecf1;
+  --color-border: #d0d5dd;
+  --color-text: #0b0d10;
+  --color-muted: #4b5563;
+  --color-hover: #f1f3f6;
+  --winner-color: rgba(46, 204, 113, 0.35);
+  --loser-color: rgba(231, 76, 60, 0.35);
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button.winner {
+  background-color: var(--winner-color);
+  color: #fff;
+}
+
+button.loser {
+  background-color: var(--loser-color);
+  color: #fff;
+}
+
+.content {
+  padding-top: 0;
+}
+
+@media (min-width: 600px) {
+  .content {
+    padding-top: calc(var(--banner-h) + var(--gamesbar-h) - 12px);
+  }
+}

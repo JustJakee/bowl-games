@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import '../assets/styles.css';
+import { useState, useEffect } from "react";
+import "../styles/pick-winners.css";
 
 const PickWinners = ({ matchups, onPickWinner }) => {
   const [isMobile, setIsMobile] = useState(false);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
   const [error, setError] = useState(false);
 
@@ -15,14 +15,14 @@ const PickWinners = ({ matchups, onPickWinner }) => {
     };
 
     handleResize(); // Check initial window size
-    window.addEventListener('resize', handleResize); // Update on window resize
+    window.addEventListener("resize", handleResize); // Update on window resize
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const getButtonClass = (matchup, team) => {
-    if (!matchup.winner) return '';
-    return matchup.winner === team ? 'winner' : 'loser';
+    if (!matchup.winner) return "";
+    return matchup.winner === team ? "winner" : "loser";
   };
 
   const handlePasswordSubmit = (e) => {
@@ -45,17 +45,22 @@ const PickWinners = ({ matchups, onPickWinner }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter PIN"
-            className={error ? 'error-input' : ''}
+            className={error ? "error-input" : ""}
             pattern="[0-9]*"
             inputMode="numeric"
             maxLength="4"
           />
-          {error && <div className="error-message">Incorrect Pin. Please try again.</div>}
+          {error && (
+            <div className="error-message">
+              Incorrect Pin. Please try again.
+            </div>
+          )}
           <button type="submit">Submit</button>
           <button
             className="return-button"
-            onClick={() => window.location.href = '/leaderboard'}
-            type="button">
+            onClick={() => (window.location.href = "/leaderboard")}
+            type="button"
+          >
             Return to Leaderboard
           </button>
         </form>
@@ -69,7 +74,9 @@ const PickWinners = ({ matchups, onPickWinner }) => {
         <div className="pick-winner-mobile-container">
           {matchups.map((matchup) => (
             <div key={matchup.game} className="pick-winner-mobile-game">
-              <div className="pick-winner-mobile-game-header">{matchup.game}</div>
+              <div className="pick-winner-mobile-game-header">
+                {matchup.game}
+              </div>
               <div className="pick-winner-mobile-teams">
                 <button
                   className={getButtonClass(matchup, matchup.team1)}
@@ -146,3 +153,4 @@ const PickWinners = ({ matchups, onPickWinner }) => {
 };
 
 export default PickWinners;
+

@@ -1,0 +1,227 @@
+.leaderboard-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: calc(var(--banner-h) + var(--appbar-h) + var(--content-gap));
+  margin-bottom: var(--page-bottom-gap);
+}
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.podium-card {
+  background: radial-gradient(
+      120% 120% at 50% 10%,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(0, 0, 0, 0) 60%
+    ),
+    var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  text-align: center;
+  padding: 0.25rem 1rem 1rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.podium-card .avatar-image {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  display: block;
+  margin: -4px auto 0.5rem;
+}
+
+.podium-card .name {
+  font-family: "Roboto Condensed", system-ui, sans-serif;
+  font-size: 1.1rem;
+}
+
+.podium-card .meta {
+  margin-top: 0.25rem;
+  color: var(--color-muted);
+}
+
+.podium-card.first {
+  transform: translateY(-14px);
+  background: linear-gradient(
+      180deg,
+      rgba(255, 215, 0, 0.22),
+      rgba(255, 215, 0, 0.06)
+    ),
+    radial-gradient(
+      120% 120% at 50% 10%,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(0, 0, 0, 0) 60%
+    ),
+    var(--color-surface);
+  border-color: rgba(255, 215, 0, 0.35);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.12);
+}
+
+.podium-card.second {
+  transform: translateY(0);
+  background: linear-gradient(
+      180deg,
+      rgba(192, 192, 192, 0.22),
+      rgba(192, 192, 192, 0.06)
+    ),
+    radial-gradient(
+      120% 120% at 50% 10%,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(0, 0, 0, 0) 60%
+    ),
+    var(--color-surface);
+  border-color: rgba(192, 192, 192, 0.35);
+  box-shadow: 0 12px 30px rgba(192, 192, 192, 0.1);
+}
+
+.podium-card.third {
+  transform: translateY(6px);
+  background: linear-gradient(
+      180deg,
+      rgba(205, 127, 50, 0.22),
+      rgba(205, 127, 50, 0.06)
+    ),
+    radial-gradient(
+      120% 120% at 50% 10%,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(0, 0, 0, 0) 60%
+    ),
+    var(--color-surface);
+  border-color: rgba(205, 127, 50, 0.35);
+  box-shadow: 0 12px 30px rgba(205, 127, 50, 0.1);
+}
+
+.leaderboard-rows {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rows-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.rows-header .rank-col {
+  width: 36px;
+  text-align: center;
+}
+
+.rows-header .player-col {
+  flex: 1;
+  padding-left: 8px;
+}
+
+.rows-header .score-col {
+  min-width: 96px;
+  text-align: right;
+}
+
+.row-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.row-item:first-child {
+  border-top: none;
+}
+
+.row-item:hover {
+  background: var(--color-hover);
+}
+
+.rank-badge {
+  width: 36px;
+  height: 28px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  font-weight: 700;
+}
+
+.row-name {
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.score-pill {
+  background: linear-gradient(
+    180deg,
+    rgba(204, 0, 0, 0.25),
+    rgba(204, 0, 0, 0.15)
+  );
+  color: var(--accent-contrast);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-weight: 700;
+}
+
+.prize-badge {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(
+    180deg,
+    rgba(46, 204, 113, 0.35),
+    rgba(46, 204, 113, 0.2)
+  );
+  border: 1px solid rgba(46, 204, 113, 0.45);
+  white-space: nowrap;
+}
+
+.row-item.fourth {
+  background: rgba(46, 204, 113, 0.12);
+}
+
+@media (max-width: 768px) {
+  .podium {
+    grid-template-columns: 1fr;
+  }
+
+  .podium-card.first,
+  .podium-card.second,
+  .podium-card.third {
+    transform: none;
+  }
+
+  .podium-card.first {
+    order: 1;
+  }
+
+  .podium-card.second {
+    order: 2;
+  }
+
+  .podium-card.third {
+    order: 3;
+  }
+}
