@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   AppBar,
   Box,
@@ -15,6 +15,7 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import MenuIcon from "@mui/icons-material/Menu";
 import GamesBanner from "./GamesBanner.jsx";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const Header = ({ currentPage, setCurrentPage }) => {
   const [open, setOpen] = useState(false);
@@ -23,11 +24,19 @@ const Header = ({ currentPage, setCurrentPage }) => {
   const handleTooltipOpen = () => setOpen(true);
   const handleTooltipClose = () => setOpen(false);
 
+  const handleNavBarClick = (navId) => {
+    if (navId === "csv") {
+      // here we will export the picks csv
+    } else {
+      setCurrentPage(navId);
+    }
+  };
+
   const navItems = [
+    { id: "picks", label: "Enter Your Picks" },
     { id: "leaderboard", label: "Leaderboard" },
-    { id: "schedule-view", label: "Games" },
-    { id: "full-view", label: "Full View" },
-    { id: "pick-winners", label: "Pick Winners" },
+    { id: "schedule-view", label: "Scores" },
+    { id: "csv", label: "Download Picks" },
   ];
 
   return (
@@ -81,7 +90,10 @@ const Header = ({ currentPage, setCurrentPage }) => {
         position="fixed"
         elevation={0}
         sx={{
-          top: { xs: "var(--banner-h)", sm: "calc(var(--banner-h) + var(--gamesbar-h))" },
+          top: {
+            xs: "var(--banner-h)",
+            sm: "calc(var(--banner-h) + var(--gamesbar-h))",
+          },
           bgcolor: "var(--color-surface-2)",
           color: "var(--color-text)",
           borderBottom: "1px solid var(--color-border)",
@@ -120,7 +132,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
               <Button
                 key={item.id}
                 size="small"
-                onClick={() => setCurrentPage(item.id)}
+                onClick={() => handleNavBarClick(item.id)}
                 aria-current={currentPage === item.id ? "page" : undefined}
                 variant={currentPage === item.id ? "contained" : "text"}
                 sx={{
@@ -136,6 +148,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
                 }}
               >
                 {item.label}
+                {item.id === "csv" && <FileDownloadIcon fontSize="small"/>}
               </Button>
             ))}
           </Box>
