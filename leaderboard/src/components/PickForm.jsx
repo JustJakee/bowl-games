@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
+import { Button, TextField } from "@mui/material";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import PickMatchupCard from "../constants/PickMatchupCard";
 import "../styles/pick-form.css";
 
 const PickForm = () => {
   const { games: scoreboardGames, loading, error } = useScoreboard();
-  const [picks, setPicks] = useState({}); // picks object that we will send to db 
+  const [picks, setPicks] = useState({}); // picks object that we will send to db
+  const [entryName, setEntryName] = useState("");
+  const [email, setEmail] = useState("");
+  const [tieBreaker, setTieBreaker] = useState(0);
 
   const games = useMemo(
     () =>
@@ -13,7 +17,11 @@ const PickForm = () => {
         const normalizeTeam = (team) => {
           const accent = team?.color || team?.alternateColor || "";
           const accentColor =
-            accent && accent.startsWith("#") ? accent : accent ? `#${accent}` : "";
+            accent && accent.startsWith("#")
+              ? accent
+              : accent
+              ? `#${accent}`
+              : "";
 
           return {
             id: team?.id,
@@ -47,6 +55,12 @@ const PickForm = () => {
     }));
   };
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // TODO: replace with real submission logic
+    console.log("Submit picks", { entryName, email, picks });
+  };
+
   if (loading) {
     return <div className="pick-form-container loading">Loading games...</div>;
   }
@@ -60,7 +74,39 @@ const PickForm = () => {
   }
 
   return (
-    <div className="pick-form-container">
+    <form className="pick-form-container" onSubmit={handleSubmit}>
+      <div className="pick-form-header">
+        <div className="pick-form-field">
+          <TextField
+            label="Add a Name to Your Picks"
+            placeholder="Name your entry"
+            value={entryName}
+            onChange={(event) => setEntryName(event.target.value)}
+            size="small"
+            fullWidth
+          />
+        </div>
+        <div className="pick-form-field">
+          <TextField
+            label="Email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            size="small"
+            type="email"
+            fullWidth
+          />
+        </div>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          className="pick-form-submit"
+          size="medium"
+        >
+          Submit Picks
+        </Button>
+      </div>
       {games.length === 0 && (
         <div className="empty-state">No bowl matchups available right now.</div>
       )}
@@ -70,11 +116,13 @@ const PickForm = () => {
           {...game}
           selection={picks[game.id]}
           onSelect={handleSelect}
+          setTieBreaker={setTieBreaker}
+          tieBreaker={tieBreaker}
         />
       ))}
-    {/* DONT FORGET WE NEED TIE BREAKER */}
-    </div>
+    </form>
   );
 };
 
 export default PickForm;
+

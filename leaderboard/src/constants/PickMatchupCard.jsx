@@ -1,12 +1,12 @@
-import { Typography } from "@mui/material";
+import { Typography, TextField } from "@mui/material";
 import VersusBadge from "./VersusBadge";
 import TeamPickOption from "./TeamPickOption";
 
 const PickMatchupCard = ({
   id,
   bowlName,
-  kickoffText,
-  location,
+  tieBreaker,
+  setTieBreaker,
   network,
   statusText,
   isLive,
@@ -18,6 +18,8 @@ const PickMatchupCard = ({
   const selectTeam = (teamCode) => {
     onSelect?.(id, teamCode); // sends game id back to pickForm can be changed to bowl game name later
   };
+
+  const isTieBreaker = bowlName === "Cotton Bowl"; // This will be whatever Bowl is the tie breaker
 
   return (
     <article className="pick-card" data-live={isLive ? "true" : undefined}>
@@ -51,6 +53,20 @@ const PickMatchupCard = ({
           isSelected={selection === homeTeam?.code}
           onSelect={selectTeam}
         />
+        {isTieBreaker && (
+          <div className="pick-card-tiebreaker">
+            <TextField
+              label="Total Points"
+              placeholder="Total points"
+              value={tieBreaker ?? 0}
+              type="number"
+              size="small"
+              fullWidth
+              inputProps={{ min: 0, inputMode: "numeric", pattern: "[0-9]*" }}
+              onChange={(event) => setTieBreaker?.(event.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       <footer className="pick-card-footer">
