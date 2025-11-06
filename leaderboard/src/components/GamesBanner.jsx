@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import {
   Box,
   Typography,
@@ -8,101 +8,21 @@ import {
 import { useTheme } from "@mui/material/styles";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import SportsFootballIcon from "@mui/icons-material/SportsFootball";
-import LiveGlowIcon from "../constants/LiveGlowIcon"
-import { fetchNcaafScoreboard } from "../api/espn";
+import LiveGlowIcon from "../constants/LiveGlowIcon";
+import { useScoreboard } from "../context/NCAAFDataContext";
 import "../styles/games-banner.css";
 
-const getNetwork = (comp) =>
-  comp?.broadcasts?.[0]?.shortName || comp?.broadcasts?.[0]?.names?.[0] || "";
-const getBowlName = (comp) => comp?.notes?.[0]?.headline || comp?.name || "";
-const fmtKickoff = (iso) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  }).format(d);
-};
-
-const formatGame = (event) => {
-  const comp = event?.competitions?.[0] || {};
-  const state = comp?.status?.type?.state || event?.status?.type?.state || "";
-  const status =
-    comp?.status?.type?.shortDetail || event?.status?.type?.shortDetail || "";
-  const startIso = comp?.date || event?.date || "";
-  const competitors = comp?.competitors || [];
-  const away = competitors.find((c) => c.homeAway === "away") || {};
-  const home = competitors.find((c) => c.homeAway === "home") || {};
-
-  const mkTeam = (side) => ({
-    id: side?.team?.id,
-    abbr:
-      side?.team?.abbreviation ??
-      side?.team?.shortDisplayName ??
-      side?.team?.name ??
-      "",
-    score: side?.score ?? "",
-    rank: side?.curatedRank?.current ?? side?.rank ?? null,
-    logo: side?.team?.logo,
-  });
-
-  const kickoffText = fmtKickoff(startIso);
-
-  return {
-    id: event?.id,
-    bowl: getBowlName(comp),
-    network: getNetwork(comp),
-    state, // "in" | "post" | "pre"
-    statusText: status || kickoffText,
-    isFinal: (status || "").toLowerCase().startsWith("final"),
-    startTimeText: kickoffText,
-    home: mkTeam(home),
-    away: mkTeam(away),
-  };
-};
-
 const GamesBanner = ({
-  pollMs = 60_000,
   hideOnSmall = true,
   header = "Bowl Games",
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [data, setData] = useState(null);
-  const mounted = useRef(true);
-
-  const load = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const response = await fetchNcaafScoreboard();
-      if (!mounted.current) return;
-      setData(response);
-    } catch (e) {
-      if (!mounted.current) return;
-      setError(e?.message || "Failed to fetch NCAAF data");
-    } finally {
-      if (mounted.current) setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    mounted.current = true;
-    load();
-    const id = setInterval(load, pollMs);
-    return () => {
-      mounted.current = false;
-      clearInterval(id);
-    };
-  }, [pollMs]);
+  const { games: scoreboardGames, loading, error } = useScoreboard();
 
   const games = useMemo(() => {
-    const events = data?.events || [];
-    return events
-      .map(formatGame)
+    return (scoreboardGames || [])
+      .slice()
       .sort((a, b) => {
         const liveA = a.state === "in";
         const liveB = b.state === "in";
@@ -112,9 +32,7 @@ const GamesBanner = ({
         return 0;
       })
       .slice(0, 20);
-  }, [data]);
-
-  console.log(games)
+  }, [scoreboardGames]);
 
   const renderTeamRow = (team, key, gameState) => {
     if (!team) return null;
