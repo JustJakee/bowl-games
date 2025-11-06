@@ -32,3 +32,241 @@
     margin-top: calc(var(--appbar-h) + 12px);
   }
 }
+
+.pick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-surface-card, #151515);
+  border-radius: 18px;
+  padding: 1.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  color: var(--color-text-primary, #f5f5f5);
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.pick-card[data-live="true"] {
+  border-color: var(--color-accent, #ff6b6b);
+  box-shadow: 0 14px 36px rgba(255, 107, 107, 0.24);
+}
+
+.pick-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+}
+
+.pick-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pick-card-subheader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-muted, rgba(245, 245, 245, 0.6));
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.pick-card-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.pick-card-body {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.team-pick-option {
+  --team-accent: #414141;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02)
+      ),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18));
+  background-blend-mode: overlay;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  text-align: left;
+  border-width: 1px;
+  color: inherit;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  outline: none;
+}
+
+.team-pick-option:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
+
+.team-pick-option.selected {
+  border-color: var(--team-accent);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+  background:
+    linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.16),
+        rgba(255, 255, 255, 0.08)
+      ),
+    linear-gradient(0deg, var(--team-accent), var(--team-accent));
+  background-blend-mode: overlay;
+}
+
+.team-pick-option:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.team-pick-option:focus-visible {
+  outline: 2px solid var(--team-accent);
+  outline-offset: 3px;
+}
+
+.team-pick-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid rgba(245, 245, 245, 0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.team-pick-checkbox::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 120ms ease;
+}
+
+.team-pick-option.selected .team-pick-checkbox {
+  border-color: var(--team-accent);
+}
+
+.team-pick-option.selected .team-pick-checkbox::after {
+  background: var(--team-accent);
+}
+
+.team-pick-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.team-pick-code {
+  letter-spacing: 0.08em;
+}
+
+.team-pick-nickname {
+  color: rgba(245, 245, 245, 0.78);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.team-pick-record {
+  color: rgba(245, 245, 245, 0.6);
+  letter-spacing: 0.05em;
+}
+
+.team-pick-logo {
+  width: 36px;
+  height: 36px;
+  background: rgba(197, 197, 197, 0.24);
+}
+
+.team-pick-option.team-home .team-pick-meta {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.versus-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-primary, #f5f5f5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.pick-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-muted, rgba(245, 245, 245, 0.6));
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pick-card-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pick-card-status-text {
+  color: rgba(245, 245, 245, 0.75);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .pick-form-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .pick-form-container {
+    display: flex;
+  }
+
+  .pick-card {
+    gap: 0.85rem;
+  }
+
+  .pick-card-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .versus-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 0.75rem;
+  }
+
+  .team-pick-option {
+    justify-content: flex-start;
+  }
+}
