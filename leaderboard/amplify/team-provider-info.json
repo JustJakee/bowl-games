@@ -1,15 +1,15 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-bobsbowlgamepicks-dev-f3899-authRole",
-      "UnauthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-dev-f3899-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-dev-f3899-authRole",
+      "AuthRoleName": "amplify-bobsbowlgamepicks-dev-ec018-authRole",
+      "UnauthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-dev-ec018-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-dev-ec018-authRole",
       "Region": "us-east-2",
-      "DeploymentBucketName": "amplify-bobsbowlgamepicks-dev-f3899-deployment",
-      "UnauthRoleName": "amplify-bobsbowlgamepicks-dev-f3899-unauthRole",
-      "StackName": "amplify-bobsbowlgamepicks-dev-f3899",
-      "StackId": "arn:aws:cloudformation:us-east-2:366318196751:stack/amplify-bobsbowlgamepicks-dev-f3899/49a931e0-b9e1-11ef-aead-0ab554446145",
-      "AmplifyAppId": "d1mqezo38x3xb8"
+      "DeploymentBucketName": "amplify-bobsbowlgamepicks-dev-ec018-deployment",
+      "UnauthRoleName": "amplify-bobsbowlgamepicks-dev-ec018-unauthRole",
+      "StackName": "amplify-bobsbowlgamepicks-dev-ec018",
+      "StackId": "arn:aws:cloudformation:us-east-2:366318196751:stack/amplify-bobsbowlgamepicks-dev-ec018/0a44db10-c2b1-11f0-ab1b-028ae54a91e5",
+      "AmplifyAppId": "d2l2monwmqsbpg"
     },
     "categories": {
       "api": {

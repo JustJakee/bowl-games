@@ -88,6 +88,13 @@
   text-transform: uppercase;
 }
 
+.pick-form-submit:disabled{
+  color: white !important;
+  border-radius: 8px;
+  background: var(--color-surface-card, #151515);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+}
+
 @media (min-width: 600px) {
   .pick-form-container {
     margin-top: calc(var(--appbar-h) + 12px);
@@ -106,11 +113,6 @@
   color: var(--color-text-primary, #f5f5f5);
   transition: box-shadow 160ms ease, transform 160ms ease;
   width: 100%;
-}
-
-.pick-card[data-live="true"] {
-  border-color: var(--color-accent, #ff6b6b);
-  box-shadow: 0 14px 36px rgba(255, 107, 107, 0.24);
 }
 
 .pick-card:hover {

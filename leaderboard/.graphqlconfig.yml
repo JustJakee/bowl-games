@@ -1,5 +1,5 @@
 projects:
-  leaderboard:
+  bobsbowlgames:
     schemaPath: src/graphql/schema.json
     includes:
       - src/graphql/**/*.js

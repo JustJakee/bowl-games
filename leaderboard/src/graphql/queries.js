@@ -1,35 +1,33 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const getMatchup = /* GraphQL */ `
-  query GetMatchup($id: ID!) {
-    getMatchup(id: $id) {
+export const getSubmission = /* GraphQL */ `
+  query GetSubmission($id: ID!) {
+    getSubmission(id: $id) {
       id
-      game
-      team1
-      team2
-      winner
-      date
+      name
+      email
+      picks
+      tieBreaker
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const listMatchups = /* GraphQL */ `
-  query ListMatchups(
-    $filter: ModelMatchupFilterInput
+export const listSubmissions = /* GraphQL */ `
+  query ListSubmissions(
+    $filter: ModelSubmissionFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listMatchups(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listSubmissions(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        game
-        team1
-        team2
-        winner
-        date
+        name
+        email
+        picks
+        tieBreaker
         createdAt
         updatedAt
         __typename

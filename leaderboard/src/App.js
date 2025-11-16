@@ -8,7 +8,6 @@ import Leaderboard from "./components/Leaderboard.jsx";
 import Footer from "./components/Footer.jsx";
 import Header from "./components/Header.jsx";
 import { ScoreboardProvider } from "./context/NCAAFDataContext";
-import { fetchMatchups } from "./utils/fetchMatchups"; // this script pulls everything from DB
 import { Amplify } from "aws-amplify";
 import config from "./aws-exports.js";
 import PickForm from "./components/PickForm.jsx";
@@ -46,12 +45,6 @@ const App = () => {
         setPlayerPicks(picks);
       },
     });
-
-    const fetchAndSetMatchups = async () => {
-      const fetchedMatchups = await fetchMatchups();
-      setMatchups(fetchedMatchups);
-    };
-    fetchAndSetMatchups();
   }, []);
 
   return (

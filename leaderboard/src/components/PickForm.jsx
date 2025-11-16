@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import PickMatchupCard from "../constants/PickMatchupCard";
+import { generateClient } from "aws-amplify/api";
+import { createSubmission } from "../graphql/mutations";
 import "../styles/pick-form.css";
 
 const PickForm = () => {
@@ -10,6 +12,8 @@ const PickForm = () => {
   const [entryName, setEntryName] = useState("");
   const [email, setEmail] = useState("");
   const [tieBreaker, setTieBreaker] = useState(0);
+
+  const client = generateClient();
 
   const games = useMemo(
     () =>
@@ -55,10 +59,28 @@ const PickForm = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // TODO: replace with real submission logic
-    console.log("Submit picks", { entryName, email, picks });
+  const handleSubmit = async () => {
+    const input = {
+      name: entryName,
+      email: email,
+      picks: picks,
+      tieBreaker: tieBreaker ? parseInt(tieBreaker, 10) : null,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const result = await client.graphql({
+        query: createSubmission,
+        variables: { input },
+      });
+
+      console.log("Submission created:", result.data.createSubmission);
+
+      alert("Submitted!");
+      // TODO: clear form fields if needed
+    } catch (error) {
+      console.error("Error submitting:", error);
+    }
   };
 
   if (loading) {
@@ -72,6 +94,8 @@ const PickForm = () => {
       </div>
     );
   }
+
+  const picksAreDisabled = false; // hard code disabled submit until season starts
 
   return (
     <form className="pick-form-container" onSubmit={handleSubmit}>
@@ -103,6 +127,7 @@ const PickForm = () => {
           color="primary"
           className="pick-form-submit"
           size="medium"
+          disabled={picksAreDisabled}
         >
           Submit Picks
         </Button>
@@ -125,4 +150,3 @@ const PickForm = () => {
 };
 
 export default PickForm;
-
