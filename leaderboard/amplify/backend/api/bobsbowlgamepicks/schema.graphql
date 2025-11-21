@@ -1,8 +1,0 @@
-type Submission @model {
-  id: ID!
-  name: String!
-  email: String!
-  picks: AWSJSON
-  tieBreaker: Int
-  createdAt: AWSDateTime!
-}

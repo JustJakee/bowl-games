@@ -8,7 +8,7 @@ import "../styles/pick-form.css";
 
 const PickForm = () => {
   const { games: scoreboardGames, loading, error } = useScoreboard();
-  const [picks, setPicks] = useState({}); // picks object that we will send to db
+  const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
   const [email, setEmail] = useState("");
   const [tieBreaker, setTieBreaker] = useState(0);
@@ -59,11 +59,16 @@ const PickForm = () => {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+
+    if (e?.preventDefault) e.preventDefault();//temp for testing to keep us on the form after submission
+
+    console.log(picks)
+
     const input = {
       name: entryName,
-      email: email,
-      picks: picks,
+      email,
+      picks: JSON.stringify(picks),
       tieBreaker: tieBreaker ? parseInt(tieBreaker, 10) : null,
       createdAt: new Date().toISOString(),
     };
@@ -74,12 +79,18 @@ const PickForm = () => {
         variables: { input },
       });
 
-      console.log("Submission created:", result.data.createSubmission);
-
-      alert("Submitted!");
+      console.log(
+        "%c✅ RAW GRAPHQL RESULT:",
+        "color: green; font-weight: bold"
+      );
+      console.log(JSON.stringify(result, null, 2));
       // TODO: clear form fields if needed
     } catch (error) {
-      console.error("Error submitting:", error);
+      console.log(
+        "%c❌ FULL GRAPHQL ERROR OBJECT:",
+        "color: red; font-weight: bold"
+      );
+      console.log(JSON.stringify(error, null, 2));
     }
   };
 
