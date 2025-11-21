@@ -2,9 +2,8 @@ import { useMemo, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import PickMatchupCard from "../constants/PickMatchupCard";
-import { generateClient } from "aws-amplify/api";
-import { createSubmission } from "../graphql/mutations";
 import "../styles/pick-form.css";
+import { uploadPicks } from "../utils/uploadPicks";
 
 const PickForm = () => {
   const { games: scoreboardGames, loading, error } = useScoreboard();
@@ -12,8 +11,6 @@ const PickForm = () => {
   const [entryName, setEntryName] = useState("");
   const [email, setEmail] = useState("");
   const [tieBreaker, setTieBreaker] = useState(0);
-
-  const client = generateClient();
 
   const games = useMemo(
     () =>
@@ -60,38 +57,15 @@ const PickForm = () => {
   };
 
   const handleSubmit = async (e) => {
-
-    if (e?.preventDefault) e.preventDefault();//temp for testing to keep us on the form after submission
-
-    console.log(picks)
-
     const input = {
       name: entryName,
       email,
       picks: JSON.stringify(picks),
-      tieBreaker: tieBreaker ? parseInt(tieBreaker, 10) : null,
+      tieBreaker: tieBreaker ? parseInt(tieBreaker, 10) : 0,
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      const result = await client.graphql({
-        query: createSubmission,
-        variables: { input },
-      });
-
-      console.log(
-        "%c✅ RAW GRAPHQL RESULT:",
-        "color: green; font-weight: bold"
-      );
-      console.log(JSON.stringify(result, null, 2));
-      // TODO: clear form fields if needed
-    } catch (error) {
-      console.log(
-        "%c❌ FULL GRAPHQL ERROR OBJECT:",
-        "color: red; font-weight: bold"
-      );
-      console.log(JSON.stringify(error, null, 2));
-    }
+    uploadPicks(input);
   };
 
   if (loading) {

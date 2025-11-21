@@ -1,0 +1,20 @@
+{
+  "bowlpicks": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-bobsbowlgamepicks-bowlpicks-72512-authRole",
+      "UnauthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-bowlpicks-72512-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-bowlpicks-72512-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-bobsbowlgamepicks-bowlpicks-72512-deployment",
+      "UnauthRoleName": "amplify-bobsbowlgamepicks-bowlpicks-72512-unauthRole",
+      "StackName": "amplify-bobsbowlgamepicks-bowlpicks-72512",
+      "StackId": "arn:aws:cloudformation:us-east-2:366318196751:stack/amplify-bobsbowlgamepicks-bowlpicks-72512/b26e9dc0-c681-11f0-9b94-0a5c470ed1c9",
+      "AmplifyAppId": "d152p2gb5ii4jy"
+    },
+    "categories": {
+      "api": {
+        "bobsbowlgamepicks": {}
+      }
+    }
+  }
+}
