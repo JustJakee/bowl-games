@@ -19,7 +19,7 @@ const PickMatchupCard = ({
     onSelect?.(id, teamCode); // sends game id back to pickForm can be changed to bowl game name later
   };
 
-  const isTieBreaker = bowlName === "Cotton Bowl"; // This will be whatever Bowl is the tie breaker
+  const isTieBreaker = bowlName === "Scooter's Coffee Frisco Bowl"; // This will be whatever Bowl is the tie breaker
 
   return (
     <article className="pick-card" data-live={isLive ? "true" : undefined}>

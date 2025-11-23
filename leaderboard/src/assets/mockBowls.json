@@ -1,0 +1,312 @@
+[
+  {
+    "id": "mock-001",
+    "bowl": "Cricket Celebration Bowl",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 14 • 12:00 PM",
+    "isFinal": false,
+    "startTimeText": "12:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "JSU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Jackson State Tigers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "SCST",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "South Carolina State Bulldogs"
+    },
+    "location": "Mercedes-Benz Stadium | Atlanta | GA",
+    "venueName": "Mercedes-Benz Stadium"
+  },
+  {
+    "id": "mock-002",
+    "bowl": "IS4S Salute to Veterans Bowl",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 14 • 9:00 PM",
+    "isFinal": false,
+    "startTimeText": "9:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "USA",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "South Alabama Jaguars"
+    },
+    "away": {
+      "id": "",
+      "abbr": "WMU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Western Michigan Broncos"
+    },
+    "location": "Cramton Bowl | Montgomery | AL",
+    "venueName": "Cramton Bowl"
+  },
+  {
+    "id": "mock-003",
+    "bowl": "Scooter's Coffee Frisco Bowl",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 17 • 9:00 PM",
+    "isFinal": false,
+    "startTimeText": "9:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "MEM",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Memphis Tigers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "WVU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "West Virginia Mountaineers"
+    },
+    "location": "Toyota Stadium | Frisco | TX",
+    "venueName": "Toyota Stadium"
+  },
+  {
+    "id": "mock-004",
+    "bowl": "Boca Raton Bowl",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 18 • 5:30 PM",
+    "isFinal": false,
+    "startTimeText": "5:30 PM",
+    "home": {
+      "id": "",
+      "abbr": "WKU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Western Kentucky Hilltoppers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "JMU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "James Madison Dukes"
+    },
+    "location": "FAU Stadium | Boca Raton | FL",
+    "venueName": "FAU Stadium"
+  },
+  {
+    "id": "mock-005",
+    "bowl": "Art of Sport LA Bowl Hosted by Gronk",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 18 • 9:00 PM",
+    "isFinal": false,
+    "startTimeText": "9:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "CAL",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "California Golden Bears"
+    },
+    "away": {
+      "id": "",
+      "abbr": "UNLV",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "UNLV Rebels"
+    },
+    "location": "SoFi Stadium | Inglewood | CA",
+    "venueName": "SoFi Stadium"
+  },
+  {
+    "id": "mock-006",
+    "bowl": "R+L Carriers New Orleans Bowl",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 19 • 7:00 PM",
+    "isFinal": false,
+    "startTimeText": "7:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "GASO",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Georgia Southern Eagles"
+    },
+    "away": {
+      "id": "",
+      "abbr": "SHSU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Sam Houston Bearkats"
+    },
+    "location": "Caesars Superdome | New Orleans | LA",
+    "venueName": "Caesars Superdome"
+  },
+  {
+    "id": "mock-007",
+    "bowl": "StaffDNA Cure Bowl",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 20 • 12:00 PM",
+    "isFinal": false,
+    "startTimeText": "12:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "OHIO",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Ohio Bobcats"
+    },
+    "away": {
+      "id": "",
+      "abbr": "JKST",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Jacksonville State Gamecocks"
+    },
+    "location": "Camping World Stadium | Orlando | FL",
+    "venueName": "Camping World Stadium"
+  },
+  {
+    "id": "mock-008",
+    "bowl": "Union Home Mortgage Gasparilla Bowl",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 20 • 3:30 PM",
+    "isFinal": false,
+    "startTimeText": "3:30 PM",
+    "home": {
+      "id": "",
+      "abbr": "TUL",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Tulane Green Wave"
+    },
+    "away": {
+      "id": "",
+      "abbr": "UF",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Florida Gators"
+    },
+    "location": "Raymond James Stadium | Tampa | FL",
+    "venueName": "Raymond James Stadium"
+  },
+  {
+    "id": "mock-009",
+    "bowl": "CFP First Round Game",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 20 • 8:00 PM",
+    "isFinal": false,
+    "startTimeText": "8:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "IND",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Indiana Hoosiers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "ND",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Notre Dame Fighting Irish"
+    },
+    "location": "Notre Dame Stadium | South Bend | IN",
+    "venueName": "Notre Dame Stadium"
+  },
+  {
+    "id": "mock-010",
+    "bowl": "CFP First Round Game",
+    "network": "",
+    "state": "pre",
+    "statusText": "Dec 21 • 12:00 PM",
+    "isFinal": false,
+    "startTimeText": "12:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "SMU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "SMU Mustangs"
+    },
+    "away": {
+      "id": "",
+      "abbr": "PSU",
+      "score": "",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Penn State Nittany Lions"
+    },
+    "location": "Beaver Stadium | State College | PA",
+    "venueName": "Beaver Stadium"
+  }
+]

@@ -4,13 +4,19 @@ import { useScoreboard } from "../context/NCAAFDataContext";
 import PickMatchupCard from "../constants/PickMatchupCard";
 import "../styles/pick-form.css";
 import { uploadPicks } from "../utils/uploadPicks";
+import mockGames from "../assets/mockBowls.json";
 
 const PickForm = () => {
-  const { games: scoreboardGames, loading, error } = useScoreboard();
+  //const { games: scoreboardGames, loading, error } = useScoreboard();
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
   const [email, setEmail] = useState("");
   const [tieBreaker, setTieBreaker] = useState(0);
+
+  // forcing mock data here
+  const loading = false;
+  const error = null;
+  const scoreboardGames = mockGames;
 
   const games = useMemo(
     () =>
