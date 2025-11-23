@@ -1,54 +1,51 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createMatchup = /* GraphQL */ `
-  mutation CreateMatchup(
-    $input: CreateMatchupInput!
-    $condition: ModelMatchupConditionInput
+export const createSubmission = /* GraphQL */ `
+  mutation CreateSubmission(
+    $input: CreateSubmissionInput!
+    $condition: ModelSubmissionConditionInput
   ) {
-    createMatchup(input: $input, condition: $condition) {
+    createSubmission(input: $input, condition: $condition) {
       id
-      game
-      team1
-      team2
-      winner
-      date
+      name
+      email
+      picks
+      tieBreaker
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const updateMatchup = /* GraphQL */ `
-  mutation UpdateMatchup(
-    $input: UpdateMatchupInput!
-    $condition: ModelMatchupConditionInput
+export const updateSubmission = /* GraphQL */ `
+  mutation UpdateSubmission(
+    $input: UpdateSubmissionInput!
+    $condition: ModelSubmissionConditionInput
   ) {
-    updateMatchup(input: $input, condition: $condition) {
+    updateSubmission(input: $input, condition: $condition) {
       id
-      game
-      team1
-      team2
-      winner
-      date
+      name
+      email
+      picks
+      tieBreaker
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const deleteMatchup = /* GraphQL */ `
-  mutation DeleteMatchup(
-    $input: DeleteMatchupInput!
-    $condition: ModelMatchupConditionInput
+export const deleteSubmission = /* GraphQL */ `
+  mutation DeleteSubmission(
+    $input: DeleteSubmissionInput!
+    $condition: ModelSubmissionConditionInput
   ) {
-    deleteMatchup(input: $input, condition: $condition) {
+    deleteSubmission(input: $input, condition: $condition) {
       id
-      game
-      team1
-      team2
-      winner
-      date
+      name
+      email
+      picks
+      tieBreaker
       createdAt
       updatedAt
       __typename

@@ -1,10 +1,13 @@
 .pick-form-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 1.1rem;
+  padding: clamp(0.85rem, 2.8vw, 1.2rem);
   margin-top: calc(var(--banner-h) + var(--appbar-h) + 8px);
   margin-bottom: var(--page-bottom-gap);
+  align-items: stretch;
+  width: 100%;
+  position: relative;
 }
 
 .pick-form-container.error,
@@ -19,16 +22,398 @@
   color: var(--color-muted);
 }
 
-@media (min-width: 768px) {
-  .pick-form-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
+.pick-form-header {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: clamp(0.65rem, 2vw, 0.9rem);
+  padding: clamp(0.6rem, 2.2vw, 0.85rem);
+  border-radius: 14px;
+  background: rgba(18, 18, 18, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  width: 100%;
+  position: sticky;
+  top: calc(var(--banner-h, 0px) + var(--appbar-h, 0px) + var(--gamesbar-h, 0px) + 16px);
+  z-index: 3;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.pick-form-field {
+  flex: 1 1 clamp(220px, 24vw, 280px);
+  min-width: min(240px, 100%);
+}
+
+.pick-form-field .MuiInputLabel-root {
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pick-form-field .MuiInputLabel-root.Mui-focused {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.pick-form-field .MuiOutlinedInput-root {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.96);
+  border-radius: 12px;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.pick-form-field .MuiOutlinedInput-input::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.pick-form-field .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.pick-form-field .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.48);
+}
+
+.pick-form-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.pick-form-submit {
+  white-space: nowrap;
+  height: 42px;
+  align-self: center;
+  padding-inline: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pick-form-submit:disabled{
+  color: white !important;
+  border-radius: 8px;
+  background: var(--color-surface-card, #151515);
+  border: 2px solid rgba(255, 255, 255, 0.06);
 }
 
 @media (min-width: 600px) {
   .pick-form-container {
     margin-top: calc(var(--appbar-h) + 12px);
+  }
+}
+
+.pick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-surface-card, #151515);
+  border-radius: 18px;
+  padding: 1.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  color: var(--color-text-primary, #f5f5f5);
+  transition: box-shadow 160ms ease, transform 160ms ease;
+  width: 100%;
+}
+
+.pick-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+}
+
+.pick-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pick-card-subheader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-muted, rgba(245, 245, 245, 0.6));
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.pick-card-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.pick-card-body {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.65rem, 2vw, 1rem);
+}
+
+.pick-card-body--tiebreaker {
+  gap: clamp(0.75rem, 2.2vw, 1.3rem);
+}
+
+.pick-card-tiebreaker {
+  flex: 0 0 clamp(120px, 16vw, 160px);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.pick-card-tiebreaker .MuiInputLabel-root {
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-root {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.48);
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-input {
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding-block: 0.55rem;
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-input::placeholder {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.58);
+  font-weight: 600;
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-input::-webkit-outer-spin-button,
+.pick-card-tiebreaker .MuiOutlinedInput-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pick-card-tiebreaker .MuiOutlinedInput-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.team-pick-option {
+  --team-accent: #414141;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02)
+      ),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18));
+  background-blend-mode: overlay;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  text-align: left;
+  border-width: 1px;
+  color: inherit;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  outline: none;
+}
+
+.team-pick-option:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
+
+.team-pick-option.selected {
+  border-color: var(--team-accent);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+  background:
+    linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.16),
+        rgba(255, 255, 255, 0.08)
+      ),
+    linear-gradient(0deg, var(--team-accent), var(--team-accent));
+  background-blend-mode: overlay;
+}
+
+.team-pick-option:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.team-pick-option:focus-visible {
+  outline: 2px solid var(--team-accent);
+  outline-offset: 3px;
+}
+
+.team-pick-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid rgba(245, 245, 245, 0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.team-pick-checkbox::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 120ms ease;
+}
+
+.team-pick-option.selected .team-pick-checkbox {
+  border-color: var(--team-accent);
+}
+
+.team-pick-option.selected .team-pick-checkbox::after {
+  background: var(--team-accent);
+}
+
+.team-pick-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.team-pick-code {
+  letter-spacing: 0.08em;
+}
+
+.team-pick-nickname {
+  color: rgba(245, 245, 245, 0.78);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.team-pick-record {
+  color: rgba(245, 245, 245, 0.6);
+  letter-spacing: 0.05em;
+}
+
+.team-pick-logo {
+  width: 36px;
+  height: 36px;
+  background: rgba(197, 197, 197, 0.24);
+}
+
+.team-pick-option.team-home .team-pick-meta {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.versus-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-primary, #f5f5f5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.pick-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-muted, rgba(245, 245, 245, 0.6));
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pick-card-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pick-card-status-text {
+  color: rgba(245, 245, 245, 0.75);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .pick-form-container {
+    display: flex;
+    gap: 1rem;
+    padding-inline: clamp(0.6rem, 5vw, 0.9rem);
+  }
+
+  .pick-card {
+    gap: 0.85rem;
+  }
+
+  .pick-form-header {
+    flex-direction: column;
+    align-items: stretch;
+    top: calc(var(--banner-h, 0px) + var(--appbar-h, 0px) + 10px);
+    background: rgba(12, 12, 12, 0.92);
+    padding: clamp(0.65rem, 4vw, 0.8rem);
+    gap: clamp(0.55rem, 3vw, 0.7rem);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+  }
+
+  .pick-form-header .pick-form-field {
+    flex: 1 1 auto;
+    min-width: 100%;
+  }
+
+  .pick-form-submit {
+    width: 100%;
+    align-self: stretch;
+    height: 44px;
+    margin-top: clamp(0.4rem, 3vw, 0.6rem);
+  }
+
+  .pick-card-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pick-card-tiebreaker {
+    margin-top: 24px;
+    flex: 1 1 100%;
+  }
+
+  .versus-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 0.75rem;
+  }
+
+  .team-pick-option {
+    justify-content: flex-start;
   }
 }

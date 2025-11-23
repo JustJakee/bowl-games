@@ -15,18 +15,34 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import MenuIcon from "@mui/icons-material/Menu";
 import GamesBanner from "./GamesBanner.jsx";
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import { fetchPicks } from "../utils/fetchPicks.js";
 
 const Header = ({ currentPage, setCurrentPage }) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [picks, setPicks] = useState([]);
 
   const handleTooltipOpen = () => setOpen(true);
   const handleTooltipClose = () => setOpen(false);
 
+  const handleLoadPicks = async () => {
+    try {
+      const picks = await fetchPicks();
+      console.log("Loaded:", picks.data?.listSubmissions?.items);
+      // before we set picks we will want to properly fromat this data for the CSV
+      setPicks(picks.data?.listSubmissions?.items);
+    } catch (err) {
+      console.error("Error loading picks:", err);
+    }
+  };
+
   const handleNavBarClick = (navId) => {
     if (navId === "csv") {
+      handleLoadPicks(); 
       // here we will export the picks csv
+      // these will be formatted and exported into a CSV  
+      console.log(picks); 
     } else {
       setCurrentPage(navId);
     }
@@ -148,7 +164,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
                 }}
               >
                 {item.label}
-                {item.id === "csv" && <FileDownloadIcon fontSize="small"/>}
+                {item.id === "csv" && <FileDownloadIcon fontSize="small" />}
               </Button>
             ))}
           </Box>

@@ -19,6 +19,8 @@ const formatGame = (event) => {
   const status =
     comp?.status?.type?.shortDetail || event?.status?.type?.shortDetail || "";
   const startIso = comp?.date || event?.date || "";
+  const venue = comp?.venue || {};
+  const venueAddress = venue?.address || {};
   const competitors = comp?.competitors || [];
   const away = competitors.find((c) => c.homeAway === "away") || {};
   const home = competitors.find((c) => c.homeAway === "home") || {};
@@ -33,9 +35,17 @@ const formatGame = (event) => {
     score: side?.score ?? "",
     rank: side?.curatedRank?.current ?? side?.rank ?? null,
     logo: side?.team?.logo,
+    color: side?.team?.color ?? "",
+    alternateColor: side?.team?.alternateColor ?? "",
+    displayName: side?.team?.displayName ?? "",
   });
 
   const kickoffText = fmtKickoff(startIso);
+  const locationParts = [
+    venue?.fullName,
+    venueAddress?.city,
+    venueAddress?.state,
+  ].filter(Boolean);
 
   return {
     id: event?.id,
@@ -47,6 +57,8 @@ const formatGame = (event) => {
     startTimeText: kickoffText,
     home: mkTeam(home),
     away: mkTeam(away),
+    location: locationParts.join(" | "),
+    venueName: venue?.fullName ?? "",
   };
 };
 

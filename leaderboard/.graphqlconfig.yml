@@ -1,15 +1,4 @@
 projects:
-  leaderboard:
-    schemaPath: src/graphql/schema.json
-    includes:
-      - src/graphql/**/*.js
-    excludes:
-      - ./amplify/**
-    extensions:
-      amplify:
-        codeGenTarget: javascript
-        generatedFileName: ''
-        docsFilePath: src/graphql
   bobsbowlgamepicks:
     schemaPath: src/graphql/schema.json
     includes:
