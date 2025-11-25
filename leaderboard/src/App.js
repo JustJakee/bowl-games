@@ -9,7 +9,7 @@ import Footer from "./components/Footer.jsx";
 import Header from "./components/Header.jsx";
 import { ScoreboardProvider } from "./context/NCAAFDataContext";
 import { Amplify } from "aws-amplify";
-import config from "./aws-exports.js";
+import config from "./amplifyconfiguration.json";
 import PickForm from "./components/PickForm.jsx";
 
 Amplify.configure(config);
