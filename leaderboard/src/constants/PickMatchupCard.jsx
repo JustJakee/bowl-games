@@ -16,7 +16,7 @@ const PickMatchupCard = ({
   onSelect,
 }) => {
   const selectTeam = (teamCode) => {
-    onSelect?.(id, teamCode); // sends game id back to pickForm can be changed to bowl game name later
+    onSelect?.(id, bowlName, teamCode); // keep pick stored under game id with bowl label
   };
 
   const isTieBreaker = bowlName === "Scooter's Coffee Frisco Bowl"; // This will be whatever Bowl is the tie breaker

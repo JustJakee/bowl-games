@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/global.css";
 import { useState, useEffect } from "react";
+import { Alert, Snackbar } from "@mui/material";
 import Papa from "papaparse"; // CSV parsing library
 import csvFile from "./assets/test.csv";
 import ScheduleView from "./components/ScheduleView.jsx";
@@ -18,6 +19,16 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState("leaderboard");
   const [playerPicks, setPlayerPicks] = useState([]);
   const [matchups, setMatchups] = useState([]);
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const handleToastClose = (event, reason) => {
+    if (reason === "clickaway") return; // keep it open unless explicit close or timeout
+    setToast((prev) => ({ ...prev, open: false }));
+  };
 
   // Load winnerPicks from localStorage when the app first renders
   useEffect(() => {
@@ -61,10 +72,36 @@ const App = () => {
             <Leaderboard playerPicks={playerPicks} matchups={matchups} />
           )}
           {currentPage === "picks" && (
-            <PickForm playerPicks={playerPicks} matchups={matchups} />
+            <PickForm
+              playerPicks={playerPicks}
+              matchups={matchups}
+              onSubmitResult={(result) => {
+                if (!result) return;
+                setToast({ open: true, ...result });
+                if (result.severity === "success") {
+                  setCurrentPage("leaderboard");
+                }
+              }}
+            />
           )}
         </div>
         <Footer />
+        <Snackbar
+          open={toast.open}
+          autoHideDuration={20000}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          sx={{ mb: 2 }}
+          onClose={handleToastClose}
+        >
+          <Alert
+            elevation={6}
+            variant="filled"
+            severity={toast.severity}
+            onClose={handleToastClose}
+          >
+            {toast.message}
+          </Alert>
+        </Snackbar>
       </div>
     </ScoreboardProvider>
   );

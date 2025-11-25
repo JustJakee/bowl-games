@@ -4,13 +4,14 @@ import { createSubmission } from "../graphql/mutations";
 export const uploadPicks = async (input) => {
   const client = generateClient();
   try {
-    const picks = await client.graphql({
+    const result = await client.graphql({
       query: createSubmission,
       variables: { input },
+      authMode: "apiKey",
     });
-    // can be deleted later so no data is exposed, for testing
-    console.log(JSON.stringify(picks, null, 2)); 
+    return result?.data?.createSubmission;
   } catch (error) {
-    console.log(JSON.stringify(error, null, 2));
+    console.error("uploadPicks failed", error);
+    throw error;
   }
 };

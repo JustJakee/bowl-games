@@ -6,7 +6,7 @@ import "../styles/pick-form.css";
 import { uploadPicks } from "../utils/uploadPicks";
 import mockGames from "../assets/mockBowls.json";
 
-const PickForm = () => {
+const PickForm = ({ onSubmitResult }) => {
   //const { games: scoreboardGames, loading, error } = useScoreboard();
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
@@ -55,14 +55,19 @@ const PickForm = () => {
     [scoreboardGames]
   );
 
-  const handleSelect = (gameId, teamCode) => {
+  const handleSelect = (gameId, bowlName, teamCode) => {
+    const bowlKey = bowlName?.trim() || "No Bowl Game";
     setPicks((prev) => ({
       ...prev,
-      [gameId]: teamCode,
+      [gameId]: {
+        ...(prev[gameId] || {}),
+        [bowlKey]: teamCode,
+      },
     }));
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     const input = {
       name: entryName,
       email,
@@ -71,7 +76,19 @@ const PickForm = () => {
       createdAt: new Date().toISOString(),
     };
 
-    uploadPicks(input);
+    try {
+      const saved = await uploadPicks(input);
+      onSubmitResult?.({
+        message: `Thanks ${input.name}, your picks were submitted!`,
+        severity: "success",
+      });
+      return saved;
+    } catch (err) {
+      onSubmitResult?.({
+        message: "Failed to submit picks. Please try again.",
+        severity: "error",
+      });
+    }
   };
 
   if (loading) {
@@ -126,16 +143,19 @@ const PickForm = () => {
       {games.length === 0 && (
         <div className="empty-state">No bowl matchups available right now.</div>
       )}
-      {games.map((game) => (
-        <PickMatchupCard
-          key={game.id}
-          {...game}
-          selection={picks[game.id]}
-          onSelect={handleSelect}
-          setTieBreaker={setTieBreaker}
-          tieBreaker={tieBreaker}
-        />
-      ))}
+      {games.map((game) => {
+        const bowlKey = game?.bowlName?.trim() || "No Bowl Game";
+        return (
+          <PickMatchupCard
+            key={game.id}
+            {...game}
+            selection={picks[game.id]?.[bowlKey]}
+            onSelect={handleSelect}
+            setTieBreaker={setTieBreaker}
+            tieBreaker={tieBreaker}
+          />
+        );
+      })}
     </form>
   );
 };
