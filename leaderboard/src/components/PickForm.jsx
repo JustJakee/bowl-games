@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { useScoreboard } from "../context/NCAAFDataContext";
-import PickMatchupCard from "../constants/PickMatchupCard";
+import PickMatchupCard, {
+  TIEBREAKER_BOWL_NAME,
+} from "../constants/PickMatchupCard";
 import "../styles/pick-form.css";
 import { uploadPicks } from "../utils/uploadPicks";
 import mockGames from "../assets/mockBowls.json";
@@ -11,7 +13,8 @@ const PickForm = ({ onSubmitResult }) => {
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
   const [email, setEmail] = useState("");
-  const [tieBreaker, setTieBreaker] = useState(0);
+  const [tieBreaker, setTieBreaker] = useState("");
+  const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
 
   // forcing mock data here
   const loading = false;
@@ -55,6 +58,39 @@ const PickForm = ({ onSubmitResult }) => {
     [scoreboardGames]
   );
 
+  const trimmedName = entryName.trim();
+  const trimmedEmail = email.trim();
+  const hasEntryName = trimmedName.length > 0;
+  const hasEmail = trimmedEmail.length > 0;
+  const emailIsValid = /\S+@\S+\.\S+/.test(trimmedEmail);
+  const nameError = hasSubmitAttempt && !hasEntryName;
+  const emailError =
+    (hasEmail && !emailIsValid) || (hasSubmitAttempt && !hasEmail);
+  const tieBreakerRequired = games.some(
+    (game) => game?.bowlName === TIEBREAKER_BOWL_NAME
+  );
+  const tieBreakerProvided = tieBreakerRequired ? tieBreaker !== "" : true;
+  const allPicksMade =
+    games.length > 0 &&
+    games.every((game) => {
+      const bowlKey = game?.bowlName?.trim() || "No Bowl Game";
+      return Boolean(picks[game.id]?.[bowlKey]);
+    });
+  const formIsValid =
+    hasEntryName &&
+    hasEmail &&
+    emailIsValid &&
+    allPicksMade &&
+    tieBreakerProvided;
+
+  const clearValidityMessage = (event) => {
+    event.target.setCustomValidity("");
+  };
+
+  const setValidityMessage = (event, message) => {
+    event.target.setCustomValidity(message);
+  };
+
   const handleSelect = (gameId, bowlName, teamCode) => {
     const bowlKey = bowlName?.trim() || "No Bowl Game";
     setPicks((prev) => ({
@@ -68,9 +104,18 @@ const PickForm = ({ onSubmitResult }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setHasSubmitAttempt(true);
+    if (!formIsValid) {
+      onSubmitResult?.({
+        message: "Please complete every pick and required field before submitting.",
+        severity: "error",
+      });
+      return;
+    }
+
     const input = {
-      name: entryName,
-      email,
+      name: trimmedName,
+      email: trimmedEmail,
       picks: JSON.stringify(picks),
       tieBreaker: tieBreaker ? parseInt(tieBreaker, 10) : 0,
       createdAt: new Date().toISOString(),
@@ -85,7 +130,7 @@ const PickForm = ({ onSubmitResult }) => {
       return saved;
     } catch (err) {
       onSubmitResult?.({
-        message: "Failed to submit picks. Please try again.",
+        message: `Sorry ${input.name}, we were unable to submit your picks. Please try again.`,
         severity: "error",
       });
     }
@@ -103,8 +148,6 @@ const PickForm = ({ onSubmitResult }) => {
     );
   }
 
-  const picksAreDisabled = false; // hard code disabled submit until season starts
-
   return (
     <form className="pick-form-container" onSubmit={handleSubmit}>
       <div className="pick-form-header">
@@ -114,8 +157,14 @@ const PickForm = ({ onSubmitResult }) => {
             placeholder="Name your entry"
             value={entryName}
             onChange={(event) => setEntryName(event.target.value)}
+            onInvalid={(event) =>
+              setValidityMessage(event, "Please enter a name for your entry.")
+            }
+            onInput={clearValidityMessage}
             size="small"
             fullWidth
+            required
+            error={nameError}
           />
         </div>
         <div className="pick-form-field">
@@ -124,9 +173,19 @@ const PickForm = ({ onSubmitResult }) => {
             placeholder="you@example.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            onInvalid={(event) => {
+              if (!event.target.value) {
+                setValidityMessage(event, "Email is required.");
+              } else {
+                clearValidityMessage(event);
+              }
+            }}
+            onInput={clearValidityMessage}
             size="small"
             type="email"
             fullWidth
+            required
+            error={emailError}
           />
         </div>
         <Button
@@ -135,7 +194,6 @@ const PickForm = ({ onSubmitResult }) => {
           color="primary"
           className="pick-form-submit"
           size="medium"
-          disabled={picksAreDisabled}
         >
           Submit Picks
         </Button>
