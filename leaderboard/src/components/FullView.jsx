@@ -16,7 +16,8 @@ const HeaderRow = ({ playerPicks }) => (
 
 const pickStatus = (winner, pick) => {
   if (winner === undefined || winner === "") return "no-winner";
-  return teamNamesDict[winner] === pick ? "correct" : "incorrect";
+  const winnerCode = teamNamesDict[winner] || winner;
+  return winnerCode === pick ? "correct" : "incorrect";
 };
 
 const PickCell = ({ status, label }) => (

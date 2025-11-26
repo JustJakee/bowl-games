@@ -2,9 +2,12 @@ import { Typography, TextField } from "@mui/material";
 import VersusBadge from "./VersusBadge";
 import TeamPickOption from "./TeamPickOption";
 
+export const TIEBREAKER_BOWL_NAME = "Scooter's Coffee Frisco Bowl";
+
 const PickMatchupCard = ({
   id,
   bowlName,
+  selectionKey,
   tieBreaker,
   setTieBreaker,
   network,
@@ -16,10 +19,10 @@ const PickMatchupCard = ({
   onSelect,
 }) => {
   const selectTeam = (teamCode) => {
-    onSelect?.(id, teamCode); // sends game id back to pickForm can be changed to bowl game name later
+    onSelect?.(id, selectionKey || bowlName, teamCode); // keep pick stored under unique key
   };
 
-  const isTieBreaker = bowlName === "Scooter's Coffee Frisco Bowl"; // This will be whatever Bowl is the tie breaker
+  const isTieBreaker = bowlName === TIEBREAKER_BOWL_NAME; // This will be whatever Bowl is the tie breaker
 
   return (
     <article className="pick-card" data-live={isLive ? "true" : undefined}>
@@ -58,10 +61,15 @@ const PickMatchupCard = ({
             <TextField
               label="Total Points"
               placeholder="Total points"
-              value={tieBreaker ?? 0}
+              value={tieBreaker ?? ""}
               type="number"
               size="small"
               fullWidth
+              required
+              onInvalid={(event) =>
+                event.target.setCustomValidity("Enter tie-breaker total points.")
+              }
+              onInput={(event) => event.target.setCustomValidity("")}
               inputProps={{ min: 0, inputMode: "numeric", pattern: "[0-9]*" }}
               onChange={(event) => setTieBreaker?.(event.target.value)}
             />

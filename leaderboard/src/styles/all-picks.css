@@ -1,0 +1,177 @@
+.all-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: calc(var(--banner-h, 0px) + var(--appbar-h, 0px));
+}
+
+.all-picks__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.all-picks__col-player {
+  min-width: 160px;
+  font-weight: 700;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.all-picks__tag {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.all-picks__tag--correct {
+  color: #21a363 !important;
+  background: rgba(33, 163, 99, 0.08) !important;
+  border-color: #3fbf7f !important;
+}
+
+.all-picks__tag--incorrect {
+  color: #d13a3a !important;
+  background: rgba(209, 58, 58, 0.08) !important;
+  border-color: #e06363 !important;
+}
+
+.all-picks__tag--pending {
+  color: #77787c !important;
+  background: rgba(119, 120, 124, 0.08) !important;
+  border-color: #9fa0a2 !important;
+}
+
+.all-picks__game-title {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.all-picks__chip {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.all-picks__chip--correct {
+  border-color: #3fbf7f !important;
+  color: #21a363 !important;
+  background: rgba(33, 163, 99, 0.08);
+}
+
+.all-picks__chip--incorrect {
+  border-color: #e06363 !important;
+  color: #d13a3a !important;
+  background: rgba(209, 58, 58, 0.08);
+}
+
+.all-picks__chip--pending {
+  border-color: #9fa0a2 !important;
+  color: #77787c !important;
+  background: rgba(119, 120, 124, 0.08);
+}
+
+.all-picks__mobile {
+  display: none;
+  gap: 10px;
+}
+
+.all-picks__card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-2, #151515);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.all-picks__card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.all-picks__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.all-picks__pick-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.all-picks__player-name {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.all-picks--loading,
+.all-picks--empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface-2, #151515);
+}
+
+@media (max-width: 900px) {
+  .all-picks .ant-table-wrapper {
+    display: none;
+  }
+
+  .all-picks__header {
+    padding-top: 8px;
+  }
+
+  .all-picks__mobile {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Ant Table dark styling */
+.all-picks .ant-table {
+  background: var(--color-surface-2, #151515);
+  color: var(--color-text, #f5f5f5);
+}
+
+.all-picks .ant-table-thead > tr > th {
+  background: var(--color-surface, #0f0f0f);
+  color: var(--color-text, #f5f5f5);
+  border-color: var(--color-border, rgba(255,255,255,0.08));
+}
+
+.all-picks .ant-table-tbody > tr > td {
+  background: var(--color-surface-2, #151515);
+  border-color: var(--color-border, rgba(255,255,255,0.08));
+}
+
+/* Override Ant white hover property */
+.all-picks .ant-table-wrapper .ant-table-tbody .ant-table-row > .ant-table-cell-row-hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Sticky player column background */
+.all-picks .ant-table-cell.ant-table-cell-fix-left {
+  background: var(--color-surface, #0f0f0f);
+}
+
+/* Override Ant sticky holder background to remove light stroke */
+.all-picks .ant-table-wrapper .ant-table-sticky-holder {
+  background: var(--color-surface, #0f0f0f);
+}
+
+/* Remove white scrollbar filler bar */
+.all-picks .ant-table-wrapper .ant-table-cell-scrollbar:not([rowspan]) {
+  box-shadow: none;
+  background: var(--color-surface, #0f0f0f);
+}
+

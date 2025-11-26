@@ -1,24 +1,16 @@
-import teamNamesDict from "../constants/teamNames";
+import { CircularProgress } from "@mui/material";
 import firstMedal from "../assets/medals/first.png";
 import secondMedal from "../assets/medals/second.png";
 import thirdMedal from "../assets/medals/third.png";
 import "../styles/leaderboard.css";
 
-const initials = (name = "") =>
-  name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-const Leaderboard = ({ playerPicks, matchups }) => {
+const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
   const computeScore = (player) => {
     let score = 0;
     const len = Math.min(player.picks.length, matchups.length);
     for (let i = 0; i < len; i++) {
       const winner = matchups[i]?.winner;
-      if (winner && teamNamesDict[winner] === player.picks[i]) score++;
+      if (winner && winner === player.picks[i]) score++;
     }
     return score;
   };
@@ -38,6 +30,15 @@ const Leaderboard = ({ playerPicks, matchups }) => {
     2: secondMedal,
     3: thirdMedal,
   };
+
+  if (loading) {
+    return (
+      <div className="leaderboard-v2 loading-state">
+        <CircularProgress size={20} />
+        <span>Loading leaderboard…</span>
+      </div>
+    );
+  }
 
   return (
     <div className="leaderboard-v2">

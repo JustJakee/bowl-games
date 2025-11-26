@@ -39,10 +39,10 @@ const Header = ({ currentPage, setCurrentPage }) => {
 
   const handleNavBarClick = (navId) => {
     if (navId === "csv") {
-      handleLoadPicks(); 
+      handleLoadPicks();
       // here we will export the picks csv
-      // these will be formatted and exported into a CSV  
-      console.log(picks); 
+      // these will be formatted and exported into a CSV
+      console.log(picks);
     } else {
       setCurrentPage(navId);
     }
@@ -51,6 +51,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
   const navItems = [
     { id: "picks", label: "Enter Your Picks" },
     { id: "leaderboard", label: "Leaderboard" },
+    { id: "all-picks", label: "All Picks" },
     { id: "schedule-view", label: "Scores" },
     { id: "csv", label: "Download Picks" },
   ];
@@ -204,11 +205,22 @@ const Header = ({ currentPage, setCurrentPage }) => {
               role="menuitem"
               selected={currentPage === item.id}
               onClick={() => {
-                setCurrentPage(item.id);
-                setMobileOpen(false);
+                if (item.id === "csv") {
+                  //going to need to update this for CSV download
+                  setMobileOpen(false);
+                } else {
+                  setCurrentPage(item.id);
+                  setMobileOpen(false);
+                }
               }}
               sx={{ "&.Mui-selected": { bgcolor: "var(--color-hover)" } }}
             >
+              {item.id === "csv" && (
+                <FileDownloadIcon
+                  fontSize="small"
+                  style={{ marginRight: "8px" }}
+                />
+              )}
               <ListItemText primary={item.label} />
             </ListItemButton>
           ))}
