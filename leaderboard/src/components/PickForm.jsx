@@ -62,10 +62,10 @@ const PickForm = ({ onSubmitResult }) => {
   const trimmedEmail = email.trim();
   const hasEntryName = trimmedName.length > 0;
   const hasEmail = trimmedEmail.length > 0;
-  const emailIsValid = /\S+@\S+\.\S+/.test(trimmedEmail);
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailIsValid = hasEmail ? emailPattern.test(trimmedEmail) : false;
   const nameError = hasSubmitAttempt && !hasEntryName;
-  const emailError =
-    (hasEmail && !emailIsValid) || (hasSubmitAttempt && !hasEmail);
+  const emailError = hasSubmitAttempt && (!hasEmail || !emailIsValid);
   const tieBreakerRequired = games.some(
     (game) => game?.bowlName === TIEBREAKER_BOWL_NAME
   );
@@ -177,7 +177,10 @@ const PickForm = ({ onSubmitResult }) => {
               if (!event.target.value) {
                 setValidityMessage(event, "Email is required.");
               } else {
-                clearValidityMessage(event);
+                setValidityMessage(
+                  event,
+                  "Please enter a valid email address (example@domain.com)."
+                );
               }
             }}
             onInput={clearValidityMessage}
