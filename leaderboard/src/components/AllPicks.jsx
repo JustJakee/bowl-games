@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { Box, Chip, CircularProgress, Paper, Typography } from "@mui/material";
-import { Table as AntTable, Tag } from "antd";
+import { Box, Chip, CircularProgress, Typography } from "@mui/material";
+import { Table as AntTable, Tag, Divider } from "antd";
 import teamNamesDict from "../constants/teamNames";
 import "../styles/all-picks.css";
 import "antd/dist/reset.css";
@@ -107,6 +107,10 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
           <div className="all-picks__card" key={`${row.player}-m-${idx}`}>
             <div className="all-picks__card-header">
               <div className="all-picks__player-name">{row.player}'s Picks</div>
+              <Divider
+                size="small"
+                style={{ borderColor: "var(--color-border)" }}
+              />
             </div>
             <div className="all-picks__card-body">
               {row.picks.map((pick) => {
@@ -136,4 +140,3 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
 };
 
 export default AllPicks;
-

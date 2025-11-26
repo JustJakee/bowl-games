@@ -1,7 +1,7 @@
 .all-picks {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   margin-top: calc(var(--banner-h, 0px) + var(--appbar-h, 0px));
 }
 
@@ -125,6 +125,10 @@
 @media (max-width: 900px) {
   .all-picks .ant-table-wrapper {
     display: none;
+  }
+
+  .all-picks__header {
+    padding-top: 8px;
   }
 
   .all-picks__mobile {
