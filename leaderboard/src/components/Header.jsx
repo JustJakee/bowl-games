@@ -51,6 +51,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
   const navItems = [
     { id: "picks", label: "Enter Your Picks" },
     { id: "leaderboard", label: "Leaderboard" },
+    { id: "all-picks", label: "All Picks" },
     { id: "schedule-view", label: "Scores" },
     { id: "csv", label: "Download Picks" },
   ];

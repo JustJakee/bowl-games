@@ -12,6 +12,7 @@ import config from "./amplifyconfiguration.json";
 import PickForm from "./components/PickForm.jsx";
 import { fetchPicks } from "./utils/fetchPicks";
 import mockResults from "./assets/mockBowlsResults.json";
+import AllPicks from "./components/AllPicks.jsx";
 
 Amplify.configure(config);
 
@@ -114,6 +115,9 @@ const App = () => {
         <div className="content">
           {currentPage === "schedule-view" && (
             <ScheduleView playerPicks={playerPicks} matchups={matchups} />
+          )}
+          {currentPage === "all-picks" && (
+            <AllPicks playerPicks={playerPicks} matchups={matchups} />
           )}
           {currentPage === "leaderboard" && (
             <Leaderboard

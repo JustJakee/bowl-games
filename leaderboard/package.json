@@ -1,6 +1,6 @@
 {
   "name": "leaderboard",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "^6.7.2",
@@ -8,6 +8,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.3.1",
     "@mui/material": "^6.3.1",
+    "antd": "^6.0.0",
     "aws-amplify": "^6.10.3",
     "bootstrap": "^5.3.3",
     "cfb.js": "^4.3.2",
