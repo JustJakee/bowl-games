@@ -2,8 +2,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/global.css";
 import { useState, useEffect } from "react";
 import { Alert, Snackbar } from "@mui/material";
-import Papa from "papaparse"; // CSV parsing library
-import csvFile from "./assets/test.csv";
 import ScheduleView from "./components/ScheduleView.jsx";
 import Leaderboard from "./components/Leaderboard.jsx";
 import Footer from "./components/Footer.jsx";
@@ -12,6 +10,8 @@ import { ScoreboardProvider } from "./context/NCAAFDataContext";
 import { Amplify } from "aws-amplify";
 import config from "./amplifyconfiguration.json";
 import PickForm from "./components/PickForm.jsx";
+import { fetchPicks } from "./utils/fetchPicks";
+import mockResults from "./assets/mockBowlsResults.json";
 
 Amplify.configure(config);
 
@@ -30,33 +30,77 @@ const App = () => {
     setToast((prev) => ({ ...prev, open: false }));
   };
 
-  // Load winnerPicks from localStorage when the app first renders
+  // Build mock matchups with computed winners (mirrors ESPN shape but final)
   useEffect(() => {
-    Papa.parse(csvFile, {
-      download: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const rawData = results.data;
-        const playerNames = rawData[0].slice(2);
-        // Skip the first two columns (Date, and placeholders)
+    const seen = {};
+    const gamesWithWinners = (mockResults || []).map((game, index) => {
+      const bowlName = game?.bowl || "Bowl Game";
+      const count = (seen[bowlName] || 0) + 1;
+      seen[bowlName] = count;
+      const pickKey = count > 1 ? `${bowlName} (#${count})` : bowlName;
 
-        const picks = playerNames.map((name) => ({
-          name: name.trim(),
-          picks: [],
-        }));
+      const homeScore = Number(game?.home?.score ?? 0);
+      const awayScore = Number(game?.away?.score ?? 0);
+      let winnerAbbr = "";
+      if (!Number.isNaN(homeScore) && !Number.isNaN(awayScore)) {
+        if (homeScore > awayScore) winnerAbbr = game?.home?.abbr || "";
+        else if (awayScore > homeScore) winnerAbbr = game?.away?.abbr || "";
+      }
 
-        for (let i = 1; i < rawData.length; i += 2) {
-          const gameRow = rawData[i];
-          if (!gameRow) continue;
-
-          playerNames.forEach((_, index) => {
-            picks[index].picks.push(gameRow[index + 2]?.trim() || "-");
-          });
-        }
-        setPlayerPicks(picks);
-      },
+      return {
+        id: game?.id || `mock-${index}`,
+        game: bowlName,
+        pickKey,
+        team1: game?.home?.displayName || game?.home?.abbr || "Home",
+        team2: game?.away?.displayName || game?.away?.abbr || "Away",
+        winner: winnerAbbr,
+        date: game?.startTimeText || `${index}`,
+      };
     });
+    setMatchups(gamesWithWinners);
   }, []);
+
+  // Load picks from the GraphQL API to keep everything in sync
+  useEffect(() => {
+    const loadPicks = async () => {
+      if (matchups.length === 0) return;
+      try {
+        const picksResponse = await fetchPicks();
+        const submissions =
+          picksResponse?.data?.listSubmissions?.items?.filter(Boolean) || [];
+
+        const normalizedPicks = submissions.map((submission) => {
+          let parsedPicks = {};
+          try {
+            parsedPicks = JSON.parse(submission?.picks || "{}");
+          } catch (err) {
+            parsedPicks = {};
+          }
+
+          const picksArray = matchups.map((game) => {
+            const bowlKey =
+              game?.pickKey || game?.game?.trim() || "No Bowl Game";
+            return parsedPicks?.[bowlKey] || "-";
+          });
+
+          return {
+            name: submission?.name?.trim() || "Unnamed Entry",
+            picks: picksArray,
+          };
+        });
+        setPlayerPicks(normalizedPicks);
+      } catch (err) {
+        console.error("Failed to load picks:", err);
+        setToast({
+          open: true,
+          severity: "error",
+          message: "Unable to load picks from the database.",
+        });
+      }
+    };
+
+    loadPicks();
+  }, [matchups]);
 
   return (
     <ScoreboardProvider>

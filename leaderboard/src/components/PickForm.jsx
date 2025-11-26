@@ -10,7 +10,7 @@ import mockGames from "../assets/mockBowls.json";
 
 const PickForm = ({ onSubmitResult }) => {
   //const { games: scoreboardGames, loading, error } = useScoreboard();
-  const picksClosed = true; // toggle off when bowl season opens
+  const picksClosed = false; // toggle off when bowl season opens
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,42 +22,43 @@ const PickForm = ({ onSubmitResult }) => {
   const error = null;
   const scoreboardGames = mockGames;
 
-  const games = useMemo(
-    () =>
-      scoreboardGames.map((game) => {
-        const normalizeTeam = (team) => {
-          const accent = team?.color || team?.alternateColor || "";
-          const accentColor =
-            accent && accent.startsWith("#")
-              ? accent
-              : accent
-              ? `#${accent}`
-              : "";
-
-          return {
-            id: team?.id,
-            code: team?.abbr,
-            nickname: team?.displayName,
-            record: team?.rank,
-            logoUrl: team?.logo,
-            color: accentColor,
-          };
-        };
+  const games = useMemo(() => {
+    const seen = {};
+    return scoreboardGames.map((game) => {
+      const normalizeTeam = (team) => {
+        const accent = team?.color || team?.alternateColor || "";
+        const accentColor =
+          accent && accent.startsWith("#") ? accent : accent ? `#${accent}` : "";
 
         return {
-          id: game?.id,
-          bowlName: game?.bowl || "Bowl Game Not Found", // TO DO REMOVE BEFORE BOWL SEASON
-          kickoffText: game?.startTimeText || "",
-          location: game?.location || "",
-          network: game?.network || "",
-          statusText: game?.statusText || "",
-          isLive: game?.state === "in",
-          awayTeam: normalizeTeam(game?.away),
-          homeTeam: normalizeTeam(game?.home),
+          id: team?.id,
+          code: team?.abbr,
+          nickname: team?.displayName,
+          record: team?.rank,
+          logoUrl: team?.logo,
+          color: accentColor,
         };
-      }),
-    [scoreboardGames]
-  );
+      };
+
+      const bowlName = game?.bowl || "Bowl Game Not Found"; // TO DO REMOVE BEFORE BOWL SEASON
+      const count = (seen[bowlName] || 0) + 1;
+      seen[bowlName] = count;
+      const selectionKey = count > 1 ? `${bowlName} (#${count})` : bowlName;
+
+      return {
+        id: game?.id,
+        bowlName,
+        selectionKey,
+        kickoffText: game?.startTimeText || "",
+        location: game?.location || "",
+        network: game?.network || "",
+        statusText: game?.statusText || "",
+        isLive: game?.state === "in",
+        awayTeam: normalizeTeam(game?.away),
+        homeTeam: normalizeTeam(game?.home),
+      };
+    });
+  }, [scoreboardGames]);
 
   const trimmedName = entryName.trim();
   const trimmedEmail = email.trim();
@@ -74,8 +75,9 @@ const PickForm = ({ onSubmitResult }) => {
   const allPicksMade =
     games.length > 0 &&
     games.every((game) => {
-      const bowlKey = game?.bowlName?.trim() || "No Bowl Game";
-      return Boolean(picks[game.id]?.[bowlKey]);
+      const bowlKey =
+        game?.selectionKey || game?.bowlName?.trim() || "No Bowl Game";
+      return Boolean(picks[bowlKey]);
     });
   const formIsValid =
     hasEntryName &&
@@ -92,14 +94,11 @@ const PickForm = ({ onSubmitResult }) => {
     event.target.setCustomValidity(message);
   };
 
-  const handleSelect = (gameId, bowlName, teamCode) => {
-    const bowlKey = bowlName?.trim() || "No Bowl Game";
+  const handleSelect = (_gameId, selectionKey, teamCode) => {
+    const bowlKey = selectionKey?.trim() || "No Bowl Game";
     setPicks((prev) => ({
       ...prev,
-      [gameId]: {
-        ...(prev[gameId] || {}),
-        [bowlKey]: teamCode,
-      },
+      [bowlKey]: teamCode,
     }));
   };
 
@@ -214,12 +213,14 @@ const PickForm = ({ onSubmitResult }) => {
         <div className="empty-state">No bowl matchups available right now.</div>
       )}
       {games.map((game) => {
-        const bowlKey = game?.bowlName?.trim() || "No Bowl Game";
+        const bowlKey =
+          game?.selectionKey || game?.bowlName?.trim() || "No Bowl Game";
         return (
           <PickMatchupCard
             key={game.id}
             {...game}
-            selection={picks[game.id]?.[bowlKey]}
+            selectionKey={bowlKey}
+            selection={picks[bowlKey]}
             onSelect={handleSelect}
             setTieBreaker={setTieBreaker}
             tieBreaker={tieBreaker}

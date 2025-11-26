@@ -1,0 +1,312 @@
+﻿[
+  {
+    "id": "mock-001",
+    "bowl": "Cricket Celebration Bowl",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "12:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "JSU",
+      "score": "20",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Jackson State Tigers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "SCST",
+      "score": "24",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "South Carolina State Bulldogs"
+    },
+    "location": "Mercedes-Benz Stadium | Atlanta | GA",
+    "venueName": "Mercedes-Benz Stadium"
+  },
+  {
+    "id": "mock-002",
+    "bowl": "IS4S Salute to Veterans Bowl",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "9:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "USA",
+      "score": "31",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "South Alabama Jaguars"
+    },
+    "away": {
+      "id": "",
+      "abbr": "WMU",
+      "score": "23",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Western Michigan Broncos"
+    },
+    "location": "Cramton Bowl | Montgomery | AL",
+    "venueName": "Cramton Bowl"
+  },
+  {
+    "id": "mock-003",
+    "bowl": "Scooter's Coffee Frisco Bowl",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "9:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "MEM",
+      "score": "27",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Memphis Tigers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "WVU",
+      "score": "34",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "West Virginia Mountaineers"
+    },
+    "location": "Toyota Stadium | Frisco | TX",
+    "venueName": "Toyota Stadium"
+  },
+  {
+    "id": "mock-004",
+    "bowl": "Boca Raton Bowl",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "5:30 PM",
+    "home": {
+      "id": "",
+      "abbr": "WKU",
+      "score": "30",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Western Kentucky Hilltoppers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "JMU",
+      "score": "38",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "James Madison Dukes"
+    },
+    "location": "FAU Stadium | Boca Raton | FL",
+    "venueName": "FAU Stadium"
+  },
+  {
+    "id": "mock-005",
+    "bowl": "Art of Sport LA Bowl Hosted by Gronk",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "9:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "CAL",
+      "score": "28",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "California Golden Bears"
+    },
+    "away": {
+      "id": "",
+      "abbr": "UNLV",
+      "score": "24",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "UNLV Rebels"
+    },
+    "location": "SoFi Stadium | Inglewood | CA",
+    "venueName": "SoFi Stadium"
+  },
+  {
+    "id": "mock-006",
+    "bowl": "R+L Carriers New Orleans Bowl",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "7:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "GASO",
+      "score": "33",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Georgia Southern Eagles"
+    },
+    "away": {
+      "id": "",
+      "abbr": "SHSU",
+      "score": "17",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Sam Houston Bearkats"
+    },
+    "location": "Caesars Superdome | New Orleans | LA",
+    "venueName": "Caesars Superdome"
+  },
+  {
+    "id": "mock-007",
+    "bowl": "StaffDNA Cure Bowl",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "12:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "OHIO",
+      "score": "26",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Ohio Bobcats"
+    },
+    "away": {
+      "id": "",
+      "abbr": "JKST",
+      "score": "21",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Jacksonville State Gamecocks"
+    },
+    "location": "Camping World Stadium | Orlando | FL",
+    "venueName": "Camping World Stadium"
+  },
+  {
+    "id": "mock-008",
+    "bowl": "Union Home Mortgage Gasparilla Bowl",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "3:30 PM",
+    "home": {
+      "id": "",
+      "abbr": "TUL",
+      "score": "41",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Tulane Green Wave"
+    },
+    "away": {
+      "id": "",
+      "abbr": "UF",
+      "score": "35",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Florida Gators"
+    },
+    "location": "Raymond James Stadium | Tampa | FL",
+    "venueName": "Raymond James Stadium"
+  },
+  {
+    "id": "mock-009",
+    "bowl": "CFP First Round Game",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "8:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "IND",
+      "score": "21",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Indiana Hoosiers"
+    },
+    "away": {
+      "id": "",
+      "abbr": "ND",
+      "score": "35",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Notre Dame Fighting Irish"
+    },
+    "location": "Notre Dame Stadium | South Bend | IN",
+    "venueName": "Notre Dame Stadium"
+  },
+  {
+    "id": "mock-010",
+    "bowl": "CFP First Round Game",
+    "network": "",
+    "state": "post",
+    "statusText": "Final",
+    "isFinal": true,
+    "startTimeText": "12:00 PM",
+    "home": {
+      "id": "",
+      "abbr": "SMU",
+      "score": "20",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "SMU Mustangs"
+    },
+    "away": {
+      "id": "",
+      "abbr": "PSU",
+      "score": "28",
+      "rank": null,
+      "logo": "",
+      "color": "",
+      "alternateColor": "",
+      "displayName": "Penn State Nittany Lions"
+    },
+    "location": "Beaver Stadium | State College | PA",
+    "venueName": "Beaver Stadium"
+  }
+]

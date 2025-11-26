@@ -7,6 +7,7 @@ export const TIEBREAKER_BOWL_NAME = "Scooter's Coffee Frisco Bowl";
 const PickMatchupCard = ({
   id,
   bowlName,
+  selectionKey,
   tieBreaker,
   setTieBreaker,
   network,
@@ -18,7 +19,7 @@ const PickMatchupCard = ({
   onSelect,
 }) => {
   const selectTeam = (teamCode) => {
-    onSelect?.(id, bowlName, teamCode); // keep pick stored under game id with bowl label
+    onSelect?.(id, selectionKey || bowlName, teamCode); // keep pick stored under unique key
   };
 
   const isTieBreaker = bowlName === TIEBREAKER_BOWL_NAME; // This will be whatever Bowl is the tie breaker

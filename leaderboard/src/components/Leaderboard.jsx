@@ -1,4 +1,3 @@
-import teamNamesDict from "../constants/teamNames";
 import firstMedal from "../assets/medals/first.png";
 import secondMedal from "../assets/medals/second.png";
 import thirdMedal from "../assets/medals/third.png";
@@ -10,7 +9,7 @@ const Leaderboard = ({ playerPicks, matchups }) => {
     const len = Math.min(player.picks.length, matchups.length);
     for (let i = 0; i < len; i++) {
       const winner = matchups[i]?.winner;
-      if (winner && teamNamesDict[winner] === player.picks[i]) score++;
+      if (winner && winner === player.picks[i]) score++;
     }
     return score;
   };
