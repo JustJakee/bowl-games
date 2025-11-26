@@ -10,6 +10,7 @@ import mockGames from "../assets/mockBowls.json";
 
 const PickForm = ({ onSubmitResult }) => {
   //const { games: scoreboardGames, loading, error } = useScoreboard();
+  const picksClosed = true; // toggle off when bowl season opens
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
   const [email, setEmail] = useState("");
@@ -105,9 +106,17 @@ const PickForm = ({ onSubmitResult }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setHasSubmitAttempt(true);
+    if (picksClosed) {
+      onSubmitResult?.({
+        message: "Bowl season coming soon. Picks will open once games are set.",
+        severity: "info",
+      });
+      return;
+    }
     if (!formIsValid) {
       onSubmitResult?.({
-        message: "Please complete every pick and required field before submitting.",
+        message:
+          "Please complete every pick and required field before submitting.",
         severity: "error",
       });
       return;
@@ -217,6 +226,22 @@ const PickForm = ({ onSubmitResult }) => {
           />
         );
       })}
+      {picksClosed && (
+        <div
+          className="pick-form-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="picks-closed-title"
+        >
+          <div className="pick-form-overlay__content">
+            <p id="picks-closed-title">Bowl Season Coming Soon</p>
+            <p className="pick-form-overlay__subtitle">
+              Picks will open as soon as the matchups are finalized.
+            </p>
+            <p className="pick-form-overlay__subtitle">Check back soon!</p>
+          </div>
+        </div>
+      )}
     </form>
   );
 };

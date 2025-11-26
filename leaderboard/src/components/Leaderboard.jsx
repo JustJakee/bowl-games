@@ -4,14 +4,6 @@ import secondMedal from "../assets/medals/second.png";
 import thirdMedal from "../assets/medals/third.png";
 import "../styles/leaderboard.css";
 
-const initials = (name = "") =>
-  name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
 const Leaderboard = ({ playerPicks, matchups }) => {
   const computeScore = (player) => {
     let score = 0;
