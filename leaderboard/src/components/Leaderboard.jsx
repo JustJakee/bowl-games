@@ -1,9 +1,10 @@
+import { CircularProgress } from "@mui/material";
 import firstMedal from "../assets/medals/first.png";
 import secondMedal from "../assets/medals/second.png";
 import thirdMedal from "../assets/medals/third.png";
 import "../styles/leaderboard.css";
 
-const Leaderboard = ({ playerPicks, matchups }) => {
+const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
   const computeScore = (player) => {
     let score = 0;
     const len = Math.min(player.picks.length, matchups.length);
@@ -29,6 +30,15 @@ const Leaderboard = ({ playerPicks, matchups }) => {
     2: secondMedal,
     3: thirdMedal,
   };
+
+  if (loading) {
+    return (
+      <div className="leaderboard-v2 loading-state">
+        <CircularProgress size={20} />
+        <span>Loading leaderboard…</span>
+      </div>
+    );
+  }
 
   return (
     <div className="leaderboard-v2">

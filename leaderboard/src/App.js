@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/global.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Alert, Snackbar } from "@mui/material";
 import ScheduleView from "./components/ScheduleView.jsx";
 import Leaderboard from "./components/Leaderboard.jsx";
@@ -24,6 +24,7 @@ const App = () => {
     message: "",
     severity: "success",
   });
+  const [picksLoading, setPicksLoading] = useState(false);
 
   const handleToastClose = (event, reason) => {
     if (reason === "clickaway") return; // keep it open unless explicit close or timeout
@@ -61,46 +62,48 @@ const App = () => {
   }, []);
 
   // Load picks from the GraphQL API to keep everything in sync
-  useEffect(() => {
-    const loadPicks = async () => {
-      if (matchups.length === 0) return;
-      try {
-        const picksResponse = await fetchPicks();
-        const submissions =
-          picksResponse?.data?.listSubmissions?.items?.filter(Boolean) || [];
+  const loadPicks = useCallback(async () => {
+    if (matchups.length === 0) return;
+    setPicksLoading(true);
+    try {
+      const picksResponse = await fetchPicks();
+      const submissions =
+        picksResponse?.data?.listSubmissions?.items?.filter(Boolean) || [];
 
-        const normalizedPicks = submissions.map((submission) => {
-          let parsedPicks = {};
-          try {
-            parsedPicks = JSON.parse(submission?.picks || "{}");
-          } catch (err) {
-            parsedPicks = {};
-          }
+      const normalizedPicks = submissions.map((submission) => {
+        let parsedPicks = {};
+        try {
+          parsedPicks = JSON.parse(submission?.picks || "{}");
+        } catch (err) {
+          parsedPicks = {};
+        }
 
-          const picksArray = matchups.map((game) => {
-            const bowlKey =
-              game?.pickKey || game?.game?.trim() || "No Bowl Game";
-            return parsedPicks?.[bowlKey] || "-";
-          });
-
-          return {
-            name: submission?.name?.trim() || "Unnamed Entry",
-            picks: picksArray,
-          };
+        const picksArray = matchups.map((game) => {
+          const bowlKey = game?.pickKey || game?.game?.trim() || "No Bowl Game";
+          return parsedPicks?.[bowlKey] || "-";
         });
-        setPlayerPicks(normalizedPicks);
-      } catch (err) {
-        console.error("Failed to load picks:", err);
-        setToast({
-          open: true,
-          severity: "error",
-          message: "Unable to load picks from the database.",
-        });
-      }
-    };
 
-    loadPicks();
+        return {
+          name: submission?.name?.trim() || "Unnamed Entry",
+          picks: picksArray,
+        };
+      });
+      setPlayerPicks(normalizedPicks);
+    } catch (err) {
+      console.error("Failed to load picks:", err);
+      setToast({
+        open: true,
+        severity: "error",
+        message: "Unable to load picks from the database.",
+      });
+    } finally {
+      setPicksLoading(false);
+    }
   }, [matchups]);
+
+  useEffect(() => {
+    loadPicks();
+  }, [loadPicks]);
 
   return (
     <ScoreboardProvider>
@@ -113,7 +116,11 @@ const App = () => {
             <ScheduleView playerPicks={playerPicks} matchups={matchups} />
           )}
           {currentPage === "leaderboard" && (
-            <Leaderboard playerPicks={playerPicks} matchups={matchups} />
+            <Leaderboard
+              playerPicks={playerPicks}
+              matchups={matchups}
+              loading={picksLoading}
+            />
           )}
           {currentPage === "picks" && (
             <PickForm
@@ -123,6 +130,7 @@ const App = () => {
                 if (!result) return;
                 setToast({ open: true, ...result });
                 if (result.severity === "success") {
+                  loadPicks();
                   setCurrentPage("leaderboard");
                 }
               }}
