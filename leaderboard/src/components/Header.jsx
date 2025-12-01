@@ -37,11 +37,22 @@ const Header = ({ currentPage, setCurrentPage }) => {
       const picksObj = JSON.parse(submission.picks || "{}");
       return [
         (submission.name || "").trim(),
-        ...bowlOrder.map((bowl) => picksObj[bowl] ?? "-"),
+        ...bowlOrder.map((bowl) => picksObj[bowl] ?? "-")
       ];
     });
 
     return { headers, rows };
+  };
+
+  const downloadCsv = (data) => {
+    const blob = new Blob([data], {type: 'text/csv;charset=utf-8;'});
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'picks_2025.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleNavBarClick = async (navId) => {
@@ -52,8 +63,13 @@ const Header = ({ currentPage, setCurrentPage }) => {
           picksResponse?.data?.listSubmissions?.items?.filter(Boolean) || [];
 
         const { headers, rows } = buildCsvShape(picks);
-        console.log("CSV headers:", headers);
-        console.log("CSV rows:", rows);
+
+        const csvData = headers.join(',') + "\n" + rows.map(row => row.join(",")).join("\n");
+        if (csvData === '') {
+          alert('No data to export');
+        } else {
+          downloadCsv(csvData);
+        }
       } catch (err) {
         console.error("Error loading picks:", err);
       }
@@ -220,7 +236,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
               selected={currentPage === item.id}
               onClick={() => {
                 if (item.id === "csv") {
-                  //going to need to update this for CSV download
+                  handleNavBarClick(item.id);
                   setMobileOpen(false);
                 } else {
                   setCurrentPage(item.id);
