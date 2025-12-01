@@ -91,7 +91,7 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
         </Typography>
       </Box>
 
-      {/* Desktop / tablet table (Ant Design) */}
+      {/* Desktop table */}
       <AntTable
         className="all-picks__desktop-table"
         columns={columns}
@@ -102,7 +102,7 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
         scroll={{ x: "max-content", y: 520 }}
       />
 
-      {/* Mobile table (mirrors desktop: sticky header and player column) */}
+      {/* Mobile table */}
       <div className="all-picks__mobile">
         <AntTable
           className="all-picks__mobile-table"
