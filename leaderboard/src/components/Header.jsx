@@ -21,28 +21,58 @@ import { fetchPicks } from "../utils/fetchPicks.js";
 const Header = ({ currentPage, setCurrentPage }) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [picks, setPicks] = useState([]);
 
   const handleTooltipOpen = () => setOpen(true);
   const handleTooltipClose = () => setOpen(false);
 
-  const handleLoadPicks = async () => {
-    try {
-      const picks = await fetchPicks();
-      console.log("Loaded:", picks.data?.listSubmissions?.items);
-      // before we set picks we will want to properly fromat this data for the CSV
-      setPicks(picks.data?.listSubmissions?.items);
-    } catch (err) {
-      console.error("Error loading picks:", err);
-    }
+  const buildCsvShape = (submissions = []) => {
+    if (!submissions.length) return { headers: [], rows: [] };
+
+    const firstPicks = JSON.parse(submissions[0].picks || "{}");
+    const bowlOrder = Object.keys(firstPicks);
+
+    const headers = ["Name", ...bowlOrder];
+
+    const rows = submissions.map((submission) => {
+      const picksObj = JSON.parse(submission.picks || "{}");
+      return [
+        (submission.name || "").trim(),
+        ...bowlOrder.map((bowl) => picksObj[bowl] ?? "-")
+      ];
+    });
+
+    return { headers, rows };
   };
 
-  const handleNavBarClick = (navId) => {
+  const downloadCsv = (data) => {
+    const blob = new Blob([data], {type: 'text/csv;charset=utf-8;'});
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'picks_2025.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleNavBarClick = async (navId) => {
     if (navId === "csv") {
-      handleLoadPicks();
-      // here we will export the picks csv
-      // these will be formatted and exported into a CSV
-      console.log(picks);
+      try {
+        const picksResponse = await fetchPicks();
+        const picks =
+          picksResponse?.data?.listSubmissions?.items?.filter(Boolean) || [];
+
+        const { headers, rows } = buildCsvShape(picks);
+
+        const csvData = headers.join(',') + "\n" + rows.map(row => row.join(",")).join("\n");
+        if (csvData === '') {
+          alert('No data to export');
+        } else {
+          downloadCsv(csvData);
+        }
+      } catch (err) {
+        console.error("Error loading picks:", err);
+      }
     } else {
       setCurrentPage(navId);
     }
@@ -206,7 +236,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
               selected={currentPage === item.id}
               onClick={() => {
                 if (item.id === "csv") {
-                  //going to need to update this for CSV download
+                  handleNavBarClick(item.id);
                   setMobileOpen(false);
                 } else {
                   setCurrentPage(item.id);
