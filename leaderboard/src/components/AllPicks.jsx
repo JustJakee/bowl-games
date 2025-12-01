@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { Box, Chip, CircularProgress, Typography } from "@mui/material";
-import { Table as AntTable, Tag, Divider } from "antd";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { Table as AntTable, Tag } from "antd";
 import teamNamesDict from "../constants/teamNames";
 import "../styles/all-picks.css";
 import "antd/dist/reset.css";
@@ -70,7 +70,7 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
     return (
       <div className="all-picks all-picks--loading">
         <CircularProgress size={22} />
-        <Typography variant="body2">Loading picks…</Typography>
+        <Typography variant="body2">Loading picks...</Typography>
       </div>
     );
   }
@@ -91,8 +91,9 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
         </Typography>
       </Box>
 
-      {/* Desktop / tablet table (Ant Design) */}
+      {/* Desktop table */}
       <AntTable
+        className="all-picks__desktop-table"
         columns={columns}
         dataSource={dataSource}
         pagination={false}
@@ -101,39 +102,19 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
         scroll={{ x: "max-content", y: 520 }}
       />
 
-      {/* Mobile cards */}
+      {/* Mobile table */}
       <div className="all-picks__mobile">
-        {dataSource.map((row, idx) => (
-          <div className="all-picks__card" key={`${row.player}-m-${idx}`}>
-            <div className="all-picks__card-header">
-              <div className="all-picks__player-name">{row.player}'s Picks</div>
-              <Divider
-                size="small"
-                style={{ borderColor: "var(--color-border)" }}
-              />
-            </div>
-            <div className="all-picks__card-body">
-              {row.picks.map((pick) => {
-                const status = pickStatus(pick.winner, pick.pick);
-                return (
-                  <div
-                    className="all-picks__pick-row"
-                    key={`${pick.bowlId}-${row.player}-m`}
-                  >
-                    <div className="all-picks__game-title">{pick.title}</div>
-                    <Chip
-                      size="small"
-                      label={pick.pick}
-                      className={`all-picks__chip all-picks__chip--${status}`}
-                      variant="outlined"
-                      aria-label={`${row.player} pick ${pick.pick} (${statusLabel[status]})`}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+        <AntTable
+          className="all-picks__mobile-table"
+          columns={columns}
+          dataSource={dataSource}
+          pagination={false}
+          size="small"
+          tableLayout="fixed"
+          sticky
+          scroll={{ x: "max-content", y: 560 }}
+          locale={{ emptyText: "No picks submitted" }}
+        />
       </div>
     </div>
   );

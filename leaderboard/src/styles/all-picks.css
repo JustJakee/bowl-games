@@ -1,7 +1,7 @@
 .all-picks {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   margin-top: calc(var(--banner-h, 0px) + var(--appbar-h, 0px));
 }
 
@@ -44,72 +44,40 @@
   border-color: #9fa0a2 !important;
 }
 
-.all-picks__game-title {
+.all-picks__status {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.all-picks__status--correct {
+  color: #3fbf7f;
+}
+
+.all-picks__status--incorrect {
+  color: #e06363;
+}
+
+.all-picks__status--pending {
+  color: #9fa0a2;
+}
+
+.all-picks__mobile-bowl {
+  display: block;
   font-weight: 700;
   letter-spacing: 0.02em;
-}
-
-.all-picks__chip {
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.all-picks__chip--correct {
-  border-color: #3fbf7f !important;
-  color: #21a363 !important;
-  background: rgba(33, 163, 99, 0.08);
-}
-
-.all-picks__chip--incorrect {
-  border-color: #e06363 !important;
-  color: #d13a3a !important;
-  background: rgba(209, 58, 58, 0.08);
-}
-
-.all-picks__chip--pending {
-  border-color: #9fa0a2 !important;
-  color: #77787c !important;
-  background: rgba(119, 120, 124, 0.08);
+  color: var(--color-text, #f5f5f5);
 }
 
 .all-picks__mobile {
   display: none;
-  gap: 10px;
+  gap: 14px;
 }
 
-.all-picks__card {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.all-picks__mobile-table {
+  border-radius: 14px;
+  overflow: hidden;
   background: var(--color-surface-2, #151515);
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-}
-
-.all-picks__card-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.all-picks__card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.all-picks__pick-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.all-picks__player-name {
-  font-weight: 700;
-  letter-spacing: 0.02em;
 }
 
 .all-picks--loading,
@@ -123,7 +91,7 @@
 }
 
 @media (max-width: 900px) {
-  .all-picks .ant-table-wrapper {
+  .all-picks__desktop-table {
     display: none;
   }
 
@@ -146,16 +114,20 @@
 .all-picks .ant-table-thead > tr > th {
   background: var(--color-surface, #0f0f0f);
   color: var(--color-text, #f5f5f5);
-  border-color: var(--color-border, rgba(255,255,255,0.08));
+  border-color: var(--color-border, rgba(255, 255, 255, 0.08));
 }
 
 .all-picks .ant-table-tbody > tr > td {
   background: var(--color-surface-2, #151515);
-  border-color: var(--color-border, rgba(255,255,255,0.08));
+  border-color: var(--color-border, rgba(255, 255, 255, 0.08));
 }
 
 /* Override Ant white hover property */
-.all-picks .ant-table-wrapper .ant-table-tbody .ant-table-row > .ant-table-cell-row-hover {
+.all-picks
+  .ant-table-wrapper
+  .ant-table-tbody
+  .ant-table-row
+  > .ant-table-cell-row-hover {
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -174,4 +146,3 @@
   box-shadow: none;
   background: var(--color-surface, #0f0f0f);
 }
-
