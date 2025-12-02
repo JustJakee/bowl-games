@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import PickMatchupCard, {
@@ -6,10 +6,10 @@ import PickMatchupCard, {
 } from "../constants/PickMatchupCard";
 import "../styles/pick-form.css";
 import { uploadPicks } from "../utils/uploadPicks";
-import mockGames from "../assets/mockBowls.json";
+// import mockGames from "../assets/mockBowls.json";
 
 const PickForm = ({ onSubmitResult }) => {
-  //const { games: scoreboardGames, loading, error } = useScoreboard();
+  const { games: scoreboardGames, loading, error } = useScoreboard();
   const picksClosed = false; // toggle off when bowl season opens
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
@@ -17,10 +17,12 @@ const PickForm = ({ onSubmitResult }) => {
   const [tieBreaker, setTieBreaker] = useState("");
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
 
+  /*
   // forcing mock data here
   const loading = false;
   const error = null;
   const scoreboardGames = mockGames;
+  */
 
   const games = useMemo(() => {
     const seen = {};
