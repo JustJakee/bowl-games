@@ -129,21 +129,35 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
       });
       return;
     }
-    if (duplicateEntryName) {
-      onSubmitResult?.({
-        message:
-          "That entry name is already in use. Please choose another before submitting.",
-        severity: "error",
-      });
-      return;
-    }
-    if (!formIsValid) {
-      onSubmitResult?.({
-        message:
-          "Please complete every pick and required field before submitting.",
-        severity: "error",
-      });
-      return;
+    switch (true) {
+      case !hasEntryName:
+        onSubmitResult?.({
+          message: "Please enter a name for your entry.",
+          severity: "error",
+        });
+        return;
+      case duplicateEntryName:
+        onSubmitResult?.({
+          message:
+            "That entry name is already in use. Please choose another before submitting.",
+          severity: "error",
+        });
+        return;
+      case !hasEmail:
+        onSubmitResult?.({
+          message: "Email cannot be left blank. Please enter a valid email.",
+          severity: "error",
+        });
+        return;
+      case !formIsValid:
+        onSubmitResult?.({
+          message:
+            "Please complete every pick and required field before submitting.",
+          severity: "error",
+        });
+        return;
+      default:
+        break;
     }
 
     const input = {
@@ -182,7 +196,7 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
   }
 
   return (
-    <form className="pick-form-container" onSubmit={handleSubmit}>
+    <form className="pick-form-container" onSubmit={handleSubmit} noValidate>
       <div className="pick-form-header">
         <div className="pick-form-field">
           <TextField
