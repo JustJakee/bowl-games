@@ -32,13 +32,14 @@ const Header = ({ currentPage, setCurrentPage }) => {
     const firstPicks = JSON.parse(submissions[0].picks || "{}");
     const bowlOrder = Object.keys(firstPicks);
 
-    const headers = ["Name", ...bowlOrder];
+    const headers = ["Name", ...bowlOrder, "Tie Breaker"];
 
     const rows = submissions.map((submission) => {
       const picksObj = JSON.parse(submission.picks || "{}");
       return [
         (submission.name || "").trim(),
         ...bowlOrder.map((bowl) => picksObj[bowl] ?? "-"),
+        submission.tieBreaker,
       ];
     });
 
