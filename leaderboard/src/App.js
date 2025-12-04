@@ -119,6 +119,7 @@ const App = () => {
         return {
           name: submission?.name?.trim() || "Unnamed Entry",
           picks: picksArray,
+          tiebreaker: submission?.tieBreaker,
         };
       });
       setPlayerPicks(normalizedPicks);

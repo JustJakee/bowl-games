@@ -26,6 +26,12 @@
   margin: 0;
 }
 
+.all-picks__tag--tiebreaker {
+  color: #77787c !important;
+  background: rgba(78, 33, 18, 0.777) !important;
+  border-color: #9fa0a2 !important;
+}
+
 .all-picks__tag--correct {
   color: #21a363 !important;
   background: rgba(33, 163, 99, 0.08) !important;
