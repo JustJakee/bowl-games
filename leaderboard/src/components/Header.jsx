@@ -21,6 +21,7 @@ import { fetchPicks } from "../utils/fetchPicks.js";
 const Header = ({ currentPage, setCurrentPage }) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isBowlSeason = true; // this controls demo mode banner
 
   const handleTooltipOpen = () => setOpen(true);
   const handleTooltipClose = () => setOpen(false);
@@ -37,7 +38,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
       const picksObj = JSON.parse(submission.picks || "{}");
       return [
         (submission.name || "").trim(),
-        ...bowlOrder.map((bowl) => picksObj[bowl] ?? "-")
+        ...bowlOrder.map((bowl) => picksObj[bowl] ?? "-"),
       ];
     });
 
@@ -45,11 +46,11 @@ const Header = ({ currentPage, setCurrentPage }) => {
   };
 
   const downloadCsv = (data) => {
-    const blob = new Blob([data], {type: 'text/csv;charset=utf-8;'});
-    const link = document.createElement('a');
+    const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
 
     link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', 'picks_2025.xlsx');
+    link.setAttribute("download", "picks_2025.xlsx");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -64,9 +65,12 @@ const Header = ({ currentPage, setCurrentPage }) => {
 
         const { headers, rows } = buildCsvShape(picks);
 
-        const csvData = headers.join(',') + "\n" + rows.map(row => row.join(",")).join("\n");
-        if (csvData === '') {
-          alert('No data to export');
+        const csvData =
+          headers.join(",") +
+          "\n" +
+          rows.map((row) => row.join(",")).join("\n");
+        if (csvData === "") {
+          alert("No data to export");
         } else {
           downloadCsv(csvData);
         }
@@ -88,47 +92,49 @@ const Header = ({ currentPage, setCurrentPage }) => {
 
   return (
     <>
-      <Box
-        role="status"
-        aria-live="polite"
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          bgcolor: "error.main",
-          color: "#fff",
-          zIndex: (t) => t.zIndex.appBar + 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 1,
-          height: 28,
-        }}
-      >
-        <Typography variant="caption" fontWeight={700}>
-          Demo Mode
-        </Typography>
-        <Tooltip
-          title={
-            <Typography variant="body2" sx={{ color: "white" }}>
-              The website is not up to date and will resume next season.
-            </Typography>
-          }
-          open={open}
-          onClose={handleTooltipClose}
-          arrow
+      {!isBowlSeason ? (
+        <Box
+          role="status"
+          aria-live="polite"
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            bgcolor: "error.main",
+            color: "#fff",
+            zIndex: (t) => t.zIndex.appBar + 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1,
+            height: 28,
+          }}
         >
-          <IconButton
-            size="small"
-            sx={{ color: "inherit" }}
-            onClick={handleTooltipOpen}
-            aria-label="Demo mode information"
+          <Typography variant="caption" fontWeight={700}>
+            Demo Mode
+          </Typography>
+          <Tooltip
+            title={
+              <Typography variant="body2" sx={{ color: "white" }}>
+                The website is not up to date and will resume next season.
+              </Typography>
+            }
+            open={open}
+            onClose={handleTooltipClose}
+            arrow
           >
-            <InfoIcon fontSize="inherit" />
-          </IconButton>
-        </Tooltip>
-      </Box>
+            <IconButton
+              size="small"
+              sx={{ color: "inherit" }}
+              onClick={handleTooltipOpen}
+              aria-label="Demo mode information"
+            >
+              <InfoIcon fontSize="inherit" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      ) : null}
 
       {/* Games banner sits between demo bar and the app bar */}
       <GamesBanner />
@@ -138,7 +144,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
         elevation={0}
         sx={{
           top: {
-            xs: "var(--banner-h)",
+            xs: "var(--banner-h-no-demo)",
             sm: "calc(var(--banner-h) + var(--gamesbar-h))",
           },
           bgcolor: "var(--color-surface-2)",

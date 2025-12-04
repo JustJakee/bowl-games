@@ -13,7 +13,9 @@
   --accent: #cc0000;
   --accent-contrast: #ffffff;
   --banner-h: 28px;
+  --banner-h-no-demo: 0px;
   --gamesbar-h: 100px;
+  --gamesbar-h-no-demo: 128px;
   --appbar-h: 48px;
   --content-gap: 48px;
   --page-bottom-gap: 48px;
