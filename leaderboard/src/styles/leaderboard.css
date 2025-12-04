@@ -172,8 +172,21 @@
 .score-pill {
   background: linear-gradient(
     180deg,
-    rgba(204, 0, 0, 0.25),
-    rgba(204, 0, 0, 0.15)
+    rgba(0, 160, 204, 0.25),
+    rgba(3, 0, 204, 0.15)
+  );
+  color: var(--accent-contrast);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-weight: 700;
+}
+
+.score-pill-submitted {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 160, 204, 0.25),
+    rgba(3, 0, 204, 0.15)
   );
   color: var(--accent-contrast);
   border: 1px solid var(--color-border);
