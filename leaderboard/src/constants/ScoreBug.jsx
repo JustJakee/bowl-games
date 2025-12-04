@@ -10,10 +10,11 @@ export default function ScoreBug({
   bowlGame,
   network,
   isLive,
-  onClick, //keeping this here not sure if we will use it
+  gameId,
   sx
 }) {
   const theme = useTheme();
+  const espnLink = `https://www.espn.com/college-football/game/_/gameId/${gameId}/`;
 
   const cardBg = theme.palette.common.black;
   const pillBg =
@@ -30,6 +31,7 @@ export default function ScoreBug({
         outline: "none",
         ...sx,
       }}
+      onClick={() => {window.open(espnLink, '_blank');}}
     >
       {bowlGame && (
         <Typography

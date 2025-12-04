@@ -14,6 +14,7 @@ const ScheduleView = () => {
     bowlGame: game?.bowl,
     network: game?.network,
     isLive: game.state === "in",
+    gameId: game.id,
   }));
 
   if (loading) {
