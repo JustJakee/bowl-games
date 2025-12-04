@@ -2,7 +2,8 @@ import { Typography, TextField } from "@mui/material";
 import VersusBadge from "./VersusBadge";
 import TeamPickOption from "./TeamPickOption";
 
-export const TIEBREAKER_BOWL_NAME = "Scooter's Coffee Frisco Bowl";
+// TODO: Update me when bowl games drop
+export const TIEBREAKER_BOWL_NAME = "SEC Championship";
 
 const PickMatchupCard = ({
   id,

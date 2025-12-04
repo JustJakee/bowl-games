@@ -1,9 +1,11 @@
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { Table as AntTable, Tag } from "antd";
 import teamNamesDict from "../constants/teamNames";
 import "../styles/all-picks.css";
 import "antd/dist/reset.css";
+import { getBowlName } from "../utils/formatGameData";
+import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 
 const pickStatus = (winner, pick) => {
   if (!winner) return "pending";
@@ -26,6 +28,7 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
       playerPicks.map((player, playerIdx) => ({
         key: player.name || `player-${playerIdx}`,
         player: player.name,
+        tiebreaker: player.tiebreaker,
         picks: matchups.map((game, gameIdx) => ({
           bowlId: game?.id || `game-${gameIdx}`,
           pick: player.picks?.[gameIdx] || "-",
@@ -46,9 +49,16 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
         const pick = record.picks?.[idx];
         const status = pickStatus(pick?.winner, pick?.pick);
         return (
-          <Tag className={`all-picks__tag all-picks__tag--${status}`}>
-            {pick?.pick || "-"}
-          </Tag>
+          <>
+            <Tag className={`all-picks__tag all-picks__tag--${status}`}>
+              {pick?.pick || "-"}
+            </Tag>
+            {game.game === TIEBREAKER_BOWL_NAME&&(
+              <Tag className="all-picks__tag--tiebreaker">
+                {record.tiebreaker}
+              </Tag>
+            )}
+          </>
         );
       },
     }));

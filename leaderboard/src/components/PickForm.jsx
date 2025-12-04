@@ -8,7 +8,7 @@ import "../styles/pick-form.css";
 import { uploadPicks } from "../utils/uploadPicks";
 // import mockGames from "../assets/mockBowls.json";
 
-const PickForm = ({ onSubmitResult }) => {
+const PickForm = ({ playerPicks, onSubmitResult }) => {
   const { games: scoreboardGames, loading, error } = useScoreboard();
   const picksClosed = false; // toggle off when bowl season opens
   const [picks, setPicks] = useState({});
@@ -16,6 +16,9 @@ const PickForm = ({ onSubmitResult }) => {
   const [email, setEmail] = useState("");
   const [tieBreaker, setTieBreaker] = useState("");
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
+  const existingNames = playerPicks.map((pick) =>
+    (pick?.name || "").trim().toLowerCase()
+  );
 
   /*
   // forcing mock data here
@@ -30,7 +33,11 @@ const PickForm = ({ onSubmitResult }) => {
       const normalizeTeam = (team) => {
         const accent = team?.color || team?.alternateColor || "";
         const accentColor =
-          accent && accent.startsWith("#") ? accent : accent ? `#${accent}` : "";
+          accent && accent.startsWith("#")
+            ? accent
+            : accent
+            ? `#${accent}`
+            : "";
 
         return {
           id: team?.id,
@@ -68,7 +75,9 @@ const PickForm = ({ onSubmitResult }) => {
   const hasEmail = trimmedEmail.length > 0;
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailIsValid = hasEmail ? emailPattern.test(trimmedEmail) : false;
-  const nameError = hasSubmitAttempt && !hasEntryName;
+  const duplicateEntryName =
+    trimmedName.length > 0 && existingNames.includes(trimmedName.toLowerCase());
+  const nameError = hasSubmitAttempt && (!hasEntryName || duplicateEntryName);
   const emailError = hasSubmitAttempt && (!hasEmail || !emailIsValid);
   const tieBreakerRequired = games.some(
     (game) => game?.bowlName === TIEBREAKER_BOWL_NAME
@@ -86,7 +95,8 @@ const PickForm = ({ onSubmitResult }) => {
     hasEmail &&
     emailIsValid &&
     allPicksMade &&
-    tieBreakerProvided;
+    tieBreakerProvided &&
+    !duplicateEntryName;
 
   const clearValidityMessage = (event) => {
     event.target.setCustomValidity("");
@@ -94,6 +104,11 @@ const PickForm = ({ onSubmitResult }) => {
 
   const setValidityMessage = (event, message) => {
     event.target.setCustomValidity(message);
+  };
+
+  const validatePickName = (event, name) => {
+    setEntryName(name);
+    clearValidityMessage(event);
   };
 
   const handleSelect = (_gameId, selectionKey, teamCode) => {
@@ -114,13 +129,35 @@ const PickForm = ({ onSubmitResult }) => {
       });
       return;
     }
-    if (!formIsValid) {
-      onSubmitResult?.({
-        message:
-          "Please complete every pick and required field before submitting.",
-        severity: "error",
-      });
-      return;
+    switch (true) {
+      case !hasEntryName:
+        onSubmitResult?.({
+          message: "Please enter a name for your entry.",
+          severity: "error",
+        });
+        return;
+      case duplicateEntryName:
+        onSubmitResult?.({
+          message:
+            "That entry name is already in use. Please choose another before submitting.",
+          severity: "error",
+        });
+        return;
+      case !hasEmail:
+        onSubmitResult?.({
+          message: "Email cannot be left blank. Please enter a valid email.",
+          severity: "error",
+        });
+        return;
+      case !formIsValid:
+        onSubmitResult?.({
+          message:
+            "Please complete every pick and required field before submitting.",
+          severity: "error",
+        });
+        return;
+      default:
+        break;
     }
 
     const input = {
@@ -159,14 +196,14 @@ const PickForm = ({ onSubmitResult }) => {
   }
 
   return (
-    <form className="pick-form-container" onSubmit={handleSubmit}>
+    <form className="pick-form-container" onSubmit={handleSubmit} noValidate>
       <div className="pick-form-header">
         <div className="pick-form-field">
           <TextField
             label="Add a Name to Your Picks"
             placeholder="Name your entry"
             value={entryName}
-            onChange={(event) => setEntryName(event.target.value)}
+            onChange={(event) => validatePickName(event, event.target.value)}
             onInvalid={(event) =>
               setValidityMessage(event, "Please enter a name for your entry.")
             }

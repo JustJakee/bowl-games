@@ -1,9 +1,9 @@
 .games-banner {
   position: fixed;
-  top: var(--banner-h);
+  /* top: var(--banner-h); this is not needed when demo bar is hidden*/
   left: 0;
   right: 0;
-  height: var(--gamesbar-h);
+  height: var(--gamesbar-h-no-demo);
   display: flex;
   align-items: center;
   gap: 12px;

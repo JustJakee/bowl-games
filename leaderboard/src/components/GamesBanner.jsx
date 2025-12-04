@@ -126,6 +126,8 @@ const GamesBanner = ({
               <Box
                 key={game.id || `${game.bowl}-${idx}`}
                 className="games-banner__card"
+                onClick={() => {window.open(`https://www.espn.com/college-football/game/_/gameId/${game.id}/`
+                  , '_blank');}}
               >
                 {game.bowl && (
                   <Typography variant="overline" className="games-banner__bowl">
