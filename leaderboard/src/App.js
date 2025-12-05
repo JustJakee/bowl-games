@@ -10,6 +10,7 @@ import { useScoreboard } from "./context/NCAAFDataContext";
 import { Amplify } from "aws-amplify";
 import config from "./amplifyconfiguration.json";
 import PickForm from "./components/PickForm.jsx";
+import Home from "./components/Home.jsx";
 import { fetchPicks } from "./utils/fetchPicks";
 // import mockResults from "./assets/mockBowlsResults.json";
 import AllPicks from "./components/AllPicks.jsx";
@@ -17,7 +18,7 @@ import AllPicks from "./components/AllPicks.jsx";
 Amplify.configure(config);
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState("leaderboard");
+  const [currentPage, setCurrentPage] = useState("home");
   const [playerPicks, setPlayerPicks] = useState([]);
   const [toast, setToast] = useState({
     open: false,
@@ -145,6 +146,7 @@ const App = () => {
 
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
       <div className="content">
+        {currentPage === "home" && <Home onNavigate={setCurrentPage} />}
         {currentPage === "schedule-view" && (
           <ScheduleView playerPicks={playerPicks} matchups={matchups} />
         )}

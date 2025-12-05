@@ -84,6 +84,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
   };
 
   const navItems = [
+    { id: "home", label: "Home" },
     { id: "picks", label: "Enter Your Picks" },
     { id: "leaderboard", label: "Leaderboard" },
     { id: "all-picks", label: "All Picks" },
@@ -163,14 +164,19 @@ const Header = ({ currentPage, setCurrentPage }) => {
           }}
         >
           <Typography
-            component="h1"
-            variant="h6"
-            fontWeight={800}
-            noWrap
-            sx={{ mr: 1 }}
-          >
-            Bob's Bowl Game Pick 'em
-          </Typography>
+          component="h1"
+          variant="h6"
+          fontWeight={800}
+          noWrap
+          onClick={() => handleNavBarClick("home")}
+          sx={{
+            mr: 1,
+            cursor: "pointer",
+            "&:hover": { color: "var(--accent)" },
+          }}
+        >
+          Bob's Bowl Game Pick 'em
+        </Typography>
 
           {/* Desktop nav */}
           <Box
