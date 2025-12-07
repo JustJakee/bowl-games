@@ -93,6 +93,11 @@
   color: #ffe9a6;
 }
 
+.pill-green {
+  border-color: rgba(89, 241, 122, 0.453);
+  color: #35f876;
+}
+
 .pill-outline {
   border-style: dashed;
 }

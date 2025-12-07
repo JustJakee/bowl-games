@@ -92,6 +92,7 @@ const App = () => {
         team2: game?.away?.displayName || game?.away?.abbr || "Away",
         winner: winnerAbbr,
         date: game?.startTimeText || `${index}`,
+        gameTotal: homeScore + awayScore,
       };
     });
   }, [scoreboardGames]);

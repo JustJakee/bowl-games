@@ -34,7 +34,7 @@ const Home = ({ onNavigate, setLocked, isLocked }) => {
           <div className="home-pills" aria-label="Highlights">
             <span className="pill pill-blue">Live score sync</span>
             <span className="pill pill-gold">Auto updated leaderboard</span>
-            <span className="pill pill-outline">Make your picks</span>
+            <span className="pill pill-green">Make your picks</span>
           </div>
 
           <ul className="home-list">
@@ -51,7 +51,16 @@ const Home = ({ onNavigate, setLocked, isLocked }) => {
               <p className="login-subtext">
                 {isLocked ?
                   "Authentication is still being finalized. Use the form to picture the flow, or continue straight to picks and the leaderboard." :
-                  "Please, only fill out one entry form per participant. $5 entry fee per particpant, get cash to Bob or venmo Jake (@Jake-Koons)"}
+                  <p>
+                    Please, only fill out one entry form per participant. $5 entry fee per participant,
+                    get cash to Bob or venmo Jake (<a
+                      href="https://venmo.com/u/Jake-Koons"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      @Jake-Koons
+                    </a>).
+                  </p>}
               </p>
             </div>
 
