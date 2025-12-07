@@ -172,7 +172,7 @@ const Header = ({ currentPage, setCurrentPage, isLocked}) => {
           sx={{
             mr: 1,
             cursor: "pointer",
-            "&:hover": { color: "var(--accent)" },
+            "&:hover": { color: "var(--accent-primary)" },
           }}
         >
           Bob's Bowl Game Pick 'em
@@ -201,9 +201,9 @@ const Header = ({ currentPage, setCurrentPage, isLocked}) => {
                   fontWeight: 700,
                   ...(currentPage === item.id
                     ? {
-                        bgcolor: "var(--accent)",
+                        bgcolor: "var(--accent-primary)",
                         color: "var(--accent-contrast)",
-                        "&:hover": { bgcolor: "var(--accent)" },
+                        "&:hover": { bgcolor: "var(--accent-primary)" },
                       }
                     : { color: "var(--color-text)" }),
                 }}

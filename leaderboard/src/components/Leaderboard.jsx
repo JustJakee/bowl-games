@@ -5,7 +5,7 @@ import thirdMedal from "../assets/medals/third.png";
 import "../styles/leaderboard.css";
 
 const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
-  const noWinners = matchups.map((game) => game.winner).includes("");
+  const noWinners = matchups.every(game => game.winner === "");
   const computeScore = (player) => {
     let score = 0;
     const len = Math.min(player.picks.length, matchups.length);

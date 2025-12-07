@@ -24,7 +24,7 @@ const Home = ({ onNavigate, setLocked, isLocked }) => {
       <div className="home-hero">
         <div className="home-about">
           <p className="home-eyebrow">Bowl Season 2025</p>
-          <h1>Bob&apos;s Bowl Game Pick &apos;em</h1>
+          <h1>Bob's Bowl Game Pick 'em</h1>
           <p className="home-lede">
             Friendly bragging rights, live scores, and every pick lined up in
             one place. Spin up your entry, track the leaderboard, and follow the
@@ -54,7 +54,7 @@ const Home = ({ onNavigate, setLocked, isLocked }) => {
                   "Please, only fill out one entry form per participant. $5 entry fee per particpant, get cash to Bob or venmo Jake (@Jake-Koons)"}
               </p>
             </div>
-            
+
             <form className="login-form" onSubmit={handleSubmit}>
               {isLocked ? (
                 <>
@@ -67,11 +67,11 @@ const Home = ({ onNavigate, setLocked, isLocked }) => {
                     placeholder='username'
                     required
                   />
-                 
+
                   <label htmlFor='login-password'>
                     Password <span className='label-optional'>(placeholder)</span>
                   </label>
-  
+
                   <input
                     id='login-password'
                     name='password'
@@ -80,12 +80,12 @@ const Home = ({ onNavigate, setLocked, isLocked }) => {
                     placeholder='••••••••'
                     required
                   />
-  
+
                   <button type="submit" className="home-btn primary full">
                     Log in
                   </button>
                 </>
-                ) : (
+              ) : (
                 <>
                   <button
                     type="button"
@@ -95,7 +95,7 @@ const Home = ({ onNavigate, setLocked, isLocked }) => {
                     Enter Your Picks
                   </button>
                 </>
-                )
+              )
               }
             </form>
           </div>
