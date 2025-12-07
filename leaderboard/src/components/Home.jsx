@@ -52,7 +52,7 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
               <p className="login-subtext">
                 {isLocked ?
                   "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
-                  "View the current leaderboard or check out the live scores!"
+                  "View the current leaderboard, view everybody's picks, or check out the live scores!"
                 }
               </p>
             </div>
@@ -99,6 +99,13 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
                   <button
                     type="button"
                     className="home-btn secondary full"
+                    onClick={() => navigateTo("all-picks")}
+                  >
+                    All Picks
+                  </button>
+                  <button
+                    type="button"
+                    className="home-btn primary full"
                     onClick={() => navigateTo("schedule-view")}
                   >
                     Scores
