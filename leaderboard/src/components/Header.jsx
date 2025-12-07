@@ -51,7 +51,7 @@ const Header = ({ currentPage, setCurrentPage, isLocked}) => {
     const link = document.createElement("a");
 
     link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "picks_2025.xlsx");
+    link.setAttribute("download", "picks_2025.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
