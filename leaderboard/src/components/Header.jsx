@@ -86,7 +86,6 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted}) => {
   const navItems = gamesStarted ? 
   [
     { id: "home", label: "Home" },
-    { id: "picks", label: "Enter Your Picks" },
     { id: "leaderboard", label: "Leaderboard" },
     { id: "all-picks", label: "All Picks" },
     { id: "schedule-view", label: "Scores" },
