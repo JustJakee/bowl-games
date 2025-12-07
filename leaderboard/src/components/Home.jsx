@@ -3,7 +3,7 @@ import "../styles/home.css";
 const ENTRY_COIN = "bobs"
 const ENTRY_TOKEN = "picks"
 
-const Home = ({ onNavigate, isLocked, loginHelper }) => {
+const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -44,9 +44,76 @@ const Home = ({ onNavigate, isLocked, loginHelper }) => {
         </div>
 
         <div className="home-login" aria-labelledby="login-heading">
+          {gamesStarted ?
+          <>
           <div className="login-card">
             <div className="login-header">
-              <h2 id="login-heading">{isLocked ? "Sign In to Access" : "Enter Picks Below or Continue to Leaderboard"}</h2>
+              <h2 id="login-heading">{isLocked  ? "Sign In to Access" : "Welcome to Bowl Picks"}</h2>
+              <p className="login-subtext">
+                {isLocked ?
+                  "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
+                  "View the current leaderboard or check out the live scores!"
+                }
+              </p>
+            </div>
+
+            <form className="login-form" onSubmit={handleSubmit}>
+              {isLocked ? (
+                <>
+                  <label htmlFor='login-email'>Username</label>
+                  <input
+                    id='login-email'
+                    name='email'
+                    type='text'
+                    autoComplete='username'
+                    placeholder='username'
+                    required
+                  />
+
+                  <label htmlFor='login-password'>
+                    Password <span className='label-optional'>(placeholder)</span>
+                  </label>
+
+                  <input
+                    id='login-password'
+                    name='password'
+                    type='password'
+                    autoComplete='current-password'
+                    placeholder='••••••••'
+                    required
+                  />
+
+                  <button type="submit" className="home-btn primary full">
+                    Log in
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="home-btn tertiary full"
+                    onClick={() => navigateTo("leaderboard")}
+                  >
+                    Leaderboard
+                  </button>
+                  <button
+                    type="button"
+                    className="home-btn secondary full"
+                    onClick={() => navigateTo("schedule-view")}
+                  >
+                    Scores
+                  </button>
+                </>
+              )
+              }
+            </form>
+          </div>
+          </>
+          :
+          <>
+          <div className="login-card">
+            <div className="login-header">
+              <h2 id="login-heading">{isLocked  ? "Sign In to Access" : "Enter Picks Below or Continue to Leaderboard"}</h2>
               <p className="login-subtext">
                 {isLocked ?
                   "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
@@ -114,6 +181,7 @@ const Home = ({ onNavigate, isLocked, loginHelper }) => {
               }
             </form>
           </div>
+          </>}
         </div>
       </div>
     </section>

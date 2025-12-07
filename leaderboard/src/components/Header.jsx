@@ -18,7 +18,8 @@ import GamesBanner from "./GamesBanner.jsx";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { fetchPicks } from "../utils/fetchPicks.js";
 
-const Header = ({ currentPage, setCurrentPage, isLocked}) => {
+const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted}) => {
+  gamesStarted = false;
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isBowlSeason = true; // this controls demo mode banner
@@ -83,13 +84,20 @@ const Header = ({ currentPage, setCurrentPage, isLocked}) => {
     }
   };
 
-  const navItems = [
+  const navItems = gamesStarted ? 
+  [
     { id: "home", label: "Home" },
     { id: "picks", label: "Enter Your Picks" },
     { id: "leaderboard", label: "Leaderboard" },
     { id: "all-picks", label: "All Picks" },
     { id: "schedule-view", label: "Scores" },
     { id: "csv", label: "Download Picks" },
+  ] :
+  [
+    { id: "home", label: "Home" },
+    { id: "picks", label: "Enter Your Picks" },
+    { id: "leaderboard", label: "Leaderboard" },
+    { id: "schedule-view", label: "Scores" },
   ];
 
   return (
