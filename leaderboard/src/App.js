@@ -142,6 +142,20 @@ const App = () => {
     loadPicks();
   }, [loadPicks]);
 
+  const loginHelper = (value) => {
+    if (value) {
+      setLocked(false);
+      setToast((prev) => ({ ...prev, open: false })); // close any stale toasts
+    } else {
+      setLocked(true);
+      setToast({
+        open: true,
+        severity: "error",
+        message: "Please enter the correct login info.",
+      });
+    }
+  };
+
   return (
     <div className="container">
       <title>College Bowl Game Picks 🏆</title>
@@ -155,8 +169,8 @@ const App = () => {
         {currentPage === "home" && (
           <Home
             onNavigate={setCurrentPage}
-            setLocked={setLocked}
             isLocked={isLocked}
+            loginHelper={loginHelper}
           />
         )}
         {currentPage === "schedule-view" && (

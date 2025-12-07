@@ -3,14 +3,13 @@ import "../styles/home.css";
 const ENTRY_COIN = "bobs"
 const ENTRY_TOKEN = "picks"
 
-const Home = ({ onNavigate, setLocked, isLocked }) => {
+const Home = ({ onNavigate, isLocked, loginHelper }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
     const validCoin = ENTRY_COIN === event.target[0].value;
     const validToken = ENTRY_TOKEN === event.target[1].value;
-
-    (validCoin && validToken) ? setLocked(false) : setLocked(true);
+    loginHelper(validCoin && validToken)
   };
 
   const navigateTo = (pageId) => {
