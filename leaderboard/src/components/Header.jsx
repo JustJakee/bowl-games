@@ -19,7 +19,6 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { fetchPicks } from "../utils/fetchPicks.js";
 
 const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted}) => {
-  gamesStarted = false;
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isBowlSeason = true; // this controls demo mode banner

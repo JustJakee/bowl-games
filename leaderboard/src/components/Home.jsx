@@ -44,7 +44,7 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
         </div>
 
         <div className="home-login" aria-labelledby="login-heading">
-          {gamesStarted ?
+          {gamesStarted ? (
           <>
           <div className="login-card">
             <div className="login-header">
@@ -109,7 +109,7 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
             </form>
           </div>
           </>
-          :
+          ) : (
           <>
           <div className="login-card">
             <div className="login-header">
@@ -181,7 +181,7 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
               }
             </form>
           </div>
-          </>}
+          </>)}
         </div>
       </div>
     </section>
