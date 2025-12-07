@@ -18,7 +18,7 @@ import GamesBanner from "./GamesBanner.jsx";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { fetchPicks } from "../utils/fetchPicks.js";
 
-const Header = ({ currentPage, setCurrentPage }) => {
+const Header = ({ currentPage, setCurrentPage, isLocked}) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isBowlSeason = true; // this controls demo mode banner
@@ -51,7 +51,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
     const link = document.createElement("a");
 
     link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "picks_2025.xlsx");
+    link.setAttribute("download", "picks_2025.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -84,6 +84,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
   };
 
   const navItems = [
+    { id: "home", label: "Home" },
     { id: "picks", label: "Enter Your Picks" },
     { id: "leaderboard", label: "Leaderboard" },
     { id: "all-picks", label: "All Picks" },
@@ -163,14 +164,19 @@ const Header = ({ currentPage, setCurrentPage }) => {
           }}
         >
           <Typography
-            component="h1"
-            variant="h6"
-            fontWeight={800}
-            noWrap
-            sx={{ mr: 1 }}
-          >
-            Bob's Bowl Game Pick 'em
-          </Typography>
+          component="h1"
+          variant="h6"
+          fontWeight={800}
+          noWrap
+          onClick={() => handleNavBarClick("home")}
+          sx={{
+            mr: 1,
+            cursor: "pointer",
+            "&:hover": { color: "var(--accent-primary)" },
+          }}
+        >
+          Bob's Bowl Game Pick 'em
+        </Typography>
 
           {/* Desktop nav */}
           <Box
@@ -184,6 +190,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
           >
             {navItems.map((item) => (
               <Button
+                disabled={isLocked}
                 key={item.id}
                 size="small"
                 onClick={() => handleNavBarClick(item.id)}
@@ -194,9 +201,9 @@ const Header = ({ currentPage, setCurrentPage }) => {
                   fontWeight: 700,
                   ...(currentPage === item.id
                     ? {
-                        bgcolor: "var(--accent)",
+                        bgcolor: "var(--accent-primary)",
                         color: "var(--accent-contrast)",
-                        "&:hover": { bgcolor: "var(--accent)" },
+                        "&:hover": { bgcolor: "var(--accent-primary)" },
                       }
                     : { color: "var(--color-text)" }),
                 }}

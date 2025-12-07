@@ -3,7 +3,7 @@ import VersusBadge from "./VersusBadge";
 import TeamPickOption from "./TeamPickOption";
 
 // TODO: Update me when bowl games drop
-export const TIEBREAKER_BOWL_NAME = "SEC Championship";
+export const TIEBREAKER_BOWL_NAME = "ReliaQuest Bowl";
 
 const PickMatchupCard = ({
   id,

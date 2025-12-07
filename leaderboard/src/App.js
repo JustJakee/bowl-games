@@ -10,6 +10,7 @@ import { useScoreboard } from "./context/NCAAFDataContext";
 import { Amplify } from "aws-amplify";
 import config from "./amplifyconfiguration.json";
 import PickForm from "./components/PickForm.jsx";
+import Home from "./components/Home.jsx";
 import { fetchPicks } from "./utils/fetchPicks";
 // import mockResults from "./assets/mockBowlsResults.json";
 import AllPicks from "./components/AllPicks.jsx";
@@ -17,7 +18,7 @@ import AllPicks from "./components/AllPicks.jsx";
 Amplify.configure(config);
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState("leaderboard");
+  const [currentPage, setCurrentPage] = useState("home");
   const [playerPicks, setPlayerPicks] = useState([]);
   const [toast, setToast] = useState({
     open: false,
@@ -25,6 +26,7 @@ const App = () => {
     severity: "success",
   });
   const [picksLoading, setPicksLoading] = useState(false);
+  const [isLocked, setLocked] = useState(true);
   const { games: scoreboardGames } = useScoreboard();
 
   const handleToastClose = (event, reason) => {
@@ -90,6 +92,7 @@ const App = () => {
         team2: game?.away?.displayName || game?.away?.abbr || "Away",
         winner: winnerAbbr,
         date: game?.startTimeText || `${index}`,
+        gameTotal: homeScore + awayScore,
       };
     });
   }, [scoreboardGames]);
@@ -139,12 +142,37 @@ const App = () => {
     loadPicks();
   }, [loadPicks]);
 
+  const loginHelper = (value) => {
+    if (value) {
+      setLocked(false);
+      setToast((prev) => ({ ...prev, open: false })); // close any stale toasts
+    } else {
+      setLocked(true);
+      setToast({
+        open: true,
+        severity: "error",
+        message: "Please enter the correct login info.",
+      });
+    }
+  };
+
   return (
     <div className="container">
       <title>College Bowl Game Picks 🏆</title>
 
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Header
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        isLocked={isLocked}
+      />
       <div className="content">
+        {currentPage === "home" && (
+          <Home
+            onNavigate={setCurrentPage}
+            isLocked={isLocked}
+            loginHelper={loginHelper}
+          />
+        )}
         {currentPage === "schedule-view" && (
           <ScheduleView playerPicks={playerPicks} matchups={matchups} />
         )}

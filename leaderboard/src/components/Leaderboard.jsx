@@ -1,11 +1,28 @@
+import { useMemo } from "react";
 import { CircularProgress } from "@mui/material";
 import firstMedal from "../assets/medals/first.png";
 import secondMedal from "../assets/medals/second.png";
 import thirdMedal from "../assets/medals/third.png";
 import "../styles/leaderboard.css";
+import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 
 const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
-  const noWinners = matchups.map((game) => game.winner).includes("");
+  const noWinners = matchups.every(game => game.winner === "");
+
+  const tieBreakerTotal = useMemo(() => {
+    const tieBreakerGame = (matchups || []).find((game) => {
+      const name = (game?.game || "").trim().toLowerCase();
+      return name === TIEBREAKER_BOWL_NAME.toLowerCase();
+    });
+    if (!tieBreakerGame) return null;
+
+    const total = Number(tieBreakerGame?.gameTotal);
+    const hasWinner = Boolean(tieBreakerGame?.winner);
+    if (!Number.isFinite(total) || !hasWinner) return null;
+
+    return total;
+  }, [matchups]);
+
   const computeScore = (player) => {
     let score = 0;
     const len = Math.min(player.picks.length, matchups.length);
@@ -13,15 +30,26 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
       const winner = matchups[i]?.winner;
       if (winner && winner === player.picks[i]) score++;
     }
-    return score;
+
+    const tieBreakerGuess = Number(player?.tiebreaker);
+    const tieBreakerDistance = Math.abs(tieBreakerGuess - tieBreakerTotal);
+
+    return { score, tieBreakerDistance };
   };
 
   const playersWithScores = (playerPicks || [])
-    .map((p) => ({
-      ...p,
-      score: computeScore(p),
-    }))
-    .sort((a, b) => b.score - a.score);
+    .map((p) => {
+      const { score, tieBreakerDistance } = computeScore(p);
+      return {
+        ...p,
+        score,
+        tieBreakerDistance,
+      };
+    })
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.tieBreakerDistance - b.tieBreakerDistance;
+    });
 
   const top3 = playersWithScores.slice(0, 3);
   const rest = playersWithScores.slice(3);
