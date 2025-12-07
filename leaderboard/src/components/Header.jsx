@@ -245,6 +245,7 @@ const Header = ({ currentPage, setCurrentPage, isLocked}) => {
         <List role="menu" aria-label="Mobile Navigation">
           {navItems.map((item) => (
             <ListItemButton
+              disabled={isLocked}
               key={item.id}
               role="menuitem"
               selected={currentPage === item.id}

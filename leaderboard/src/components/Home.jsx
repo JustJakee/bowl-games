@@ -49,7 +49,7 @@ const Home = ({ onNavigate, isLocked, loginHelper }) => {
               <h2 id="login-heading">{isLocked ? "Sign In to Access" : "Enter Picks Below or Continue to Leaderboard"}</h2>
               <p className="login-subtext">
                 {isLocked ?
-                  "Authentication is still being finalized. Use the form to picture the flow, or continue straight to picks and the leaderboard." :
+                  "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
                   <p>
                     Please, only fill out one entry form per participant. $5 entry fee per participant,
                     get cash to Bob or venmo Jake (<a
