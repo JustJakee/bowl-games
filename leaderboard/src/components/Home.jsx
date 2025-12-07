@@ -45,150 +45,150 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
 
         <div className="home-login" aria-labelledby="login-heading">
           {gamesStarted ? (
-          <>
-          <div className="login-card">
-            <div className="login-header">
-              <h2 id="login-heading">{isLocked  ? "Sign In to Access" : "Welcome to Bowl Picks"}</h2>
-              <p className="login-subtext">
-                {isLocked ?
-                  "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
-                  "View the current leaderboard, view everybody's picks, or check out the live scores!"
-                }
-              </p>
-            </div>
+            <>
+              <div className="login-card">
+                <div className="login-header">
+                  <h2 id="login-heading">{isLocked ? "Sign In to Access" : "Welcome to Bowl Picks"}</h2>
+                  <p className="login-subtext">
+                    {isLocked ?
+                      "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
+                      "View the current leaderboard, view everybody's picks, or check out the live scores!"
+                    }
+                  </p>
+                </div>
 
-            <form className="login-form" onSubmit={handleSubmit}>
-              {isLocked ? (
-                <>
-                  <label htmlFor='login-email'>Username</label>
-                  <input
-                    id='login-email'
-                    name='email'
-                    type='text'
-                    autoComplete='username'
-                    placeholder='username'
-                    required
-                  />
+                <form className="login-form" onSubmit={handleSubmit}>
+                  {isLocked ? (
+                    <>
+                      <label htmlFor='login-email'>Username</label>
+                      <input
+                        id='login-email'
+                        name='email'
+                        type='text'
+                        autoComplete='username'
+                        placeholder='username'
+                        required
+                      />
 
-                  <label htmlFor='login-password'>
-                    Password <span className='label-optional'>(placeholder)</span>
-                  </label>
+                      <label htmlFor='login-password'>
+                        Password <span className='label-optional'>(placeholder)</span>
+                      </label>
 
-                  <input
-                    id='login-password'
-                    name='password'
-                    type='password'
-                    autoComplete='current-password'
-                    placeholder='••••••••'
-                    required
-                  />
+                      <input
+                        id='login-password'
+                        name='password'
+                        type='password'
+                        autoComplete='current-password'
+                        placeholder='••••••••'
+                        required
+                      />
 
-                  <button type="submit" className="home-btn primary full">
-                    Log in
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    className="home-btn tertiary full"
-                    onClick={() => navigateTo("leaderboard")}
-                  >
-                    Leaderboard
-                  </button>
-                  <button
-                    type="button"
-                    className="home-btn secondary full"
-                    onClick={() => navigateTo("all-picks")}
-                  >
-                    All Picks
-                  </button>
-                  <button
-                    type="button"
-                    className="home-btn primary full"
-                    onClick={() => navigateTo("schedule-view")}
-                  >
-                    Scores
-                  </button>
-                </>
-              )
-              }
-            </form>
-          </div>
-          </>
+                      <button type="submit" className="home-btn primary full">
+                        Log in
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className="home-btn tertiary full"
+                        onClick={() => navigateTo("leaderboard")}
+                      >
+                        Leaderboard
+                      </button>
+                      <button
+                        type="button"
+                        className="home-btn secondary full"
+                        onClick={() => navigateTo("all-picks")}
+                      >
+                        All Picks
+                      </button>
+                      <button
+                        type="button"
+                        className="home-btn primary full"
+                        onClick={() => navigateTo("schedule-view")}
+                      >
+                        Scores
+                      </button>
+                    </>
+                  )
+                  }
+                </form>
+              </div>
+            </>
           ) : (
-          <>
-          <div className="login-card">
-            <div className="login-header">
-              <h2 id="login-heading">{isLocked  ? "Sign In to Access" : "Enter Picks Below or Continue to Leaderboard"}</h2>
-              <p className="login-subtext">
-                {isLocked ?
-                  "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
-                  <p>
-                    Please, only fill out one entry form per participant. $5 entry fee per participant,
-                    get cash to Bob or venmo Jake (<a
-                      href="https://venmo.com/u/Jake-Koons"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      @Jake-Koons
-                    </a>).
-                  </p>}
-              </p>
-            </div>
+            <>
+              <div className="login-card">
+                <div className="login-header">
+                  <h2 id="login-heading">{isLocked ? "Sign In to Access" : "Enter Picks Below or Continue to Leaderboard"}</h2>
+                  <p className="login-subtext">
+                    {isLocked ?
+                      "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
+                      <p>
+                        Please, only fill out one entry form per participant. $5 entry fee per participant,
+                        get cash to Bob or venmo Jake (<a
+                          href="https://venmo.com/u/Jake-Koons"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          @Jake-Koons
+                        </a>).
+                      </p>}
+                  </p>
+                </div>
 
-            <form className="login-form" onSubmit={handleSubmit}>
-              {isLocked ? (
-                <>
-                  <label htmlFor='login-email'>Username</label>
-                  <input
-                    id='login-email'
-                    name='email'
-                    type='text'
-                    autoComplete='username'
-                    placeholder='username'
-                    required
-                  />
+                <form className="login-form" onSubmit={handleSubmit}>
+                  {isLocked ? (
+                    <>
+                      <label htmlFor='login-email'>Username</label>
+                      <input
+                        id='login-email'
+                        name='email'
+                        type='text'
+                        autoComplete='username'
+                        placeholder='username'
+                        required
+                      />
 
-                  <label htmlFor='login-password'>
-                    Password <span className='label-optional'>(placeholder)</span>
-                  </label>
+                      <label htmlFor='login-password'>
+                        Password <span className='label-optional'>(placeholder)</span>
+                      </label>
 
-                  <input
-                    id='login-password'
-                    name='password'
-                    type='password'
-                    autoComplete='current-password'
-                    placeholder='••••••••'
-                    required
-                  />
+                      <input
+                        id='login-password'
+                        name='password'
+                        type='password'
+                        autoComplete='current-password'
+                        placeholder='••••••••'
+                        required
+                      />
 
-                  <button type="submit" className="home-btn primary full">
-                    Log in
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    className="home-btn secondary full"
-                    onClick={() => navigateTo("picks")}
-                  >
-                    Enter Your Picks
-                  </button>
-                  <button
-                    type="button"
-                    className="home-btn tertiary full"
-                    onClick={() => navigateTo("leaderboard")}
-                  >
-                    Leaderboard
-                  </button>
-                </>
-              )
-              }
-            </form>
-          </div>
-          </>)}
+                      <button type="submit" className="home-btn primary full">
+                        Log in
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className="home-btn secondary full"
+                        onClick={() => navigateTo("picks")}
+                      >
+                        Enter Your Picks
+                      </button>
+                      <button
+                        type="button"
+                        className="home-btn tertiary full"
+                        onClick={() => navigateTo("leaderboard")}
+                      >
+                        Leaderboard
+                      </button>
+                    </>
+                  )
+                  }
+                </form>
+              </div>
+            </>)}
         </div>
       </div>
     </section>

@@ -28,8 +28,8 @@ const App = () => {
   const [picksLoading, setPicksLoading] = useState(false);
   const [isLocked, setLocked] = useState(true);
   const { games: scoreboardGames } = useScoreboard();
-  const gamesStarted = scoreboardGames.some(game =>
-    Object.values(game).some(state => ["in", "post"].includes(state))
+  const gamesStarted = scoreboardGames.some((game) =>
+    Object.values(game).some((state) => ["in", "post"].includes(state))
   );
 
   const handleToastClose = (event, reason) => {
@@ -182,10 +182,7 @@ const App = () => {
           <ScheduleView playerPicks={playerPicks} matchups={matchups} />
         )}
         {currentPage === "all-picks" && (
-          <AllPicks
-            playerPicks={playerPicks}
-            matchups={matchups}
-          />
+          <AllPicks playerPicks={playerPicks} matchups={matchups} />
         )}
         {currentPage === "leaderboard" && (
           <Leaderboard

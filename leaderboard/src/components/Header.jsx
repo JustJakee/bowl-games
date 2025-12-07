@@ -18,7 +18,7 @@ import GamesBanner from "./GamesBanner.jsx";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { fetchPicks } from "../utils/fetchPicks.js";
 
-const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted}) => {
+const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted }) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isBowlSeason = true; // this controls demo mode banner
@@ -83,20 +83,20 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted}) => {
     }
   };
 
-  const navItems = gamesStarted ? 
-  [
-    { id: "home", label: "Home" },
-    { id: "leaderboard", label: "Leaderboard" },
-    { id: "all-picks", label: "All Picks" },
-    { id: "schedule-view", label: "Scores" },
-    { id: "csv", label: "Download Picks" },
-  ] :
-  [
-    { id: "home", label: "Home" },
-    { id: "picks", label: "Enter Your Picks" },
-    { id: "leaderboard", label: "Leaderboard" },
-    { id: "schedule-view", label: "Scores" },
-  ];
+  const navItems = gamesStarted ?
+    [
+      { id: "home", label: "Home" },
+      { id: "leaderboard", label: "Leaderboard" },
+      { id: "all-picks", label: "All Picks" },
+      { id: "schedule-view", label: "Scores & Schedule" },
+      { id: "csv", label: "Download Picks" },
+    ] :
+    [
+      { id: "home", label: "Home" },
+      { id: "picks", label: "Enter Your Picks" },
+      { id: "leaderboard", label: "Leaderboard" },
+      { id: "schedule-view", label: "Schedule" },
+    ];
 
   return (
     <>
@@ -170,19 +170,19 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted}) => {
           }}
         >
           <Typography
-          component="h1"
-          variant="h6"
-          fontWeight={800}
-          noWrap
-          onClick={() => handleNavBarClick("home")}
-          sx={{
-            mr: 1,
-            cursor: "pointer",
-            "&:hover": { color: "var(--accent-primary)" },
-          }}
-        >
-          Bob's Bowl Game Pick 'em
-        </Typography>
+            component="h1"
+            variant="h6"
+            fontWeight={800}
+            noWrap
+            onClick={() => handleNavBarClick("home")}
+            sx={{
+              mr: 1,
+              cursor: "pointer",
+              "&:hover": { color: "var(--accent-primary)" },
+            }}
+          >
+            Bob's Bowl Game Pick 'em
+          </Typography>
 
           {/* Desktop nav */}
           <Box
@@ -207,10 +207,10 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted}) => {
                   fontWeight: 700,
                   ...(currentPage === item.id
                     ? {
-                        bgcolor: "var(--accent-primary)",
-                        color: "var(--accent-contrast)",
-                        "&:hover": { bgcolor: "var(--accent-primary)" },
-                      }
+                      bgcolor: "var(--accent-primary)",
+                      color: "var(--accent-contrast)",
+                      "&:hover": { bgcolor: "var(--accent-primary)" },
+                    }
                     : { color: "var(--color-text)" }),
                 }}
               >
