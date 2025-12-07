@@ -147,15 +147,27 @@
 }
 
 .home-btn.secondary {
-  background: linear-gradient(120deg, var(--accent-secondary), #200dee);
+  background: linear-gradient(120deg, var(--accent-secondary), #3bbd0c);
   color: var(--accent-contrast);
-  border-color: rgba(31, 28, 200, 0.6);
-  box-shadow: 0 10px 30px rgba(16, 1, 123, 0.35);
+  border-color: rgba(36, 168, 24, 0.6);
+  box-shadow: 0 10px 30px rgba(4, 93, 1, 0.35);
 }
 
 .home-btn.secondary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 36px rgba(16, 1, 123, 0.45);
+  box-shadow: 0 12px 36px rgba(4, 93, 1, 0.45);
+}
+
+.home-btn.tertiary {
+  background: linear-gradient(120deg, var(--accent-tertiary), #ef980c);
+  color: var(--accent-contrast);
+  border-color: rgba(200, 137, 28, 0.6);
+  box-shadow: 0 10px 30px rgba(200, 137, 28, 0.35);
+}
+
+.home-btn.tertiary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 36px rgba(123, 123, 1, 0.45);
 }
 
 .home-btn.ghost {

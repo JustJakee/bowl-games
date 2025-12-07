@@ -46,7 +46,7 @@ const Home = ({ onNavigate, isLocked, loginHelper }) => {
         <div className="home-login" aria-labelledby="login-heading">
           <div className="login-card">
             <div className="login-header">
-              <h2 id="login-heading">{isLocked ? "Sign In to Access" : "Enter Your Picks Below"}</h2>
+              <h2 id="login-heading">{isLocked ? "Sign In to Access" : "Enter Picks Below or Continue to Leaderboard"}</h2>
               <p className="login-subtext">
                 {isLocked ?
                   "Authentication is still being finalized. Use the form to picture the flow, or continue straight to picks and the leaderboard." :
@@ -101,6 +101,13 @@ const Home = ({ onNavigate, isLocked, loginHelper }) => {
                     onClick={() => navigateTo("picks")}
                   >
                     Enter Your Picks
+                  </button>
+                  <button
+                    type="button"
+                    className="home-btn tertiary full"
+                    onClick={() => navigateTo("leaderboard")}
+                  >
+                    Leaderboard
                   </button>
                 </>
               )
