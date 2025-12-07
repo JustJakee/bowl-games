@@ -10,7 +10,8 @@
   --color-text: #e6e9ef;
   --color-muted: #a5adba;
   --color-hover: #1b1f27;
-  --accent: #cc0000;
+  --accent-primary: #cc0000;
+  --accent-secondary: #7285ff;
   --accent-contrast: #ffffff;
   --banner-h: 28px;
   --banner-h-no-demo: 0px;

@@ -26,6 +26,7 @@ const App = () => {
     severity: "success",
   });
   const [picksLoading, setPicksLoading] = useState(false);
+  const [isLocked, setLocked] = useState(true);
   const { games: scoreboardGames } = useScoreboard();
 
   const handleToastClose = (event, reason) => {
@@ -144,9 +145,9 @@ const App = () => {
     <div className="container">
       <title>College Bowl Game Picks 🏆</title>
 
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} isLocked={isLocked}/>
       <div className="content">
-        {currentPage === "home" && <Home onNavigate={setCurrentPage} />}
+        {currentPage === "home" && <Home onNavigate={setCurrentPage} setLocked={setLocked} isLocked={isLocked}/>}
         {currentPage === "schedule-view" && (
           <ScheduleView playerPicks={playerPicks} matchups={matchups} />
         )}

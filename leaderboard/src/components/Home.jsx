@@ -1,8 +1,16 @@
 import "../styles/home.css";
 
-const Home = ({ onNavigate }) => {
+const ENTRY_COIN = "bobs"
+const ENTRY_TOKEN = "picks"
+
+const Home = ({ onNavigate, setLocked, isLocked }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    const validCoin = ENTRY_COIN === event.target[0].value;
+    const validToken = ENTRY_TOKEN === event.target[1].value;
+
+    (validCoin && validToken) ? setLocked(false) : setLocked(true);
   };
 
   const navigateTo = (pageId) => {
@@ -39,46 +47,56 @@ const Home = ({ onNavigate }) => {
         <div className="home-login" aria-labelledby="login-heading">
           <div className="login-card">
             <div className="login-header">
-              <h2 id="login-heading">Sign In to Access</h2>
+              <h2 id="login-heading">{isLocked ? "Sign In to Access" : "Enter Your Picks Below"}</h2>
               <p className="login-subtext">
-                Authentication is still being finalized. Use the form to picture
-                the flow, or continue straight to picks and the leaderboard.
+                {isLocked ?
+                  "Authentication is still being finalized. Use the form to picture the flow, or continue straight to picks and the leaderboard." :
+                  "Please, only fill out one entry form per participant. $5 entry fee per particpant, get cash to Bob or venmo Jake (@Jake-Koons)"}
               </p>
             </div>
-
+            
             <form className="login-form" onSubmit={handleSubmit}>
-              <label htmlFor="login-email">Username</label>
-              <input
-                id="login-email"
-                name="email"
-                type="text"
-                autoComplete="username"
-                placeholder="username"
-                required
-              />
-
-              <label htmlFor="login-password">
-                Password <span className="label-optional">(placeholder)</span>
-              </label>
-              <input
-                id="login-password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                required
-              />
-
-              <button type="submit" className="home-btn primary full">
-                Log in
-              </button>
-              <button
-                type="button"
-                className="home-btn ghost full"
-                onClick={() => navigateTo("leaderboard")}
-              >
-                View leaderboard as guest
-              </button>
+              {isLocked ? (
+                <>
+                  <label htmlFor='login-email'>Username</label>
+                  <input
+                    id='login-email'
+                    name='email'
+                    type='text'
+                    autoComplete='username'
+                    placeholder='username'
+                    required
+                  />
+                 
+                  <label htmlFor='login-password'>
+                    Password <span className='label-optional'>(placeholder)</span>
+                  </label>
+  
+                  <input
+                    id='login-password'
+                    name='password'
+                    type='password'
+                    autoComplete='current-password'
+                    placeholder='••••••••'
+                    required
+                  />
+  
+                  <button type="submit" className="home-btn primary full">
+                    Log in
+                  </button>
+                </>
+                ) : (
+                <>
+                  <button
+                    type="button"
+                    className="home-btn secondary full"
+                    onClick={() => navigateTo("picks")}
+                  >
+                    Enter Your Picks
+                  </button>
+                </>
+                )
+              }
             </form>
           </div>
         </div>

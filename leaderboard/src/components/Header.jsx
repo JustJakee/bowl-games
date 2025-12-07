@@ -18,7 +18,7 @@ import GamesBanner from "./GamesBanner.jsx";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { fetchPicks } from "../utils/fetchPicks.js";
 
-const Header = ({ currentPage, setCurrentPage }) => {
+const Header = ({ currentPage, setCurrentPage, isLocked}) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isBowlSeason = true; // this controls demo mode banner
@@ -190,6 +190,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
           >
             {navItems.map((item) => (
               <Button
+                disabled={isLocked}
                 key={item.id}
                 size="small"
                 onClick={() => handleNavBarClick(item.id)}
