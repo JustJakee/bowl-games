@@ -36,8 +36,8 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
           accent && accent.startsWith("#")
             ? accent
             : accent
-            ? `#${accent}`
-            : "";
+              ? `#${accent}`
+              : "";
 
         return {
           id: team?.id,

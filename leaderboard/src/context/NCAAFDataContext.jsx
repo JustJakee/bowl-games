@@ -14,13 +14,14 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       setLoading(true);
       setError("");
       const response = await fetchFormattedScoreboard();
+      const filteredResponse = response.filter(game => game.away.abbr !== "TBD" && game.home.abbr !== "TBD");
       if (!mounted.current) return;
-      setData(response);
+      setData(filteredResponse);
     } catch (err) {
       if (!mounted.current) return;
       setError(err?.message ?? "Failed to fetch scoreboard");
     } finally {
-    if (mounted.current) setLoading(false);
+      if (mounted.current) setLoading(false);
     }
   };
 

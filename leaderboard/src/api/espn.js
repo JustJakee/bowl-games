@@ -3,7 +3,7 @@
 // Example: https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard
 
 export async function fetchNcaafScoreboard(params = {}) {
-  const base = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard';
+  const base = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=3';
   const url = new URL(base);
 
   // Allow optional params like { dates: '20250101', groups: 80, week: 1 }
