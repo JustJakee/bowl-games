@@ -125,7 +125,7 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
                     {isLocked ?
                       "Authentication is still being finalized. Ask Bob or Jake for default password to get access." :
                       <p>
-                        Please, only fill out one entry form per participant. $5 entry fee per participant,
+                        Please, only fill out one entry form per participant. ONCE FORM IS SUBMITTED THERE IS NO EDITING YOUR PICKS. $5 entry fee per participant,
                         get cash to Bob or venmo Jake (<a
                           href="https://venmo.com/u/Jake-Koons"
                           target="_blank"

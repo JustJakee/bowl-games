@@ -4,6 +4,7 @@ const TeamPickOption = ({
   side = "away",
   code,
   record,
+  nickname,
   logoUrl,
   isSelected = false,
   disabled = false,
@@ -39,7 +40,7 @@ const TeamPickOption = ({
           fontWeight={700}
           className="team-pick-code"
         >
-          {code}{" "}
+          {nickname}{" "}
           {record <= 25 && (
             <Typography
               variant="caption"
