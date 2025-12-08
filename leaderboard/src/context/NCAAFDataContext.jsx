@@ -8,20 +8,30 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const mounted = useRef(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const firstLoad = useRef(true);
 
   const load = async () => {
+    const initial = firstLoad.current;
+    if (initial) setLoading(true);
+    else setRefreshing(true);
+    setError("");
+
     try {
-      setLoading(true);
-      setError("");
       const response = await fetchFormattedScoreboard();
-      const filteredResponse = response.filter(game => game.away.abbr !== "TBD" && game.home.abbr !== "TBD");
+      const filteredResponse = response.filter(
+        game => game.away.abbr !== "TBD" && game.home.abbr !== "TBD"
+      );
       if (!mounted.current) return;
       setData(filteredResponse);
     } catch (err) {
       if (!mounted.current) return;
       setError(err?.message ?? "Failed to fetch scoreboard");
     } finally {
-      if (mounted.current) setLoading(false);
+      if (!mounted.current) return;
+      if (initial) setLoading(false);
+      setRefreshing(false);
+      firstLoad.current = false;
     }
   };
 
@@ -36,8 +46,8 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
   }, [pollMs]);
 
   const value = useMemo(
-    () => ({ games: data ?? [], loading, error, reload: load }),
-    [data, loading, error]
+    () => ({ games: data ?? [], loading, refreshing, error, reload: load }),
+    [data, loading, refreshing, error]
   );
 
   return (
