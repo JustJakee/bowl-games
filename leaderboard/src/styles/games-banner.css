@@ -64,6 +64,10 @@
   border-left: 1px solid var(--color-border);
 }
 
+.games-banner__card:hover {
+  cursor: pointer;
+}
+
 .games-banner__card:first-of-type {
   border-left: none;
 }

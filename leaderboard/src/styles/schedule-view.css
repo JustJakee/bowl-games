@@ -7,6 +7,10 @@
   margin-bottom: var(--page-bottom-gap);
 }
 
+.score-box:hover {
+  cursor: pointer;
+}
+
 .schedule-container.error,
 .schedule-container.loading,
 .schedule-container .empty-state {

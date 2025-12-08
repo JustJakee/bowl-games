@@ -24,6 +24,7 @@ export default function ScoreBug({
 
   return (
     <Box
+      className="score-box"
       sx={{
         bgcolor: cardBg,
         borderRadius: 5,

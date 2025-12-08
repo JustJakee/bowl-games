@@ -160,6 +160,10 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
         break;
     }
 
+    if (!window.confirm("Once you submit, you won't be able to edit picks. Are you sure?")) {
+      return;
+    }
+
     const input = {
       name: trimmedName,
       email: trimmedEmail,
