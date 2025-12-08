@@ -244,7 +244,7 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted }) => {
             bgcolor: "var(--color-surface)",
             color: "var(--color-text)",
             width: 260,
-            mt: "28px",
+            mt: "48px",
           },
         }}
       >
