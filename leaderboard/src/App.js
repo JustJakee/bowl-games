@@ -28,6 +28,9 @@ const App = () => {
   const [picksLoading, setPicksLoading] = useState(false);
   const [isLocked, setLocked] = useState(true);
   const { games: scoreboardGames } = useScoreboard();
+  const gamesStarted = scoreboardGames.some((game) =>
+    Object.values(game).some((state) => ["in", "post"].includes(state))
+  );
 
   const handleToastClose = (event, reason) => {
     if (reason === "clickaway") return; // keep it open unless explicit close or timeout
@@ -164,6 +167,7 @@ const App = () => {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         isLocked={isLocked}
+        gamesStarted={gamesStarted}
       />
       <div className="content">
         {currentPage === "home" && (
@@ -171,6 +175,7 @@ const App = () => {
             onNavigate={setCurrentPage}
             isLocked={isLocked}
             loginHelper={loginHelper}
+            gamesStarted={gamesStarted}
           />
         )}
         {currentPage === "schedule-view" && (
