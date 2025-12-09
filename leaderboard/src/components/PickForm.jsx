@@ -201,6 +201,24 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
 
   return (
     <form className="pick-form-container" onSubmit={handleSubmit} noValidate>
+      {games.length === 0 && (
+        <div className="empty-state">No bowl matchups available right now.</div>
+      )}
+      {games.map((game) => {
+        const bowlKey =
+          game?.selectionKey || game?.bowlName?.trim() || "No Bowl Game";
+        return (
+          <PickMatchupCard
+            key={game.id}
+            {...game}
+            selectionKey={bowlKey}
+            selection={picks[bowlKey]}
+            onSelect={handleSelect}
+            setTieBreaker={setTieBreaker}
+            tieBreaker={tieBreaker}
+          />
+        );
+      })}
       <div className="pick-form-header">
         <div className="pick-form-field">
           <TextField
@@ -252,24 +270,6 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
           Submit Picks
         </Button>
       </div>
-      {games.length === 0 && (
-        <div className="empty-state">No bowl matchups available right now.</div>
-      )}
-      {games.map((game) => {
-        const bowlKey =
-          game?.selectionKey || game?.bowlName?.trim() || "No Bowl Game";
-        return (
-          <PickMatchupCard
-            key={game.id}
-            {...game}
-            selectionKey={bowlKey}
-            selection={picks[bowlKey]}
-            onSelect={handleSelect}
-            setTieBreaker={setTieBreaker}
-            tieBreaker={tieBreaker}
-          />
-        );
-      })}
       {picksClosed && (
         <div
           className="pick-form-overlay"
