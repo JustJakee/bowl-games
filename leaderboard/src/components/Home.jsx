@@ -132,7 +132,7 @@ const Home = ({ onNavigate, isLocked, loginHelper, gamesStarted }) => {
                           rel="noopener noreferrer"
                         >
                           @Jake-Koons
-                        </a>).
+                        </a>). All picks must be submitted before kickoff of the first game.
                       </p>}
                   </p>
                 </div>
