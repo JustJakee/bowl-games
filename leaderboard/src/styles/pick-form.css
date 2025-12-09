@@ -75,8 +75,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(14px);
   width: 100%;
-  position: sticky;
-  top: calc(var(--banner-h, 0px) + var(--appbar-h, 0px) + var(--gamesbar-h, 0px) + 16px);
+  position: static;
   z-index: 3;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
@@ -420,7 +419,6 @@
   .pick-form-header {
     flex-direction: column;
     align-items: stretch;
-    top: calc(var(--banner-h, 0px) + var(--appbar-h, 0px) + 10px);
     background: rgba(12, 12, 12, 0.92);
     padding: clamp(0.65rem, 4vw, 0.8rem);
     gap: clamp(0.55rem, 3vw, 0.7rem);
