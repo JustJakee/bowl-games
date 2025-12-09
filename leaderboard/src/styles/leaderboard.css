@@ -208,6 +208,9 @@
   );
   border: 1px solid rgba(46, 204, 113, 0.45);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.4rem;
 }
 
 .row-item.fourth {

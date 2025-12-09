@@ -8,6 +8,11 @@ import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 
 const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
   const noWinners = matchups.every((game) => game.winner === "");
+  // TO DO - UPDATE THESE ONCE WE HAVE VALUES
+  const firstPlace = "";
+  const secondPlace = "";
+  const thirdPlace = "";
+  const fourthPlace = "";
 
   const tieBreakerTotal = useMemo(() => {
     const tieBreakerGame = (matchups || []).find((game) => {
@@ -109,7 +114,7 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
                   height="84"
                 />
                 <div className="name">
-                  {top3[1].name} <span className="prize-badge">$</span>
+                  {top3[1].name} <span className="prize-badge">${secondPlace}</span>
                 </div>
                 <div className="meta">{top3[1].score} picks</div>
               </div>
@@ -125,7 +130,7 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
                 />
                 <div className="name">
                   {top3[0].name}
-                   <span className="prize-badge">$</span>
+                  <span className="prize-badge">${firstPlace}</span>
                 </div>
                 <div className="meta">{top3[0].score} picks</div>
               </div>
@@ -141,7 +146,7 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
                 />
                 <div className="name">
                   {top3[2].name}
-                  <span className="prize-badge">$</span>
+                  <span className="prize-badge">${thirdPlace}</span>
                 </div>
                 <div className="meta">{top3[2].score} picks</div>
               </div>
@@ -167,7 +172,7 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
               >
                 <div className="rank-badge">{rank + 4}</div>
                 <div className="row-name">{player.name}</div>
-                {rank === 0 && <span className="prize-badge">$</span>}
+                {rank === 0 && <span className="prize-badge">${fourthPlace}</span>}
                 <div className="spacer" />
                 <div className="score-pill">{player.score} picks</div>
               </div>
