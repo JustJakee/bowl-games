@@ -9,10 +9,10 @@ import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
   const noWinners = matchups.every((game) => game.winner === "");
   // TO DO - UPDATE THESE ONCE WE HAVE VALUES
-  const firstPlace = "";
-  const secondPlace = "";
-  const thirdPlace = "";
-  const fourthPlace = "";
+  const firstPlace = "110";
+  const secondPlace = "50";
+  const thirdPlace = "30";
+  const fourthPlace = "10";
 
   const tieBreakerTotal = useMemo(() => {
     const tieBreakerGame = (matchups || []).find((game) => {
