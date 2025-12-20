@@ -19,9 +19,19 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
 
     try {
       const response = await fetchFormattedScoreboard();
+      const removeDuplicateBowlName = (game) => {
+        if (game.bowl?.includes("College Football Playoff First Round Game")) {
+          return { ...game, bowl: `CFP First Round ${game.away?.abbr} vs ${game.home?.abbr}` };
+        }
+        return game;
+      };
+
       const filteredResponse = response.filter(
-        game => game.away.abbr !== "TBD" && game.home.abbr !== "TBD"
-      );
+        game => !game.bowl.includes("Quarterfinal") &&
+          !game.bowl.includes("Semifinal") &&
+          !game.bowl.includes("Playoff National Championship")
+      ).map(removeDuplicateBowlName);
+
       if (!mounted.current) return;
       setData(filteredResponse);
     } catch (err) {
