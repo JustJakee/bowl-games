@@ -20,7 +20,9 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
     try {
       const response = await fetchFormattedScoreboard();
       const filteredResponse = response.filter(
-        game => game.away.abbr !== "TBD" && game.home.abbr !== "TBD"
+        game => !game.bowl.includes("Quarterfinal") &&
+          !game.bowl.includes("Semifinal") &&
+          !game.bowl.includes("Playoff National Championship")
       );
       if (!mounted.current) return;
       setData(filteredResponse);
