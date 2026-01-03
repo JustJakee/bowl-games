@@ -26,10 +26,16 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
         return game;
       };
 
+      const EXCLUDED_BOWLS = [
+        "Quarterfinal",
+        "Semifinal",
+        "Playoff National Championship",
+        "FCS Championship",
+      ];
+
       const filteredResponse = response.filter(
-        game => !game.bowl.includes("Quarterfinal") &&
-          !game.bowl.includes("Semifinal") &&
-          !game.bowl.includes("Playoff National Championship")
+        game => game.bowl.trim() &&
+          !EXCLUDED_BOWLS.some(term => game.bowl.includes(term))
       ).map(removeDuplicateBowlName);
 
       if (!mounted.current) return;
