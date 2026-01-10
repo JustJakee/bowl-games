@@ -14,10 +14,12 @@ import Home from "./components/Home.jsx";
 import { fetchPicks } from "./utils/fetchPicks";
 // import mockResults from "./assets/mockBowlsResults.json";
 import AllPicks from "./components/AllPicks.jsx";
+import WinnersPodium from "./components/WinnersPodium.jsx";
 
 Amplify.configure(config);
 
 const App = () => {
+  const isBowlSeason = false; // set this to true when in season
   const [currentPage, setCurrentPage] = useState("home");
   const [playerPicks, setPlayerPicks] = useState([]);
   const [toast, setToast] = useState({
@@ -36,38 +38,6 @@ const App = () => {
     if (reason === "clickaway") return; // keep it open unless explicit close or timeout
     setToast((prev) => ({ ...prev, open: false }));
   };
-
-  /*
-  // Build mock matchups with computed winners (mirrors ESPN shape but final)
-  useEffect(() => {
-    const seen = {};
-    const gamesWithWinners = (mockResults || []).map((game, index) => {
-      const bowlName = game?.bowl || "Bowl Game";
-      const count = (seen[bowlName] || 0) + 1;
-      seen[bowlName] = count;
-      const pickKey = count > 1 ? `${bowlName} (#${count})` : bowlName;
-
-      const homeScore = Number(game?.home?.score ?? 0);
-      const awayScore = Number(game?.away?.score ?? 0);
-      let winnerAbbr = "";
-      if (!Number.isNaN(homeScore) && !Number.isNaN(awayScore)) {
-        if (homeScore > awayScore) winnerAbbr = game?.home?.abbr || "";
-        else if (awayScore > homeScore) winnerAbbr = game?.away?.abbr || "";
-      }
-
-      return {
-        id: game?.id || `mock-${index}`,
-        game: bowlName,
-        pickKey,
-        team1: game?.home?.displayName || game?.home?.abbr || "Home",
-        team2: game?.away?.displayName || game?.away?.abbr || "Away",
-        winner: winnerAbbr,
-        date: game?.startTimeText || `${index}`,
-      };
-    });
-    setMatchups(gamesWithWinners);
-  }, []);
-  */
 
   // Build matchups from live scoreboard data (keeps pick keys aligned with PickForm)
   const matchups = useMemo(() => {
@@ -161,68 +131,75 @@ const App = () => {
 
   return (
     <div className="container">
-      <title>College Bowl Game Picks 🏆</title>
+      {isBowlSeason ? (
+        <>
+          <title>College Bowl Game Picks 🏆</title>
 
-      <Header
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        isLocked={isLocked}
-        gamesStarted={gamesStarted}
-      />
-      <div className="content">
-        {currentPage === "home" && (
-          <Home
-            onNavigate={setCurrentPage}
+          <Header
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
             isLocked={isLocked}
-            loginHelper={loginHelper}
             gamesStarted={gamesStarted}
           />
-        )}
-        {currentPage === "schedule-view" && (
-          <ScheduleView playerPicks={playerPicks} matchups={matchups} />
-        )}
-        {currentPage === "all-picks" && (
-          <AllPicks playerPicks={playerPicks} matchups={matchups} />
-        )}
-        {currentPage === "leaderboard" && (
-          <Leaderboard
-            playerPicks={playerPicks}
-            matchups={matchups}
-            loading={picksLoading}
-          />
-        )}
-        {currentPage === "picks" && (
-          <PickForm
-            playerPicks={playerPicks}
-            matchups={matchups}
-            onSubmitResult={(result) => {
-              if (!result) return;
-              setToast({ open: true, ...result });
-              if (result.severity === "success") {
-                loadPicks();
-                setCurrentPage("leaderboard");
-              }
-            }}
-          />
-        )}
-      </div>
-      <Footer />
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={20000}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        sx={{ mb: 2 }}
-        onClose={handleToastClose}
-      >
-        <Alert
-          elevation={6}
-          variant="filled"
-          severity={toast.severity}
-          onClose={handleToastClose}
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
+          <div className="content">
+            {currentPage === "home" && (
+              <Home
+                onNavigate={setCurrentPage}
+                isLocked={isLocked}
+                loginHelper={loginHelper}
+                gamesStarted={gamesStarted}
+              />
+            )}
+            {currentPage === "schedule-view" && (
+              <ScheduleView playerPicks={playerPicks} matchups={matchups} />
+            )}
+            {currentPage === "all-picks" && (
+              <AllPicks playerPicks={playerPicks} matchups={matchups} />
+            )}
+            {currentPage === "leaderboard" && (
+              <Leaderboard
+                playerPicks={playerPicks}
+                matchups={matchups}
+                loading={picksLoading}
+              />
+            )}
+            {currentPage === "picks" && (
+              <PickForm
+                playerPicks={playerPicks}
+                matchups={matchups}
+                onSubmitResult={(result) => {
+                  if (!result) return;
+                  setToast({ open: true, ...result });
+                  if (result.severity === "success") {
+                    loadPicks();
+                    setCurrentPage("leaderboard");
+                  }
+                }}
+              />
+            )}
+          </div>
+          <Footer />
+          <Snackbar
+            open={toast.open}
+            autoHideDuration={20000}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            sx={{ mb: 2 }}
+            onClose={handleToastClose}
+          >
+            <Alert
+              elevation={6}
+              variant="filled"
+              severity={toast.severity}
+              onClose={handleToastClose}
+            >
+              {toast.message}
+            </Alert>
+          </Snackbar>
+        </>
+      ) : (
+        // Display winners in the offseason
+        <WinnersPodium />
+      )}
     </div>
   );
 };
