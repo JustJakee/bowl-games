@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "../styles/winners-podium.css";
 
 const TIEBREAKER_TOTAL = 61;
@@ -40,11 +41,58 @@ const PLACE_LABELS = {
   4: "4th Place",
 };
 
+const SUGGESTION_FORM_ACTION =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdhT2HsTOlYrxxN9_YpXvSJs68uQJFXNBg7tMMhWFxib3sUNQ/formResponse";
+const SUGGESTION_FIELD_ID = "entry.187247892";
+
 const WinnersPodium = () => {
   const winners = WINNERS.map((winner) => ({
     ...winner,
     tiebreakerMargin: Math.abs(TIEBREAKER_TOTAL - winner.tiebreakerGuess),
   })).sort((a, b) => a.place - b.place);
+  const [suggestion, setSuggestion] = useState("");
+  const [submitState, setSubmitState] = useState("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
+
+  const handleSuggestionChange = (event) => {
+    setSuggestion(event.target.value);
+    if (submitState !== "idle") {
+      setSubmitState("idle");
+      setSubmitMessage("");
+    }
+  };
+
+  const handleSuggestionSubmit = async (event) => {
+    event.preventDefault();
+    const trimmed = suggestion.trim();
+    if (!trimmed) {
+      setSubmitState("error");
+      setSubmitMessage("Please add a suggestion before submitting.");
+      return;
+    }
+
+    setSubmitState("sending");
+    setSubmitMessage("");
+    try {
+      const body = new URLSearchParams();
+      body.append(SUGGESTION_FIELD_ID, trimmed);
+      body.append("submit", "Submit");
+      await fetch(SUGGESTION_FORM_ACTION, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        },
+        body: body.toString(),
+      });
+      setSubmitState("success");
+      setSubmitMessage("Thanks! Your suggestion was sent.");
+      setSuggestion("");
+    } catch (err) {
+      setSubmitState("error");
+      setSubmitMessage("Could not send suggestion. Please try again.");
+    }
+  };
 
   return (
     <section className="winners-podium" aria-label="Season winners podium">
@@ -81,6 +129,54 @@ const WinnersPodium = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="winners-podium__suggestions">
+        <div className="winners-podium__suggestions-card">
+          <div className="winners-podium__suggestions-header">
+            <p className="winners-podium__suggestions-kicker">Off-Season Notes</p>
+            <h3 className="winners-podium__suggestions-title">Suggestion Box</h3>
+          </div>
+          <p className="winners-podium__suggestions-copy">
+            What should we improve next season? Scoring tweaks, new features or anything else that would make the experience better.
+          </p>
+          <form
+            className="winners-podium__suggestions-form"
+            onSubmit={handleSuggestionSubmit}
+            noValidate
+          >
+            <textarea
+              id="suggestion-input"
+              name="suggestion"
+              rows={5}
+              value={suggestion}
+              onChange={handleSuggestionChange}
+              placeholder="Tell us what would make next season better."
+              className="winners-podium__suggestions-textarea"
+              required
+            />
+            <div className="winners-podium__suggestions-actions">
+              <button
+                type="submit"
+                className="winners-podium__suggestions-button"
+                disabled={submitState === "sending"}
+              >
+                {submitState === "sending" ? "Sending..." : "Submit suggestion"}
+              </button>
+              {submitMessage ? (
+                <span
+                  className={`winners-podium__suggestions-status ${submitState}`}
+                  role={submitState === "error" ? "alert" : undefined}
+                >
+                  {submitMessage}
+                </span>
+              ) : null}
+            </div>
+          </form>
+          <p className="winners-podium__suggestions-footer">
+            Built by <span role="img" aria-label="bicep">&#128170;</span> Two-Jakes
+          </p>
         </div>
       </div>
     </section>
