@@ -12,11 +12,13 @@ import config from "./amplifyconfiguration.json";
 import PickForm from "./components/PickForm.jsx";
 import Home from "./components/Home.jsx";
 import { fetchPicks } from "./utils/fetchPicks";
-// import mockResults from "./assets/mockBowlsResults.json";
 import AllPicks from "./components/AllPicks.jsx";
 import WinnersPodium from "./components/WinnersPodium.jsx";
+import { AWS_DISABLED } from "./constants/appFlags";
 
-Amplify.configure(config);
+if (!AWS_DISABLED) {
+  Amplify.configure(config);
+}
 
 const App = () => {
   const isBowlSeason = false; // set this to true when in season
@@ -73,6 +75,11 @@ const App = () => {
   // Load picks from the GraphQL API to keep everything in sync
   const loadPicks = useCallback(async () => {
     if (matchups.length === 0) return;
+    if (AWS_DISABLED) {
+      setPlayerPicks([]);
+      setPicksLoading(false);
+      return;
+    }
     setPicksLoading(true);
     try {
       const picksResponse = await fetchPicks();
@@ -109,7 +116,7 @@ const App = () => {
     } finally {
       setPicksLoading(false);
     }
-  }, [matchups]);
+  }, [matchups, AWS_DISABLED]);
 
   useEffect(() => {
     loadPicks();
