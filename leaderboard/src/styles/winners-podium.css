@@ -359,5 +359,6 @@
 
   .winners-podium__suggestions-card {
     padding: 14px;
+    margin-bottom: 16px;
   }
 }

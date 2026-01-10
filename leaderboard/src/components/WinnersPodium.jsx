@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/winners-podium.css";
 
 const TIEBREAKER_TOTAL = 61;
@@ -44,6 +44,8 @@ const PLACE_LABELS = {
 const SUGGESTION_FORM_ACTION =
   "https://docs.google.com/forms/d/e/1FAIpQLSdhT2HsTOlYrxxN9_YpXvSJs68uQJFXNBg7tMMhWFxib3sUNQ/formResponse";
 const SUGGESTION_FIELD_ID = "entry.187247892";
+const SUGGESTION_COOLDOWN_MS = 60 * 60 * 1000;
+const SUGGESTION_COOLDOWN_KEY = "bowlSuggestionsCooldownUntil";
 
 const WinnersPodium = () => {
   const winners = WINNERS.map((winner) => ({
@@ -53,6 +55,20 @@ const WinnersPodium = () => {
   const [suggestion, setSuggestion] = useState("");
   const [submitState, setSubmitState] = useState("idle");
   const [submitMessage, setSubmitMessage] = useState("");
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const savedCooldown = Number(
+      localStorage.getItem(SUGGESTION_COOLDOWN_KEY) || "0"
+    );
+    setCooldownUntil(savedCooldown);
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const remainingMs = Math.max(0, cooldownUntil - now);
+  const isCoolingDown = remainingMs > 0;
 
   const handleSuggestionChange = (event) => {
     setSuggestion(event.target.value);
@@ -85,6 +101,9 @@ const WinnersPodium = () => {
         },
         body: body.toString(),
       });
+      const nextCooldown = Date.now() + SUGGESTION_COOLDOWN_MS;
+      localStorage.setItem(SUGGESTION_COOLDOWN_KEY, String(nextCooldown));
+      setCooldownUntil(nextCooldown);
       setSubmitState("success");
       setSubmitMessage("Thanks! Your suggestion was sent.");
       setSuggestion("");
@@ -160,9 +179,13 @@ const WinnersPodium = () => {
               <button
                 type="submit"
                 className="winners-podium__suggestions-button"
-                disabled={submitState === "sending"}
+                disabled={submitState === "sending" || isCoolingDown}
               >
-                {submitState === "sending" ? "Sending..." : "Submit suggestion"}
+                {submitState === "sending"
+                  ? "Sending..."
+                  : isCoolingDown
+                    ? `Thank you, try again later.`
+                    : "Submit suggestion"}
               </button>
               {submitMessage ? (
                 <span
