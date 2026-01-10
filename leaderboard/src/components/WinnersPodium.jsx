@@ -185,7 +185,7 @@ const WinnersPodium = () => {
                   ? "Sending..."
                   : isCoolingDown
                     ? `Thank you, try again later.`
-                    : "Submit suggestion"}
+                    : "Submit Suggestion"}
               </button>
               {submitMessage ? (
                 <span
