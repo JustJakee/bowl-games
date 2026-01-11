@@ -1,0 +1,2 @@
+// GLOBAL AWS DISABLE FOR OFFSEASON
+export const AWS_DISABLED = true;
