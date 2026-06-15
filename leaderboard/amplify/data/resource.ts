@@ -29,6 +29,7 @@ const schema = a.schema({
       config: a.hasOne("SeasonConfig", "seasonId"),
       games: a.hasMany("Game", "seasonId"),
       entries: a.hasMany("Entry", "seasonId"),
+      picks: a.hasMany("Pick", "seasonId"),
     })
     .secondaryIndexes((index) => [index("slug").queryField("seasonBySlug")])
     .authorization((allow) => [
