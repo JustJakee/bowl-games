@@ -1,0 +1,12 @@
+{
+  "bowlpicks": {
+    "configLevel": "project",
+    "useProfile": true,
+    "profileName": "JBertish"
+  },
+  "prod": {
+    "configLevel": "project",
+    "useProfile": true,
+    "profileName": "JBertish"
+  }
+}

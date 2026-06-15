@@ -1,0 +1,15 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-bobsbowlgamepicks-prod-963ec-authRole",
+      "UnauthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-prod-963ec-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-prod-963ec-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-bobsbowlgamepicks-prod-963ec-deployment",
+      "UnauthRoleName": "amplify-bobsbowlgamepicks-prod-963ec-unauthRole",
+      "StackName": "amplify-bobsbowlgamepicks-prod-963ec",
+      "StackId": "arn:aws:cloudformation:us-east-2:366318196751:stack/amplify-bobsbowlgamepicks-prod-963ec/7cbb9df0-d198-11f0-a61c-0a52d0de42d7",
+      "AmplifyAppId": "d152p2gb5ii4jy"
+    }
+  }
+}

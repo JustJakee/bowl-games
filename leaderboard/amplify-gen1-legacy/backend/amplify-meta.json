@@ -1,0 +1,90 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-bobsbowlgamepicks-prod-963ec-authRole",
+      "UnauthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-prod-963ec-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::366318196751:role/amplify-bobsbowlgamepicks-prod-963ec-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-bobsbowlgamepicks-prod-963ec-deployment",
+      "UnauthRoleName": "amplify-bobsbowlgamepicks-prod-963ec-unauthRole",
+      "StackName": "amplify-bobsbowlgamepicks-prod-963ec",
+      "StackId": "arn:aws:cloudformation:us-east-2:366318196751:stack/amplify-bobsbowlgamepicks-prod-963ec/7cbb9df0-d198-11f0-a61c-0a52d0de42d7",
+      "AmplifyAppId": "d152p2gb5ii4jy"
+    }
+  },
+  "api": {
+    "bobsbowlgamepicks": {
+      "dependsOn": [],
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 7
+            },
+            "authenticationType": "API_KEY"
+          }
+        }
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-bobsbowlgamepicks-prod-963ec-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+        "logicalId": "apibobsbowlgamepicks"
+      },
+      "lastPushTimeStamp": "2025-12-05T05:16:25.574Z"
+    }
+  },
+  "auth": {
+    "bobsbowlgamepicksf5ec84b2": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito",
+      "lastPushTimeStamp": "2025-12-05T05:16:25.726Z",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-bobsbowlgamepicks-prod-963ec-deployment/amplify-cfn-templates/auth/bobsbowlgamepicksf5ec84b2-cloudformation-template.json",
+        "logicalId": "authbobsbowlgamepicksf5ec84b2"
+      }
+    },
+    "userPoolGroups": {
+      "service": "Cognito-UserPool-Groups",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "bobsbowlgamepicksf5ec84b2",
+          "attributes": [
+            "UserPoolId",
+            "AppClientIDWeb",
+            "AppClientID",
+            "IdentityPoolId"
+          ]
+        }
+      ],
+      "lastPushTimeStamp": "2025-12-05T05:16:25.571Z",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-bobsbowlgamepicks-prod-963ec-deployment/amplify-cfn-templates/auth/userPoolGroups-cloudformation-template.json",
+        "logicalId": "authuserPoolGroups"
+      }
+    }
+  }
+}
