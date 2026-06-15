@@ -2,7 +2,7 @@ import { Amplify } from "aws-amplify";
 
 let configurePromise;
 let configured = false;
-const OUTPUTS_PATH = `${process.env.PUBLIC_URL || ""}/amplify_outputs.json`;
+const OUTPUTS_PATH = `${import.meta.env.BASE_URL}amplify_outputs.json`;
 
 class AmplifyOutputsUnavailableError extends Error {
   constructor() {

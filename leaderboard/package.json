@@ -12,36 +12,32 @@
     "aws-amplify": "^6.10.3",
     "bootstrap": "^5.3.3",
     "cfb.js": "^4.3.2",
-    "cra-template": "1.2.0",
     "dotenv": "^16.4.7",
     "papaparse": "^5.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.4.0",
-    "react-scripts": "^5.0.1",
     "web-vitals": "^4.2.4"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
     "@aws-amplify/backend": "1.23.0",
     "@aws-amplify/backend-cli": "1.8.3",
     "aws-cdk-lib": "2.259.0",
     "constructs": "10.6.0",
-    "typescript": "4.9.5"
+    "typescript": "4.9.5",
+    "vite": "^5.4.19"
   },
   "scripts": {
+    "predev": "node scripts/sync-amplify-outputs.js",
     "prestart": "node scripts/sync-amplify-outputs.js",
     "prebuild": "node scripts/sync-amplify-outputs.js",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "amplify:typecheck": "tsc --project tsconfig.amplify.json --noEmit",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "test": "echo \"No test runner is configured for the Vite migration.\""
   },
   "browserslist": {
     "production": [

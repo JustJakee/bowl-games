@@ -14,7 +14,7 @@ applications:
             - npm ci
             - npm run build
       artifacts:
-        baseDirectory: build
+        baseDirectory: dist
         files:
           - '**/*'
       cache:
