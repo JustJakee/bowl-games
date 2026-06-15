@@ -1,4 +1,4 @@
-﻿import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/global.css";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Alert, Snackbar } from "@mui/material";
@@ -7,18 +7,14 @@ import Leaderboard from "./components/Leaderboard.jsx";
 import Footer from "./components/Footer.jsx";
 import Header from "./components/Header.jsx";
 import { useScoreboard } from "./context/NCAAFDataContext";
-import { Amplify } from "aws-amplify";
-import config from "./amplifyconfiguration.json";
 import PickForm from "./components/PickForm.jsx";
 import Home from "./components/Home.jsx";
 import { fetchPicks } from "./utils/fetchPicks";
 import AllPicks from "./components/AllPicks.jsx";
 import WinnersPodium from "./components/WinnersPodium.jsx";
 import { AWS_DISABLED } from "./constants/appFlags";
-
-if (!AWS_DISABLED) {
-  Amplify.configure(config);
-}
+import AuthShell from "./components/AuthShell.jsx";
+import { useAuth } from "./auth/AuthContext.jsx";
 
 const App = () => {
   const isBowlSeason = false; // set this to true when in season
@@ -30,8 +26,9 @@ const App = () => {
     severity: "success",
   });
   const [picksLoading, setPicksLoading] = useState(false);
-  const [isLocked, setLocked] = useState(true);
+  const { isAuthenticated } = useAuth();
   const { games: scoreboardGames } = useScoreboard();
+  const isLocked = !isAuthenticated;
   const gamesStarted = scoreboardGames.some((game) =>
     Object.values(game).some((state) => ["in", "post"].includes(state))
   );
@@ -90,7 +87,7 @@ const App = () => {
         let parsedPicks = {};
         try {
           parsedPicks = JSON.parse(submission?.picks || "{}");
-        } catch (err) {
+        } catch (_err) {
           parsedPicks = {};
         }
 
@@ -116,31 +113,18 @@ const App = () => {
     } finally {
       setPicksLoading(false);
     }
-  }, [matchups, AWS_DISABLED]);
+  }, [matchups]);
 
   useEffect(() => {
     loadPicks();
   }, [loadPicks]);
 
-  const loginHelper = (value) => {
-    if (value) {
-      setLocked(false);
-      setToast((prev) => ({ ...prev, open: false })); // close any stale toasts
-    } else {
-      setLocked(true);
-      setToast({
-        open: true,
-        severity: "error",
-        message: "Please enter the correct login info.",
-      });
-    }
-  };
-
   return (
     <div className="container">
+      <AuthShell />
       {isBowlSeason ? (
         <>
-          <title>College Bowl Game Picks 🏆</title>
+          <title>College Bowl Game Picks</title>
 
           <Header
             currentPage={currentPage}
@@ -153,7 +137,6 @@ const App = () => {
               <Home
                 onNavigate={setCurrentPage}
                 isLocked={isLocked}
-                loginHelper={loginHelper}
                 gamesStarted={gamesStarted}
               />
             )}

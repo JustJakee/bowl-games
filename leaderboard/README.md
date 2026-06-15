@@ -1,5 +1,16 @@
 # Getting Started with Create React App
 
+## Amplify Auth Note
+
+Frontend auth reads `amplify_outputs.json` at runtime and does not hardcode
+AWS identifiers in source. Local auth testing requires a generated
+`leaderboard/amplify_outputs.json` so CRA can serve it from `public/` during
+`npm start` or `npm run build`.
+
+This repo is not using local `ampx sandbox` right now. The current validation
+path for auth is the Amplify Console branch deployment, which generates
+`amplify_outputs.json` for the hosted environment.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

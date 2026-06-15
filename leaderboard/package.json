@@ -29,6 +29,8 @@
     "typescript": "4.9.5"
   },
   "scripts": {
+    "prestart": "node scripts/sync-amplify-outputs.js",
+    "prebuild": "node scripts/sync-amplify-outputs.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "amplify:typecheck": "tsc --project tsconfig.amplify.json --noEmit",
