@@ -34,12 +34,27 @@ const getRoleFromGroups = (groups) => {
   return null;
 };
 
+const getEmailFromAuth = (user, session) => {
+  const idTokenEmail = session?.tokens?.idToken?.payload?.email;
+  if (typeof idTokenEmail === "string" && idTokenEmail.length > 0) {
+    return idTokenEmail;
+  }
+
+  const loginId = user?.signInDetails?.loginId;
+  if (typeof loginId === "string" && loginId.length > 0) {
+    return loginId;
+  }
+
+  return null;
+};
+
 export function AuthProvider({ children }) {
   const [state, setState] = useState({
     isLoading: true,
     isConfigured: false,
     isAuthenticated: false,
     user: null,
+    email: null,
     groups: [],
     role: null,
     error: null,
@@ -61,6 +76,7 @@ export function AuthProvider({ children }) {
           isConfigured: false,
           isAuthenticated: false,
           user: null,
+          email: null,
           groups: [],
           role: null,
           error,
@@ -84,6 +100,7 @@ export function AuthProvider({ children }) {
           isConfigured: true,
           isAuthenticated: true,
           user,
+          email: getEmailFromAuth(user, session),
           groups,
           role: getRoleFromGroups(groups),
           error: null,
@@ -98,6 +115,7 @@ export function AuthProvider({ children }) {
           isConfigured: true,
           isAuthenticated: false,
           user: null,
+          email: null,
           groups: [],
           role: null,
           error: null,

@@ -9,12 +9,26 @@ const schema = a.schema({
     .model({
       owner: a.string(),
       email: a.email().required(),
-      displayName: a.string().required(),
+      username: a
+        .string()
+        .required()
+        .authorization((allow) => [allow.authenticated().to(["read"])]),
+      usernameKey: a
+        .string()
+        .required()
+        .authorization((allow) => [allow.authenticated().to(["read"])]),
       preferredGroup: a.string(),
       entries: a.hasMany("Entry", "userProfileId"),
     })
+    .secondaryIndexes((index) => [
+      index("owner").queryField("userProfileByOwner"),
+      index("usernameKey").queryField("userProfileByUsernameKey"),
+    ])
     .authorization((allow) => [
-      allow.ownerDefinedIn("owner").to(["create", "read", "update"]),
+      allow
+        .ownerDefinedIn("owner")
+        .identityClaim("sub")
+        .to(["create", "read", "update"]),
       allow.group("admin").to(["read", "update", "delete"]),
     ]),
 
@@ -176,6 +190,9 @@ export const data = defineData({
  *   `entriesBySeasonAndEntryNameKey`. Enforcing uniqueness only among
  *   non-deleted entries still requires a later custom mutation or server-side
  *   validation step.
+ * - Username availability will be checked client-side via
+ *   `userProfileByUsernameKey`, but true race-condition-safe global username
+ *   reservation still needs a later custom mutation or server-side strategy.
  * - Pick ownership is duplicated onto the Pick model so owner auth can work
  *   without broad raw reads. Future write paths should ensure `pick.owner`
  *   always matches the owning Entry record.
