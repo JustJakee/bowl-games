@@ -10,7 +10,6 @@ const schema = a.schema({
       owner: a.string(),
       email: a
         .email()
-        .required()
         .authorization((allow) => [
           allow
             .ownerDefinedIn("owner")
@@ -21,11 +20,25 @@ const schema = a.schema({
       username: a
         .string()
         .required()
-        .authorization((allow) => [allow.authenticated().to(["read"])]),
+        .authorization((allow) => [
+          allow.authenticated().to(["read"]),
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
       usernameKey: a
         .string()
         .required()
-        .authorization((allow) => [allow.authenticated().to(["read"])]),
+        .authorization((allow) => [
+          allow.authenticated().to(["read"]),
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
       preferredGroup: a.string(),
       entries: a.hasMany("Entry", "userProfileId"),
     })
