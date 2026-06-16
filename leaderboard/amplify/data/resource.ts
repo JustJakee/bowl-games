@@ -8,7 +8,16 @@ const schema = a.schema({
   UserProfile: a
     .model({
       owner: a.string(),
-      email: a.email().required(),
+      email: a
+        .email()
+        .required()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
       username: a
         .string()
         .required()
