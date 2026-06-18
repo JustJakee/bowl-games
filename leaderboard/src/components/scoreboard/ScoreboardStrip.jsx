@@ -37,7 +37,15 @@ const ScoreboardStrip = () => {
       >
         <Stack direction="row" spacing={1.5} sx={{ minWidth: "max-content" }}>
           {loading
-            ? [0, 1, 2, 3].map((item) => <Skeleton key={item} variant="rounded" width={220} height={126} />)
+            ? [0, 1, 2, 3].map((item) => (
+                <Skeleton
+                  key={item}
+                  variant="rounded"
+                  width={220}
+                  height={126}
+                  sx={{ borderRadius: (theme) => theme.customShape?.scoreboardRadius ?? 3 }}
+                />
+              ))
             : null}
           {!loading && error ? (
             <Typography variant="body2" color="error.main">

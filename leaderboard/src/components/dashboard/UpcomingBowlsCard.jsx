@@ -1,4 +1,5 @@
-import { Box, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Skeleton, Stack, Typography, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
 import { useScoreboard } from "../../context/NCAAFDataContext";
 import Panel from "../common/Panel";
@@ -16,6 +17,8 @@ const sortGames = (games) => {
 
 const UpcomingBowlsCard = () => {
   const { games, loading, error } = useScoreboard();
+  const theme = useTheme();
+  const isLargeDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const upcomingGames = sortGames(
     (games || []).filter((game) => game?.state !== "post" && game?.isFinal !== true)
   ).slice(0, 4);
@@ -35,7 +38,10 @@ const UpcomingBowlsCard = () => {
           <EmptyState title="Unable to load bowls" description={error} />
         ) : null}
         {!loading && !error && upcomingGames.length === 0 ? (
-          <EmptyState title="No upcoming bowls" description="Check back once the scoreboard feed posts future matchups." />
+          <EmptyState
+            title="No upcoming bowls"
+            description="Check back once the scoreboard feed posts future matchups."
+          />
         ) : null}
         {!loading && !error
           ? upcomingGames.map((game) => (
@@ -43,31 +49,43 @@ const UpcomingBowlsCard = () => {
                 key={game.id}
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: "1fr auto",
-                  gap: 1.5,
+                  gridTemplateColumns: isLargeDesktop
+                    ? "70px 100px minmax(180px, 1fr) minmax(90px, auto) minmax(150px, auto) 32px minmax(150px, auto)"
+                    : "1fr auto",
+                  gap: isLargeDesktop ? 1 : 1.5,
                   alignItems: "center",
-                  py: 1.25,
+                  py: isLargeDesktop ? 1 : 1.25,
                   borderBottom: "1px solid",
                   borderColor: "divider",
                   "&:last-of-type": { borderBottom: "none", pb: 0 },
                 }}
               >
-                <Stack spacing={0.5}>
-                  <Typography variant="subtitle2">{game.bowl}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {game.startDateText || "Date TBD"} • {game.startTimeText || game.statusText} • {game.network || "TBD"}
-                  </Typography>
-                  <Stack direction="row" spacing={1.25} alignItems="center">
+                {isLargeDesktop ? (
+                  <>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+                      {game.startDateText || "Date TBD"}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+                      {game.startTimeText || game.statusText}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontSize: "0.95rem" }}>
+                      {game.bowl}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+                      {game.network || "TBD"}
+                    </Typography>
                     <Stack direction="row" spacing={1} alignItems="center">
                       <TeamLogo
                         src={game.away?.logo}
                         alt={`${game.away?.displayName || game.away?.abbr || "Away team"} logo`}
                         abbr={game.away?.abbr}
-                        size={28}
+                        size={26}
                       />
-                      <Typography variant="body2">{game.away?.abbr || "TBD"}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                        {game.away?.abbr || "TBD"}
+                      </Typography>
                     </Stack>
-                    <Typography variant="overline" color="text.secondary">
+                    <Typography variant="overline" color="text.secondary" sx={{ textAlign: "center" }}>
                       VS
                     </Typography>
                     <Stack direction="row" spacing={1} alignItems="center">
@@ -75,20 +93,54 @@ const UpcomingBowlsCard = () => {
                         src={game.home?.logo}
                         alt={`${game.home?.displayName || game.home?.abbr || "Home team"} logo`}
                         abbr={game.home?.abbr}
-                        size={28}
+                        size={26}
                       />
-                      <Typography variant="body2">{game.home?.abbr || "TBD"}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                        {game.home?.abbr || "TBD"}
+                      </Typography>
                     </Stack>
-                  </Stack>
-                </Stack>
-                <Typography
-                  component={RouterLink}
-                  to="/schedule"
-                  variant="body2"
-                  sx={{ textDecoration: "none", fontWeight: 700 }}
-                >
-                  View
-                </Typography>
+                  </>
+                ) : (
+                  <>
+                    <Stack spacing={0.5}>
+                      <Typography variant="subtitle2">{game.bowl}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {`${game.startDateText || "Date TBD"} â€¢ ${game.startTimeText || game.statusText} â€¢ ${game.network || "TBD"}`}
+                      </Typography>
+                      <Stack direction="row" spacing={1.25} alignItems="center">
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <TeamLogo
+                            src={game.away?.logo}
+                            alt={`${game.away?.displayName || game.away?.abbr || "Away team"} logo`}
+                            abbr={game.away?.abbr}
+                            size={28}
+                          />
+                          <Typography variant="body2">{game.away?.abbr || "TBD"}</Typography>
+                        </Stack>
+                        <Typography variant="overline" color="text.secondary">
+                          VS
+                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <TeamLogo
+                            src={game.home?.logo}
+                            alt={`${game.home?.displayName || game.home?.abbr || "Home team"} logo`}
+                            abbr={game.home?.abbr}
+                            size={28}
+                          />
+                          <Typography variant="body2">{game.home?.abbr || "TBD"}</Typography>
+                        </Stack>
+                      </Stack>
+                    </Stack>
+                    <Typography
+                      component={RouterLink}
+                      to="/schedule"
+                      variant="body2"
+                      sx={{ textDecoration: "none", fontWeight: 700 }}
+                    >
+                      View
+                    </Typography>
+                  </>
+                )}
               </Box>
             ))
           : null}

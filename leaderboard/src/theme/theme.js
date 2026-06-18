@@ -17,6 +17,12 @@ export const themeTokens = {
 
 const headingFont = '"Roboto Condensed", "Arial Narrow", "Arial", sans-serif';
 const bodyFont = '"Roboto", "Arial", sans-serif';
+const customShape = {
+  panelRadius: 3,
+  controlRadius: 4,
+  scoreboardRadius: 3,
+  chipRadius: 999,
+};
 
 const theme = createTheme({
   palette: {
@@ -48,8 +54,9 @@ const theme = createTheme({
     divider: themeTokens.divider,
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 4,
   },
+  customShape,
   typography: {
     fontFamily: bodyFont,
     h1: { fontFamily: headingFont, fontWeight: 800 },
@@ -113,7 +120,8 @@ const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          borderRadius: 999,
+          borderRadius: customShape.controlRadius,
+          minHeight: 42,
           paddingInline: 18,
         },
         containedPrimary: {
@@ -144,7 +152,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           fontWeight: 700,
-          borderRadius: 999,
+          borderRadius: customShape.chipRadius,
         },
       },
     },

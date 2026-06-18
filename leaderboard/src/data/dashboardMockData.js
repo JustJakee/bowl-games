@@ -36,5 +36,5 @@ export const dashboardLeaderboard = [
 export const dashboardQuickLinks = [
   { label: "View Schedule", description: "See every bowl and kickoff", to: "/schedule", icon: "schedule" },
   { label: "Rules & Scoring", description: "Review the pool rules", to: "/rules", icon: "rules" },
-  { label: "How to Play", description: "Account and picks overview", to: "/more", icon: "help" },
+  { label: "Manage Account", description: "Update your account and profile", to: "/more", icon: "account" },
 ];

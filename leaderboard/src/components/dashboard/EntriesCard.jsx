@@ -12,12 +12,16 @@ const EntriesCard = ({ entries }) => {
         <List disablePadding>
           {entries.map((entry, index) => (
             <div key={entry.id}>
-              <ListItemButton sx={{ px: 0, py: 1.25, borderRadius: 2 }}>
+              <ListItemButton sx={{ px: 0, py: 1.1, borderRadius: 2, minHeight: { lg: 52 } }}>
                 <ListItemText
                   primary={entry.name}
                   secondary={`${entry.completedPicks} / ${entry.totalPicks} complete`}
-                  primaryTypographyProps={{ fontWeight: 700 }}
-                  secondaryTypographyProps={{ color: "text.secondary" }}
+                  primaryTypographyProps={{ fontWeight: 700, fontSize: "1rem" }}
+                  secondaryTypographyProps={{
+                    color: "text.secondary",
+                    fontSize: "0.875rem",
+                    lineHeight: 1.4,
+                  }}
                 />
                 <Stack direction="row" spacing={1} alignItems="center">
                   <StatusChip label={entry.status} />

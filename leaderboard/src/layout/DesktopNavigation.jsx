@@ -12,14 +12,18 @@ const navItems = [
 
 const DesktopNavigation = () => {
   return (
-    <Stack direction="row" spacing={0.5} sx={{ borderTop: "1px solid", borderColor: "divider", pb: 1 }}>
+    <Stack
+      direction="row"
+      spacing={{ md: 1, lg: 1.5 }}
+      sx={{ borderTop: "1px solid", borderColor: "divider", pb: 1.25 }}
+    >
       {navItems.map((item) => (
         <ButtonBase
           key={item.to}
           component={NavLink}
           to={item.to}
           sx={{
-            px: 2,
+            px: { md: 2, lg: 2.5 },
             py: 1.5,
             borderBottom: "3px solid transparent",
             color: "text.secondary",
@@ -30,7 +34,16 @@ const DesktopNavigation = () => {
             },
           }}
         >
-          <Typography variant="button">{item.label}</Typography>
+          <Typography
+            variant="button"
+            sx={{
+              fontSize: "0.875rem",
+              fontWeight: 700,
+              letterSpacing: "0.025em",
+            }}
+          >
+            {item.label}
+          </Typography>
         </ButtonBase>
       ))}
     </Stack>

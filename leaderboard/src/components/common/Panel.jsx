@@ -7,11 +7,11 @@ const Panel = ({ children, elevated = false, sx = {}, ...props }) => {
     <Paper
       elevation={0}
       sx={{
-        p: { xs: 2, sm: 2.5 },
+        p: { xs: 2, md: 2, lg: 2.5 },
         backgroundColor: elevated
           ? alpha(themeTokens.panelBackgroundElevated, 0.96)
           : alpha(themeTokens.panelBackground, 0.94),
-        borderRadius: 4,
+        borderRadius: (theme) => theme.customShape?.panelRadius ?? 6,
         ...sx,
       }}
       {...props}

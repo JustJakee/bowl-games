@@ -1,6 +1,5 @@
 import { IconButton, Stack, Typography } from "@mui/material";
 import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
-import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 
 const MobileHeader = ({ onOpenMenu }) => {
@@ -13,9 +12,6 @@ const MobileHeader = ({ onOpenMenu }) => {
         </Typography>
       </Stack>
       <Stack direction="row" spacing={1}>
-        <IconButton aria-label="Account menu" onClick={onOpenMenu}>
-          <PersonOutlineRoundedIcon />
-        </IconButton>
         <IconButton aria-label="Open navigation menu" onClick={onOpenMenu}>
           <MenuRoundedIcon />
         </IconButton>

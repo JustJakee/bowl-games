@@ -12,12 +12,21 @@ const PicksLockSummary = ({ deadline, compact = false }) => {
       <Stack spacing={compact ? 1 : 1.5}>
         <Stack direction="row" spacing={1.25} alignItems="center">
           <LockOutlinedIcon sx={{ color: "primary.main" }} />
-          <Typography variant="overline" color="text.secondary">
+          <Typography
+            variant="overline"
+            color="text.secondary"
+            sx={{ fontSize: { md: "0.8rem", lg: "0.85rem" } }}
+          >
             Picks Lock
           </Typography>
         </Stack>
-        <Typography variant={compact ? "subtitle1" : "h6"}>{formatDeadline(deadline)}</Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant={compact ? "subtitle1" : "h6"}
+          sx={{ fontSize: compact ? undefined : { md: "1rem", lg: "1.05rem" } }}
+        >
+          {formatDeadline(deadline)}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { md: "0.875rem" } }}>
           {countdown}
         </Typography>
       </Stack>

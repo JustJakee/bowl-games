@@ -40,11 +40,17 @@ const AppShell = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const username = profile?.username || "Player";
+  const shellSx = {
+    width: "100%",
+    maxWidth: "1600px",
+    marginInline: "auto",
+    px: { xs: 2, sm: 3, md: 3, lg: 4 },
+  };
 
   return (
     <Box sx={{ minHeight: "100vh", overflowX: "hidden" }}>
       <ScoreboardStrip />
-      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+      <Container maxWidth={false} sx={shellSx}>
         {isDesktop ? (
           <>
             <DesktopHeader username={username} signOut={signOut} />
@@ -56,9 +62,9 @@ const AppShell = () => {
       </Container>
 
       <Container
-        maxWidth="xl"
+        maxWidth={false}
         sx={{
-          px: { xs: 2, md: 3 },
+          ...shellSx,
           pb: { xs: "calc(92px + env(safe-area-inset-bottom))", md: 5 },
           pt: 2,
         }}

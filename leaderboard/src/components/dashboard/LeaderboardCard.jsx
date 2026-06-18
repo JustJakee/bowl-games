@@ -43,19 +43,23 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
                     backgroundColor: isCurrentUser
                       ? alpha(theme.palette.primary.main, 0.12)
                       : "transparent",
+                    "& .MuiTableCell-root": {
+                      py: { md: 1, lg: 1.1 },
+                      fontSize: { md: "0.82rem", lg: "0.9rem" },
+                    },
                   }}
                 >
-                  <TableCell>{row.rank}</TableCell>
+                  <TableCell sx={{ width: 64 }}>{row.rank}</TableCell>
                   <TableCell>
                     <Box sx={{ fontWeight: 700 }}>{row.username}</Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { md: "0.82rem", lg: "0.9rem" } }}>
                       {row.entryName}
                     </Typography>
                   </TableCell>
-                  <TableCell align="right">{row.points}</TableCell>
-                  {showRecord ? <TableCell align="right">{row.record}</TableCell> : null}
+                  <TableCell align="right" sx={{ width: 80 }}>{row.points}</TableCell>
+                  {showRecord ? <TableCell align="right" sx={{ width: 96 }}>{row.record}</TableCell> : null}
                 </TableRow>
               );
             })}

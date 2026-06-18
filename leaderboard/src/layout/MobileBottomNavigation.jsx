@@ -1,6 +1,6 @@
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
-import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
 import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
@@ -11,7 +11,7 @@ const navItems = [
   { value: "/leaderboard", label: "Leaderboard", icon: <EmojiEventsRoundedIcon /> },
   { value: "/picks", label: "Picks", icon: <SportsFootballRoundedIcon /> },
   { value: "/entries", label: "Entries", icon: <ViewListRoundedIcon /> },
-  { value: "/more", label: "More", icon: <MoreHorizRoundedIcon /> },
+  { value: "/more", label: "Account", icon: <PersonOutlineRoundedIcon /> },
 ];
 
 const MobileBottomNavigation = () => {

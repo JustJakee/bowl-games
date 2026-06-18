@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Authenticator } from "@aws-amplify/ui-react";
 import {
   Alert,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
 import { alpha } from "@mui/material/styles";
+import { I18n } from "aws-amplify/utils";
 import { useAuth } from "../auth/AuthContext";
 import { UserProfileProvider, useUserProfile } from "../auth/UserProfileContext.jsx";
 import {
@@ -30,15 +31,138 @@ const formatUserLabel = (user) => {
 
 const isLoginPath = () => window.location.pathname === "/login";
 
+const AUTH_TRANSLATIONS = {
+  "Sign In": "SIGN IN",
+  "Sign in": "SIGN IN",
+  "Sign in to your account": "Sign in to your player account",
+  "Sign in to your player account": "Sign in to your player account",
+  "Enter your email and password to sign in": "Enter the email and password associated with your Bob's Bowl Games account.",
+  Username: "Email",
+  Email: "Email",
+  Password: "Password",
+  "Enter your Username": "Enter your email",
+  "Enter your Email": "Enter your email",
+  "Enter your Password": "Enter your password",
+  "Forgot your password?": "Forgot your password?",
+  "Forgot Password": "Forgot your password?",
+  "Reset Password": "Reset your password",
+  "Send code": "Send code",
+  "Back to Sign In": "Back to sign in",
+  "Confirm Reset Password": "Check your email",
+  "Confirmation Code": "Confirmation Code",
+  "Enter your code": "Enter your confirmation code",
+  "Code *": "Confirmation Code",
+  "Confirm": "Confirm",
+};
+
+const loginSlotSx = {
+  "& [data-amplify-authenticator]": {
+    backgroundColor: "transparent",
+    padding: 0,
+  },
+  "& [data-amplify-container]": {
+    display: "contents",
+  },
+  "& [data-amplify-router]": {
+    backgroundColor: "transparent",
+    boxShadow: "none",
+    border: "none",
+    padding: 0,
+  },
+  "& [data-amplify-form]": {
+    backgroundColor: "transparent",
+    padding: 0,
+    gap: 14,
+  },
+  "& [data-amplify-footer]": {
+    paddingTop: 6,
+  },
+  "& .amplify-tabs": {
+    display: "none",
+  },
+  "& .amplify-text": {
+    color: themeTokens.primaryText,
+  },
+  "& .amplify-heading": {
+    color: themeTokens.primaryText,
+    fontFamily: '"Roboto Condensed", "Arial Narrow", "Arial", sans-serif',
+    fontWeight: 800,
+    letterSpacing: "0.02em",
+  },
+  "& .amplify-label": {
+    color: themeTokens.secondaryText,
+    fontWeight: 600,
+  },
+  "& .amplify-field-group__control": {
+    backgroundColor: themeTokens.appBackground,
+    borderColor: themeTokens.divider,
+    borderRadius: "4px",
+    color: themeTokens.primaryText,
+    minHeight: 46,
+  },
+  "& .amplify-field__show-password": {
+    color: themeTokens.secondaryText,
+  },
+  "& .amplify-input": {
+    backgroundColor: themeTokens.appBackground,
+    color: themeTokens.primaryText,
+    borderColor: themeTokens.divider,
+    borderRadius: "4px",
+    minHeight: 46,
+    boxShadow: "none",
+  },
+  "& .amplify-input::placeholder": {
+    color: alpha(themeTokens.secondaryText, 0.7),
+  },
+  "& .amplify-input:focus": {
+    borderColor: themeTokens.maize,
+    boxShadow: `0 0 0 1px ${themeTokens.maize}`,
+  },
+  "& input:-webkit-autofill": {
+    WebkitBoxShadow: `0 0 0 100px ${themeTokens.appBackground} inset`,
+    WebkitTextFillColor: themeTokens.primaryText,
+    caretColor: themeTokens.primaryText,
+    borderRadius: "4px",
+  },
+  "& .amplify-button--primary": {
+    backgroundColor: themeTokens.maize,
+    borderColor: themeTokens.maize,
+    color: "#08111f",
+    borderRadius: "4px",
+    minHeight: 44,
+    fontFamily: '"Roboto Condensed", "Arial Narrow", "Arial", sans-serif',
+    fontWeight: 800,
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
+  },
+  "& .amplify-button--primary:hover": {
+    backgroundColor: "#ffd84a",
+    borderColor: "#ffd84a",
+  },
+  "& .amplify-button--link": {
+    color: themeTokens.linkBlue,
+    fontWeight: 600,
+  },
+  "& .amplify-alert": {
+    borderRadius: "4px",
+  },
+  "& .amplify-alert__body, & .amplify-text--error": {
+    color: "#ffb4ab",
+  },
+  "& .amplify-flex": {
+    gap: 12,
+  },
+};
+
 const GateFrame = ({ title, subtitle, children }) => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        px: 2,
+        px: { xs: 2, sm: 3 },
         py: 6,
       }}
     >
@@ -46,16 +170,25 @@ const GateFrame = ({ title, subtitle, children }) => {
         elevation={0}
         sx={{
           width: "100%",
-          maxWidth: 520,
-          p: { xs: 3, sm: 4 },
-          backgroundColor: alpha(themeTokens.panelBackgroundElevated, 0.9),
+          maxWidth: 480,
+          p: { xs: 2.5, sm: 4 },
+          backgroundColor: alpha(themeTokens.panelBackgroundElevated, 0.94),
+          border: `1px solid ${themeTokens.divider}`,
+          borderRadius: "6px",
           backdropFilter: "blur(10px)",
         }}
       >
         <Stack spacing={3}>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <StarsRoundedIcon sx={{ color: "primary.main" }} />
-            <Typography variant="h5" sx={{ textTransform: "uppercase" }}>
+            <Typography
+              variant="h5"
+              sx={{
+                textTransform: "uppercase",
+                fontWeight: 800,
+                letterSpacing: "0.02em",
+              }}
+            >
               Bob's Bowl Games
             </Typography>
           </Stack>
@@ -215,11 +348,15 @@ const AuthShell = ({ children }) => {
   const [showLogin, setShowLogin] = useState(isLoginPath);
   const { isAuthenticated, isConfigured, isLoading } = useAuth();
 
+  useEffect(() => {
+    I18n.putVocabulariesForLanguage("en", AUTH_TRANSLATIONS);
+  }, []);
+
   if (isLoading) {
     return (
       <GateFrame
         title="Loading authentication"
-        subtitle="Checking your Cognito session and environment configuration."
+        subtitle="Checking your session and environment configuration."
       >
         <Stack direction="row" spacing={2} alignItems="center">
           <CircularProgress size={22} />
@@ -233,11 +370,10 @@ const AuthShell = ({ children }) => {
     return (
       <GateFrame
         title="Authentication not configured"
-        subtitle="This environment still needs Amplify frontend outputs before the app can sign users in."
+        subtitle="This environment still needs frontend authentication outputs before the app can sign users in."
       >
         <Alert severity="warning">
-          `amplify_outputs.json` must be available for the frontend build. Public
-          signup remains disabled.
+          `amplify_outputs.json` must be available for the frontend build.
         </Alert>
       </GateFrame>
     );
@@ -246,17 +382,64 @@ const AuthShell = ({ children }) => {
   if (!isAuthenticated) {
     return (
       <GateFrame
-        title="Sign in with your Cognito account"
-        subtitle="Accounts are currently created manually. Public signup is intentionally disabled for this milestone."
+        title="Sign in to your player account"
+        subtitle="Enter the email and password associated with your Bob's Bowl Games account."
       >
         {!showLogin ? (
-          <Button variant="contained" onClick={() => setShowLogin(true)}>
-            Sign in
+          <Button variant="contained" onClick={() => setShowLogin(true)} sx={{ width: "100%" }}>
+            Sign In
           </Button>
         ) : (
-          <Box sx={{ maxWidth: 420 }}>
-            <Authenticator hideSignUp>{() => null}</Authenticator>
-          </Box>
+          <Stack spacing={2} sx={{ ...loginSlotSx }}>
+            <Box>
+              <Authenticator
+                hideSignUp
+                formFields={{
+                  signIn: {
+                    username: {
+                      label: "Email",
+                      placeholder: "Enter your email",
+                      isRequired: true,
+                    },
+                    password: {
+                      label: "Password",
+                      placeholder: "Enter your password",
+                      isRequired: true,
+                    },
+                  },
+                  forgotPassword: {
+                    username: {
+                      label: "Email",
+                      placeholder: "Enter your email",
+                      isRequired: true,
+                    },
+                  },
+                  confirmResetPassword: {
+                    confirmation_code: {
+                      label: "Confirmation Code",
+                      placeholder: "Enter your confirmation code",
+                      isRequired: true,
+                    },
+                    password: {
+                      label: "Password",
+                      placeholder: "Enter your new password",
+                      isRequired: true,
+                    },
+                    confirm_password: {
+                      label: "Confirm Password",
+                      placeholder: "Confirm your new password",
+                      isRequired: true,
+                    },
+                  },
+                }}
+              >
+                {() => null}
+              </Authenticator>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+              Need access to the pool? Contact the pool administrator.
+            </Typography>
+          </Stack>
         )}
       </GateFrame>
     );
