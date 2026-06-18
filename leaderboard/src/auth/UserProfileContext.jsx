@@ -1,6 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext.jsx";
 import { getCurrentUserProfile } from "./userProfile";
+import {
+  createLocalUserProfile,
+  LOCAL_AUTH_BYPASS,
+} from "../constants/appFlags";
 
 const UserProfileContext = createContext(null);
 
@@ -15,6 +19,16 @@ export const UserProfileProvider = ({ children }) => {
   const owner = user?.userId || null;
 
   useEffect(() => {
+    if (LOCAL_AUTH_BYPASS) {
+      // TODO(go-live): Remove this fake local profile path before production launch.
+      setState({
+        status: "ready",
+        profile: createLocalUserProfile(),
+        error: "",
+      });
+      return undefined;
+    }
+
     if (!isAuthenticated || !isConfigured || !owner) {
       setState({
         status: "idle",

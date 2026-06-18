@@ -2,6 +2,13 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Hub } from "aws-amplify/utils";
 import { fetchAuthSession, getCurrentUser, signOut } from "aws-amplify/auth";
 import { configureAmplifyFromOutputs } from "./amplifyConfig";
+import {
+  createLocalAuthUser,
+  LOCAL_AUTH_BYPASS,
+  LOCAL_AUTH_EMAIL,
+  LOCAL_AUTH_GROUPS,
+  LOCAL_AUTH_ROLE,
+} from "../constants/appFlags";
 
 const AuthContext = createContext(null);
 
@@ -61,6 +68,22 @@ export function AuthProvider({ children }) {
   });
 
   useEffect(() => {
+    if (LOCAL_AUTH_BYPASS) {
+      // TODO(go-live): Remove this fake authenticated session path before production launch.
+      setState({
+        isLoading: false,
+        isConfigured: true,
+        isAuthenticated: true,
+        user: createLocalAuthUser(),
+        email: LOCAL_AUTH_EMAIL,
+        groups: LOCAL_AUTH_GROUPS,
+        role: LOCAL_AUTH_ROLE,
+        error: null,
+      });
+
+      return undefined;
+    }
+
     let isMounted = true;
 
     const syncAuthState = async () => {
@@ -139,6 +162,21 @@ export function AuthProvider({ children }) {
     () => ({
       ...state,
       signOut: async () => {
+        if (LOCAL_AUTH_BYPASS) {
+          // TODO(go-live): Remove this local-only fake sign-out behavior before production launch.
+          setState({
+            isLoading: false,
+            isConfigured: true,
+            isAuthenticated: false,
+            user: null,
+            email: null,
+            groups: [],
+            role: null,
+            error: null,
+          });
+          return;
+        }
+
         await signOut();
       },
     }),
