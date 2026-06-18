@@ -1,4 +1,4 @@
-import exampleScoreboard from "../assets/mockBowls.json";
+import exampleScoreboard from "../assets/mockBowls2026.json";
 
 // Reliable 2026 ESPN bowl data is not consistently available yet, so the app
 // temporarily serves the local fixture through the existing normalization path.

@@ -1,7 +1,9 @@
+import { useMemo } from "react";
 import { Box, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppData } from "../app/AppDataContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
+import { useScoreboard } from "../context/NCAAFDataContext.jsx";
 import DashboardHero from "../components/dashboard/DashboardHero";
 import PickStatusCard from "../components/dashboard/PickStatusCard";
 import EntriesCard from "../components/dashboard/EntriesCard";
@@ -23,8 +25,19 @@ const DashboardPage = () => {
     playerPicks,
     savedSelectionsByGameId,
   } = useAppData();
+  const { games: scoreboardGames } = useScoreboard();
   const theme = useTheme();
-  const isWideDesktop = useMediaQuery("(min-width:1360px)");
+  const isWideDesktop = useMediaQuery(theme.breakpoints.up("xl"));
+  const picksLockDeadline = useMemo(() => {
+    const earliestKickoff = (scoreboardGames || [])
+      .map((game) => game?.startDate)
+      .filter(Boolean)
+      .map((value) => new Date(value).getTime())
+      .filter((value) => !Number.isNaN(value))
+      .sort((a, b) => a - b)[0];
+
+    return earliestKickoff ? new Date(earliestKickoff).toISOString() : SEASON_LOCK_DEADLINE;
+  }, [scoreboardGames]);
   const totalPicks = matchups.length;
   const completedPicks = Object.values(savedSelectionsByGameId || {}).filter(Boolean).length;
   const finishedGames = matchups.filter((game) => Boolean(game.winner));
@@ -84,7 +97,7 @@ const DashboardPage = () => {
             alignContent: "start",
           }}
         >
-          <DashboardHero username={profile?.username || "Player"} deadline={SEASON_LOCK_DEADLINE} />
+          <DashboardHero username={profile?.username || "Player"} deadline={picksLockDeadline} />
 
           <Box
             sx={{
@@ -113,7 +126,7 @@ const DashboardPage = () => {
             minWidth: 0,
           }}
         >
-          <SeasonStatusPanel deadline={SEASON_LOCK_DEADLINE} links={dashboardQuickLinks} />
+          <SeasonStatusPanel deadline={picksLockDeadline} links={dashboardQuickLinks} />
           <EntriesCard entries={dashboardEntries} />
         </Box>
       </Box>
@@ -123,7 +136,7 @@ const DashboardPage = () => {
   return (
     <Box>
       <Stack spacing={2.5}>
-        <DashboardHero username={profile?.username || "Player"} deadline={SEASON_LOCK_DEADLINE} />
+        <DashboardHero username={profile?.username || "Player"} deadline={picksLockDeadline} />
         <Box
           sx={{
             display: "grid",

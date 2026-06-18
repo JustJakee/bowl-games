@@ -1,0 +1,6213 @@
+{
+  "season": {
+    "type": 3,
+    "year": 2026
+  },
+  "events": [
+    {
+      "id": "202600001",
+      "date": "2026-12-12T17:00:00Z",
+      "name": "South Carolina State Bulldogs at Prairie View A&M Panthers",
+      "shortName": "SCST @ PV",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600001",
+          "date": "2026-12-12T17:00:00Z",
+          "startDate": "2026-12-12T17:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Mercedes-Benz Stadium",
+            "address": {
+              "city": "Atlanta",
+              "state": "GA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2504",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2504",
+                "abbreviation": "PV",
+                "displayName": "Prairie View A&M Panthers",
+                "shortDisplayName": "PV",
+                "name": "Prairie View A&M Panthers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2504.png",
+                "color": "582c83",
+                "alternateColor": "eaaa00"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2569",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2569",
+                "abbreviation": "SCST",
+                "displayName": "South Carolina State Bulldogs",
+                "shortDisplayName": "SCST",
+                "name": "South Carolina State Bulldogs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2569.png",
+                "color": "7d1315",
+                "alternateColor": "104897"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Cricket Celebration Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/12 - 12:00 PM EST",
+              "shortDetail": "12/12 - 12:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/12 - 12:00 PM EST",
+          "shortDetail": "12/12 - 12:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600002",
+      "date": "2026-12-12T17:00:00Z",
+      "name": "Villanova Wildcats at Tarleton State Texans",
+      "shortName": "VILL @ TAR",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600002",
+          "date": "2026-12-12T17:00:00Z",
+          "startDate": "2026-12-12T17:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Tarleton Memorial Stadium",
+            "address": {
+              "city": "Stephenville",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2627",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2627",
+                "abbreviation": "TAR",
+                "displayName": "Tarleton State Texans",
+                "shortDisplayName": "TAR",
+                "name": "Tarleton State Texans",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2627.png",
+                "color": "000000",
+                "alternateColor": ""
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "222",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "222",
+                "abbreviation": "VILL",
+                "displayName": "Villanova Wildcats",
+                "shortDisplayName": "VILL",
+                "name": "Villanova Wildcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/222.png",
+                "color": "00205b",
+                "alternateColor": "13b5ea"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "FCS Championship - Quarterfinals"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/12 - 12:00 PM EST",
+              "shortDetail": "12/12 - 12:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/12 - 12:00 PM EST",
+          "shortDetail": "12/12 - 12:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600003",
+      "date": "2026-12-12T20:00:00Z",
+      "name": "Army Black Knights at Navy Midshipmen",
+      "shortName": "ARMY @ NAVY",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600003",
+          "date": "2026-12-12T20:00:00Z",
+          "startDate": "2026-12-12T20:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "M&T Bank Stadium",
+            "address": {
+              "city": "Baltimore",
+              "state": "MD"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2426",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2426",
+                "abbreviation": "NAVY",
+                "displayName": "Navy Midshipmen",
+                "shortDisplayName": "NAVY",
+                "name": "Navy Midshipmen",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2426.png",
+                "color": "00225b",
+                "alternateColor": "b5a67c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "349",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "349",
+                "abbreviation": "ARMY",
+                "displayName": "Army Black Knights",
+                "shortDisplayName": "ARMY",
+                "name": "Army Black Knights",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/349.png",
+                "color": "000000",
+                "alternateColor": "d3bc8d"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/12 - 3:00 PM EST",
+              "shortDetail": "12/12 - 3:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "CBS",
+              "names": [
+                "CBS"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/12 - 3:00 PM EST",
+          "shortDetail": "12/12 - 3:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600004",
+      "date": "2026-12-12T20:30:00Z",
+      "name": "South Dakota Coyotes at Montana Grizzlies",
+      "shortName": "SDAK @ MONT",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600004",
+          "date": "2026-12-12T20:30:00Z",
+          "startDate": "2026-12-12T20:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Washington-Grizzly Stadium",
+            "address": {
+              "city": "Missoula",
+              "state": "MT"
+            }
+          },
+          "competitors": [
+            {
+              "id": "149",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "149",
+                "abbreviation": "MONT",
+                "displayName": "Montana Grizzlies",
+                "shortDisplayName": "MONT",
+                "name": "Montana Grizzlies",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/149.png",
+                "color": "751D4A",
+                "alternateColor": "666666"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "233",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "233",
+                "abbreviation": "SDAK",
+                "displayName": "South Dakota Coyotes",
+                "shortDisplayName": "SDAK",
+                "name": "South Dakota Coyotes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/233.png",
+                "color": "CD1241",
+                "alternateColor": "f0f0f0"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "FCS Championship - Quarterfinals"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/12 - 3:30 PM EST",
+              "shortDetail": "12/12 - 3:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/12 - 3:30 PM EST",
+          "shortDetail": "12/12 - 3:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600005",
+      "date": "2026-12-12T22:00:00Z",
+      "name": "Illinois State Redbirds at UC Davis Aggies",
+      "shortName": "ILST @ UCD",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600005",
+          "date": "2026-12-12T22:00:00Z",
+          "startDate": "2026-12-12T22:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "UC Davis Health Stadium",
+            "address": {
+              "city": "Davis",
+              "state": "CA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "302",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "302",
+                "abbreviation": "UCD",
+                "displayName": "UC Davis Aggies",
+                "shortDisplayName": "UCD",
+                "name": "UC Davis Aggies",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/302.png",
+                "color": "002855",
+                "alternateColor": "c3c4c6"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2287",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2287",
+                "abbreviation": "ILST",
+                "displayName": "Illinois State Redbirds",
+                "shortDisplayName": "ILST",
+                "name": "Illinois State Redbirds",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2287.png",
+                "color": "CE1126",
+                "alternateColor": "ffe716"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "FCS Championship - Quarterfinals"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/12 - 5:00 PM EST",
+              "shortDetail": "12/12 - 5:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN+",
+              "names": [
+                "ESPN+"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/12 - 5:00 PM EST",
+          "shortDetail": "12/12 - 5:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600006",
+      "date": "2026-12-13T01:00:00Z",
+      "name": "Boise State Broncos at Washington Huskies",
+      "shortName": "BOIS @ WASH",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600006",
+          "date": "2026-12-13T01:00:00Z",
+          "startDate": "2026-12-13T01:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "SoFi Stadium",
+            "address": {
+              "city": "Inglewood",
+              "state": "CA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "264",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "264",
+                "abbreviation": "WASH",
+                "displayName": "Washington Huskies",
+                "shortDisplayName": "WASH",
+                "name": "Washington Huskies",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/264.png",
+                "color": "33006f",
+                "alternateColor": "e8d3a2"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "68",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "68",
+                "abbreviation": "BOIS",
+                "displayName": "Boise State Broncos",
+                "shortDisplayName": "BOIS",
+                "name": "Boise State Broncos",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/68.png",
+                "color": "0033a0",
+                "alternateColor": "d64309"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Bucked Up LA Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/12 - 8:00 PM EST",
+              "shortDetail": "12/12 - 8:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/12 - 8:00 PM EST",
+          "shortDetail": "12/12 - 8:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600007",
+      "date": "2026-12-13T02:00:00Z",
+      "name": "Troy Trojans at Jacksonville State Gamecocks",
+      "shortName": "TROY @ JVST",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600007",
+          "date": "2026-12-13T02:00:00Z",
+          "startDate": "2026-12-13T02:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Cramton Bowl",
+            "address": {
+              "city": "Montgomery",
+              "state": "AL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "55",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "55",
+                "abbreviation": "JVST",
+                "displayName": "Jacksonville State Gamecocks",
+                "shortDisplayName": "JVST",
+                "name": "Jacksonville State Gamecocks",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/55.png",
+                "color": "cc0000",
+                "alternateColor": "000000"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2653",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2653",
+                "abbreviation": "TROY",
+                "displayName": "Troy Trojans",
+                "shortDisplayName": "TROY",
+                "name": "Troy Trojans",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2653.png",
+                "color": "862633",
+                "alternateColor": "b1b1b1"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "IS4S Salute to Veterans Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/12 - 9:00 PM EST",
+              "shortDetail": "12/12 - 9:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/12 - 9:00 PM EST",
+          "shortDetail": "12/12 - 9:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600008",
+      "date": "2026-12-16T22:00:00Z",
+      "name": "Old Dominion Monarchs at South Florida Bulls",
+      "shortName": "ODU @ USF",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600008",
+          "date": "2026-12-16T22:00:00Z",
+          "startDate": "2026-12-16T22:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Camping World Stadium",
+            "address": {
+              "city": "Orlando",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "58",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "58",
+                "abbreviation": "USF",
+                "displayName": "South Florida Bulls",
+                "shortDisplayName": "USF",
+                "name": "South Florida Bulls",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/58.png",
+                "color": "006747",
+                "alternateColor": "cfc493"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "295",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "295",
+                "abbreviation": "ODU",
+                "displayName": "Old Dominion Monarchs",
+                "shortDisplayName": "ODU",
+                "name": "Old Dominion Monarchs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/295.png",
+                "color": "003768",
+                "alternateColor": "a1d2f1"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Staff DNA Cure Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/16 - 5:00 PM EST",
+              "shortDetail": "12/16 - 5:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/16 - 5:00 PM EST",
+          "shortDetail": "12/16 - 5:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600009",
+      "date": "2026-12-17T01:40:00Z",
+      "name": "Louisiana Ragin' Cajuns at Delaware Blue Hens",
+      "shortName": "UL @ DEL",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600009",
+          "date": "2026-12-17T01:40:00Z",
+          "startDate": "2026-12-17T01:40:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Hancock Whitney Stadium",
+            "address": {
+              "city": "Mobile",
+              "state": "AL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "48",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "48",
+                "abbreviation": "DEL",
+                "displayName": "Delaware Blue Hens",
+                "shortDisplayName": "DEL",
+                "name": "Delaware Blue Hens",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/48.png",
+                "color": "00539f",
+                "alternateColor": "ffd200"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "309",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "309",
+                "abbreviation": "UL",
+                "displayName": "Louisiana Ragin' Cajuns",
+                "shortDisplayName": "UL",
+                "name": "Louisiana Ragin' Cajuns",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/309.png",
+                "color": "ce181e",
+                "alternateColor": "000000"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "68 Ventures Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/16 - 8:40 PM EST",
+              "shortDetail": "12/16 - 8:40 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/16 - 8:40 PM EST",
+          "shortDetail": "12/16 - 8:40 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600010",
+      "date": "2026-12-17T02:00:00Z",
+      "name": "Missouri State Bears at Arkansas State Red Wolves",
+      "shortName": "MOST @ ARST",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600010",
+          "date": "2026-12-17T02:00:00Z",
+          "startDate": "2026-12-17T02:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Ford Center At The Star",
+            "address": {
+              "city": "Frisco",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2032",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2032",
+                "abbreviation": "ARST",
+                "displayName": "Arkansas State Red Wolves",
+                "shortDisplayName": "ARST",
+                "name": "Arkansas State Red Wolves",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2032.png",
+                "color": "cc092f",
+                "alternateColor": "000000"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2623",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2623",
+                "abbreviation": "MOST",
+                "displayName": "Missouri State Bears",
+                "shortDisplayName": "MOST",
+                "name": "Missouri State Bears",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2623.png",
+                "color": "5e0009",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Xbox Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/16 - 9:00 PM EST",
+              "shortDetail": "12/16 - 9:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN2",
+              "names": [
+                "ESPN2"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/16 - 9:00 PM EST",
+          "shortDetail": "12/16 - 9:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600011",
+      "date": "2026-12-19T01:00:00Z",
+      "name": "Alabama Crimson Tide at Oklahoma Sooners",
+      "shortName": "ALA @ OU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600011",
+          "date": "2026-12-19T01:00:00Z",
+          "startDate": "2026-12-19T01:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Memorial Stadium (Norman, OK)",
+            "address": {
+              "city": "Norman",
+              "state": "OK"
+            }
+          },
+          "competitors": [
+            {
+              "id": "201",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "201",
+                "abbreviation": "OU",
+                "displayName": "Oklahoma Sooners",
+                "shortDisplayName": "OU",
+                "name": "Oklahoma Sooners",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/201.png",
+                "color": "990000",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 8
+              }
+            },
+            {
+              "id": "333",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "333",
+                "abbreviation": "ALA",
+                "displayName": "Alabama Crimson Tide",
+                "shortDisplayName": "ALA",
+                "name": "Alabama Crimson Tide",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/333.png",
+                "color": "9e1b32",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 9
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff First Round Game"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/18 - 8:00 PM EST",
+              "shortDetail": "12/18 - 8:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/18 - 8:00 PM EST",
+          "shortDetail": "12/18 - 8:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600012",
+      "date": "2026-12-19T16:00:00Z",
+      "name": "Kennesaw State Owls at Western Michigan Broncos",
+      "shortName": "KENN @ WMU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600012",
+          "date": "2026-12-19T16:00:00Z",
+          "startDate": "2026-12-19T16:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Brooks Stadium (SC)",
+            "address": {
+              "city": "Conway",
+              "state": "SC"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2711",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2711",
+                "abbreviation": "WMU",
+                "displayName": "Western Michigan Broncos",
+                "shortDisplayName": "WMU",
+                "name": "Western Michigan Broncos",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2711.png",
+                "color": "532e1f",
+                "alternateColor": "f1c500"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "338",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "338",
+                "abbreviation": "KENN",
+                "displayName": "Kennesaw State Owls",
+                "shortDisplayName": "KENN",
+                "name": "Kennesaw State Owls",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/338.png",
+                "color": "fdbb30",
+                "alternateColor": "0b1315"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Myrtle Beach Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/19 - 11:00 AM EST",
+              "shortDetail": "12/19 - 11:00 AM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/19 - 11:00 AM EST",
+          "shortDetail": "12/19 - 11:00 AM EST"
+        }
+      }
+    },
+    {
+      "id": "202600013",
+      "date": "2026-12-19T19:30:00Z",
+      "name": "Memphis Tigers at NC State Wolfpack",
+      "shortName": "MEM @ NCSU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600013",
+          "date": "2026-12-19T19:30:00Z",
+          "startDate": "2026-12-19T19:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Raymond James Stadium",
+            "address": {
+              "city": "Tampa",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "152",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "152",
+                "abbreviation": "NCSU",
+                "displayName": "NC State Wolfpack",
+                "shortDisplayName": "NCSU",
+                "name": "NC State Wolfpack",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/152.png",
+                "color": "cc0000",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "235",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "235",
+                "abbreviation": "MEM",
+                "displayName": "Memphis Tigers",
+                "shortDisplayName": "MEM",
+                "name": "Memphis Tigers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/235.png",
+                "color": "004991",
+                "alternateColor": "8e908f"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Union Home Mortgage Gasparilla Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/19 - 2:30 PM EST",
+              "shortDetail": "12/19 - 2:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/19 - 2:30 PM EST",
+          "shortDetail": "12/19 - 2:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600014",
+      "date": "2026-12-20T00:30:00Z",
+      "name": "James Madison Dukes at Oregon Ducks",
+      "shortName": "JMU @ ORE",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600014",
+          "date": "2026-12-20T00:30:00Z",
+          "startDate": "2026-12-20T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Autzen Stadium",
+            "address": {
+              "city": "Eugene",
+              "state": "OR"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2483",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2483",
+                "abbreviation": "ORE",
+                "displayName": "Oregon Ducks",
+                "shortDisplayName": "ORE",
+                "name": "Oregon Ducks",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png",
+                "color": "00934b",
+                "alternateColor": "fff41b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 5
+              }
+            },
+            {
+              "id": "256",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "256",
+                "abbreviation": "JMU",
+                "displayName": "James Madison Dukes",
+                "shortDisplayName": "JMU",
+                "name": "James Madison Dukes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/256.png",
+                "color": "450084",
+                "alternateColor": "cbb677"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 12
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff First Round Game"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/19 - 7:30 PM EST",
+              "shortDetail": "12/19 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "TNT",
+              "names": [
+                "TNT"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/19 - 7:30 PM EST",
+          "shortDetail": "12/19 - 7:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600015",
+      "date": "2026-12-19T20:30:00Z",
+      "name": "Tulane Green Wave at Ole Miss Rebels",
+      "shortName": "TULN @ MISS",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600015",
+          "date": "2026-12-19T20:30:00Z",
+          "startDate": "2026-12-19T20:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Vaught-Hemingway Stadium",
+            "address": {
+              "city": "Oxford",
+              "state": "MS"
+            }
+          },
+          "competitors": [
+            {
+              "id": "145",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "145",
+                "abbreviation": "MISS",
+                "displayName": "Ole Miss Rebels",
+                "shortDisplayName": "MISS",
+                "name": "Ole Miss Rebels",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/145.png",
+                "color": "13294b",
+                "alternateColor": "cf142b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 6
+              }
+            },
+            {
+              "id": "2655",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2655",
+                "abbreviation": "TULN",
+                "displayName": "Tulane Green Wave",
+                "shortDisplayName": "TULN",
+                "name": "Tulane Green Wave",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2655.png",
+                "color": "006747",
+                "alternateColor": "418fde"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 11
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff First Round Game"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/19 - 3:30 PM EST",
+              "shortDetail": "12/19 - 3:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "TNT",
+              "names": [
+                "TNT"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/19 - 3:30 PM EST",
+          "shortDetail": "12/19 - 3:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600016",
+      "date": "2026-12-19T17:00:00Z",
+      "name": "Miami Hurricanes at Texas A&M Aggies",
+      "shortName": "MIA @ TA&M",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600016",
+          "date": "2026-12-19T17:00:00Z",
+          "startDate": "2026-12-19T17:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Kyle Field",
+            "address": {
+              "city": "College Station",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "245",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "245",
+                "abbreviation": "TA&M",
+                "displayName": "Texas A&M Aggies",
+                "shortDisplayName": "TA&M",
+                "name": "Texas A&M Aggies",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/245.png",
+                "color": "500000",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 7
+              }
+            },
+            {
+              "id": "2390",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2390",
+                "abbreviation": "MIA",
+                "displayName": "Miami Hurricanes",
+                "shortDisplayName": "MIA",
+                "name": "Miami Hurricanes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png",
+                "color": "f47423",
+                "alternateColor": "035131"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 10
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff First Round Game"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/19 - 12:00 PM EST",
+              "shortDetail": "12/19 - 12:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/19 - 12:00 PM EST",
+          "shortDetail": "12/19 - 12:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600017",
+      "date": "2026-12-19T21:00:00Z",
+      "name": "Montana Grizzlies at Montana State Bobcats",
+      "shortName": "MONT @ MTST",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600017",
+          "date": "2026-12-19T21:00:00Z",
+          "startDate": "2026-12-19T21:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Bobcat Stadium (MT)",
+            "address": {
+              "city": "Bozeman",
+              "state": "MT"
+            }
+          },
+          "competitors": [
+            {
+              "id": "147",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "147",
+                "abbreviation": "MTST",
+                "displayName": "Montana State Bobcats",
+                "shortDisplayName": "MTST",
+                "name": "Montana State Bobcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/147.png",
+                "color": "00205c",
+                "alternateColor": "bc955c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "149",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "149",
+                "abbreviation": "MONT",
+                "displayName": "Montana Grizzlies",
+                "shortDisplayName": "MONT",
+                "name": "Montana Grizzlies",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/149.png",
+                "color": "751D4A",
+                "alternateColor": "666666"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "FCS Championship - Semifinals"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/19 - 4:00 PM EST",
+              "shortDetail": "12/19 - 4:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/19 - 4:00 PM EST",
+          "shortDetail": "12/19 - 4:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600018",
+      "date": "2026-12-20T00:30:00Z",
+      "name": "Illinois State Redbirds at Villanova Wildcats",
+      "shortName": "ILST @ VILL",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600018",
+          "date": "2026-12-20T00:30:00Z",
+          "startDate": "2026-12-20T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Villanova Stadium",
+            "address": {
+              "city": "Philadelphia",
+              "state": "PA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "222",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "222",
+                "abbreviation": "VILL",
+                "displayName": "Villanova Wildcats",
+                "shortDisplayName": "VILL",
+                "name": "Villanova Wildcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/222.png",
+                "color": "00205b",
+                "alternateColor": "13b5ea"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2287",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2287",
+                "abbreviation": "ILST",
+                "displayName": "Illinois State Redbirds",
+                "shortDisplayName": "ILST",
+                "name": "Illinois State Redbirds",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2287.png",
+                "color": "CE1126",
+                "alternateColor": "ffe716"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "FCS Championship - Semifinals"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/19 - 7:30 PM EST",
+              "shortDetail": "12/19 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN2",
+              "names": [
+                "ESPN2"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/19 - 7:30 PM EST",
+          "shortDetail": "12/19 - 7:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600019",
+      "date": "2026-12-21T19:00:00Z",
+      "name": "Washington State Cougars at Utah State Aggies",
+      "shortName": "WSU @ USU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600019",
+          "date": "2026-12-21T19:00:00Z",
+          "startDate": "2026-12-21T19:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Albertsons Stadium",
+            "address": {
+              "city": "Boise",
+              "state": "ID"
+            }
+          },
+          "competitors": [
+            {
+              "id": "328",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "328",
+                "abbreviation": "USU",
+                "displayName": "Utah State Aggies",
+                "shortDisplayName": "USU",
+                "name": "Utah State Aggies",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/328.png",
+                "color": "0f2439",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "265",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "265",
+                "abbreviation": "WSU",
+                "displayName": "Washington State Cougars",
+                "shortDisplayName": "WSU",
+                "name": "Washington State Cougars",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/265.png",
+                "color": "a60f2d",
+                "alternateColor": "4d4d4d"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Famous Idaho Potato Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/21 - 2:00 PM EST",
+              "shortDetail": "12/21 - 2:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/21 - 2:00 PM EST",
+          "shortDetail": "12/21 - 2:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600020",
+      "date": "2026-12-22T19:00:00Z",
+      "name": "Toledo Rockets at Louisville Cardinals",
+      "shortName": "TOL @ LOU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600020",
+          "date": "2026-12-22T19:00:00Z",
+          "startDate": "2026-12-22T19:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Flagler Credit Union Stadium",
+            "address": {
+              "city": "Boca Raton",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "97",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "97",
+                "abbreviation": "LOU",
+                "displayName": "Louisville Cardinals",
+                "shortDisplayName": "LOU",
+                "name": "Louisville Cardinals",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/97.png",
+                "color": "c9001f",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2649",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2649",
+                "abbreviation": "TOL",
+                "displayName": "Toledo Rockets",
+                "shortDisplayName": "TOL",
+                "name": "Toledo Rockets",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2649.png",
+                "color": "0b2240",
+                "alternateColor": "ffcd00"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Bush's Boca Raton Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/22 - 2:00 PM EST",
+              "shortDetail": "12/22 - 2:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/22 - 2:00 PM EST",
+          "shortDetail": "12/22 - 2:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600021",
+      "date": "2026-12-22T22:30:00Z",
+      "name": "Western Kentucky Hilltoppers at Southern Miss Golden Eagles",
+      "shortName": "WKU @ USM",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600021",
+          "date": "2026-12-22T22:30:00Z",
+          "startDate": "2026-12-22T22:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Caesars Superdome",
+            "address": {
+              "city": "New Orleans",
+              "state": "LA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2572",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2572",
+                "abbreviation": "USM",
+                "displayName": "Southern Miss Golden Eagles",
+                "shortDisplayName": "USM",
+                "name": "Southern Miss Golden Eagles",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2572.png",
+                "color": "ffc72c",
+                "alternateColor": "231f20"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "98",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "98",
+                "abbreviation": "WKU",
+                "displayName": "Western Kentucky Hilltoppers",
+                "shortDisplayName": "WKU",
+                "name": "Western Kentucky Hilltoppers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/98.png",
+                "color": "e13a3e",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "New Orleans Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/22 - 5:30 PM EST",
+              "shortDetail": "12/22 - 5:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/22 - 5:30 PM EST",
+          "shortDetail": "12/22 - 5:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600022",
+      "date": "2026-12-23T02:00:00Z",
+      "name": "UNLV Rebels at Ohio Bobcats",
+      "shortName": "UNLV @ OHIO",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600022",
+          "date": "2026-12-23T02:00:00Z",
+          "startDate": "2026-12-23T02:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Ford Center At The Star",
+            "address": {
+              "city": "Frisco",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "195",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "195",
+                "abbreviation": "OHIO",
+                "displayName": "Ohio Bobcats",
+                "shortDisplayName": "OHIO",
+                "name": "Ohio Bobcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/195.png",
+                "color": "154734",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2439",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2439",
+                "abbreviation": "UNLV",
+                "displayName": "UNLV Rebels",
+                "shortDisplayName": "UNLV",
+                "name": "UNLV Rebels",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2439.png",
+                "color": "cf0a2c",
+                "alternateColor": "cac8c8"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Scooter's Coffee Frisco Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/22 - 9:00 PM EST",
+              "shortDetail": "12/22 - 9:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/22 - 9:00 PM EST",
+          "shortDetail": "12/22 - 9:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600023",
+      "date": "2026-12-25T01:00:00Z",
+      "name": "California Golden Bears at Hawai'i Rainbow Warriors",
+      "shortName": "CAL @ HAW",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600023",
+          "date": "2026-12-25T01:00:00Z",
+          "startDate": "2026-12-25T01:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Clarence T.C. Ching Athletics Complex",
+            "address": {
+              "city": "Honolulu",
+              "state": "HI"
+            }
+          },
+          "competitors": [
+            {
+              "id": "62",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "62",
+                "abbreviation": "HAW",
+                "displayName": "Hawai'i Rainbow Warriors",
+                "shortDisplayName": "HAW",
+                "name": "Hawai'i Rainbow Warriors",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/62.png",
+                "color": "005737",
+                "alternateColor": "000000"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "25",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "25",
+                "abbreviation": "CAL",
+                "displayName": "California Golden Bears",
+                "shortDisplayName": "CAL",
+                "name": "California Golden Bears",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/25.png",
+                "color": "041e42",
+                "alternateColor": "ffc72c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Sheraton Hawaiʻi Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/24 - 8:00 PM EST",
+              "shortDetail": "12/24 - 8:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/24 - 8:00 PM EST",
+          "shortDetail": "12/24 - 8:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600024",
+      "date": "2026-12-26T18:00:00Z",
+      "name": "Central Michigan Chippewas at Northwestern Wildcats",
+      "shortName": "CMU @ NU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600024",
+          "date": "2026-12-26T18:00:00Z",
+          "startDate": "2026-12-26T18:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Ford Field",
+            "address": {
+              "city": "Detroit",
+              "state": "MI"
+            }
+          },
+          "competitors": [
+            {
+              "id": "77",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "77",
+                "abbreviation": "NU",
+                "displayName": "Northwestern Wildcats",
+                "shortDisplayName": "NU",
+                "name": "Northwestern Wildcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/77.png",
+                "color": "492f92",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2117",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2117",
+                "abbreviation": "CMU",
+                "displayName": "Central Michigan Chippewas",
+                "shortDisplayName": "CMU",
+                "name": "Central Michigan Chippewas",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2117.png",
+                "color": "4c0027",
+                "alternateColor": "fbab18"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "GameAbove Sports Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/26 - 1:00 PM EST",
+              "shortDetail": "12/26 - 1:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/26 - 1:00 PM EST",
+          "shortDetail": "12/26 - 1:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600025",
+      "date": "2026-12-26T21:30:00Z",
+      "name": "New Mexico Lobos at Minnesota Golden Gophers",
+      "shortName": "UNM @ MINN",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600025",
+          "date": "2026-12-26T21:30:00Z",
+          "startDate": "2026-12-26T21:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Chase Field",
+            "address": {
+              "city": "Phoenix",
+              "state": "AZ"
+            }
+          },
+          "competitors": [
+            {
+              "id": "135",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "135",
+                "abbreviation": "MINN",
+                "displayName": "Minnesota Golden Gophers",
+                "shortDisplayName": "MINN",
+                "name": "Minnesota Golden Gophers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/135.png",
+                "color": "5e0a2f",
+                "alternateColor": "fab41c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "167",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "167",
+                "abbreviation": "UNM",
+                "displayName": "New Mexico Lobos",
+                "shortDisplayName": "UNM",
+                "name": "New Mexico Lobos",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/167.png",
+                "color": "ba0c2f",
+                "alternateColor": "a7a8aa"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Rate Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/26 - 4:30 PM EST",
+              "shortDetail": "12/26 - 4:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/26 - 4:30 PM EST",
+          "shortDetail": "12/26 - 4:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600026",
+      "date": "2026-12-27T01:00:00Z",
+      "name": "Florida International Panthers at UTSA Roadrunners",
+      "shortName": "FIU @ UTSA",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600026",
+          "date": "2026-12-27T01:00:00Z",
+          "startDate": "2026-12-27T01:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Gerald J. Ford Stadium",
+            "address": {
+              "city": "Dallas",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2636",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2636",
+                "abbreviation": "UTSA",
+                "displayName": "UTSA Roadrunners",
+                "shortDisplayName": "UTSA",
+                "name": "UTSA Roadrunners",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2636.png",
+                "color": "0c2340",
+                "alternateColor": "f15a22"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2229",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2229",
+                "abbreviation": "FIU",
+                "displayName": "Florida International Panthers",
+                "shortDisplayName": "FIU",
+                "name": "Florida International Panthers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2229.png",
+                "color": "091f3f",
+                "alternateColor": "c3993f"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "SERVPRO First Responder Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/26 - 8:00 PM EST",
+              "shortDetail": "12/26 - 8:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/26 - 8:00 PM EST",
+          "shortDetail": "12/26 - 8:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600027",
+      "date": "2026-12-28T20:40:00Z",
+      "name": "Georgia Tech Yellow Jackets at BYU Cougars",
+      "shortName": "GT @ BYU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600027",
+          "date": "2026-12-28T20:40:00Z",
+          "startDate": "2026-12-28T20:40:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Camping World Stadium",
+            "address": {
+              "city": "Orlando",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "252",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "252",
+                "abbreviation": "BYU",
+                "displayName": "BYU Cougars",
+                "shortDisplayName": "BYU",
+                "name": "BYU Cougars",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/252.png",
+                "color": "0047ba",
+                "alternateColor": "002e5d"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 12
+              }
+            },
+            {
+              "id": "59",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "59",
+                "abbreviation": "GT",
+                "displayName": "Georgia Tech Yellow Jackets",
+                "shortDisplayName": "GT",
+                "name": "Georgia Tech Yellow Jackets",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/59.png",
+                "color": "b3a369",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 22
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Pop-Tarts Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/28 - 3:40 PM EST",
+              "shortDetail": "12/28 - 3:40 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/28 - 3:40 PM EST",
+          "shortDetail": "12/28 - 3:40 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600028",
+      "date": "2026-12-29T00:30:00Z",
+      "name": "Virginia Cavaliers at Missouri Tigers",
+      "shortName": "UVA @ MIZ",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600028",
+          "date": "2026-12-29T00:30:00Z",
+          "startDate": "2026-12-29T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "EverBank Stadium",
+            "address": {
+              "city": "Jacksonville",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "142",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "142",
+                "abbreviation": "MIZ",
+                "displayName": "Missouri Tigers",
+                "shortDisplayName": "MIZ",
+                "name": "Missouri Tigers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/142.png",
+                "color": "f1b82d",
+                "alternateColor": "000000"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "258",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "258",
+                "abbreviation": "UVA",
+                "displayName": "Virginia Cavaliers",
+                "shortDisplayName": "UVA",
+                "name": "Virginia Cavaliers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",
+                "color": "f84c1e",
+                "alternateColor": "232d4b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 19
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "TaxSlayer Gator Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/28 - 7:30 PM EST",
+              "shortDetail": "12/28 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/28 - 7:30 PM EST",
+          "shortDetail": "12/28 - 7:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600029",
+      "date": "2026-12-29T02:20:00Z",
+      "name": "LSU Tigers at Houston Cougars",
+      "shortName": "LSU @ HOU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600029",
+          "date": "2026-12-29T02:20:00Z",
+          "startDate": "2026-12-29T02:20:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "NRG Stadium",
+            "address": {
+              "city": "Houston",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "248",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "248",
+                "abbreviation": "HOU",
+                "displayName": "Houston Cougars",
+                "shortDisplayName": "HOU",
+                "name": "Houston Cougars",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/248.png",
+                "color": "c8102e",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 21
+              }
+            },
+            {
+              "id": "99",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "99",
+                "abbreviation": "LSU",
+                "displayName": "LSU Tigers",
+                "shortDisplayName": "LSU",
+                "name": "LSU Tigers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/99.png",
+                "color": "461d76",
+                "alternateColor": "fdd023"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Kinder's Texas Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/28 - 9:20 PM EST",
+              "shortDetail": "12/28 - 9:20 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/28 - 9:20 PM EST",
+          "shortDetail": "12/28 - 9:20 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600030",
+      "date": "2026-12-28T22:45:00Z",
+      "name": "North Texas Mean Green at San Diego State Aztecs",
+      "shortName": "UNT @ SDSU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600030",
+          "date": "2026-12-28T22:45:00Z",
+          "startDate": "2026-12-28T22:45:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "University Stadium (NM)",
+            "address": {
+              "city": "Albuquerque",
+              "state": "NM"
+            }
+          },
+          "competitors": [
+            {
+              "id": "21",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "21",
+                "abbreviation": "SDSU",
+                "displayName": "San Diego State Aztecs",
+                "shortDisplayName": "SDSU",
+                "name": "San Diego State Aztecs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/21.png",
+                "color": "a6192e",
+                "alternateColor": "000000"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "249",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "249",
+                "abbreviation": "UNT",
+                "displayName": "North Texas Mean Green",
+                "shortDisplayName": "UNT",
+                "name": "North Texas Mean Green",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/249.png",
+                "color": "068f33",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 25
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Isleta New Mexico Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/28 - 5:45 PM EST",
+              "shortDetail": "12/28 - 5:45 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/28 - 5:45 PM EST",
+          "shortDetail": "12/28 - 5:45 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600031",
+      "date": "2026-12-29T16:00:00Z",
+      "name": "Pittsburgh Panthers at East Carolina Pirates",
+      "shortName": "PITT @ ECU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600031",
+          "date": "2026-12-29T16:00:00Z",
+          "startDate": "2026-12-29T16:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Navy-Marine Corps Memorial Stadium",
+            "address": {
+              "city": "Annapolis",
+              "state": "MD"
+            }
+          },
+          "competitors": [
+            {
+              "id": "151",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "151",
+                "abbreviation": "ECU",
+                "displayName": "East Carolina Pirates",
+                "shortDisplayName": "ECU",
+                "name": "East Carolina Pirates",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+                "color": "582c83",
+                "alternateColor": "ffc72c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "221",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "221",
+                "abbreviation": "PITT",
+                "displayName": "Pittsburgh Panthers",
+                "shortDisplayName": "PITT",
+                "name": "Pittsburgh Panthers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/221.png",
+                "color": "003594",
+                "alternateColor": "ffb81c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Go Bowling Military Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/29 - 11:00 AM EST",
+              "shortDetail": "12/29 - 11:00 AM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/29 - 11:00 AM EST",
+          "shortDetail": "12/29 - 11:00 AM EST"
+        }
+      }
+    },
+    {
+      "id": "202600032",
+      "date": "2026-12-29T17:00:00Z",
+      "name": "Penn State Nittany Lions at Clemson Tigers",
+      "shortName": "PSU @ CLEM",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600032",
+          "date": "2026-12-29T17:00:00Z",
+          "startDate": "2026-12-29T17:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Yankee Stadium",
+            "address": {
+              "city": "Bronx",
+              "state": "NY"
+            }
+          },
+          "competitors": [
+            {
+              "id": "228",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "228",
+                "abbreviation": "CLEM",
+                "displayName": "Clemson Tigers",
+                "shortDisplayName": "CLEM",
+                "name": "Clemson Tigers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/228.png",
+                "color": "f56600",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "213",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "213",
+                "abbreviation": "PSU",
+                "displayName": "Penn State Nittany Lions",
+                "shortDisplayName": "PSU",
+                "name": "Penn State Nittany Lions",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/213.png",
+                "color": "061440",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Bad Boy Mowers Pinstripe Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/29 - 12:00 PM EST",
+              "shortDetail": "12/29 - 12:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/29 - 12:00 PM EST",
+          "shortDetail": "12/29 - 12:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600033",
+      "date": "2026-12-29T19:15:00Z",
+      "name": "UConn Huskies at Army Black Knights",
+      "shortName": "CONN @ ARMY",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600033",
+          "date": "2026-12-29T19:15:00Z",
+          "startDate": "2026-12-29T19:15:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Fenway Park",
+            "address": {
+              "city": "Boston",
+              "state": "MA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "349",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "349",
+                "abbreviation": "ARMY",
+                "displayName": "Army Black Knights",
+                "shortDisplayName": "ARMY",
+                "name": "Army Black Knights",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/349.png",
+                "color": "000000",
+                "alternateColor": "d3bc8d"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "41",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "41",
+                "abbreviation": "CONN",
+                "displayName": "UConn Huskies",
+                "shortDisplayName": "CONN",
+                "name": "UConn Huskies",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/41.png",
+                "color": "0c2340",
+                "alternateColor": "a2aaad"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Wasabi Fenway Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/29 - 2:15 PM EST",
+              "shortDetail": "12/29 - 2:15 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/29 - 2:15 PM EST",
+          "shortDetail": "12/29 - 2:15 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600034",
+      "date": "2026-12-29T21:30:00Z",
+      "name": "Miami (OH) RedHawks at Fresno State Bulldogs",
+      "shortName": "M-OH @ FRES",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600034",
+          "date": "2026-12-29T21:30:00Z",
+          "startDate": "2026-12-29T21:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Arizona Stadium",
+            "address": {
+              "city": "Tucson",
+              "state": "AZ"
+            }
+          },
+          "competitors": [
+            {
+              "id": "278",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "278",
+                "abbreviation": "FRES",
+                "displayName": "Fresno State Bulldogs",
+                "shortDisplayName": "FRES",
+                "name": "Fresno State Bulldogs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/278.png",
+                "color": "b1102b",
+                "alternateColor": "13284c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "193",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "193",
+                "abbreviation": "M-OH",
+                "displayName": "Miami (OH) RedHawks",
+                "shortDisplayName": "M-OH",
+                "name": "Miami (OH) RedHawks",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/193.png",
+                "color": "c41230",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Snoop Dogg Arizona Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/29 - 4:30 PM EST",
+              "shortDetail": "12/29 - 4:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "The CW Network",
+              "names": [
+                "The CW Network"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/29 - 4:30 PM EST",
+          "shortDetail": "12/29 - 4:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600035",
+      "date": "2026-12-30T19:00:00Z",
+      "name": "Georgia Southern Eagles at App State Mountaineers",
+      "shortName": "GASO @ APP",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600035",
+          "date": "2026-12-30T19:00:00Z",
+          "startDate": "2026-12-30T19:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Protective Stadium",
+            "address": {
+              "city": "Birmingham",
+              "state": "AL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2026",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2026",
+                "abbreviation": "APP",
+                "displayName": "App State Mountaineers",
+                "shortDisplayName": "APP",
+                "name": "App State Mountaineers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+                "color": "000000",
+                "alternateColor": "ffcd00"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "290",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "290",
+                "abbreviation": "GASO",
+                "displayName": "Georgia Southern Eagles",
+                "shortDisplayName": "GASO",
+                "name": "Georgia Southern Eagles",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/290.png",
+                "color": "041e42",
+                "alternateColor": "a3aaae"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "JLab Birmingham Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/30 - 2:00 PM EST",
+              "shortDetail": "12/30 - 2:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/30 - 2:00 PM EST",
+          "shortDetail": "12/30 - 2:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600036",
+      "date": "2026-12-31T02:00:00Z",
+      "name": "USC Trojans at TCU Horned Frogs",
+      "shortName": "USC @ TCU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600036",
+          "date": "2026-12-31T02:00:00Z",
+          "startDate": "2026-12-31T02:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Alamodome",
+            "address": {
+              "city": "San Antonio",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2628",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2628",
+                "abbreviation": "TCU",
+                "displayName": "TCU Horned Frogs",
+                "shortDisplayName": "TCU",
+                "name": "TCU Horned Frogs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png",
+                "color": "4d1979",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "30",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "30",
+                "abbreviation": "USC",
+                "displayName": "USC Trojans",
+                "shortDisplayName": "USC",
+                "name": "USC Trojans",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/30.png",
+                "color": "9d2235",
+                "alternateColor": "ffc72c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 16
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Valero Alamo Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/30 - 9:00 PM EST",
+              "shortDetail": "12/30 - 9:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/30 - 9:00 PM EST",
+          "shortDetail": "12/30 - 9:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600037",
+      "date": "2026-12-30T19:00:00Z",
+      "name": "Coastal Carolina Chanticleers at Louisiana Tech Bulldogs",
+      "shortName": "CCU @ LT",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600037",
+          "date": "2026-12-30T19:00:00Z",
+          "startDate": "2026-12-30T19:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Independence Stadium",
+            "address": {
+              "city": "Shreveport",
+              "state": "LA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2348",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2348",
+                "abbreviation": "LT",
+                "displayName": "Louisiana Tech Bulldogs",
+                "shortDisplayName": "LT",
+                "name": "Louisiana Tech Bulldogs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2348.png",
+                "color": "003087",
+                "alternateColor": "cb333b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "324",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "324",
+                "abbreviation": "CCU",
+                "displayName": "Coastal Carolina Chanticleers",
+                "shortDisplayName": "CCU",
+                "name": "Coastal Carolina Chanticleers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/324.png",
+                "color": "006f71",
+                "alternateColor": "a27752"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Radiance Technologies Independence Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/30 - 2:00 PM EST",
+              "shortDetail": "12/30 - 2:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/30 - 2:00 PM EST",
+          "shortDetail": "12/30 - 2:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600038",
+      "date": "2026-12-30T22:30:00Z",
+      "name": "Tennessee Volunteers at Illinois Fighting Illini",
+      "shortName": "TENN @ ILL",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600038",
+          "date": "2026-12-30T22:30:00Z",
+          "startDate": "2026-12-30T22:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Nissan Stadium",
+            "address": {
+              "city": "Nashville",
+              "state": "TN"
+            }
+          },
+          "competitors": [
+            {
+              "id": "356",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "356",
+                "abbreviation": "ILL",
+                "displayName": "Illinois Fighting Illini",
+                "shortDisplayName": "ILL",
+                "name": "Illinois Fighting Illini",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/356.png",
+                "color": "ff5f05",
+                "alternateColor": "13294b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2633",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2633",
+                "abbreviation": "TENN",
+                "displayName": "Tennessee Volunteers",
+                "shortDisplayName": "TENN",
+                "name": "Tennessee Volunteers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2633.png",
+                "color": "ff8200",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Liberty Mutual Music City Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/30 - 5:30 PM EST",
+              "shortDetail": "12/30 - 5:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/30 - 5:30 PM EST",
+          "shortDetail": "12/30 - 5:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600039",
+      "date": "2027-01-01T00:30:00Z",
+      "name": "Miami Hurricanes at Ohio State Buckeyes",
+      "shortName": "MIA @ OSU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600039",
+          "date": "2027-01-01T00:30:00Z",
+          "startDate": "2027-01-01T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "AT&T Stadium",
+            "address": {
+              "city": "Arlington",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "194",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "194",
+                "abbreviation": "OSU",
+                "displayName": "Ohio State Buckeyes",
+                "shortDisplayName": "OSU",
+                "name": "Ohio State Buckeyes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/194.png",
+                "color": "ba0c2f",
+                "alternateColor": "a8adb4"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 2
+              }
+            },
+            {
+              "id": "2390",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2390",
+                "abbreviation": "MIA",
+                "displayName": "Miami Hurricanes",
+                "shortDisplayName": "MIA",
+                "name": "Miami Hurricanes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png",
+                "color": "f47423",
+                "alternateColor": "035131"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 10
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff Quarterfinal at the Goodyear Cotton Bowl Classic"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "12/31 - 7:30 PM EST",
+              "shortDetail": "12/31 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "12/31 - 7:30 PM EST",
+          "shortDetail": "12/31 - 7:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600040",
+      "date": "2027-01-01T20:00:00Z",
+      "name": "Michigan Wolverines at Texas Longhorns",
+      "shortName": "MICH @ TEX",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600040",
+          "date": "2027-01-01T20:00:00Z",
+          "startDate": "2027-01-01T20:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Camping World Stadium",
+            "address": {
+              "city": "Orlando",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "251",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "251",
+                "abbreviation": "TEX",
+                "displayName": "Texas Longhorns",
+                "shortDisplayName": "TEX",
+                "name": "Texas Longhorns",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/251.png",
+                "color": "af5c37",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 13
+              }
+            },
+            {
+              "id": "130",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "130",
+                "abbreviation": "MICH",
+                "displayName": "Michigan Wolverines",
+                "shortDisplayName": "MICH",
+                "name": "Michigan Wolverines",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+                "color": "00274c",
+                "alternateColor": "ffcb05"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 18
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Cheez-It Citrus Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/1 - 3:00 PM EST",
+              "shortDetail": "1/1 - 3:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ABC",
+              "names": [
+                "ABC"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/1 - 3:00 PM EST",
+          "shortDetail": "1/1 - 3:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600041",
+      "date": "2027-01-01T17:00:00Z",
+      "name": "Iowa Hawkeyes at Vanderbilt Commodores",
+      "shortName": "IOWA @ VAN",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600041",
+          "date": "2027-01-01T17:00:00Z",
+          "startDate": "2027-01-01T17:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Raymond James Stadium",
+            "address": {
+              "city": "Tampa",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "238",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "238",
+                "abbreviation": "VAN",
+                "displayName": "Vanderbilt Commodores",
+                "shortDisplayName": "VAN",
+                "name": "Vanderbilt Commodores",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/238.png",
+                "color": "000000",
+                "alternateColor": "cfae70"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 14
+              }
+            },
+            {
+              "id": "2294",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2294",
+                "abbreviation": "IOWA",
+                "displayName": "Iowa Hawkeyes",
+                "shortDisplayName": "IOWA",
+                "name": "Iowa Hawkeyes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2294.png",
+                "color": "231f20",
+                "alternateColor": "fcd116"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 23
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "ReliaQuest Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/1 - 12:00 PM EST",
+              "shortDetail": "1/1 - 12:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/1 - 12:00 PM EST",
+          "shortDetail": "1/1 - 12:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600042",
+      "date": "2027-01-01T20:30:00Z",
+      "name": "Nebraska Cornhuskers at Utah Utes",
+      "shortName": "NEB @ UTAH",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600042",
+          "date": "2027-01-01T20:30:00Z",
+          "startDate": "2027-01-01T20:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Allegiant Stadium",
+            "address": {
+              "city": "Las Vegas",
+              "state": "NV"
+            }
+          },
+          "competitors": [
+            {
+              "id": "254",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "254",
+                "abbreviation": "UTAH",
+                "displayName": "Utah Utes",
+                "shortDisplayName": "UTAH",
+                "name": "Utah Utes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/254.png",
+                "color": "be0000",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 15
+              }
+            },
+            {
+              "id": "158",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "158",
+                "abbreviation": "NEB",
+                "displayName": "Nebraska Cornhuskers",
+                "shortDisplayName": "NEB",
+                "name": "Nebraska Cornhuskers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/158.png",
+                "color": "e31937",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "SRS Distribution Las Vegas Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/1 - 3:30 PM EST",
+              "shortDetail": "1/1 - 3:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/1 - 3:30 PM EST",
+          "shortDetail": "1/1 - 3:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600043",
+      "date": "2027-01-01T19:00:00Z",
+      "name": "Arizona State Sun Devils at Duke Blue Devils",
+      "shortName": "ASU @ DUKE",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600043",
+          "date": "2027-01-01T19:00:00Z",
+          "startDate": "2027-01-01T19:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Sun Bowl",
+            "address": {
+              "city": "El Paso",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "150",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "150",
+                "abbreviation": "DUKE",
+                "displayName": "Duke Blue Devils",
+                "shortDisplayName": "DUKE",
+                "name": "Duke Blue Devils",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+                "color": "00539b",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "9",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "9",
+                "abbreviation": "ASU",
+                "displayName": "Arizona State Sun Devils",
+                "shortDisplayName": "ASU",
+                "name": "Arizona State Sun Devils",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9.png",
+                "color": "ffc627",
+                "alternateColor": "8c1d40"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Tony the Tiger Sun Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/1 - 2:00 PM EST",
+              "shortDetail": "1/1 - 2:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "CBS",
+              "names": [
+                "CBS"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/1 - 2:00 PM EST",
+          "shortDetail": "1/1 - 2:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600044",
+      "date": "2027-01-01T21:00:00Z",
+      "name": "Alabama Crimson Tide at Indiana Hoosiers",
+      "shortName": "ALA @ IU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600044",
+          "date": "2027-01-01T21:00:00Z",
+          "startDate": "2027-01-01T21:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Rose Bowl",
+            "address": {
+              "city": "Pasadena",
+              "state": "CA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "84",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "84",
+                "abbreviation": "IU",
+                "displayName": "Indiana Hoosiers",
+                "shortDisplayName": "IU",
+                "name": "Indiana Hoosiers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/84.png",
+                "color": "970310",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 1
+              }
+            },
+            {
+              "id": "333",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "333",
+                "abbreviation": "ALA",
+                "displayName": "Alabama Crimson Tide",
+                "shortDisplayName": "ALA",
+                "name": "Alabama Crimson Tide",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/333.png",
+                "color": "9e1b32",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 9
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff Quarterfinal at the Rose Bowl Presented by Prudential"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/1 - 4:00 PM EST",
+              "shortDetail": "1/1 - 4:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/1 - 4:00 PM EST",
+          "shortDetail": "1/1 - 4:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600045",
+      "date": "2027-01-02T01:00:00Z",
+      "name": "Ole Miss Rebels at Georgia Bulldogs",
+      "shortName": "MISS @ UGA",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600045",
+          "date": "2027-01-02T01:00:00Z",
+          "startDate": "2027-01-02T01:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Caesars Superdome",
+            "address": {
+              "city": "New Orleans",
+              "state": "LA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "61",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "61",
+                "abbreviation": "UGA",
+                "displayName": "Georgia Bulldogs",
+                "shortDisplayName": "UGA",
+                "name": "Georgia Bulldogs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/61.png",
+                "color": "ba0c2f",
+                "alternateColor": "2c2a29"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 3
+              }
+            },
+            {
+              "id": "145",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "145",
+                "abbreviation": "MISS",
+                "displayName": "Ole Miss Rebels",
+                "shortDisplayName": "MISS",
+                "name": "Ole Miss Rebels",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/145.png",
+                "color": "13294b",
+                "alternateColor": "cf142b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 6
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff Quarterfinal at the Allstate Sugar Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/1 - 8:00 PM EST",
+              "shortDetail": "1/1 - 8:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/1 - 8:00 PM EST",
+          "shortDetail": "1/1 - 8:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600046",
+      "date": "2027-01-02T17:00:00Z",
+      "name": "Oregon Ducks at Texas Tech Red Raiders",
+      "shortName": "ORE @ TTU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600046",
+          "date": "2027-01-02T17:00:00Z",
+          "startDate": "2027-01-02T17:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Hard Rock Stadium",
+            "address": {
+              "city": "Miami Gardens",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2641",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2641",
+                "abbreviation": "TTU",
+                "displayName": "Texas Tech Red Raiders",
+                "shortDisplayName": "TTU",
+                "name": "Texas Tech Red Raiders",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2641.png",
+                "color": "da291c",
+                "alternateColor": "000000"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 4
+              }
+            },
+            {
+              "id": "2483",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2483",
+                "abbreviation": "ORE",
+                "displayName": "Oregon Ducks",
+                "shortDisplayName": "ORE",
+                "name": "Oregon Ducks",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png",
+                "color": "00934b",
+                "alternateColor": "fff41b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 5
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff Quarterfinal at the Capital One Orange Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/2 - 12:00 PM EST",
+              "shortDetail": "1/2 - 12:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/2 - 12:00 PM EST",
+          "shortDetail": "1/2 - 12:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600047",
+      "date": "2027-01-03T01:00:00Z",
+      "name": "Arizona Wildcats at SMU Mustangs",
+      "shortName": "ARIZ @ SMU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600047",
+          "date": "2027-01-03T01:00:00Z",
+          "startDate": "2027-01-03T01:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Snapdragon Stadium",
+            "address": {
+              "city": "San Diego",
+              "state": "CA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2567",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2567",
+                "abbreviation": "SMU",
+                "displayName": "SMU Mustangs",
+                "shortDisplayName": "SMU",
+                "name": "SMU Mustangs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2567.png",
+                "color": "a80000",
+                "alternateColor": "0033a1"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "12",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "12",
+                "abbreviation": "ARIZ",
+                "displayName": "Arizona Wildcats",
+                "shortDisplayName": "ARIZ",
+                "name": "Arizona Wildcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/12.png",
+                "color": "cc0033",
+                "alternateColor": "003366"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 17
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Trust & Will Holiday Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/2 - 8:00 PM EST",
+              "shortDetail": "1/2 - 8:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "FOX",
+              "names": [
+                "FOX"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/2 - 8:00 PM EST",
+          "shortDetail": "1/2 - 8:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600048",
+      "date": "2027-01-03T18:00:00Z",
+      "name": "Rice Owls at Texas State Bobcats",
+      "shortName": "RICE @ TXST",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600048",
+          "date": "2027-01-03T18:00:00Z",
+          "startDate": "2027-01-03T18:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Amon G. Carter Stadium",
+            "address": {
+              "city": "Fort Worth",
+              "state": "TX"
+            }
+          },
+          "competitors": [
+            {
+              "id": "326",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "326",
+                "abbreviation": "TXST",
+                "displayName": "Texas State Bobcats",
+                "shortDisplayName": "TXST",
+                "name": "Texas State Bobcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/326.png",
+                "color": "501214",
+                "alternateColor": "6a5638"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "242",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "242",
+                "abbreviation": "RICE",
+                "displayName": "Rice Owls",
+                "shortDisplayName": "RICE",
+                "name": "Rice Owls",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/242.png",
+                "color": "00205b",
+                "alternateColor": "c1c6c8"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Lockheed Martin Armed Forces Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/3 - 1:00 PM EST",
+              "shortDetail": "1/3 - 1:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPNU",
+              "names": [
+                "ESPNU"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/3 - 1:00 PM EST",
+          "shortDetail": "1/3 - 1:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600049",
+      "date": "2027-01-03T21:30:00Z",
+      "name": "Navy Midshipmen at Cincinnati Bearcats",
+      "shortName": "NAVY @ CIN",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600049",
+          "date": "2027-01-03T21:30:00Z",
+          "startDate": "2027-01-03T21:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Simmons Bank Liberty Stadium",
+            "address": {
+              "city": "Memphis",
+              "state": "TN"
+            }
+          },
+          "competitors": [
+            {
+              "id": "2132",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "2132",
+                "abbreviation": "CIN",
+                "displayName": "Cincinnati Bearcats",
+                "shortDisplayName": "CIN",
+                "name": "Cincinnati Bearcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2132.png",
+                "color": "000000",
+                "alternateColor": "e00122"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2426",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2426",
+                "abbreviation": "NAVY",
+                "displayName": "Navy Midshipmen",
+                "shortDisplayName": "NAVY",
+                "name": "Navy Midshipmen",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2426.png",
+                "color": "00225b",
+                "alternateColor": "b5a67c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "AutoZone Liberty Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/3 - 4:30 PM EST",
+              "shortDetail": "1/3 - 4:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/3 - 4:30 PM EST",
+          "shortDetail": "1/3 - 4:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600050",
+      "date": "2027-01-04T01:00:00Z",
+      "name": "Wake Forest Demon Deacons at Mississippi State Bulldogs",
+      "shortName": "WAKE @ MSST",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600050",
+          "date": "2027-01-04T01:00:00Z",
+          "startDate": "2027-01-04T01:00:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Bank of America Stadium",
+            "address": {
+              "city": "Charlotte",
+              "state": "NC"
+            }
+          },
+          "competitors": [
+            {
+              "id": "344",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "344",
+                "abbreviation": "MSST",
+                "displayName": "Mississippi State Bulldogs",
+                "shortDisplayName": "MSST",
+                "name": "Mississippi State Bulldogs",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/344.png",
+                "color": "5d1725",
+                "alternateColor": "c1c6c8"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "154",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "154",
+                "abbreviation": "WAKE",
+                "displayName": "Wake Forest Demon Deacons",
+                "shortDisplayName": "WAKE",
+                "name": "Wake Forest Demon Deacons",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+                "color": "ceb888",
+                "alternateColor": "2c2a29"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "Duke's Mayo Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/3 - 8:00 PM EST",
+              "shortDetail": "1/3 - 8:00 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/3 - 8:00 PM EST",
+          "shortDetail": "1/3 - 8:00 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600051",
+      "date": "2027-01-05T00:30:00Z",
+      "name": "Illinois State Redbirds at Montana State Bobcats",
+      "shortName": "ILST @ MTST",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600051",
+          "date": "2027-01-05T00:30:00Z",
+          "startDate": "2027-01-05T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "FirstBank Stadium",
+            "address": {
+              "city": "Nashville",
+              "state": "TN"
+            }
+          },
+          "competitors": [
+            {
+              "id": "147",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "147",
+                "abbreviation": "MTST",
+                "displayName": "Montana State Bobcats",
+                "shortDisplayName": "MTST",
+                "name": "Montana State Bobcats",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/147.png",
+                "color": "00205c",
+                "alternateColor": "bc955c"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            },
+            {
+              "id": "2287",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2287",
+                "abbreviation": "ILST",
+                "displayName": "Illinois State Redbirds",
+                "shortDisplayName": "ILST",
+                "name": "Illinois State Redbirds",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2287.png",
+                "color": "CE1126",
+                "alternateColor": "ffe716"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 99
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "FCS Championship"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/4 - 7:30 PM EST",
+              "shortDetail": "1/4 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/4 - 7:30 PM EST",
+          "shortDetail": "1/4 - 7:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600052",
+      "date": "2027-01-09T00:30:00Z",
+      "name": "Miami Hurricanes at Ole Miss Rebels",
+      "shortName": "MIA @ MISS",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600052",
+          "date": "2027-01-09T00:30:00Z",
+          "startDate": "2027-01-09T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "State Farm Stadium",
+            "address": {
+              "city": "Glendale",
+              "state": "AZ"
+            }
+          },
+          "competitors": [
+            {
+              "id": "145",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "145",
+                "abbreviation": "MISS",
+                "displayName": "Ole Miss Rebels",
+                "shortDisplayName": "MISS",
+                "name": "Ole Miss Rebels",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/145.png",
+                "color": "13294b",
+                "alternateColor": "cf142b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 6
+              }
+            },
+            {
+              "id": "2390",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2390",
+                "abbreviation": "MIA",
+                "displayName": "Miami Hurricanes",
+                "shortDisplayName": "MIA",
+                "name": "Miami Hurricanes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png",
+                "color": "f47423",
+                "alternateColor": "035131"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 10
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff Semifinal at the Vrbo Fiesta Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/8 - 7:30 PM EST",
+              "shortDetail": "1/8 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/8 - 7:30 PM EST",
+          "shortDetail": "1/8 - 7:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600053",
+      "date": "2027-01-10T00:30:00Z",
+      "name": "Oregon Ducks at Indiana Hoosiers",
+      "shortName": "ORE @ IU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600053",
+          "date": "2027-01-10T00:30:00Z",
+          "startDate": "2027-01-10T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Mercedes-Benz Stadium",
+            "address": {
+              "city": "Atlanta",
+              "state": "GA"
+            }
+          },
+          "competitors": [
+            {
+              "id": "84",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "84",
+                "abbreviation": "IU",
+                "displayName": "Indiana Hoosiers",
+                "shortDisplayName": "IU",
+                "name": "Indiana Hoosiers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/84.png",
+                "color": "970310",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 1
+              }
+            },
+            {
+              "id": "2483",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2483",
+                "abbreviation": "ORE",
+                "displayName": "Oregon Ducks",
+                "shortDisplayName": "ORE",
+                "name": "Oregon Ducks",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png",
+                "color": "00934b",
+                "alternateColor": "fff41b"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 5
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff Semifinal at the Chick-fil-A Peach Bowl"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/9 - 7:30 PM EST",
+              "shortDetail": "1/9 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/9 - 7:30 PM EST",
+          "shortDetail": "1/9 - 7:30 PM EST"
+        }
+      }
+    },
+    {
+      "id": "202600054",
+      "date": "2027-01-19T00:30:00Z",
+      "name": "Miami Hurricanes at Indiana Hoosiers",
+      "shortName": "MIA @ IU",
+      "season": {
+        "year": 2026,
+        "type": 3,
+        "slug": "post-season"
+      },
+      "competitions": [
+        {
+          "id": "202600054",
+          "date": "2027-01-19T00:30:00Z",
+          "startDate": "2027-01-19T00:30:00Z",
+          "type": {
+            "id": "1",
+            "abbreviation": "STD"
+          },
+          "neutralSite": true,
+          "venue": {
+            "fullName": "Hard Rock Stadium",
+            "address": {
+              "city": "Miami Gardens",
+              "state": "FL"
+            }
+          },
+          "competitors": [
+            {
+              "id": "84",
+              "type": "team",
+              "order": 0,
+              "homeAway": "home",
+              "team": {
+                "id": "84",
+                "abbreviation": "IU",
+                "displayName": "Indiana Hoosiers",
+                "shortDisplayName": "IU",
+                "name": "Indiana Hoosiers",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/84.png",
+                "color": "970310",
+                "alternateColor": "ffffff"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 1
+              }
+            },
+            {
+              "id": "2390",
+              "type": "team",
+              "order": 1,
+              "homeAway": "away",
+              "team": {
+                "id": "2390",
+                "abbreviation": "MIA",
+                "displayName": "Miami Hurricanes",
+                "shortDisplayName": "MIA",
+                "name": "Miami Hurricanes",
+                "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png",
+                "color": "f47423",
+                "alternateColor": "035131"
+              },
+              "score": "0",
+              "curatedRank": {
+                "current": 10
+              }
+            }
+          ],
+          "notes": [
+            {
+              "type": "event",
+              "headline": "College Football Playoff National Championship Presented by AT&T"
+            }
+          ],
+          "status": {
+            "clock": 0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "1/18 - 7:30 PM EST",
+              "shortDetail": "1/18 - 7:30 PM EST"
+            }
+          },
+          "broadcasts": [
+            {
+              "market": "national",
+              "shortName": "ESPN",
+              "names": [
+                "ESPN"
+              ]
+            }
+          ]
+        }
+      ],
+      "status": {
+        "clock": 0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "1/18 - 7:30 PM EST",
+          "shortDetail": "1/18 - 7:30 PM EST"
+        }
+      }
+    }
+  ]
+}

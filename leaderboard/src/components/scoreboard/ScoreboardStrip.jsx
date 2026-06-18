@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   IconButton,
@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
-import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useScoreboard } from "../../context/NCAAFDataContext";
 import ScoreboardGameCard from "./ScoreboardGameCard";
@@ -25,26 +24,23 @@ const ScoreboardStrip = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const updateScrollState = useMemo(
-    () => () => {
-      const container = viewportRef.current;
+  const updateScrollState = useCallback(() => {
+    const container = viewportRef.current;
 
-      if (!container || !isDesktop) {
-        setCanScrollLeft(false);
-        setCanScrollRight(false);
-        return;
-      }
+    if (!container || !isDesktop) {
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+      return;
+    }
 
-      const nextCanScrollLeft = container.scrollLeft > SCROLL_TOLERANCE;
-      const nextCanScrollRight =
-        container.scrollLeft + container.clientWidth <
-        container.scrollWidth - SCROLL_TOLERANCE;
+    const nextCanScrollLeft = container.scrollLeft > SCROLL_TOLERANCE;
+    const nextCanScrollRight =
+      container.scrollLeft + container.clientWidth <
+      container.scrollWidth - SCROLL_TOLERANCE;
 
-      setCanScrollLeft(nextCanScrollLeft);
-      setCanScrollRight(nextCanScrollRight);
-    },
-    [isDesktop]
-  );
+    setCanScrollLeft(nextCanScrollLeft);
+    setCanScrollRight(nextCanScrollRight);
+  }, [isDesktop]);
 
   useEffect(() => {
     const container = viewportRef.current;
@@ -96,7 +92,7 @@ const ScoreboardStrip = () => {
   const arrowButtonSx = (direction) => ({
     position: "absolute",
     top: 0,
-    bottom: 0,
+    bottom: 12,
     [direction]: 0,
     width: ARROW_WIDTH,
     display: { xs: "none", lg: "flex" },
@@ -111,14 +107,14 @@ const ScoreboardStrip = () => {
       direction === "left" ? `1px solid ${theme.palette.divider}` : "none",
     background:
       direction === "right"
-        ? `linear-gradient(to left, ${alpha(theme.palette.background.default, 0.98)} 45%, ${alpha(theme.palette.background.default, 0)})`
-        : `linear-gradient(to right, ${alpha(theme.palette.background.default, 0.98)} 45%, ${alpha(theme.palette.background.default, 0)})`,
+        ? `linear-gradient(to left, ${alpha(theme.palette.background.default, 1)} 62%, ${alpha(theme.palette.background.default, 0.35)})`
+        : `linear-gradient(to right, ${alpha(theme.palette.background.default, 1)} 62%, ${alpha(theme.palette.background.default, 0.35)})`,
     "&:hover": {
       color: "primary.main",
       background:
         direction === "right"
-          ? `linear-gradient(to left, ${alpha(theme.palette.background.paper, 1)} 52%, ${alpha(theme.palette.background.paper, 0)})`
-          : `linear-gradient(to right, ${alpha(theme.palette.background.paper, 1)} 52%, ${alpha(theme.palette.background.paper, 0)})`,
+          ? `linear-gradient(to left, ${alpha(theme.palette.background.paper, 1)} 68%, ${alpha(theme.palette.background.paper, 0.45)})`
+          : `linear-gradient(to right, ${alpha(theme.palette.background.paper, 1)} 68%, ${alpha(theme.palette.background.paper, 0.45)})`,
     },
     "&:focus-visible": {
       outline: `2px solid ${theme.palette.primary.main}`,
@@ -132,19 +128,10 @@ const ScoreboardStrip = () => {
       aria-label="Global scoreboard"
       sx={{
         width: "100%",
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        backgroundColor: "rgba(3, 9, 18, 0.72)",
-        backdropFilter: "blur(10px)",
+        pt: { xs: 0, lg: 1.5 },
       }}
     >
-      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ px: { xs: 2, md: 3 }, py: 1.5 }}>
-        <SportsFootballRoundedIcon sx={{ color: "primary.main" }} />
-        <Typography variant="overline" color="text.secondary">
-          Scoreboard
-        </Typography>
-      </Stack>
-      <Box sx={{ position: "relative", px: { xs: 2, md: 3 }, pb: 1.5 }}>
+      <Box sx={{ position: "relative", pb: 1.5 }}>
         <Box
           ref={viewportRef}
           tabIndex={0}

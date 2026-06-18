@@ -1,10 +1,10 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import Panel from "../components/common/Panel";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
 
 const MorePage = () => {
-  const { email, role, groups, signOut } = useAuth();
+  const { email, role, groups } = useAuth();
   const { profile } = useUserProfile();
 
   return (
@@ -28,9 +28,6 @@ const MorePage = () => {
         <Typography variant="body2" color="text.secondary">
           Public signup is still disabled. Account and help surfaces will expand in a later milestone.
         </Typography>
-        <Button variant="outlined" onClick={signOut} sx={{ alignSelf: "flex-start" }}>
-          Sign Out
-        </Button>
       </Stack>
     </Panel>
   );
