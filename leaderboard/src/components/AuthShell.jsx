@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { Authenticator } from "@aws-amplify/ui-react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -14,7 +13,12 @@ import {
 } from "@mui/material";
 import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
 import { alpha } from "@mui/material/styles";
-import { I18n } from "aws-amplify/utils";
+import {
+  confirmResetPassword,
+  confirmSignIn,
+  resetPassword,
+  signIn,
+} from "aws-amplify/auth";
 import { useAuth } from "../auth/AuthContext";
 import { UserProfileProvider, useUserProfile } from "../auth/UserProfileContext.jsx";
 import {
@@ -24,99 +28,42 @@ import {
   validateUsername,
 } from "../auth/userProfile";
 import { themeTokens } from "../theme/theme";
+import LoginPage from "../auth/LoginPage.jsx";
+import ResetPasswordForm from "../auth/ResetPasswordForm.jsx";
+import ConfirmResetPasswordForm from "../auth/ConfirmResetPasswordForm.jsx";
+import NewPasswordForm from "../auth/NewPasswordForm.jsx";
+import { mapAuthErrorMessage } from "../auth/authErrorMessages.js";
 
 const formatUserLabel = (user) => {
   return user?.signInDetails?.loginId || user?.username || "Signed-in user";
 };
 
-const isLoginPath = () => window.location.pathname === "/login";
-
-const AUTH_TRANSLATIONS = {
-  "Sign In": "SIGN IN",
-  "Sign in": "SIGN IN",
-  "Sign in to your account": "Sign in to your player account",
-  "Sign in to your player account": "Sign in to your player account",
-  "Enter your email and password to sign in": "Enter the email and password associated with your Bob's Bowl Games account.",
-  Username: "Email",
-  Email: "Email",
-  Password: "Password",
-  "Enter your Username": "Enter your email",
-  "Enter your Email": "Enter your email",
-  "Enter your Password": "Enter your password",
-  "Forgot your password?": "Forgot your password?",
-  "Forgot Password": "Forgot your password?",
-  "Reset Password": "Reset your password",
-  "Send code": "Send code",
-  "Back to Sign In": "Back to sign in",
-  "Confirm Reset Password": "Check your email",
-  "Confirmation Code": "Confirmation Code",
-  "Enter your code": "Enter your confirmation code",
-  "Code *": "Confirmation Code",
-  "Confirm": "Confirm",
-};
-
-const loginSlotSx = {
-  "& [data-amplify-authenticator]": {
-    backgroundColor: "transparent",
-    padding: 0,
-  },
-  "& [data-amplify-container]": {
-    display: "contents",
-  },
-  "& [data-amplify-router]": {
-    backgroundColor: "transparent",
-    boxShadow: "none",
-    border: "none",
-    padding: 0,
-  },
-  "& [data-amplify-form]": {
-    backgroundColor: "transparent",
-    padding: 0,
-    gap: 14,
-  },
-  "& [data-amplify-footer]": {
-    paddingTop: 6,
-  },
-  "& .amplify-tabs": {
-    display: "none",
-  },
-  "& .amplify-text": {
-    color: themeTokens.primaryText,
-  },
-  "& .amplify-heading": {
-    color: themeTokens.primaryText,
-    fontFamily: '"Roboto Condensed", "Arial Narrow", "Arial", sans-serif',
-    fontWeight: 800,
-    letterSpacing: "0.02em",
-  },
-  "& .amplify-label": {
-    color: themeTokens.secondaryText,
-    fontWeight: 600,
-  },
-  "& .amplify-field-group__control": {
+const authPanelInputSx = {
+  "& .MuiInputBase-root": {
     backgroundColor: themeTokens.appBackground,
-    borderColor: themeTokens.divider,
-    borderRadius: "4px",
-    color: themeTokens.primaryText,
-    minHeight: 46,
-  },
-  "& .amplify-field__show-password": {
-    color: themeTokens.secondaryText,
-  },
-  "& .amplify-input": {
-    backgroundColor: themeTokens.appBackground,
-    color: themeTokens.primaryText,
-    borderColor: themeTokens.divider,
     borderRadius: "4px",
     minHeight: 46,
-    boxShadow: "none",
   },
-  "& .amplify-input::placeholder": {
-    color: alpha(themeTokens.secondaryText, 0.7),
+  "& .MuiInputLabel-root": {
+    color: themeTokens.secondaryText,
   },
-  "& .amplify-input:focus": {
+  "& .MuiInputBase-input": {
+    color: themeTokens.primaryText,
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: themeTokens.divider,
+  },
+  "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: alpha(themeTokens.primaryText, 0.4),
+  },
+  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
     borderColor: themeTokens.maize,
-    boxShadow: `0 0 0 1px ${themeTokens.maize}`,
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: themeTokens.maize,
+  },
+  "& .MuiFormHelperText-root": {
+    color: themeTokens.secondaryText,
   },
   "& input:-webkit-autofill": {
     WebkitBoxShadow: `0 0 0 100px ${themeTokens.appBackground} inset`,
@@ -124,37 +71,9 @@ const loginSlotSx = {
     caretColor: themeTokens.primaryText,
     borderRadius: "4px",
   },
-  "& .amplify-button--primary": {
-    backgroundColor: themeTokens.maize,
-    borderColor: themeTokens.maize,
-    color: "#08111f",
-    borderRadius: "4px",
-    minHeight: 44,
-    fontFamily: '"Roboto Condensed", "Arial Narrow", "Arial", sans-serif',
-    fontWeight: 800,
-    textTransform: "uppercase",
-    letterSpacing: "0.04em",
-  },
-  "& .amplify-button--primary:hover": {
-    backgroundColor: "#ffd84a",
-    borderColor: "#ffd84a",
-  },
-  "& .amplify-button--link": {
-    color: themeTokens.linkBlue,
-    fontWeight: 600,
-  },
-  "& .amplify-alert": {
-    borderRadius: "4px",
-  },
-  "& .amplify-alert__body, & .amplify-text--error": {
-    color: "#ffb4ab",
-  },
-  "& .amplify-flex": {
-    gap: 12,
-  },
 };
 
-const GateFrame = ({ title, subtitle, children }) => {
+const GateFrame = ({ children }) => {
   return (
     <Box
       sx={{
@@ -170,11 +89,11 @@ const GateFrame = ({ title, subtitle, children }) => {
         elevation={0}
         sx={{
           width: "100%",
-          maxWidth: 480,
-          p: { xs: 2.5, sm: 4 },
+          maxWidth: 460,
+          p: { xs: 3, sm: 4 },
           backgroundColor: alpha(themeTokens.panelBackgroundElevated, 0.94),
           border: `1px solid ${themeTokens.divider}`,
-          borderRadius: "6px",
+          borderRadius: "3px",
           backdropFilter: "blur(10px)",
         }}
       >
@@ -192,13 +111,7 @@ const GateFrame = ({ title, subtitle, children }) => {
               Bob's Bowl Games
             </Typography>
           </Stack>
-          <Box>
-            <Typography variant="h6">{title}</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {subtitle}
-            </Typography>
-          </Box>
-          {children}
+          <Box sx={authPanelInputSx}>{children}</Box>
         </Stack>
       </Paper>
     </Box>
@@ -263,11 +176,12 @@ const ProfileGate = ({ children }) => {
 
   if (status === "loading" || status === "refreshing" || status === "idle") {
     return (
-      <GateFrame
-        title="Loading your profile"
-        subtitle="Checking your account, groups, and saved public username."
-      >
-        <Stack direction="row" spacing={2} alignItems="center">
+      <GateFrame>
+        <Typography variant="h6">Loading your profile</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Checking your account, groups, and saved public username.
+        </Typography>
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 3 }}>
           <CircularProgress size={22} />
           <Typography variant="body2">Loading profile...</Typography>
         </Stack>
@@ -277,12 +191,13 @@ const ProfileGate = ({ children }) => {
 
   if (status === "error") {
     return (
-      <GateFrame
-        title="Profile unavailable"
-        subtitle="Your account is signed in, but the profile data could not be loaded."
-      >
-        <Alert severity="error">{error}</Alert>
-        <Button variant="outlined" onClick={signOut}>
+      <GateFrame>
+        <Typography variant="h6">Profile unavailable</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Your account is signed in, but the profile data could not be loaded.
+        </Typography>
+        <Alert severity="error" sx={{ mt: 3 }}>{error}</Alert>
+        <Button variant="outlined" onClick={signOut} sx={{ mt: 3 }}>
           Sign out
         </Button>
       </GateFrame>
@@ -291,11 +206,12 @@ const ProfileGate = ({ children }) => {
 
   if (status === "needs-setup") {
     return (
-      <GateFrame
-        title="Choose your public username"
-        subtitle="You sign in with email, but the app displays your public username on leaderboards and dashboard surfaces."
-      >
-        <Stack spacing={2} component="form" onSubmit={handleProfileSubmit}>
+      <GateFrame>
+        <Typography variant="h6">Choose your public username</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          You sign in with email, but the app displays your public username on leaderboards and dashboard surfaces.
+        </Typography>
+        <Stack spacing={2} component="form" onSubmit={handleProfileSubmit} sx={{ mt: 3 }}>
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
             {groups.length > 0 ? (
               groups.map((group) => <Chip key={group} label={group} size="small" color="primary" />)
@@ -345,20 +261,159 @@ const ProfileGate = ({ children }) => {
 };
 
 const AuthShell = ({ children }) => {
-  const [showLogin, setShowLogin] = useState(isLoginPath);
   const { isAuthenticated, isConfigured, isLoading } = useAuth();
+  const [authView, setAuthView] = useState("signIn");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    I18n.putVocabulariesForLanguage("en", AUTH_TRANSLATIONS);
-  }, []);
+  const resetMessages = () => {
+    setError("");
+    setInfo("");
+    setSuccess("");
+  };
+
+  const handleSignInNextStep = async (result, currentEmail) => {
+    const step = result?.nextStep?.signInStep;
+
+    if (step === "DONE" || result?.isSignedIn) {
+      return;
+    }
+
+    if (step === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
+      setEmail(currentEmail);
+      setAuthView("newPassword");
+      return;
+    }
+
+    if (step === "RESET_PASSWORD") {
+      try {
+        const output = await resetPassword({ username: currentEmail });
+        const resetStep = output?.nextStep?.resetPasswordStep;
+        setEmail(currentEmail);
+
+        if (resetStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") {
+          setInfo("We sent a confirmation code to the recovery method associated with your account.");
+          setAuthView("confirmReset");
+          return;
+        }
+      } catch (resetError) {
+        setError(
+          mapAuthErrorMessage(
+            resetError,
+            "A confirmation code could not be sent. Contact the pool administrator."
+          )
+        );
+        setAuthView("signIn");
+        return;
+      }
+    }
+
+    if (import.meta.env.DEV && step) {
+      console.warn("Unhandled sign-in step:", step);
+    }
+
+    setError("Additional account verification is required. Contact the pool administrator.");
+  };
+
+  const handleSignIn = async ({ email: submittedEmail, password }) => {
+    resetMessages();
+    setEmail(submittedEmail);
+
+    try {
+      const result = await signIn({
+        username: submittedEmail.trim(),
+        password,
+      });
+
+      await handleSignInNextStep(result, submittedEmail.trim());
+    } catch (signInError) {
+      setError(mapAuthErrorMessage(signInError, "Unable to sign in right now. Please try again."));
+      throw signInError;
+    }
+  };
+
+  const handleRequestResetPassword = async (submittedEmail) => {
+    resetMessages();
+    setEmail(submittedEmail);
+
+    try {
+      const output = await resetPassword({
+        username: submittedEmail.trim(),
+      });
+
+      const resetStep = output?.nextStep?.resetPasswordStep;
+
+      if (resetStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") {
+        setInfo("We sent a confirmation code to the recovery method associated with your account.");
+        setAuthView("confirmReset");
+        return;
+      }
+
+      setError("A confirmation code could not be sent. Contact the pool administrator.");
+    } catch (resetError) {
+      setError(
+        mapAuthErrorMessage(
+          resetError,
+          "A confirmation code could not be sent. Contact the pool administrator."
+        )
+      );
+      throw resetError;
+    }
+  };
+
+  const handleConfirmResetPassword = async ({ confirmationCode, newPassword }) => {
+    resetMessages();
+
+    try {
+      await confirmResetPassword({
+        username: email.trim(),
+        confirmationCode,
+        newPassword,
+      });
+
+      setAuthView("signIn");
+      setSuccess("Your password has been updated. Sign in with your new password.");
+    } catch (confirmError) {
+      setError(
+        mapAuthErrorMessage(
+          confirmError,
+          "The confirmation code is invalid or expired."
+        )
+      );
+      throw confirmError;
+    }
+  };
+
+  const handleConfirmNewPassword = async (newPassword) => {
+    resetMessages();
+
+    try {
+      const result = await confirmSignIn({
+        challengeResponse: newPassword,
+      });
+
+      await handleSignInNextStep(result, email.trim());
+    } catch (confirmError) {
+      setError(
+        mapAuthErrorMessage(
+          confirmError,
+          "Your new password does not meet the account requirements."
+        )
+      );
+      throw confirmError;
+    }
+  };
 
   if (isLoading) {
     return (
-      <GateFrame
-        title="Loading authentication"
-        subtitle="Checking your session and environment configuration."
-      >
-        <Stack direction="row" spacing={2} alignItems="center">
+      <GateFrame>
+        <Typography variant="h6">Loading authentication</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Checking your session and environment configuration.
+        </Typography>
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 3 }}>
           <CircularProgress size={22} />
           <Typography variant="body2">Loading authentication status...</Typography>
         </Stack>
@@ -368,11 +423,12 @@ const AuthShell = ({ children }) => {
 
   if (!isConfigured) {
     return (
-      <GateFrame
-        title="Authentication not configured"
-        subtitle="This environment still needs frontend authentication outputs before the app can sign users in."
-      >
-        <Alert severity="warning">
+      <GateFrame>
+        <Typography variant="h6">Authentication not configured</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          This environment still needs frontend authentication outputs before the app can sign users in.
+        </Typography>
+        <Alert severity="warning" sx={{ mt: 3 }}>
           `amplify_outputs.json` must be available for the frontend build.
         </Alert>
       </GateFrame>
@@ -381,66 +437,52 @@ const AuthShell = ({ children }) => {
 
   if (!isAuthenticated) {
     return (
-      <GateFrame
-        title="Sign in to your player account"
-        subtitle="Enter the email and password associated with your Bob's Bowl Games account."
-      >
-        {!showLogin ? (
-          <Button variant="contained" onClick={() => setShowLogin(true)} sx={{ width: "100%" }}>
-            Sign In
-          </Button>
-        ) : (
-          <Stack spacing={2} sx={{ ...loginSlotSx }}>
-            <Box>
-              <Authenticator
-                hideSignUp
-                formFields={{
-                  signIn: {
-                    username: {
-                      label: "Email",
-                      placeholder: "Enter your email",
-                      isRequired: true,
-                    },
-                    password: {
-                      label: "Password",
-                      placeholder: "Enter your password",
-                      isRequired: true,
-                    },
-                  },
-                  forgotPassword: {
-                    username: {
-                      label: "Email",
-                      placeholder: "Enter your email",
-                      isRequired: true,
-                    },
-                  },
-                  confirmResetPassword: {
-                    confirmation_code: {
-                      label: "Confirmation Code",
-                      placeholder: "Enter your confirmation code",
-                      isRequired: true,
-                    },
-                    password: {
-                      label: "Password",
-                      placeholder: "Enter your new password",
-                      isRequired: true,
-                    },
-                    confirm_password: {
-                      label: "Confirm Password",
-                      placeholder: "Confirm your new password",
-                      isRequired: true,
-                    },
-                  },
-                }}
-              >
-                {() => null}
-              </Authenticator>
-            </Box>
-            <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
-              Need access to the pool? Contact the pool administrator.
-            </Typography>
-          </Stack>
-        )}
+      <GateFrame>
+        {authView === "signIn" ? (
+          <LoginPage
+            defaultEmail={email}
+            error={error}
+            success={success}
+            onForgotPassword={(prefilledEmail) => {
+              resetMessages();
+              setEmail(prefilledEmail || email);
+              setAuthView("forgotPassword");
+            }}
+            onSubmit={handleSignIn}
+          />
+        ) : null}
+
+        {authView === "forgotPassword" ? (
+          <ResetPasswordForm
+            defaultEmail={email}
+            error={error}
+            onBack={() => {
+              resetMessages();
+              setAuthView("signIn");
+            }}
+            onSubmit={handleRequestResetPassword}
+          />
+        ) : null}
+
+        {authView === "confirmReset" ? (
+          <ConfirmResetPasswordForm
+            email={email}
+            error={error}
+            info={info}
+            onBack={() => {
+              resetMessages();
+              setAuthView("signIn");
+            }}
+            onSubmit={handleConfirmResetPassword}
+          />
+        ) : null}
+
+        {authView === "newPassword" ? (
+          <NewPasswordForm
+            error={error}
+            onSubmit={handleConfirmNewPassword}
+          />
+        ) : null}
       </GateFrame>
     );
   }

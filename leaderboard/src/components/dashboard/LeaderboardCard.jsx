@@ -18,7 +18,7 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
   const showRecord = useMediaQuery(theme.breakpoints.up("lg"));
 
   return (
-    <Panel>
+    <Panel sx={{ width: "100%", height: "100%" }}>
       <SectionHeader title="Leaderboard" actionLabel="See Full Leaderboard" actionTo="/leaderboard" />
       <TableContainer sx={{ mt: 1.5 }}>
         <Table size="small" aria-label="Leaderboard preview">

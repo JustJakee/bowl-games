@@ -19,9 +19,9 @@ import {
 const DashboardPage = () => {
   const { profile } = useUserProfile();
   const theme = useTheme();
-  const isLargeDesktop = useMediaQuery(theme.breakpoints.up("lg"));
+  const isWideDesktop = useMediaQuery("(min-width:1360px)");
 
-  if (isLargeDesktop) {
+  if (isWideDesktop) {
     return (
       <Box
         sx={{
@@ -50,15 +50,11 @@ const DashboardPage = () => {
               minWidth: 0,
             }}
           >
-            <Box sx={{ display: "flex", minWidth: 0 }}>
-              <PickStatusCard data={dashboardPickStatus} />
-            </Box>
-            <Box sx={{ display: "flex", minWidth: 0 }}>
-              <LeaderboardCard
-                rows={dashboardLeaderboard}
-                currentUsername={profile?.username}
-              />
-            </Box>
+            <PickStatusCard data={dashboardPickStatus} />
+            <LeaderboardCard
+              rows={dashboardLeaderboard}
+              currentUsername={profile?.username}
+            />
           </Box>
 
           <UpcomingBowlsCard />
