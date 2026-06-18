@@ -1,8 +1,18 @@
+import exampleScoreboard from "../assets/mockBowls.json";
+
+// Reliable 2026 ESPN bowl data is not consistently available yet, so the app
+// temporarily serves the local fixture through the existing normalization path.
+const USE_MOCK_ESPN_DATA = true;
+
 // Minimal ESPN API helper for NCAAF (college football)
 // Endpoint: ESPN public scoreboard for college football
 // Example: https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard
 
 export async function fetchNcaafScoreboard(params = {}) {
+  if (USE_MOCK_ESPN_DATA) {
+    return exampleScoreboard;
+  }
+
   const base = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=3';
   const url = new URL(base);
 

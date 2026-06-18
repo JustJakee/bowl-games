@@ -5,6 +5,24 @@ import SectionHeader from "./SectionHeader";
 import StatusChip from "../common/StatusChip";
 
 const EntriesCard = ({ entries }) => {
+  if (!entries || entries.length === 0) {
+    return (
+      <Panel sx={{ height: "100%" }}>
+        <Stack spacing={1.5}>
+          <SectionHeader title="My Entries" actionLabel="View All Entries" actionTo="/entries" />
+          <Stack spacing={0.75}>
+            <Typography variant="subtitle1" sx={{ fontSize: "1rem", fontWeight: 700 }}>
+              No entries yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}>
+              Your saved pick entries will appear here after you start making picks.
+            </Typography>
+          </Stack>
+        </Stack>
+      </Panel>
+    );
+  }
+
   return (
     <Panel sx={{ height: "100%" }}>
       <Stack spacing={1.5}>

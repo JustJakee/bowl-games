@@ -8,7 +8,6 @@ export const TIEBREAKER_BOWL_NAME = "ReliaQuest Bowl";
 const PickMatchupCard = ({
   id,
   bowlName,
-  selectionKey,
   tieBreaker,
   setTieBreaker,
   network,
@@ -20,7 +19,7 @@ const PickMatchupCard = ({
   onSelect,
 }) => {
   const selectTeam = (teamCode) => {
-    onSelect?.(id, selectionKey || bowlName, teamCode); // keep pick stored under unique key
+    onSelect?.(id, teamCode);
   };
 
   const isTieBreaker = bowlName === TIEBREAKER_BOWL_NAME; // This will be whatever Bowl is the tie breaker
@@ -66,7 +65,6 @@ const PickMatchupCard = ({
               type="number"
               size="small"
               fullWidth
-              required
               onInvalid={(event) =>
                 event.target.setCustomValidity("Enter tie-breaker total points.")
               }

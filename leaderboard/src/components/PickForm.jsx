@@ -1,34 +1,59 @@
-﻿import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, TextField } from "@mui/material";
-import { useScoreboard } from "../context/NCAAFDataContext";
+import { useAppData } from "../app/AppDataContext.jsx";
+import { useAuth } from "../auth/AuthContext.jsx";
+import { useUserProfile } from "../auth/UserProfileContext.jsx";
 import PickMatchupCard, {
   TIEBREAKER_BOWL_NAME,
 } from "../constants/PickMatchupCard";
+import { useScoreboard } from "../context/NCAAFDataContext";
 import "../styles/pick-form.css";
-import { uploadPicks } from "../utils/uploadPicks";
-// import mockGames from "../assets/mockBowls.json";
 
-const PickForm = ({ playerPicks, onSubmitResult }) => {
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const PickForm = ({ onSubmitResult }) => {
+  const { email } = useAuth();
+  const { profile } = useUserProfile();
   const { games: scoreboardGames, loading, error } = useScoreboard();
-  const picksClosed = false; // toggle off when bowl season opens
+  const {
+    currentEntry,
+    currentEntryStatus,
+    defaultContactEmail,
+    picksLoading,
+    saveCurrentPicks,
+    savedSelectionsByGameId,
+  } = useAppData();
+  const picksClosed = false;
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
-  const [email, setEmail] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [tieBreaker, setTieBreaker] = useState("");
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
-  const existingNames = playerPicks.map((pick) =>
-    (pick?.name || "").trim().toLowerCase()
-  );
+  const [isSaving, setIsSaving] = useState(false);
 
-  /*
-  // forcing mock data here
-  const loading = false;
-  const error = null;
-  const scoreboardGames = mockGames;
-  */
+  useEffect(() => {
+    setPicks(savedSelectionsByGameId || {});
+  }, [savedSelectionsByGameId]);
+
+  useEffect(() => {
+    const fallbackName = profile?.username ? `${profile.username}'s Picks` : "";
+    setEntryName(currentEntry?.entryName || fallbackName);
+  }, [currentEntry?.entryName, profile?.username]);
+
+  useEffect(() => {
+    setContactEmail(currentEntry?.contactEmail || defaultContactEmail || email || "");
+  }, [currentEntry?.contactEmail, defaultContactEmail, email]);
+
+  useEffect(() => {
+    setTieBreaker(
+      currentEntry?.tieBreakerValue === null ||
+        currentEntry?.tieBreakerValue === undefined
+        ? ""
+        : String(currentEntry.tieBreakerValue)
+    );
+  }, [currentEntry?.tieBreakerValue]);
 
   const games = useMemo(() => {
-    const seen = {};
     return scoreboardGames.map((game) => {
       const normalizeTeam = (team) => {
         const accent = team?.color || team?.alternateColor || "";
@@ -49,15 +74,9 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
         };
       };
 
-      const bowlName = game?.bowl || "Bowl Game Not Found"; // TO DO REMOVE BEFORE BOWL SEASON
-      const count = (seen[bowlName] || 0) + 1;
-      seen[bowlName] = count;
-      const selectionKey = count > 1 ? `${bowlName} (#${count})` : bowlName;
-
       return {
         id: game?.id,
-        bowlName,
-        selectionKey,
+        bowlName: game?.bowl || "Bowl Game Not Found",
         kickoffText: game?.startTimeText || "",
         location: game?.location || "",
         network: game?.network || "",
@@ -70,33 +89,18 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
   }, [scoreboardGames]);
 
   const trimmedName = entryName.trim();
-  const trimmedEmail = email.trim();
+  const trimmedEmail = contactEmail.trim();
   const hasEntryName = trimmedName.length > 0;
   const hasEmail = trimmedEmail.length > 0;
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailIsValid = hasEmail ? emailPattern.test(trimmedEmail) : false;
-  const duplicateEntryName =
-    trimmedName.length > 0 && existingNames.includes(trimmedName.toLowerCase());
-  const nameError = hasSubmitAttempt && (!hasEntryName || duplicateEntryName);
+  const nameError = hasSubmitAttempt && !hasEntryName;
   const emailError = hasSubmitAttempt && (!hasEmail || !emailIsValid);
-  const tieBreakerRequired = games.some(
-    (game) => game?.bowlName === TIEBREAKER_BOWL_NAME
-  );
-  const tieBreakerProvided = tieBreakerRequired ? tieBreaker !== "" : true;
+  const selectedCount = Object.values(picks).filter(Boolean).length;
+  const hasAtLeastOnePick = selectedCount > 0;
   const allPicksMade =
-    games.length > 0 &&
-    games.every((game) => {
-      const bowlKey =
-        game?.selectionKey || game?.bowlName?.trim() || "No Bowl Game";
-      return Boolean(picks[bowlKey]);
-    });
-  const formIsValid =
-    hasEntryName &&
-    hasEmail &&
-    emailIsValid &&
-    allPicksMade &&
-    tieBreakerProvided &&
-    !duplicateEntryName;
+    games.length > 0 && games.every((game) => Boolean(picks?.[game.id]));
+  const isCompleteSet = allPicksMade;
+  const submitLabel = isCompleteSet ? "Save Picks" : "Save Draft";
 
   const clearValidityMessage = (event) => {
     event.target.setCustomValidity("");
@@ -106,22 +110,17 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
     event.target.setCustomValidity(message);
   };
 
-  const validatePickName = (event, name) => {
-    setEntryName(name);
-    clearValidityMessage(event);
-  };
-
-  const handleSelect = (_gameId, selectionKey, teamCode) => {
-    const bowlKey = selectionKey?.trim() || "No Bowl Game";
-    setPicks((prev) => ({
-      ...prev,
-      [bowlKey]: teamCode,
+  const handleSelect = (gameId, teamCode) => {
+    setPicks((previous) => ({
+      ...previous,
+      [gameId]: teamCode,
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setHasSubmitAttempt(true);
+
     if (picksClosed) {
       onSubmitResult?.({
         message: "Bowl season coming soon. Picks will open once games are set.",
@@ -129,65 +128,62 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
       });
       return;
     }
-    switch (true) {
-      case !hasEntryName:
-        onSubmitResult?.({
-          message: "Please enter a name for your entry.",
-          severity: "error",
-        });
-        return;
-      case duplicateEntryName:
-        onSubmitResult?.({
-          message:
-            "That entry name is already in use. Please choose another before submitting.",
-          severity: "error",
-        });
-        return;
-      case !hasEmail:
-        onSubmitResult?.({
-          message: "Email cannot be left blank. Please enter a valid email.",
-          severity: "error",
-        });
-        return;
-      case !formIsValid:
-        onSubmitResult?.({
-          message:
-            "Please complete every pick and required field before submitting.",
-          severity: "error",
-        });
-        return;
-      default:
-        break;
-    }
 
-    if (!window.confirm("Once you submit, you won't be able to edit picks. Are you sure?")) {
+    if (!hasEntryName) {
+      onSubmitResult?.({
+        message: "Please enter a name for your entry before saving picks.",
+        severity: "error",
+      });
       return;
     }
 
-    const input = {
-      name: trimmedName,
-      email: trimmedEmail,
-      picks: JSON.stringify(picks),
-      tieBreaker: tieBreaker ? parseInt(tieBreaker, 10) : 0,
-      createdAt: new Date().toISOString(),
-    };
-
-    try {
-      const saved = await uploadPicks(input);
+    if (!hasEmail || !emailIsValid) {
       onSubmitResult?.({
-        message: `Thanks ${input.name}, your picks were submitted!`,
-        severity: "success",
-      });
-      return saved;
-    } catch (err) {
-      onSubmitResult?.({
-        message: `Sorry ${input.name}, we were unable to submit your picks. Please try again.`,
+        message: "Please enter a valid email before saving picks.",
         severity: "error",
       });
+      return;
+    }
+
+    if (!hasAtLeastOnePick) {
+      onSubmitResult?.({
+        message: "Select at least one winner before saving your picks.",
+        severity: "error",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const result = await saveCurrentPicks({
+        entryName: trimmedName,
+        contactEmail: trimmedEmail,
+        selectionsByGameId: picks,
+        tieBreakerValue: tieBreaker,
+        userProfileId: profile?.id,
+      });
+
+      onSubmitResult?.({
+        message:
+          result.status === "COMPLETE"
+            ? "Your picks were saved and this entry is complete."
+            : "Your draft picks were saved.",
+        severity: "success",
+      });
+    } catch (saveError) {
+      onSubmitResult?.({
+        message:
+          saveError?.message ||
+          "Your picks could not be saved right now. Please try again.",
+        severity: "error",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  if (loading) {
+  if (loading || picksLoading) {
     return <div className="pick-form-container loading">Loading games...</div>;
   }
 
@@ -201,31 +197,28 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
 
   return (
     <form className="pick-form-container" onSubmit={handleSubmit} noValidate>
-      {games.length === 0 && (
+      {games.length === 0 ? (
         <div className="empty-state">No bowl matchups available right now.</div>
-      )}
-      {games.map((game) => {
-        const bowlKey =
-          game?.selectionKey || game?.bowlName?.trim() || "No Bowl Game";
-        return (
-          <PickMatchupCard
-            key={game.id}
-            {...game}
-            selectionKey={bowlKey}
-            selection={picks[bowlKey]}
-            onSelect={handleSelect}
-            setTieBreaker={setTieBreaker}
-            tieBreaker={tieBreaker}
-          />
-        );
-      })}
+      ) : null}
+      {games.map((game) => (
+        <PickMatchupCard
+          key={game.id}
+          {...game}
+          selection={picks?.[game.id]}
+          onSelect={handleSelect}
+          setTieBreaker={setTieBreaker}
+          tieBreaker={tieBreaker}
+        />
+      ))}
       <div className="pick-form-header">
         <div className="pick-form-field">
           <TextField
             label="Add a Name to Your Picks"
             placeholder="Name your entry"
             value={entryName}
-            onChange={(event) => validatePickName(event, event.target.value)}
+            onChange={(event) => {
+              setEntryName(event.target.value);
+            }}
             onInvalid={(event) =>
               setValidityMessage(event, "Please enter a name for your entry.")
             }
@@ -240,8 +233,8 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
           <TextField
             label="Email"
             placeholder="you@example.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            value={contactEmail}
+            onChange={(event) => setContactEmail(event.target.value)}
             onInvalid={(event) => {
               if (!event.target.value) {
                 setValidityMessage(event, "Email is required.");
@@ -266,11 +259,22 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
           color="primary"
           className="pick-form-submit"
           size="medium"
+          disabled={isSaving}
         >
-          Submit Picks
+          {isSaving ? "Saving..." : submitLabel}
         </Button>
       </div>
-      {picksClosed && (
+      {currentEntry ? (
+        <div className="pick-form-header">
+          <div className="pick-form-field">
+            Saved {selectedCount} of {games.length} picks. Status: {currentEntryStatus}.
+          </div>
+          <div className="pick-form-field">
+            Tie-breaker bowl: {TIEBREAKER_BOWL_NAME}
+          </div>
+        </div>
+      ) : null}
+      {picksClosed ? (
         <div
           className="pick-form-overlay"
           role="dialog"
@@ -285,7 +289,7 @@ const PickForm = ({ playerPicks, onSubmitResult }) => {
             <p className="pick-form-overlay__subtitle">Check back soon!</p>
           </div>
         </div>
-      )}
+      ) : null}
     </form>
   );
 };

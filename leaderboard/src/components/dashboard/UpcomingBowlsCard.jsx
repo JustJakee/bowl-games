@@ -105,7 +105,7 @@ const UpcomingBowlsCard = () => {
                     <Stack spacing={0.5}>
                       <Typography variant="subtitle2">{game.bowl}</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {`${game.startDateText || "Date TBD"} â€¢ ${game.startTimeText || game.statusText} â€¢ ${game.network || "TBD"}`}
+                        {`${game.startDateText || "Date TBD"} ${game.startTimeText || game.statusText} ${game.network || "TBD"}`}
                       </Typography>
                       <Stack direction="row" spacing={1.25} alignItems="center">
                         <Stack direction="row" spacing={1} alignItems="center">

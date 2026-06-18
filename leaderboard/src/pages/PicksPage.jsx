@@ -1,7 +1,6 @@
 import { Alert, Snackbar } from "@mui/material";
 import { useState } from "react";
 import PickForm from "../components/PickForm.jsx";
-import { useAppData } from "../app/AppDataContext.jsx";
 
 const PicksPage = () => {
   const [toast, setToast] = useState({
@@ -9,7 +8,6 @@ const PicksPage = () => {
     message: "",
     severity: "success",
   });
-  const { playerPicks, reloadPicks } = useAppData();
 
   const handleToastClose = (_event, reason) => {
     if (reason === "clickaway") return;
@@ -19,13 +17,9 @@ const PicksPage = () => {
   return (
     <>
       <PickForm
-        playerPicks={playerPicks}
         onSubmitResult={(result) => {
           if (!result) return;
           setToast({ open: true, ...result });
-          if (result.severity === "success") {
-            reloadPicks();
-          }
         }}
       />
       <Snackbar

@@ -1,7 +1,23 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useAuth } from "../auth/AuthContext.jsx";
+import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 import { useScoreboard } from "../context/NCAAFDataContext";
-import { fetchPicks } from "../utils/fetchPicks";
-import { AWS_DISABLED } from "../constants/appFlags";
+import {
+  calculatePickSetStatus,
+  CURRENT_SEASON_ID,
+  CURRENT_SEASON_YEAR,
+  getCurrentSeasonEntry,
+  loadSavedPicks,
+  PICK_SET_STATUS,
+  savePicks,
+} from "../data/picksRepository";
 
 const AppDataContext = createContext(null);
 
@@ -39,17 +55,51 @@ const buildMatchups = (scoreboardGames = []) => {
 
 export const AppDataProvider = ({ children }) => {
   const { games: scoreboardGames } = useScoreboard();
+  const { email, isAuthenticated, isConfigured, user } = useAuth();
   const [playerPicks, setPlayerPicks] = useState([]);
   const [picksLoading, setPicksLoading] = useState(false);
   const [picksError, setPicksError] = useState("");
+  const [currentEntry, setCurrentEntry] = useState(null);
+  const [savedSelectionsByGameId, setSavedSelectionsByGameId] = useState({});
+  const [currentEntryStatus, setCurrentEntryStatus] = useState(
+    PICK_SET_STATUS.DRAFT
+  );
+  const [staleSavedPickIds, setStaleSavedPickIds] = useState([]);
 
-  const matchups = useMemo(() => buildMatchups(scoreboardGames || []), [scoreboardGames]);
+  const owner = user?.userId || null;
+  const matchups = useMemo(
+    () => buildMatchups(scoreboardGames || []),
+    [scoreboardGames]
+  );
+  const requiredGameIds = useMemo(
+    () => matchups.map((matchup) => matchup.id).filter(Boolean),
+    [matchups]
+  );
+  const tieBreakerRequired = useMemo(
+    () =>
+      matchups.some(
+        (matchup) =>
+          String(matchup?.game || "").trim().toLowerCase() ===
+          TIEBREAKER_BOWL_NAME.toLowerCase()
+      ),
+    [matchups]
+  );
+
+  const resetCurrentEntryState = useCallback(() => {
+    setPlayerPicks([]);
+    setCurrentEntry(null);
+    setSavedSelectionsByGameId({});
+    setCurrentEntryStatus(PICK_SET_STATUS.DRAFT);
+    setStaleSavedPickIds([]);
+  }, []);
 
   const loadPicks = useCallback(async () => {
-    if (matchups.length === 0) return;
+    if (matchups.length === 0) {
+      return;
+    }
 
-    if (AWS_DISABLED) {
-      setPlayerPicks([]);
+    if (!isAuthenticated || !isConfigured || !owner) {
+      resetCurrentEntryState();
       setPicksLoading(false);
       setPicksError("");
       return;
@@ -59,51 +109,141 @@ export const AppDataProvider = ({ children }) => {
     setPicksError("");
 
     try {
-      const picksResponse = await fetchPicks();
-      const submissions =
-        picksResponse?.data?.listSubmissions?.items?.filter(Boolean) || [];
-
-      const normalizedPicks = submissions.map((submission) => {
-        let parsedPicks = {};
-
-        try {
-          parsedPicks = JSON.parse(submission?.picks || "{}");
-        } catch (_error) {
-          parsedPicks = {};
-        }
-
-        return {
-          name: submission?.name?.trim() || "Unnamed Entry",
-          picks: matchups.map((game) => parsedPicks?.[game?.pickKey || game?.game] || "-"),
-          tiebreaker: submission?.tieBreaker,
-        };
+      const entry = await getCurrentSeasonEntry({
+        owner,
+        seasonId: CURRENT_SEASON_ID,
       });
 
-      setPlayerPicks(normalizedPicks);
+      if (!entry) {
+        resetCurrentEntryState();
+        return;
+      }
+
+      const savedPicks = await loadSavedPicks({
+        entryId: entry.id,
+        seasonId: CURRENT_SEASON_ID,
+        currentGameIds: requiredGameIds,
+      });
+      const status = calculatePickSetStatus({
+        requiredGameIds,
+        selectionsByGameId: savedPicks.selectionsByGameId,
+      });
+
+      setCurrentEntry(entry);
+      setSavedSelectionsByGameId(savedPicks.selectionsByGameId);
+      setCurrentEntryStatus(status);
+      setStaleSavedPickIds(savedPicks.stalePicks.map((pick) => pick.gameId));
+      setPlayerPicks([
+        {
+          id: entry.id,
+          name: entry.entryName?.trim() || "Unnamed Entry",
+          picks: matchups.map(
+            (game) => savedPicks.selectionsByGameId?.[game.id] || "-"
+          ),
+          tiebreaker: entry.tieBreakerValue,
+          status,
+        },
+      ]);
     } catch (error) {
       console.error("Failed to load picks:", error);
+      resetCurrentEntryState();
       setPicksError("Unable to load picks from the database.");
     } finally {
       setPicksLoading(false);
     }
-  }, [matchups]);
+  }, [
+    isAuthenticated,
+    isConfigured,
+    matchups,
+    owner,
+    requiredGameIds,
+    resetCurrentEntryState,
+  ]);
 
   useEffect(() => {
     loadPicks();
   }, [loadPicks]);
 
+  const saveCurrentPicks = useCallback(
+    async ({
+      contactEmail,
+      entryName,
+      selectionsByGameId,
+      tieBreakerValue,
+      userProfileId,
+    }) => {
+      if (!isAuthenticated || !isConfigured || !owner) {
+        throw new Error("You must be signed in before picks can be saved.");
+      }
+
+      const result = await savePicks({
+        owner,
+        seasonId: CURRENT_SEASON_ID,
+        userProfileId,
+        entryName,
+        contactEmail,
+        tieBreakerValue,
+        selectionsByGameId,
+        requiredGameIds,
+      });
+
+      setCurrentEntry(result.entry);
+      setSavedSelectionsByGameId(result.selectionsByGameId);
+      setCurrentEntryStatus(result.status);
+      setStaleSavedPickIds(result.stalePicks.map((pick) => pick.gameId));
+      setPlayerPicks([
+        {
+          id: result.entry.id,
+          name: result.entry.entryName?.trim() || "Unnamed Entry",
+          picks: matchups.map(
+            (game) => result.selectionsByGameId?.[game.id] || "-"
+          ),
+          tiebreaker: result.entry.tieBreakerValue,
+          status: result.status,
+        },
+      ]);
+
+      return result;
+    },
+    [isAuthenticated, isConfigured, matchups, owner, requiredGameIds]
+  );
+
   const value = useMemo(
     () => ({
+      currentEntry,
+      currentEntryStatus,
+      currentSeasonId: CURRENT_SEASON_ID,
+      currentSeasonYear: CURRENT_SEASON_YEAR,
+      defaultContactEmail: email || "",
       matchups,
       playerPicks,
       picksLoading,
       picksError,
       reloadPicks: loadPicks,
+      savedSelectionsByGameId,
+      saveCurrentPicks,
+      staleSavedPickIds,
+      tieBreakerRequired,
     }),
-    [loadPicks, matchups, picksError, picksLoading, playerPicks]
+    [
+      currentEntry,
+      currentEntryStatus,
+      email,
+      loadPicks,
+      matchups,
+      picksError,
+      picksLoading,
+      playerPicks,
+      savedSelectionsByGameId,
+      saveCurrentPicks,
+      staleSavedPickIds,
+      tieBreakerRequired,
+    ]
   );
 
-  return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
+  return (
+    <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>
+  );
 };
 
 export const useAppData = () => {

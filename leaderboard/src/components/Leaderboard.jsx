@@ -37,7 +37,10 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
     }
 
     const tieBreakerGuess = Number(player?.tiebreaker);
-    const tieBreakerDistance = Math.abs(tieBreakerGuess - tieBreakerTotal);
+    const tieBreakerDistance =
+      Number.isFinite(tieBreakerGuess) && Number.isFinite(tieBreakerTotal)
+        ? Math.abs(tieBreakerGuess - tieBreakerTotal)
+        : Number.POSITIVE_INFINITY;
 
     return { score, tieBreakerDistance };
   };
@@ -69,7 +72,7 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
     return (
       <div className="leaderboard-v2 loading-state">
         <CircularProgress size={20} />
-        <span>Loading leaderboard…</span>
+        <span>Loading leaderboardâ€¦</span>
       </div>
     );
   }

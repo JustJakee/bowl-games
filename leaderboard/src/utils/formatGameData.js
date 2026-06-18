@@ -79,6 +79,11 @@ const mapEventsToGames = (events = []) =>
 
 export const fetchFormattedScoreboard = async () => {
   const raw = await fetchNcaafScoreboard();
+
+  if (Array.isArray(raw)) {
+    return raw.filter(Boolean).map((game) => ({ ...game }));
+  }
+
   return mapEventsToGames(raw?.events);
 };
 
