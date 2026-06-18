@@ -13,6 +13,16 @@ const fmtKickoff = (iso) => {
   }).format(d);
 };
 
+const fmtKickoffDate = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    weekday: "short",
+  }).format(d);
+};
+
 const formatGame = (event) => {
   const comp = event?.competitions?.[0] || {};
   const state = comp?.status?.type?.state || event?.status?.type?.state || "";
@@ -54,6 +64,8 @@ const formatGame = (event) => {
     state, // "in" | "post" | "pre"
     statusText: status || kickoffText,
     isFinal: (status || "").toLowerCase().startsWith("final"),
+    startDate: startIso,
+    startDateText: fmtKickoffDate(startIso),
     startTimeText: kickoffText,
     home: mkTeam(home),
     away: mkTeam(away),
@@ -70,4 +82,11 @@ export const fetchFormattedScoreboard = async () => {
   return mapEventsToGames(raw?.events);
 };
 
-export { getNetwork, getBowlName, fmtKickoff, formatGame, mapEventsToGames };
+export {
+  getNetwork,
+  getBowlName,
+  fmtKickoff,
+  fmtKickoffDate,
+  formatGame,
+  mapEventsToGames,
+};

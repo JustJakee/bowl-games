@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Authenticator } from "@aws-amplify/ui-react";
 import {
   Alert,
@@ -7,24 +7,22 @@ import {
   Chip,
   CircularProgress,
   Divider,
-  TextField,
   Paper,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
+import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
+import { alpha } from "@mui/material/styles";
 import { useAuth } from "../auth/AuthContext";
+import { UserProfileProvider, useUserProfile } from "../auth/UserProfileContext.jsx";
 import {
   createCurrentUserProfile,
-  getCurrentUserProfile,
   isUsernameTaken,
   normalizeUsernameKey,
   validateUsername,
 } from "../auth/userProfile";
-
-const ROLE_MESSAGES = {
-  admin: "Admin tools coming soon.",
-  player: "Player dashboard coming soon.",
-};
+import { themeTokens } from "../theme/theme";
 
 const formatUserLabel = (user) => {
   return user?.signInDetails?.loginId || user?.username || "Signed-in user";
@@ -32,123 +30,56 @@ const formatUserLabel = (user) => {
 
 const isLoginPath = () => window.location.pathname === "/login";
 
-const AccountSummary = ({ email, groups, profile, role, signOut, user }) => {
+const GateFrame = ({ title, subtitle, children }) => {
   return (
-    <Paper elevation={0} sx={{ mb: 3, p: 3, border: "1px solid #d7dee7" }}>
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={2}
-        alignItems={{ xs: "flex-start", md: "center" }}
-        justifyContent="space-between"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+        py: 6,
+      }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          width: "100%",
+          maxWidth: 520,
+          p: { xs: 3, sm: 4 },
+          backgroundColor: alpha(themeTokens.panelBackgroundElevated, 0.9),
+          backdropFilter: "blur(10px)",
+        }}
       >
-        <Box>
-          <Typography variant="overline" sx={{ color: "text.secondary" }}>
-            Account
-          </Typography>
-          <Typography variant="h6">{profile.username}</Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-            {email || formatUserLabel(user)}
-          </Typography>
-          <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 1, flexWrap: "wrap" }}>
-            {groups.length > 0 ? (
-              groups.map((group) => (
-                <Chip key={group} label={group} size="small" color="primary" />
-              ))
-            ) : (
-              <Chip label="no role assigned" size="small" variant="outlined" />
-            )}
+        <Stack spacing={3}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <StarsRoundedIcon sx={{ color: "primary.main" }} />
+            <Typography variant="h5" sx={{ textTransform: "uppercase" }}>
+              Bob's Bowl Games
+            </Typography>
           </Stack>
-          <Typography variant="body2">
-            {role
-              ? ROLE_MESSAGES[role]
-              : "Your account is signed in but does not have an assigned role yet."}
-          </Typography>
-        </Box>
-        <Button variant="outlined" onClick={signOut}>
-          Sign out
-        </Button>
-      </Stack>
-    </Paper>
+          <Box>
+            <Typography variant="h6">{title}</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {subtitle}
+            </Typography>
+          </Box>
+          {children}
+        </Stack>
+      </Paper>
+    </Box>
   );
 };
 
-const AuthShell = () => {
-  const [showLogin, setShowLogin] = useState(isLoginPath);
-  const [profileState, setProfileState] = useState({
-    error: "",
-    profile: null,
-    status: "idle",
-  });
+const ProfileGate = ({ children }) => {
   const [usernameInput, setUsernameInput] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const {
-    email,
-    groups,
-    isAuthenticated,
-    isConfigured,
-    isLoading,
-    role,
-    signOut,
-    user,
-  } = useAuth();
+  const { email, groups, role, signOut, user } = useAuth();
+  const { status, error, profile } = useUserProfile();
 
-  const owner = user?.userId || null;
-  const derivedRole = role || null;
   const privateEmail = email || formatUserLabel(user);
-
-  useEffect(() => {
-    if (!isAuthenticated || !isConfigured || !owner) {
-      setProfileState({
-        error: "",
-        profile: null,
-        status: "idle",
-      });
-      return;
-    }
-
-    let isMounted = true;
-
-    const loadProfile = async () => {
-      setProfileState((current) => ({
-        error: "",
-        profile: current.profile,
-        status: "loading",
-      }));
-
-      try {
-        const profile = await getCurrentUserProfile(owner);
-        if (!isMounted) {
-          return;
-        }
-
-        setProfileState({
-          error: "",
-          profile,
-          status: profile ? "ready" : "needs-setup",
-        });
-      } catch (profileError) {
-        if (!isMounted) {
-          return;
-        }
-
-        setProfileState({
-          error:
-            profileError?.message ||
-            "Unable to load your profile right now. Please try again.",
-          profile: null,
-          status: "error",
-        });
-      }
-    };
-
-    loadProfile();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isAuthenticated, isConfigured, owner]);
-
   const usernamePreview = useMemo(
     () => normalizeUsernameKey(usernameInput || ""),
     [usernameInput]
@@ -180,18 +111,13 @@ const AuthShell = () => {
         return;
       }
 
-      const profile = await createCurrentUserProfile({
+      await createCurrentUserProfile({
         email: privateEmail,
-        preferredGroup: derivedRole,
+        preferredGroup: role || undefined,
         username: usernameInput,
       });
 
-      setProfileState({
-        error: "",
-        profile,
-        status: "ready",
-      });
-      setUsernameInput("");
+      window.location.reload();
     } catch (profileError) {
       setSubmitError(
         profileError?.message ||
@@ -202,158 +128,144 @@ const AuthShell = () => {
     }
   };
 
+  if (status === "loading" || status === "refreshing" || status === "idle") {
+    return (
+      <GateFrame
+        title="Loading your profile"
+        subtitle="Checking your account, groups, and saved public username."
+      >
+        <Stack direction="row" spacing={2} alignItems="center">
+          <CircularProgress size={22} />
+          <Typography variant="body2">Loading profile...</Typography>
+        </Stack>
+      </GateFrame>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <GateFrame
+        title="Profile unavailable"
+        subtitle="Your account is signed in, but the profile data could not be loaded."
+      >
+        <Alert severity="error">{error}</Alert>
+        <Button variant="outlined" onClick={signOut}>
+          Sign out
+        </Button>
+      </GateFrame>
+    );
+  }
+
+  if (status === "needs-setup") {
+    return (
+      <GateFrame
+        title="Choose your public username"
+        subtitle="You sign in with email, but the app displays your public username on leaderboards and dashboard surfaces."
+      >
+        <Stack spacing={2} component="form" onSubmit={handleProfileSubmit}>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+            {groups.length > 0 ? (
+              groups.map((group) => <Chip key={group} label={group} size="small" color="primary" />)
+            ) : (
+              <Chip label="no role assigned" size="small" variant="outlined" />
+            )}
+          </Stack>
+          <Typography variant="body2" color="text.secondary">
+            Signed in as {privateEmail}
+          </Typography>
+          <TextField
+            label="Username"
+            value={usernameInput}
+            onChange={(event) => {
+              setUsernameInput(event.target.value);
+              setSubmitError("");
+            }}
+            inputProps={{
+              autoCapitalize: "none",
+              autoCorrect: "off",
+              maxLength: 20,
+            }}
+            helperText={
+              usernameInput
+                ? `Username key: ${usernamePreview}`
+                : "3-20 characters. Letters, numbers, underscores, and hyphens only."
+            }
+            autoComplete="off"
+            required
+          />
+          {submitError ? <Alert severity="error">{submitError}</Alert> : null}
+          <Divider />
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+            <Button variant="outlined" onClick={signOut} disabled={isSubmitting}>
+              Sign out
+            </Button>
+            <Button type="submit" variant="contained" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save username"}
+            </Button>
+          </Stack>
+        </Stack>
+      </GateFrame>
+    );
+  }
+
+  return children(profile);
+};
+
+const AuthShell = ({ children }) => {
+  const [showLogin, setShowLogin] = useState(isLoginPath);
+  const { isAuthenticated, isConfigured, isLoading } = useAuth();
+
   if (isLoading) {
     return (
-      <Paper elevation={0} sx={{ mb: 3, p: 3, border: "1px solid #d7dee7" }}>
+      <GateFrame
+        title="Loading authentication"
+        subtitle="Checking your Cognito session and environment configuration."
+      >
         <Stack direction="row" spacing={2} alignItems="center">
-          <CircularProgress size={20} />
-          <Typography variant="body2">
-            Loading authentication status...
-          </Typography>
+          <CircularProgress size={22} />
+          <Typography variant="body2">Loading authentication status...</Typography>
         </Stack>
-      </Paper>
+      </GateFrame>
     );
   }
 
   if (!isConfigured) {
     return (
-      <Alert severity="warning" sx={{ mb: 3 }}>
-        Authentication is not configured for this environment yet.
-        {" "}`amplify_outputs.json` must be available for the frontend build.
-        Public signup remains disabled for this milestone and will be handled
-        later.
-      </Alert>
-    );
-  }
-
-  if (isAuthenticated) {
-    if (profileState.status === "loading" || profileState.status === "idle") {
-      return (
-        <Paper elevation={0} sx={{ mb: 3, p: 3, border: "1px solid #d7dee7" }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <CircularProgress size={20} />
-            <Typography variant="body2">Loading your profile...</Typography>
-          </Stack>
-        </Paper>
-      );
-    }
-
-    if (profileState.status === "error") {
-      return (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {profileState.error}
+      <GateFrame
+        title="Authentication not configured"
+        subtitle="This environment still needs Amplify frontend outputs before the app can sign users in."
+      >
+        <Alert severity="warning">
+          `amplify_outputs.json` must be available for the frontend build. Public
+          signup remains disabled.
         </Alert>
-      );
-    }
-
-    if (profileState.status === "needs-setup") {
-      return (
-        <Paper elevation={0} sx={{ mb: 3, p: 3, border: "1px solid #d7dee7" }}>
-          <Stack spacing={2} component="form" onSubmit={handleProfileSubmit}>
-            <Box>
-              <Typography variant="overline" sx={{ color: "text.secondary" }}>
-                Profile Setup
-              </Typography>
-              <Typography variant="h6">Choose your public username</Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                You sign in with email, but public leaderboards will show your
-                username instead. Emails remain private.
-              </Typography>
-            </Box>
-
-            <Divider />
-
-            <Stack spacing={1}>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Signed in as {privateEmail}
-              </Typography>
-              <TextField
-                label="Username"
-                value={usernameInput}
-                onChange={(event) => {
-                  setUsernameInput(event.target.value);
-                  setSubmitError("");
-                }}
-                inputProps={{
-                  autoCapitalize: "none",
-                  autoCorrect: "off",
-                  maxLength: 20,
-                }}
-                helperText={
-                  usernameInput
-                    ? `Username key: ${usernamePreview}`
-                    : "3-20 characters. Letters, numbers, underscores, and hyphens only."
-                }
-                autoComplete="off"
-                required
-              />
-              {submitError ? <Alert severity="error">{submitError}</Alert> : null}
-            </Stack>
-
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1.5}
-              justifyContent="space-between"
-              alignItems={{ xs: "stretch", sm: "center" }}
-            >
-              <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                Public signup is still disabled. Username uniqueness is checked
-                before profile creation.
-              </Typography>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-                <Button variant="outlined" onClick={signOut} disabled={isSubmitting}>
-                  Sign out
-                </Button>
-                <Button type="submit" variant="contained" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Save username"}
-                </Button>
-              </Stack>
-            </Stack>
-          </Stack>
-        </Paper>
-      );
-    }
-
-    return (
-      <AccountSummary
-        email={privateEmail}
-        groups={groups}
-        profile={profileState.profile}
-        role={role}
-        signOut={signOut}
-        user={user}
-      />
+      </GateFrame>
     );
   }
 
-  return (
-    <Paper elevation={0} sx={{ mb: 3, p: 3, border: "1px solid #d7dee7" }}>
-      <Stack spacing={2}>
-        <Box>
-          <Typography variant="overline" sx={{ color: "text.secondary" }}>
-            Account Access
-          </Typography>
-          <Typography variant="h6">Sign in with your Cognito account</Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            Accounts are currently created manually. Public signup is
-            intentionally disabled for this milestone and will be added later.
-          </Typography>
-        </Box>
-
+  if (!isAuthenticated) {
+    return (
+      <GateFrame
+        title="Sign in with your Cognito account"
+        subtitle="Accounts are currently created manually. Public signup is intentionally disabled for this milestone."
+      >
         {!showLogin ? (
           <Button variant="contained" onClick={() => setShowLogin(true)}>
             Sign in
           </Button>
         ) : (
           <Box sx={{ maxWidth: 420 }}>
-            {/* TODO: add public self-service signup in a later milestone. */}
-            <Authenticator hideSignUp>
-              {() => null}
-            </Authenticator>
+            <Authenticator hideSignUp>{() => null}</Authenticator>
           </Box>
         )}
-      </Stack>
-    </Paper>
+      </GateFrame>
+    );
+  }
+
+  return (
+    <UserProfileProvider>
+      <ProfileGate>{() => children}</ProfileGate>
+    </UserProfileProvider>
   );
 };
 
