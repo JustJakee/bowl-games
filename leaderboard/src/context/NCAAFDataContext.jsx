@@ -5,6 +5,7 @@ const ScoreboardContext = createContext(null);
 
 export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
   const [data, setData] = useState(null);
+  const [allGames, setAllGames] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const mounted = useRef(false);
@@ -26,20 +27,30 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
         return game;
       };
 
-      const EXCLUDED_BOWLS = [
+      const SCOREBOARD_EXCLUDED_BOWLS = [
         "Quarterfinal",
         "Semifinal",
         "Playoff National Championship",
         "FCS Championship",
       ];
+      const PICKS_EXCLUDED_BOWLS = ["FCS Championship"];
 
-      const filteredResponse = response.filter(
-        game => game.bowl.trim() &&
-          !EXCLUDED_BOWLS.some(term => game.bowl.includes(term))
+      const normalizedResponse = response.filter(
+        game => game.bowl.trim()
       ).map(removeDuplicateBowlName);
+
+      const filteredResponse = normalizedResponse.filter(
+        game =>
+          !SCOREBOARD_EXCLUDED_BOWLS.some(term => game.bowl.includes(term))
+      );
+      const picksResponse = normalizedResponse.filter(
+        game => game.bowl.trim() &&
+          !PICKS_EXCLUDED_BOWLS.some(term => game.bowl.includes(term))
+      );
 
       if (!mounted.current) return;
       setData(filteredResponse);
+      setAllGames(picksResponse);
     } catch (err) {
       if (!mounted.current) return;
       setError(err?.message ?? "Failed to fetch scoreboard");
@@ -62,8 +73,15 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
   }, [pollMs]);
 
   const value = useMemo(
-    () => ({ games: data ?? [], loading, refreshing, error, reload: load }),
-    [data, loading, refreshing, error]
+    () => ({
+      games: data ?? [],
+      allGames: allGames ?? [],
+      loading,
+      refreshing,
+      error,
+      reload: load,
+    }),
+    [allGames, data, loading, refreshing, error]
   );
 
   return (

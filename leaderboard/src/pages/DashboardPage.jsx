@@ -25,7 +25,7 @@ const DashboardPage = () => {
     playerPicks,
     savedSelectionsByGameId,
   } = useAppData();
-  const { games: scoreboardGames } = useScoreboard();
+  const { allGames: scoreboardGames } = useScoreboard();
   const theme = useTheme();
   const isWideDesktop = useMediaQuery(theme.breakpoints.up("xl"));
   const picksLockDeadline = useMemo(() => {

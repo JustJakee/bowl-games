@@ -54,7 +54,7 @@ const buildMatchups = (scoreboardGames = []) => {
 };
 
 export const AppDataProvider = ({ children }) => {
-  const { games: scoreboardGames } = useScoreboard();
+  const { allGames: scoreboardGames } = useScoreboard();
   const { email, isAuthenticated, isConfigured, user } = useAuth();
   const [playerPicks, setPlayerPicks] = useState([]);
   const [picksLoading, setPicksLoading] = useState(false);
@@ -77,12 +77,10 @@ export const AppDataProvider = ({ children }) => {
   );
   const tieBreakerRequired = useMemo(
     () =>
-      matchups.some(
-        (matchup) =>
-          String(matchup?.game || "").trim().toLowerCase() ===
-          TIEBREAKER_BOWL_NAME.toLowerCase()
+      (scoreboardGames || []).some(
+        (game) => String(game?.bowl || "").trim() === TIEBREAKER_BOWL_NAME
       ),
-    [matchups]
+    [scoreboardGames]
   );
 
   const resetCurrentEntryState = useCallback(() => {
@@ -127,6 +125,8 @@ export const AppDataProvider = ({ children }) => {
       const status = calculatePickSetStatus({
         requiredGameIds,
         selectionsByGameId: savedPicks.selectionsByGameId,
+        tieBreakerRequired,
+        tieBreakerValue: entry.tieBreakerValue,
       });
 
       setCurrentEntry(entry);
@@ -158,6 +158,7 @@ export const AppDataProvider = ({ children }) => {
     owner,
     requiredGameIds,
     resetCurrentEntryState,
+    tieBreakerRequired,
   ]);
 
   useEffect(() => {
@@ -185,6 +186,7 @@ export const AppDataProvider = ({ children }) => {
         tieBreakerValue,
         selectionsByGameId,
         requiredGameIds,
+        tieBreakerRequired,
       });
 
       setCurrentEntry(result.entry);
@@ -205,7 +207,7 @@ export const AppDataProvider = ({ children }) => {
 
       return result;
     },
-    [isAuthenticated, isConfigured, matchups, owner, requiredGameIds]
+    [isAuthenticated, isConfigured, matchups, owner, requiredGameIds, tieBreakerRequired]
   );
 
   const value = useMemo(

@@ -108,6 +108,8 @@ const buildSelectionMap = (picks = []) =>
 export const calculatePickSetStatus = ({
   requiredGameIds = [],
   selectionsByGameId = {},
+  tieBreakerRequired = false,
+  tieBreakerValue = null,
 }) => {
   const gameIds = requiredGameIds.filter(Boolean);
 
@@ -115,9 +117,14 @@ export const calculatePickSetStatus = ({
     return PICK_SET_STATUS.DRAFT;
   }
 
-  const isComplete = gameIds.every((gameId) =>
+  const hasAllSelections = gameIds.every((gameId) =>
     Boolean(selectionsByGameId?.[gameId])
   );
+  const hasTieBreaker =
+    !tieBreakerRequired ||
+    tieBreakerValue === 0 ||
+    Boolean(String(tieBreakerValue ?? "").trim());
+  const isComplete = hasAllSelections && hasTieBreaker;
   return isComplete ? PICK_SET_STATUS.COMPLETE : PICK_SET_STATUS.DRAFT;
 };
 
@@ -282,6 +289,7 @@ export const savePicks = async ({
   tieBreakerValue,
   selectionsByGameId = {},
   requiredGameIds = [],
+  tieBreakerRequired = false,
 }) => {
   const client = getDataClient();
   const entry = await getOrCreateCurrentSeasonEntry({
@@ -376,6 +384,8 @@ export const savePicks = async ({
     status: calculatePickSetStatus({
       requiredGameIds,
       selectionsByGameId: savedPicks.selectionsByGameId,
+      tieBreakerRequired,
+      tieBreakerValue: refreshedEntry.tieBreakerValue,
     }),
   };
 };
@@ -390,6 +400,7 @@ export const savePick = async ({
   gameId,
   selectedTeam,
   requiredGameIds = [],
+  tieBreakerRequired = false,
 }) => {
   const existingEntry = await getCurrentSeasonEntry({ owner, seasonId });
   const existingPicks = existingEntry
@@ -408,6 +419,7 @@ export const savePick = async ({
     contactEmail,
     tieBreakerValue,
     requiredGameIds,
+    tieBreakerRequired,
     selectionsByGameId: {
       ...existingPicks.selectionsByGameId,
       [gameId]: selectedTeam,
