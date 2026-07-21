@@ -9,8 +9,12 @@ import EmptyState from "../common/EmptyState";
 
 const sortGames = (games) => {
   return games.slice().sort((a, b) => {
-    const aDate = a?.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
-    const bDate = b?.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER;
+    const aDate = a?.startDate
+      ? new Date(a.startDate).getTime()
+      : Number.MAX_SAFE_INTEGER;
+    const bDate = b?.startDate
+      ? new Date(b.startDate).getTime()
+      : Number.MAX_SAFE_INTEGER;
     return aDate - bDate;
   });
 };
@@ -20,13 +24,19 @@ const UpcomingBowlsCard = () => {
   const theme = useTheme();
   const isLargeDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const upcomingGames = sortGames(
-    (games || []).filter((game) => game?.state !== "post" && game?.isFinal !== true)
+    (games || []).filter(
+      (game) => game?.state !== "post" && game?.isFinal !== true,
+    ),
   ).slice(0, 4);
 
   return (
     <Panel sx={{ height: "100%" }}>
       <Stack spacing={1.5}>
-        <SectionHeader title="Upcoming Bowls" actionLabel="View Full Schedule" actionTo="/schedule" />
+        <SectionHeader
+          title="Upcoming Bowls"
+          actionLabel="View Full Schedule"
+          actionTo="/schedule"
+        />
         {loading ? (
           <Stack spacing={1.5}>
             {[0, 1, 2].map((item) => (
@@ -62,16 +72,31 @@ const UpcomingBowlsCard = () => {
               >
                 {isLargeDesktop ? (
                   <>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.85rem" }}
+                    >
                       {game.startDateText || "Date TBD"}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.85rem" }}
+                    >
                       {game.startTimeText || game.statusText}
                     </Typography>
-                    <Typography variant="subtitle2" sx={{ fontSize: "0.95rem" }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontSize: "0.95rem" }}
+                    >
                       {game.bowl}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.85rem" }}
+                    >
                       {game.network || "TBD"}
                     </Typography>
                     <Stack direction="row" spacing={1} alignItems="center">
@@ -85,7 +110,11 @@ const UpcomingBowlsCard = () => {
                         {game.away?.abbr || "TBD"}
                       </Typography>
                     </Stack>
-                    <Typography variant="overline" color="text.secondary" sx={{ textAlign: "center" }}>
+                    <Typography
+                      variant="overline"
+                      color="text.secondary"
+                      sx={{ textAlign: "center" }}
+                    >
                       VS
                     </Typography>
                     <Stack direction="row" spacing={1} alignItems="center">
@@ -115,7 +144,9 @@ const UpcomingBowlsCard = () => {
                             abbr={game.away?.abbr}
                             size={28}
                           />
-                          <Typography variant="body2">{game.away?.abbr || "TBD"}</Typography>
+                          <Typography variant="body2">
+                            {game.away?.abbr || "TBD"}
+                          </Typography>
                         </Stack>
                         <Typography variant="overline" color="text.secondary">
                           VS
@@ -127,7 +158,9 @@ const UpcomingBowlsCard = () => {
                             abbr={game.home?.abbr}
                             size={28}
                           />
-                          <Typography variant="body2">{game.home?.abbr || "TBD"}</Typography>
+                          <Typography variant="body2">
+                            {game.home?.abbr || "TBD"}
+                          </Typography>
                         </Stack>
                       </Stack>
                     </Stack>

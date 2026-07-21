@@ -7,7 +7,8 @@
 }
 
 .winners-podium__header {
-  background: linear-gradient(
+  background:
+    linear-gradient(
       135deg,
       rgba(255, 255, 255, 0.05),
       rgba(255, 255, 255, 0.01)
@@ -61,7 +62,8 @@
   position: relative;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 40% -10%,
       rgba(255, 255, 255, 0.08),
       transparent 52%
@@ -107,21 +109,15 @@
 
 .winners-podium__card.place-1 {
   border-color: rgba(255, 203, 5, 0.5);
-  background: linear-gradient(
-      140deg,
-      rgba(255, 231, 126, 0.25),
-      rgba(255, 203, 5, 0.1)
-    ),
-    linear-gradient(
-      180deg,
-      rgba(255, 203, 5, 0.14),
-      rgba(11, 13, 16, 0.8)
-    );
+  background:
+    linear-gradient(140deg, rgba(255, 231, 126, 0.25), rgba(255, 203, 5, 0.1)),
+    linear-gradient(180deg, rgba(255, 203, 5, 0.14), rgba(11, 13, 16, 0.8));
 }
 
 .winners-podium__card.place-2 {
   border-color: rgba(207, 216, 220, 0.5);
-  background: linear-gradient(
+  background:
+    linear-gradient(
       140deg,
       rgba(226, 232, 240, 0.22),
       rgba(148, 163, 184, 0.08)
@@ -131,7 +127,8 @@
 
 .winners-podium__card.place-3 {
   border-color: rgba(205, 127, 50, 0.55);
-  background: linear-gradient(
+  background:
+    linear-gradient(
       140deg,
       rgba(226, 178, 129, 0.22),
       rgba(205, 127, 50, 0.08)
@@ -141,16 +138,13 @@
 
 .winners-podium__card.place-4 {
   border-color: rgba(165, 212, 255, 0.8);
-  background: linear-gradient(
+  background:
+    linear-gradient(
       140deg,
       rgba(191, 225, 255, 0.25),
       rgba(165, 212, 255, 0.12)
     ),
-    linear-gradient(
-      180deg,
-      rgba(165, 212, 255, 0.18),
-      rgba(11, 13, 16, 0.8)
-    );
+    linear-gradient(180deg, rgba(165, 212, 255, 0.18), rgba(11, 13, 16, 0.8));
 }
 
 .winners-podium__place {
@@ -215,7 +209,8 @@
   width: 100%;
   border-radius: 20px;
   border: 1px solid var(--color-border);
-  background: linear-gradient(
+  background:
+    linear-gradient(
       120deg,
       rgba(255, 255, 255, 0.04),
       rgba(255, 255, 255, 0.02)
@@ -292,7 +287,11 @@
 .winners-podium__suggestions-button {
   border-radius: 12px;
   border: 1px solid rgba(97, 189, 86, 0.6);
-  background: linear-gradient(120deg, rgba(97, 189, 86, 0.4), rgba(97, 189, 86, 0.16));
+  background: linear-gradient(
+    120deg,
+    rgba(97, 189, 86, 0.4),
+    rgba(97, 189, 86, 0.16)
+  );
   color: var(--accent-contrast);
   font-weight: 700;
   letter-spacing: 0.04em;

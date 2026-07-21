@@ -23,7 +23,9 @@ const TeamLogo = ({ src, alt, abbr, size = 34, sx = {} }) => {
         ...sx,
       }}
     >
-      {fallback ? abbr?.slice(0, 2) || <SportsFootballRoundedIcon fontSize="small" /> : null}
+      {fallback
+        ? abbr?.slice(0, 2) || <SportsFootballRoundedIcon fontSize="small" />
+        : null}
     </Avatar>
   );
 };

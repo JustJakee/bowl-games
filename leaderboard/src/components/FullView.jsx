@@ -74,4 +74,3 @@ const FullView = ({ playerPicks, matchups }) => {
 };
 
 export default FullView;
-

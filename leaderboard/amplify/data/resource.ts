@@ -2,7 +2,7 @@ import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 
 const schema = a.schema({
   SeasonStatus: a.enum(["draft", "open", "locked", "complete", "archived"]),
-  GameStatus: a.enum(["scheduled", "final", "canceled"]),
+  GameStatus: a.enum(["scheduled", "in_progress", "final", "canceled"]),
   PaymentStatus: a.enum(["unpaid", "paid", "waived", "refunded"]),
 
   UserProfile: a
@@ -47,6 +47,7 @@ const schema = a.schema({
       index("usernameKey").queryField("userProfileByUsernameKey"),
     ])
     .authorization((allow) => [
+      allow.authenticated().to(["read"]),
       allow
         .ownerDefinedIn("owner")
         .identityClaim("sub")
@@ -87,20 +88,41 @@ const schema = a.schema({
     .secondaryIndexes((index) => [
       index("seasonId").queryField("seasonConfigBySeasonId"),
     ])
-    .authorization((allow) => [allow.group("admin")]),
+    .authorization((allow) => [
+      allow.authenticated().to(["read"]),
+      allow.group("admin"),
+    ]),
 
   Game: a
     .model({
       seasonId: a.id().required(),
       season: a.belongsTo("Season", "seasonId"),
+      sourceEventId: a.string(),
       gameNumber: a.integer(),
       sortOrder: a.integer(),
       bowlName: a.string().required(),
       gameName: a.string(),
+      network: a.string(),
+      statusDetail: a.string(),
       teamA: a.string().required(),
+      teamADisplayName: a.string(),
+      teamAAbbr: a.string().required(),
+      teamALogo: a.string(),
+      teamAColor: a.string(),
+      teamAAlternateColor: a.string(),
+      teamARank: a.integer(),
+      teamAScore: a.integer(),
       teamB: a.string().required(),
+      teamBDisplayName: a.string(),
+      teamBAbbr: a.string().required(),
+      teamBLogo: a.string(),
+      teamBColor: a.string(),
+      teamBAlternateColor: a.string(),
+      teamBRank: a.integer(),
+      teamBScore: a.integer(),
       kickoffAt: a.datetime().required(),
       neutralSite: a.boolean(),
+      venueName: a.string(),
       location: a.string(),
       winnerTeam: a.string(),
       status: a.ref("GameStatus").required(),
@@ -118,18 +140,76 @@ const schema = a.schema({
     .model({
       seasonId: a.id().required(),
       season: a.belongsTo("Season", "seasonId"),
-      owner: a.string(),
-      userProfileId: a.id(),
+      owner: a
+        .string()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
+      userProfileId: a
+        .id()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
       userProfile: a.belongsTo("UserProfile", "userProfileId"),
       entryName: a.string().required(),
       entryNameKey: a.string().required(),
-      contactEmail: a.email().required(),
-      paymentStatus: a.ref("PaymentStatus").required(),
-      paidAt: a.datetime(),
+      contactEmail: a
+        .email()
+        .required()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
+      paymentStatus: a
+        .ref("PaymentStatus")
+        .required()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
+      paidAt: a
+        .datetime()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
       tieBreakerValue: a.integer(),
       isDeleted: a.boolean().required().default(false),
-      submittedAt: a.datetime(),
-      lockedAt: a.datetime(),
+      submittedAt: a
+        .datetime()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
+      lockedAt: a
+        .datetime()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
       picks: a.hasMany("Pick", "entryId"),
     })
     .secondaryIndexes((index) => [
@@ -139,6 +219,7 @@ const schema = a.schema({
         .queryField("entriesBySeasonAndEntryNameKey"),
     ])
     .authorization((allow) => [
+      allow.authenticated().to(["read"]),
       allow.ownerDefinedIn("owner").to(["create", "read", "update"]),
       allow.group("admin"),
     ]),
@@ -151,7 +232,15 @@ const schema = a.schema({
       entry: a.belongsTo("Entry", "entryId"),
       gameId: a.id().required(),
       game: a.belongsTo("Game", "gameId"),
-      owner: a.string(),
+      owner: a
+        .string()
+        .authorization((allow) => [
+          allow
+            .ownerDefinedIn("owner")
+            .identityClaim("sub")
+            .to(["create", "read", "update"]),
+          allow.group("admin").to(["read", "update"]),
+        ]),
       selectedTeam: a.string().required(),
       confidencePoints: a.integer(),
       rank: a.integer(),
@@ -162,8 +251,10 @@ const schema = a.schema({
     .secondaryIndexes((index) => [
       index("entryId").sortKeys(["gameId"]).queryField("pickByEntryAndGame"),
       index("gameId").queryField("picksByGame"),
+      index("seasonId").queryField("picksBySeason"),
     ])
     .authorization((allow) => [
+      allow.authenticated().to(["read"]),
       allow.ownerDefinedIn("owner"),
       allow.group("admin"),
     ]),

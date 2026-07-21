@@ -60,11 +60,17 @@ const NewPasswordForm = ({ error = "", onSubmit }) => {
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
-                  aria-label={showNewPassword ? "Hide password" : "Show password"}
+                  aria-label={
+                    showNewPassword ? "Hide password" : "Show password"
+                  }
                   onClick={() => setShowNewPassword((current) => !current)}
                   edge="end"
                 >
-                  {showNewPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                  {showNewPassword ? (
+                    <VisibilityOffRoundedIcon />
+                  ) : (
+                    <VisibilityRoundedIcon />
+                  )}
                 </IconButton>
               </InputAdornment>
             ),
@@ -82,18 +88,33 @@ const NewPasswordForm = ({ error = "", onSubmit }) => {
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
                   onClick={() => setShowConfirmPassword((current) => !current)}
                   edge="end"
                 >
-                  {showConfirmPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                  {showConfirmPassword ? (
+                    <VisibilityOffRoundedIcon />
+                  ) : (
+                    <VisibilityRoundedIcon />
+                  )}
                 </IconButton>
               </InputAdornment>
             ),
           }}
         />
-        <Button type="submit" variant="contained" fullWidth disabled={isSubmitting}>
-          {isSubmitting ? <CircularProgress size={22} color="inherit" /> : "SAVE NEW PASSWORD"}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <CircularProgress size={22} color="inherit" />
+          ) : (
+            "SAVE NEW PASSWORD"
+          )}
         </Button>
       </Stack>
     </AuthFormLayout>

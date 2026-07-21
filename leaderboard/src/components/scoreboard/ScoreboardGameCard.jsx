@@ -5,15 +5,28 @@ import Panel from "../common/Panel";
 
 const TeamRow = ({ team, score, showScore }) => {
   return (
-    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+      spacing={1}
+    >
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        sx={{ minWidth: 0 }}
+      >
         <TeamLogo
           src={team?.logo}
           alt={`${team?.displayName || team?.abbr || "Team"} logo`}
           abbr={team?.abbr}
           size={24}
         />
-        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: "0.9rem" }}>
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 700, fontSize: "0.9rem" }}
+        >
           {team?.abbr || "TBD"}
         </Typography>
       </Stack>
@@ -28,7 +41,8 @@ const TeamRow = ({ team, score, showScore }) => {
 
 const ScoreboardGameCard = ({ game }) => {
   const theme = useTheme();
-  const showScores = game?.state === "in" || game?.state === "post" || game?.isFinal;
+  const showScores =
+    game?.state === "in" || game?.state === "post" || game?.isFinal;
 
   return (
     <Panel
@@ -44,7 +58,11 @@ const ScoreboardGameCard = ({ game }) => {
     >
       <Stack spacing={1}>
         <Box>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontSize: "0.7rem" }}
+          >
             {showScores
               ? game.statusText || "Final"
               : `${game.startDateText || "Date TBD"} ${game.startTimeText || "TBD"}`}
@@ -63,8 +81,16 @@ const ScoreboardGameCard = ({ game }) => {
           </Typography>
         </Box>
         <Stack spacing={0.75}>
-          <TeamRow team={game.away} score={game.away?.score || "--"} showScore={showScores} />
-          <TeamRow team={game.home} score={game.home?.score || "--"} showScore={showScores} />
+          <TeamRow
+            team={game.away}
+            score={game.away?.score || "--"}
+            showScore={showScores}
+          />
+          <TeamRow
+            team={game.home}
+            score={game.home?.score || "--"}
+            showScore={showScores}
+          />
         </Stack>
         <Box
           sx={{
@@ -73,7 +99,11 @@ const ScoreboardGameCard = ({ game }) => {
             pt: 0.75,
           }}
         >
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", textAlign: "left" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontSize: "0.7rem", textAlign: "left" }}
+          >
             {game.network || "Network TBD"}
           </Typography>
         </Box>

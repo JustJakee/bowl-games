@@ -60,7 +60,7 @@ const WinnersPodium = () => {
 
   useEffect(() => {
     const savedCooldown = Number(
-      localStorage.getItem(SUGGESTION_COOLDOWN_KEY) || "0"
+      localStorage.getItem(SUGGESTION_COOLDOWN_KEY) || "0",
     );
     setCooldownUntil(savedCooldown);
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -133,7 +133,9 @@ const WinnersPodium = () => {
               key={winner.place}
               className={`winners-podium__card winners-podium__card--grid place-${winner.place}`}
             >
-              <div className="winners-podium__place">{PLACE_LABELS[winner.place]}</div>
+              <div className="winners-podium__place">
+                {PLACE_LABELS[winner.place]}
+              </div>
               <div className="winners-podium__name">{winner.name}</div>
               <div className="winners-podium__badges">
                 <span className="winners-podium__badge">
@@ -154,11 +156,16 @@ const WinnersPodium = () => {
       <div className="winners-podium__suggestions">
         <div className="winners-podium__suggestions-card">
           <div className="winners-podium__suggestions-header">
-            <p className="winners-podium__suggestions-kicker">Off-Season Notes</p>
-            <h3 className="winners-podium__suggestions-title">Suggestion Box</h3>
+            <p className="winners-podium__suggestions-kicker">
+              Off-Season Notes
+            </p>
+            <h3 className="winners-podium__suggestions-title">
+              Suggestion Box
+            </h3>
           </div>
           <p className="winners-podium__suggestions-copy">
-            What should we improve next season? Scoring tweaks, new features or anything else that would make the experience better.
+            What should we improve next season? Scoring tweaks, new features or
+            anything else that would make the experience better.
           </p>
           <form
             className="winners-podium__suggestions-form"
@@ -198,7 +205,11 @@ const WinnersPodium = () => {
             </div>
           </form>
           <p className="winners-podium__suggestions-footer">
-            Built by <span role="img" aria-label="bicep">&#128170;</span> Two-Jakes
+            Built by{" "}
+            <span role="img" aria-label="bicep">
+              &#128170;
+            </span>{" "}
+            Two-Jakes
           </p>
         </div>
       </div>

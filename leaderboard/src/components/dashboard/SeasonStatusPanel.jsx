@@ -36,14 +36,25 @@ const SeasonStatusPanel = ({ deadline, links }) => {
         <Stack spacing={1}>
           <Stack direction="row" spacing={1.25} alignItems="center">
             <LockOutlinedIcon sx={{ color: "primary.main" }} />
-            <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.8rem" }}>
+            <Typography
+              variant="overline"
+              color="text.secondary"
+              sx={{ fontSize: "0.8rem" }}
+            >
               Picks Lock
             </Typography>
           </Stack>
-          <Typography variant="subtitle1" sx={{ fontSize: "1rem", fontWeight: 700 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontSize: "1rem", fontWeight: 700 }}
+          >
             {formatDeadline(deadline)}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}
+          >
             {countdown}
           </Typography>
         </Stack>
@@ -72,17 +83,27 @@ const SeasonStatusPanel = ({ deadline, links }) => {
                 }}
               >
                 <Icon sx={{ color: "primary.main", fontSize: 20 }} />
-                <Typography variant="body2" sx={{ fontSize: "0.95rem", fontWeight: 700 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontSize: "0.95rem", fontWeight: 700 }}
+                >
                   {link.label}
                 </Typography>
-                <ChevronRightRoundedIcon sx={{ color: "text.secondary", fontSize: 18 }} />
+                <ChevronRightRoundedIcon
+                  sx={{ color: "text.secondary", fontSize: 18 }}
+                />
               </Box>
             );
           })}
         </Stack>
         <Box sx={{ pt: 0.5 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem", lineHeight: 1.45 }}>
-            Make sure every entry is finished before the first bowl kicks off. Leaderboard and schedule views stay live throughout the season.
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: "0.875rem", lineHeight: 1.45 }}
+          >
+            Make sure every entry is finished before the first bowl kicks off.
+            Leaderboard and schedule views stay live throughout the season.
           </Typography>
         </Box>
       </Stack>

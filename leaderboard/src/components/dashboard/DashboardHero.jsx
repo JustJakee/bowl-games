@@ -47,12 +47,22 @@ const DashboardHero = ({ username, deadline }) => {
             <Typography
               variant="body1"
               color="text.secondary"
-              sx={{ fontSize: { md: "0.95rem", lg: "1rem" }, lineHeight: 1.5, maxWidth: 620 }}
+              sx={{
+                fontSize: { md: "0.95rem", lg: "1rem" },
+                lineHeight: 1.5,
+                maxWidth: 620,
+              }}
             >
-              Track the bowl slate, finish your entries, and keep an eye on the pool before kickoff.
+              Track the bowl slate, finish your entries, and keep an eye on the
+              pool before kickoff.
             </Typography>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-              <Button component={RouterLink} to="/picks" variant="contained" sx={{ minHeight: 42, px: 2.5 }}>
+              <Button
+                component={RouterLink}
+                to="/picks"
+                variant="contained"
+                sx={{ minHeight: 42, px: 2.5 }}
+              >
                 Make Your Picks
               </Button>
               <Button

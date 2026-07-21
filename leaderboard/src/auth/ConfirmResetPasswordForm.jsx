@@ -54,11 +54,19 @@ const ConfirmResetPasswordForm = ({
   return (
     <AuthFormLayout
       title="Check your email"
-      description={info || "Enter the confirmation code and choose a new password."}
+      description={
+        info || "Enter the confirmation code and choose a new password."
+      }
       error={fieldError || error}
     >
       <Stack component="form" spacing={2.5} onSubmit={handleSubmit}>
-        <TextField label="Email" type="email" fullWidth value={email} disabled />
+        <TextField
+          label="Email"
+          type="email"
+          fullWidth
+          value={email}
+          disabled
+        />
         <TextField
           label="Confirmation Code"
           fullWidth
@@ -78,11 +86,17 @@ const ConfirmResetPasswordForm = ({
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
-                  aria-label={showNewPassword ? "Hide password" : "Show password"}
+                  aria-label={
+                    showNewPassword ? "Hide password" : "Show password"
+                  }
                   onClick={() => setShowNewPassword((current) => !current)}
                   edge="end"
                 >
-                  {showNewPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                  {showNewPassword ? (
+                    <VisibilityOffRoundedIcon />
+                  ) : (
+                    <VisibilityRoundedIcon />
+                  )}
                 </IconButton>
               </InputAdornment>
             ),
@@ -100,20 +114,40 @@ const ConfirmResetPasswordForm = ({
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
                   onClick={() => setShowConfirmPassword((current) => !current)}
                   edge="end"
                 >
-                  {showConfirmPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                  {showConfirmPassword ? (
+                    <VisibilityOffRoundedIcon />
+                  ) : (
+                    <VisibilityRoundedIcon />
+                  )}
                 </IconButton>
               </InputAdornment>
             ),
           }}
         />
-        <Button type="submit" variant="contained" fullWidth disabled={isSubmitting}>
-          {isSubmitting ? <CircularProgress size={22} color="inherit" /> : "UPDATE PASSWORD"}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <CircularProgress size={22} color="inherit" />
+          ) : (
+            "UPDATE PASSWORD"
+          )}
         </Button>
-        <Button type="button" variant="text" onClick={onBack} sx={{ alignSelf: "center", minHeight: "auto", p: 0.5 }}>
+        <Button
+          type="button"
+          variant="text"
+          onClick={onBack}
+          sx={{ alignSelf: "center", minHeight: "auto", p: 0.5 }}
+        >
           Back to sign in
         </Button>
       </Stack>

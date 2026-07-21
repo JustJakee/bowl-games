@@ -4,6 +4,7 @@ import { useTheme } from "@mui/material/styles";
 import { useAppData } from "../app/AppDataContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
 import { useScoreboard } from "../context/NCAAFDataContext.jsx";
+import { useSeasonLeaderboard } from "../hooks/useSeasonLeaderboard";
 import DashboardHero from "../components/dashboard/DashboardHero";
 import PickStatusCard from "../components/dashboard/PickStatusCard";
 import EntriesCard from "../components/dashboard/EntriesCard";
@@ -21,11 +22,12 @@ const DashboardPage = () => {
   const {
     currentEntry,
     currentEntryStatus,
+    entries,
     matchups,
-    playerPicks,
     savedSelectionsByGameId,
   } = useAppData();
   const { allGames: scoreboardGames } = useScoreboard();
+  const { rows: leaderboardRows } = useSeasonLeaderboard();
   const theme = useTheme();
   const isWideDesktop = useMediaQuery(theme.breakpoints.up("xl"));
   const picksLockDeadline = useMemo(() => {
@@ -36,10 +38,14 @@ const DashboardPage = () => {
       .filter((value) => !Number.isNaN(value))
       .sort((a, b) => a - b)[0];
 
-    return earliestKickoff ? new Date(earliestKickoff).toISOString() : SEASON_LOCK_DEADLINE;
+    return earliestKickoff
+      ? new Date(earliestKickoff).toISOString()
+      : SEASON_LOCK_DEADLINE;
   }, [scoreboardGames]);
   const totalPicks = matchups.length;
-  const completedPicks = Object.values(savedSelectionsByGameId || {}).filter(Boolean).length;
+  const completedPicks = Object.values(savedSelectionsByGameId || {}).filter(
+    Boolean,
+  ).length;
   const finishedGames = matchups.filter((game) => Boolean(game.winner));
   const dashboardPickStatus = currentEntry
     ? {
@@ -48,36 +54,31 @@ const DashboardPage = () => {
         completedPicks,
         totalPicks,
         tiebreaker:
-          currentEntry.tieBreakerValue === null || currentEntry.tieBreakerValue === undefined
+          currentEntry.tieBreakerValue === null ||
+          currentEntry.tieBreakerValue === undefined
             ? "Not Set"
             : String(currentEntry.tieBreakerValue),
       }
     : null;
   const dashboardEntries = currentEntry
-    ? [
-        {
-          id: currentEntry.id,
-          name: currentEntry.entryName,
-          completedPicks,
-          totalPicks,
-          status: currentEntryStatus === "COMPLETE" ? "Complete" : "In Progress",
-        },
-      ]
+    ? entries.map((entry) => ({
+        id: entry.id,
+        name: entry.entryName,
+        completedPicks: entry.id === currentEntry.id ? completedPicks : 0,
+        totalPicks,
+        status:
+          entry.id === currentEntry.id && currentEntryStatus === "COMPLETE"
+            ? "Complete"
+            : "In Progress",
+      }))
     : [];
-  const dashboardLeaderboard = playerPicks.map((entry, index) => {
-    const correctPicks = entry.picks.reduce((score, pick, pickIndex) => {
-      const winner = matchups[pickIndex]?.winner;
-      return winner && winner === pick ? score + 1 : score;
-    }, 0);
-
-    return {
-      rank: index + 1,
-      username: profile?.username || "Player",
-      entryName: entry.name,
-      points: correctPicks,
-      record: `${correctPicks}-${Math.max(finishedGames.length - correctPicks, 0)}`,
-    };
-  });
+  const dashboardLeaderboard = leaderboardRows.slice(0, 5).map((row) => ({
+    rank: row.rank,
+    username: row.username,
+    entryName: row.entryName,
+    points: row.points,
+    record: row.record,
+  }));
 
   if (isWideDesktop) {
     return (
@@ -97,7 +98,10 @@ const DashboardPage = () => {
             alignContent: "start",
           }}
         >
-          <DashboardHero username={profile?.username || "Player"} deadline={picksLockDeadline} />
+          <DashboardHero
+            username={profile?.username || "Player"}
+            deadline={picksLockDeadline}
+          />
 
           <Box
             sx={{
@@ -126,7 +130,10 @@ const DashboardPage = () => {
             minWidth: 0,
           }}
         >
-          <SeasonStatusPanel deadline={picksLockDeadline} links={dashboardQuickLinks} />
+          <SeasonStatusPanel
+            deadline={picksLockDeadline}
+            links={dashboardQuickLinks}
+          />
           <EntriesCard entries={dashboardEntries} />
         </Box>
       </Box>
@@ -136,7 +143,10 @@ const DashboardPage = () => {
   return (
     <Box>
       <Stack spacing={2.5}>
-        <DashboardHero username={profile?.username || "Player"} deadline={picksLockDeadline} />
+        <DashboardHero
+          username={profile?.username || "Player"}
+          deadline={picksLockDeadline}
+        />
         <Box
           sx={{
             display: "grid",
@@ -148,7 +158,10 @@ const DashboardPage = () => {
           <PickStatusCard data={dashboardPickStatus} />
           <EntriesCard entries={dashboardEntries} />
           <Box sx={{ gridColumn: "1 / -1" }}>
-            <LeaderboardCard rows={dashboardLeaderboard} currentUsername={profile?.username} />
+            <LeaderboardCard
+              rows={dashboardLeaderboard}
+              currentUsername={profile?.username}
+            />
           </Box>
           <Box sx={{ gridColumn: "1 / -1" }}>
             <UpcomingBowlsCard />

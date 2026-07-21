@@ -1,7 +1,7 @@
 let teamNamesDict = {};
 teamNamesDict["South Alabama"] = "SA";
 teamNamesDict["Western Michigan"] = "WM";
-teamNamesDict["South Carolina State"] = "SCS"
+teamNamesDict["South Carolina State"] = "SCS";
 teamNamesDict["Jackson State"] = "JS";
 teamNamesDict["Memphis"] = "MEM";
 teamNamesDict["West Virginia"] = "WV";
@@ -71,7 +71,7 @@ teamNamesDict["South Carolina"] = "SC";
 teamNamesDict["Illinois"] = "IL";
 teamNamesDict["LSU"] = "LSU";
 teamNamesDict["Baylor"] = "BAY";
-teamNamesDict["Ole Miss"] = "OLE";	
+teamNamesDict["Ole Miss"] = "OLE";
 teamNamesDict["Duke"] = "DUKE";
 teamNamesDict["North Texas"] = "NT";
 teamNamesDict["Texas State"] = "TS";

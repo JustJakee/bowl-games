@@ -10,7 +10,5 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": [
-    "amplify/**/*.ts"
-  ]
+  "include": ["amplify/**/*.ts"]
 }

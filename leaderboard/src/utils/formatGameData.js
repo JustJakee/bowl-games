@@ -77,6 +77,102 @@ const formatGame = (event) => {
 const mapEventsToGames = (events = []) =>
   (events || []).filter(Boolean).map(formatGame);
 
+const mapBackendStatusToState = (status) => {
+  if (status === "in_progress") {
+    return "in";
+  }
+
+  if (status === "final" || status === "canceled") {
+    return "post";
+  }
+
+  return "pre";
+};
+
+const formatBackendTeam = ({
+  id,
+  abbr,
+  displayName,
+  score,
+  rank,
+  logo,
+  color,
+  alternateColor,
+}) => ({
+  id: id || "",
+  abbr: abbr || "",
+  score:
+    score === null || score === undefined || Number.isNaN(Number(score))
+      ? ""
+      : String(score),
+  rank: Number.isFinite(Number(rank)) ? Number(rank) : null,
+  logo: logo || "",
+  color: color || "",
+  alternateColor: alternateColor || "",
+  displayName: displayName || abbr || "",
+});
+
+export const formatStoredGame = (game) => {
+  const startIso = game?.kickoffAt || "";
+  const state = mapBackendStatusToState(game?.status);
+  const statusText = game?.statusDetail || fmtKickoff(startIso) || "";
+  const isFinal = game?.status === "final";
+
+  const away = formatBackendTeam({
+    id: `${game?.id || "game"}-away`,
+    abbr: game?.teamAAbbr,
+    displayName: game?.teamADisplayName || game?.teamA,
+    score: state === "pre" ? null : game?.teamAScore,
+    rank: game?.teamARank,
+    logo: game?.teamALogo,
+    color: game?.teamAColor,
+    alternateColor: game?.teamAAlternateColor,
+  });
+
+  const home = formatBackendTeam({
+    id: `${game?.id || "game"}-home`,
+    abbr: game?.teamBAbbr,
+    displayName: game?.teamBDisplayName || game?.teamB,
+    score: state === "pre" ? null : game?.teamBScore,
+    rank: game?.teamBRank,
+    logo: game?.teamBLogo,
+    color: game?.teamBColor,
+    alternateColor: game?.teamBAlternateColor,
+  });
+
+  return {
+    id: game?.id,
+    bowl: game?.bowlName || game?.gameName || "Bowl Game",
+    network: game?.network || "",
+    state,
+    statusText,
+    isFinal,
+    startDate: startIso,
+    startDateText: fmtKickoffDate(startIso),
+    startTimeText: fmtKickoff(startIso),
+    home,
+    away,
+    location: game?.location || "",
+    venueName: game?.venueName || "",
+    winnerTeam: game?.winnerTeam || "",
+  };
+};
+
+export const mapStoredGamesToDisplayGames = (games = []) =>
+  (games || [])
+    .filter(Boolean)
+    .slice()
+    .sort((left, right) => {
+      const leftTime = left?.kickoffAt
+        ? new Date(left.kickoffAt).getTime()
+        : Number.MAX_SAFE_INTEGER;
+      const rightTime = right?.kickoffAt
+        ? new Date(right.kickoffAt).getTime()
+        : Number.MAX_SAFE_INTEGER;
+      return leftTime - rightTime;
+    })
+    .map(formatStoredGame);
+
 export const fetchFormattedScoreboard = async () => {
   const raw = await fetchNcaafScoreboard();
 

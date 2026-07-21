@@ -45,10 +45,24 @@ const ResetPasswordForm = ({
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
-        <Button type="submit" variant="contained" fullWidth disabled={isSubmitting}>
-          {isSubmitting ? <CircularProgress size={22} color="inherit" /> : "SEND CODE"}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <CircularProgress size={22} color="inherit" />
+          ) : (
+            "SEND CODE"
+          )}
         </Button>
-        <Button type="button" variant="text" onClick={onBack} sx={{ alignSelf: "center", minHeight: "auto", p: 0.5 }}>
+        <Button
+          type="button"
+          variant="text"
+          onClick={onBack}
+          sx={{ alignSelf: "center", minHeight: "auto", p: 0.5 }}
+        >
           Back to sign in
         </Button>
       </Stack>

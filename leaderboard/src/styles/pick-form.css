@@ -99,7 +99,9 @@
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.96);
   border-radius: 12px;
-  transition: background 160ms ease, border-color 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
 }
 
 .pick-form-field .MuiOutlinedInput-input::placeholder {
@@ -114,7 +116,9 @@
   border-color: rgba(255, 255, 255, 0.48);
 }
 
-.pick-form-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+.pick-form-field
+  .MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
   border-color: rgba(255, 255, 255, 0.75);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
@@ -129,7 +133,7 @@
   text-transform: uppercase;
 }
 
-.pick-form-submit:disabled{
+.pick-form-submit:disabled {
   color: white !important;
   border-radius: 8px;
   background: var(--color-surface-card, #151515);
@@ -152,7 +156,9 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
   color: var(--color-text-primary, #f5f5f5);
-  transition: box-shadow 160ms ease, transform 160ms ease;
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease;
   width: 100%;
 }
 
@@ -214,18 +220,24 @@
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
-  transition: border-color 160ms ease, background 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
 }
 
 .pick-card-tiebreaker .MuiOutlinedInput-notchedOutline {
   border-color: rgba(255, 255, 255, 0.24);
 }
 
-.pick-card-tiebreaker .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+.pick-card-tiebreaker
+  .MuiOutlinedInput-root:hover
+  .MuiOutlinedInput-notchedOutline {
   border-color: rgba(255, 255, 255, 0.48);
 }
 
-.pick-card-tiebreaker .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+.pick-card-tiebreaker
+  .MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
   border-color: rgba(255, 255, 255, 0.7);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
@@ -264,10 +276,10 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
     linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.08),
-        rgba(255, 255, 255, 0.02)
-      ),
+      90deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.02)
+    ),
     linear-gradient(0deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18));
   background-blend-mode: overlay;
   padding: 0.9rem 1rem;
@@ -275,7 +287,10 @@
   text-align: left;
   border-width: 1px;
   color: inherit;
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease;
   outline: none;
 }
 
@@ -289,10 +304,10 @@
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
   background:
     linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.16),
-        rgba(255, 255, 255, 0.08)
-      ),
+      90deg,
+      rgba(255, 255, 255, 0.16),
+      rgba(255, 255, 255, 0.08)
+    ),
     linear-gradient(0deg, var(--team-accent), var(--team-accent));
   background-blend-mode: overlay;
 }

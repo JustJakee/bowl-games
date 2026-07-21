@@ -1,11 +1,21 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { fetchFormattedScoreboard } from "../utils/formatGameData";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { loadSeasonBundle } from "../data/seasonRepository";
 
 const ScoreboardContext = createContext(null);
 
 export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
   const [data, setData] = useState(null);
   const [allGames, setAllGames] = useState(null);
+  const [season, setSeason] = useState(null);
+  const [seasonConfig, setSeasonConfig] = useState(null);
+  const [rawGames, setRawGames] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const mounted = useRef(false);
@@ -19,10 +29,13 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
     setError("");
 
     try {
-      const response = await fetchFormattedScoreboard();
+      const response = await loadSeasonBundle();
       const removeDuplicateBowlName = (game) => {
         if (game.bowl?.includes("College Football Playoff First Round Game")) {
-          return { ...game, bowl: `CFP First Round ${game.away?.abbr} vs ${game.home?.abbr}` };
+          return {
+            ...game,
+            bowl: `CFP First Round ${game.away?.abbr} vs ${game.home?.abbr}`,
+          };
         }
         return game;
       };
@@ -35,20 +48,24 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       ];
       const PICKS_EXCLUDED_BOWLS = ["FCS Championship"];
 
-      const normalizedResponse = response.filter(
-        game => game.bowl.trim()
-      ).map(removeDuplicateBowlName);
+      const normalizedResponse = (response.games || [])
+        .filter((game) => game.bowl.trim())
+        .map(removeDuplicateBowlName);
 
       const filteredResponse = normalizedResponse.filter(
-        game =>
-          !SCOREBOARD_EXCLUDED_BOWLS.some(term => game.bowl.includes(term))
+        (game) =>
+          !SCOREBOARD_EXCLUDED_BOWLS.some((term) => game.bowl.includes(term)),
       );
       const picksResponse = normalizedResponse.filter(
-        game => game.bowl.trim() &&
-          !PICKS_EXCLUDED_BOWLS.some(term => game.bowl.includes(term))
+        (game) =>
+          game.bowl.trim() &&
+          !PICKS_EXCLUDED_BOWLS.some((term) => game.bowl.includes(term)),
       );
 
       if (!mounted.current) return;
+      setSeason(response.season);
+      setSeasonConfig(response.seasonConfig);
+      setRawGames(response.rawGames || []);
       setData(filteredResponse);
       setAllGames(picksResponse);
     } catch (err) {
@@ -76,12 +93,24 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
     () => ({
       games: data ?? [],
       allGames: allGames ?? [],
+      season,
+      seasonConfig,
+      rawGames: rawGames ?? [],
       loading,
       refreshing,
       error,
       reload: load,
     }),
-    [allGames, data, loading, refreshing, error]
+    [
+      allGames,
+      data,
+      season,
+      seasonConfig,
+      rawGames,
+      loading,
+      refreshing,
+      error,
+    ],
   );
 
   return (
@@ -93,6 +122,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
 
 export const useScoreboard = () => {
   const ctx = useContext(ScoreboardContext);
-  if (!ctx) throw new Error("useScoreboard must be used inside a ScoreboardProvider");
+  if (!ctx)
+    throw new Error("useScoreboard must be used inside a ScoreboardProvider");
   return ctx;
 };

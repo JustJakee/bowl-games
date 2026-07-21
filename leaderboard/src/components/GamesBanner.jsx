@@ -12,10 +12,7 @@ import LiveGlowIcon from "../constants/LiveGlowIcon";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import "../styles/games-banner.css";
 
-const GamesBanner = ({
-  hideOnSmall = true,
-  header = "Bowl Games",
-}) => {
+const GamesBanner = ({ hideOnSmall = true, header = "Bowl Games" }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { games: scoreboardGames, loading, error } = useScoreboard();
@@ -126,8 +123,12 @@ const GamesBanner = ({
               <Box
                 key={game.id || `${game.bowl}-${idx}`}
                 className="games-banner__card"
-                onClick={() => {window.open(`https://www.espn.com/college-football/game/_/gameId/${game.id}/`
-                  , '_blank');}}
+                onClick={() => {
+                  window.open(
+                    `https://www.espn.com/college-football/game/_/gameId/${game.id}/`,
+                    "_blank",
+                  );
+                }}
               >
                 {game.bowl && (
                   <Typography variant="overline" className="games-banner__bowl">

@@ -28,7 +28,9 @@ const Home = ({ onNavigate, isLocked, gamesStarted }) => {
           <ul className="home-list">
             <li>See every matchup at a glance with real-time ESPN updates.</li>
             <li>Compare friends side-by-side and settle tie-breakers fast.</li>
-            <li>Stay organized so you can enjoy the games, not spreadsheets.</li>
+            <li>
+              Stay organized so you can enjoy the games, not spreadsheets.
+            </li>
           </ul>
         </div>
 
@@ -93,9 +95,9 @@ const Home = ({ onNavigate, isLocked, gamesStarted }) => {
                     "Use the authentication panel above to sign in with your manually-created Cognito account."
                   ) : (
                     <span>
-                      Please, only fill out one entry form per participant.
-                      ONCE FORM IS SUBMITTED THERE IS NO EDITING YOUR PICKS. $5
-                      entry fee per participant, get cash to Bob or venmo Jake (
+                      Please, only fill out one entry form per participant. ONCE
+                      FORM IS SUBMITTED THERE IS NO EDITING YOUR PICKS. $5 entry
+                      fee per participant, get cash to Bob or venmo Jake (
                       <a
                         href="https://venmo.com/u/Jake-Koons"
                         target="_blank"

@@ -28,7 +28,10 @@ const DesktopHeader = ({ username, signOut }) => {
         <StarsRoundedIcon sx={{ color: "primary.main" }} />
       </Stack>
       <Stack direction="row" spacing={1.25} alignItems="center">
-        <PersonOutlineRoundedIcon fontSize="small" sx={{ color: "text.secondary" }} />
+        <PersonOutlineRoundedIcon
+          fontSize="small"
+          sx={{ color: "text.secondary" }}
+        />
         <Typography
           variant="body2"
           color="text.secondary"
@@ -36,7 +39,12 @@ const DesktopHeader = ({ username, signOut }) => {
         >
           {username}
         </Typography>
-        <Button variant="text" color="inherit" startIcon={<LogoutRoundedIcon />} onClick={signOut}>
+        <Button
+          variant="text"
+          color="inherit"
+          startIcon={<LogoutRoundedIcon />}
+          onClick={signOut}
+        >
           Sign Out
         </Button>
       </Stack>

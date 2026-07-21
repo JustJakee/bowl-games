@@ -4,7 +4,12 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 
 const MobileHeader = ({ onOpenMenu }) => {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 1.5 }}>
+    <Stack
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+      sx={{ py: 1.5 }}
+    >
       <Stack direction="row" spacing={1} alignItems="center">
         <StarsRoundedIcon sx={{ color: "primary.main" }} />
         <Typography variant="subtitle1" sx={{ textTransform: "uppercase" }}>

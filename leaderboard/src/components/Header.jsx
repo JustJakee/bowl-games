@@ -83,20 +83,20 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted }) => {
     }
   };
 
-  const navItems = gamesStarted ?
-    [
-      { id: "home", label: "Home" },
-      { id: "leaderboard", label: "Leaderboard" },
-      { id: "all-picks", label: "All Picks" },
-      { id: "schedule-view", label: "Scores & Schedule" },
-      { id: "csv", label: "Download Picks" },
-    ] :
-    [
-      { id: "home", label: "Home" },
-      { id: "picks", label: "Enter Your Picks" },
-      { id: "leaderboard", label: "Leaderboard" },
-      { id: "schedule-view", label: "Schedule" },
-    ];
+  const navItems = gamesStarted
+    ? [
+        { id: "home", label: "Home" },
+        { id: "leaderboard", label: "Leaderboard" },
+        { id: "all-picks", label: "All Picks" },
+        { id: "schedule-view", label: "Scores & Schedule" },
+        { id: "csv", label: "Download Picks" },
+      ]
+    : [
+        { id: "home", label: "Home" },
+        { id: "picks", label: "Enter Your Picks" },
+        { id: "leaderboard", label: "Leaderboard" },
+        { id: "schedule-view", label: "Schedule" },
+      ];
 
   return (
     <>
@@ -207,10 +207,10 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted }) => {
                   fontWeight: 700,
                   ...(currentPage === item.id
                     ? {
-                      bgcolor: "var(--accent-primary)",
-                      color: "var(--accent-contrast)",
-                      "&:hover": { bgcolor: "var(--accent-primary)" },
-                    }
+                        bgcolor: "var(--accent-primary)",
+                        color: "var(--accent-contrast)",
+                        "&:hover": { bgcolor: "var(--accent-primary)" },
+                      }
                     : { color: "var(--color-text)" }),
                 }}
               >

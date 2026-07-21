@@ -1,4 +1,4 @@
-import { generateClient } from "aws-amplify/api";
+import { dataClient } from "../auth/amplifyConfig";
 import { listSubmissions } from "../graphql/queries";
 import { AWS_DISABLED } from "../constants/appFlags";
 
@@ -6,9 +6,8 @@ export const fetchPicks = async () => {
   if (AWS_DISABLED) {
     return { data: { listSubmissions: { items: [] } } };
   }
-  const client = generateClient();
   try {
-    const picksData = await client.graphql({
+    const picksData = await dataClient.graphql({
       query: listSubmissions,
     });
 

@@ -6,12 +6,13 @@
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
   gap: 24px;
-  background: radial-gradient(
-        circle at 12% 20%,
-        rgba(204, 0, 0, 0.16),
-        transparent 30%
-      ),
-    radial-gradient(circle at 82% 15%, rgba(75, 146, 219, 0.16), transparent 30%),
+  background:
+    radial-gradient(circle at 12% 20%, rgba(204, 0, 0, 0.16), transparent 30%),
+    radial-gradient(
+      circle at 82% 15%,
+      rgba(75, 146, 219, 0.16),
+      transparent 30%
+    ),
     linear-gradient(135deg, var(--color-surface), var(--color-surface-2));
   border: 1px solid var(--color-border);
   border-radius: 24px;
@@ -131,7 +132,10 @@
   text-transform: uppercase;
   background: var(--color-surface);
   color: var(--color-text);
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease;
 }
 
 .home-btn.primary {
@@ -248,7 +252,9 @@
   color: var(--color-text);
   padding: 12px 12px;
   outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .login-form input:focus {

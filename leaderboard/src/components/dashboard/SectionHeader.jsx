@@ -3,7 +3,12 @@ import { Link as RouterLink } from "react-router-dom";
 
 const SectionHeader = ({ title, eyebrow, actionLabel, actionTo }) => {
   return (
-    <Stack direction="row" alignItems="end" justifyContent="space-between" spacing={2}>
+    <Stack
+      direction="row"
+      alignItems="end"
+      justifyContent="space-between"
+      spacing={2}
+    >
       <div>
         {eyebrow ? (
           <Typography variant="overline" color="text.secondary">

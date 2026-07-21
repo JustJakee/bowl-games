@@ -6,7 +6,8 @@ import thirdMedal from "../assets/medals/third.png";
 import "../styles/leaderboard.css";
 import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 
-const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
+const Leaderboard = ({ playerPicks, matchups, rows, loading = false }) => {
+  const hasPrecomputedRows = Array.isArray(rows) && rows.length > 0;
   const noWinners = matchups.every((game) => game.winner === "");
   // TO DO - UPDATE THESE ONCE WE HAVE VALUES
   const firstPlace = "110";
@@ -45,19 +46,25 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
     return { score, tieBreakerDistance };
   };
 
-  const playersWithScores = (playerPicks || [])
-    .map((p) => {
-      const { score, tieBreakerDistance } = computeScore(p);
-      return {
-        ...p,
-        score,
-        tieBreakerDistance,
-      };
-    })
-    .sort((a, b) => {
-      if (b.score !== a.score) return b.score - a.score;
-      return a.tieBreakerDistance - b.tieBreakerDistance;
-    });
+  const playersWithScores = hasPrecomputedRows
+    ? rows.map((row) => ({
+        ...row,
+        name: row.username,
+        score: row.points,
+      }))
+    : (playerPicks || [])
+        .map((p) => {
+          const { score, tieBreakerDistance } = computeScore(p);
+          return {
+            ...p,
+            score,
+            tieBreakerDistance,
+          };
+        })
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return a.tieBreakerDistance - b.tieBreakerDistance;
+        });
 
   const top3 = playersWithScores.slice(0, 3);
   const rest = playersWithScores.slice(3);
@@ -117,7 +124,8 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
                   height="84"
                 />
                 <div className="name">
-                  {top3[1].name} <span className="prize-badge">${secondPlace}</span>
+                  {top3[1].name}{" "}
+                  <span className="prize-badge">${secondPlace}</span>
                 </div>
                 <div className="meta">{top3[1].score} picks</div>
               </div>
@@ -175,7 +183,9 @@ const Leaderboard = ({ playerPicks, matchups, loading = false }) => {
               >
                 <div className="rank-badge">{rank + 4}</div>
                 <div className="row-name">{player.name}</div>
-                {rank === 0 && <span className="prize-badge">${fourthPlace}</span>}
+                {rank === 0 && (
+                  <span className="prize-badge">${fourthPlace}</span>
+                )}
                 <div className="spacer" />
                 <div className="score-pill">{player.score} picks</div>
               </div>

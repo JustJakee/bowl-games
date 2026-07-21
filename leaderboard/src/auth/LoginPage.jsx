@@ -78,14 +78,27 @@ const LoginPage = ({
                   onClick={() => setShowPassword((current) => !current)}
                   edge="end"
                 >
-                  {showPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                  {showPassword ? (
+                    <VisibilityOffRoundedIcon />
+                  ) : (
+                    <VisibilityRoundedIcon />
+                  )}
                 </IconButton>
               </InputAdornment>
             ),
           }}
         />
-        <Button type="submit" variant="contained" fullWidth disabled={isSubmitting}>
-          {isSubmitting ? <CircularProgress size={22} color="inherit" /> : "SIGN IN"}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <CircularProgress size={22} color="inherit" />
+          ) : (
+            "SIGN IN"
+          )}
         </Button>
         <Button
           type="button"
@@ -96,7 +109,11 @@ const LoginPage = ({
           Forgot your password?
         </Button>
       </Stack>
-      <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", mt: 3.5 }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block", textAlign: "center", mt: 3.5 }}
+      >
         Need access? Contact the administrator.
       </Typography>
     </AuthFormLayout>

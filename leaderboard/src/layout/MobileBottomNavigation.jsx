@@ -8,7 +8,11 @@ import { matchPath, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   { value: "/dashboard", label: "Dashboard", icon: <DashboardRoundedIcon /> },
-  { value: "/leaderboard", label: "Leaderboard", icon: <EmojiEventsRoundedIcon /> },
+  {
+    value: "/leaderboard",
+    label: "Leaderboard",
+    icon: <EmojiEventsRoundedIcon />,
+  },
   { value: "/picks", label: "Picks", icon: <SportsFootballRoundedIcon /> },
   { value: "/more", label: "Account", icon: <PersonOutlineRoundedIcon /> },
   { value: "__more__", label: "More", icon: <MoreHorizRoundedIcon /> },
@@ -21,9 +25,10 @@ const MobileBottomNavigation = ({ menuOpen = false, onOpenMore }) => {
     (menuOpen
       ? "__more__"
       : navItems.find(
-          (item) => item.value.startsWith("/") && matchPath({ path: item.value }, location.pathname)
-        )?.value) ||
-    "/dashboard";
+          (item) =>
+            item.value.startsWith("/") &&
+            matchPath({ path: item.value }, location.pathname),
+        )?.value) || "/dashboard";
 
   return (
     <Paper
@@ -66,7 +71,12 @@ const MobileBottomNavigation = ({ menuOpen = false, onOpenMore }) => {
         }}
       >
         {navItems.map((item) => (
-          <BottomNavigationAction key={item.value} value={item.value} label={item.label} icon={item.icon} />
+          <BottomNavigationAction
+            key={item.value}
+            value={item.value}
+            label={item.label}
+            icon={item.icon}
+          />
         ))}
       </BottomNavigation>
     </Paper>

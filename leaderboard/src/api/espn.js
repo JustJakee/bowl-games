@@ -1,8 +1,4 @@
-import exampleScoreboard from "../assets/mockBowls2026.json";
-
-// Reliable 2026 ESPN bowl data is not consistently available yet, so the app
-// temporarily serves the local fixture through the existing normalization path.
-const USE_MOCK_ESPN_DATA = true;
+const USE_MOCK_ESPN_DATA = import.meta.env.VITE_USE_MOCK_ESPN_DATA === "true";
 
 // Minimal ESPN API helper for NCAAF (college football)
 // Endpoint: ESPN public scoreboard for college football
@@ -10,21 +6,26 @@ const USE_MOCK_ESPN_DATA = true;
 
 export async function fetchNcaafScoreboard(params = {}) {
   if (USE_MOCK_ESPN_DATA) {
-    return exampleScoreboard;
+    const mockModule = await import("../assets/mockBowls2026.json");
+    return mockModule.default;
   }
 
-  const base = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=3';
+  const base =
+    "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=3";
   const url = new URL(base);
 
-  // Allow optional params like { dates: '20250101', groups: 80, week: 1 }
-  Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v));
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, String(value));
+    }
   });
 
-  const res = await fetch(url.toString(), { method: 'GET' });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`ESPN API error ${res.status}: ${text}`);
+  const response = await fetch(url.toString(), { method: "GET" });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`ESPN API error ${response.status}: ${text}`);
   }
-  return res.json();
+
+  return response.json();
 }

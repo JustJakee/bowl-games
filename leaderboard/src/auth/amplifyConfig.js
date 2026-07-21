@@ -1,40 +1,13 @@
 import { Amplify } from "aws-amplify";
+import { generateClient } from "aws-amplify/data";
+import outputs from "../../amplify_outputs.json";
 
-let configurePromise;
-let configured = false;
-const OUTPUTS_PATH = `${import.meta.env.BASE_URL}amplify_outputs.json`;
+// Static imports execute before application modules use Auth or Data. Keeping
+// configuration and client creation together prevents an unconfigured client.
+Amplify.configure(outputs);
 
-class AmplifyOutputsUnavailableError extends Error {
-  constructor() {
-    super("Amplify outputs are not available for this environment.");
-    this.name = "AmplifyOutputsUnavailableError";
-  }
-}
+export const dataClient = generateClient();
 
 export async function configureAmplifyFromOutputs() {
-  if (configured) {
-    return true;
-  }
-
-  if (!configurePromise) {
-    configurePromise = (async () => {
-      const response = await fetch(OUTPUTS_PATH, { cache: "no-store" });
-
-      if (!response.ok) {
-        throw new AmplifyOutputsUnavailableError();
-      }
-
-      const contentType = response.headers.get("content-type") || "";
-      if (!contentType.toLowerCase().includes("application/json")) {
-        throw new AmplifyOutputsUnavailableError();
-      }
-
-      const outputs = await response.json();
-      Amplify.configure(outputs);
-      configured = true;
-      return true;
-    })();
-  }
-
-  return configurePromise;
+  return true;
 }

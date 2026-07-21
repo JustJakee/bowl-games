@@ -41,7 +41,9 @@ const PickForm = ({ onSubmitResult }) => {
   }, [currentEntry?.entryName, profile?.username]);
 
   useEffect(() => {
-    setContactEmail(currentEntry?.contactEmail || defaultContactEmail || email || "");
+    setContactEmail(
+      currentEntry?.contactEmail || defaultContactEmail || email || "",
+    );
   }, [currentEntry?.contactEmail, defaultContactEmail, email]);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ const PickForm = ({ onSubmitResult }) => {
       currentEntry?.tieBreakerValue === null ||
         currentEntry?.tieBreakerValue === undefined
         ? ""
-        : String(currentEntry.tieBreakerValue)
+        : String(currentEntry.tieBreakerValue),
     );
   }, [currentEntry?.tieBreakerValue]);
 
@@ -241,7 +243,7 @@ const PickForm = ({ onSubmitResult }) => {
               } else {
                 setValidityMessage(
                   event,
-                  "Please enter a valid email address (example@domain.com)."
+                  "Please enter a valid email address (example@domain.com).",
                 );
               }
             }}
@@ -267,7 +269,8 @@ const PickForm = ({ onSubmitResult }) => {
       {currentEntry ? (
         <div className="pick-form-header">
           <div className="pick-form-field">
-            Saved {selectedCount} of {games.length} picks. Status: {currentEntryStatus}.
+            Saved {selectedCount} of {games.length} picks. Status:{" "}
+            {currentEntryStatus}.
           </div>
           <div className="pick-form-field">
             Tie-breaker bowl: {TIEBREAKER_BOWL_NAME}

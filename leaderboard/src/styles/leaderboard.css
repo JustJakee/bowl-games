@@ -14,7 +14,8 @@
 }
 
 .podium-card {
-  background: radial-gradient(
+  background:
+    radial-gradient(
       120% 120% at 50% 10%,
       rgba(255, 255, 255, 0.04) 0%,
       rgba(0, 0, 0, 0) 60%
@@ -47,11 +48,8 @@
 
 .podium-card.first {
   transform: translateY(-14px);
-  background: linear-gradient(
-      180deg,
-      rgba(255, 215, 0, 0.22),
-      rgba(255, 215, 0, 0.06)
-    ),
+  background:
+    linear-gradient(180deg, rgba(255, 215, 0, 0.22), rgba(255, 215, 0, 0.06)),
     radial-gradient(
       120% 120% at 50% 10%,
       rgba(255, 255, 255, 0.04) 0%,
@@ -64,7 +62,8 @@
 
 .podium-card.second {
   transform: translateY(0);
-  background: linear-gradient(
+  background:
+    linear-gradient(
       180deg,
       rgba(192, 192, 192, 0.22),
       rgba(192, 192, 192, 0.06)
@@ -81,11 +80,8 @@
 
 .podium-card.third {
   transform: translateY(6px);
-  background: linear-gradient(
-      180deg,
-      rgba(205, 127, 50, 0.22),
-      rgba(205, 127, 50, 0.06)
-    ),
+  background:
+    linear-gradient(180deg, rgba(205, 127, 50, 0.22), rgba(205, 127, 50, 0.06)),
     radial-gradient(
       120% 120% at 50% 10%,
       rgba(255, 255, 255, 0.04) 0%,

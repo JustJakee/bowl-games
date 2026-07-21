@@ -2,8 +2,8 @@ import { Typography, TextField } from "@mui/material";
 import VersusBadge from "./VersusBadge";
 import TeamPickOption from "./TeamPickOption";
 
-// TODO: Update me when bowl games drop
-export const TIEBREAKER_BOWL_NAME = "ReliaQuest Bowl";
+export const TIEBREAKER_BOWL_NAME =
+  "College Football Playoff National Championship Presented by AT&T";
 
 const PickMatchupCard = ({
   id,
@@ -66,7 +66,9 @@ const PickMatchupCard = ({
               size="small"
               fullWidth
               onInvalid={(event) =>
-                event.target.setCustomValidity("Enter tie-breaker total points.")
+                event.target.setCustomValidity(
+                  "Enter tie-breaker total points.",
+                )
               }
               onInput={(event) => event.target.setCustomValidity("")}
               inputProps={{ min: 0, inputMode: "numeric", pattern: "[0-9]*" }}

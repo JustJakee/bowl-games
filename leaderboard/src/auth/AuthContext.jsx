@@ -23,7 +23,8 @@ const normalizeGroups = (value) => {
 };
 
 const getGroupsFromSession = (session) => {
-  const accessGroups = session?.tokens?.accessToken?.payload?.["cognito:groups"];
+  const accessGroups =
+    session?.tokens?.accessToken?.payload?.["cognito:groups"];
   const idGroups = session?.tokens?.idToken?.payload?.["cognito:groups"];
   const groups = normalizeGroups(accessGroups ?? idGroups);
   return [...new Set(groups)];
@@ -180,7 +181,7 @@ export function AuthProvider({ children }) {
         await signOut();
       },
     }),
-    [state]
+    [state],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

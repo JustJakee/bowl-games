@@ -6,13 +6,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
-import {
-  Box,
-  ButtonBase,
-  Divider,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, ButtonBase, Divider, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 
@@ -73,7 +67,8 @@ const navButtonSx = {
   color: "text.secondary",
   textDecoration: "none",
   borderRadius: 0,
-  transition: "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
+  transition:
+    "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
   "&.active": {
     color: "primary.main",
     backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
@@ -144,7 +139,10 @@ const DesktopSidebar = ({ signOut }) => {
         >
           BOB&apos;S
         </Typography>
-        <Typography variant="h5" sx={{ lineHeight: 0.98, textTransform: "uppercase" }}>
+        <Typography
+          variant="h5"
+          sx={{ lineHeight: 0.98, textTransform: "uppercase" }}
+        >
           Bowl Games
         </Typography>
       </Stack>
@@ -179,7 +177,11 @@ const DesktopSidebar = ({ signOut }) => {
           </Box>
           <Typography
             variant="button"
-            sx={{ fontSize: "0.8rem", letterSpacing: "0.05em", textAlign: "left" }}
+            sx={{
+              fontSize: "0.8rem",
+              letterSpacing: "0.05em",
+              textAlign: "left",
+            }}
           >
             Log Out
           </Typography>

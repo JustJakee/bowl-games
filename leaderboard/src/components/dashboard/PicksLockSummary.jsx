@@ -26,7 +26,11 @@ const PicksLockSummary = ({ deadline, compact = false }) => {
         >
           {formatDeadline(deadline)}
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { md: "0.875rem" } }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ fontSize: { md: "0.875rem" } }}
+        >
           {countdown}
         </Typography>
       </Stack>

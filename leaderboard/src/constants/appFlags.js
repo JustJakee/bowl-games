@@ -15,7 +15,8 @@ const localGroups = (import.meta.env.VITE_LOCAL_AUTH_GROUPS || "player")
   .map((group) => group.trim().toLowerCase())
   .filter(Boolean);
 
-export const LOCAL_AUTH_GROUPS = localGroups.length > 0 ? localGroups : ["player"];
+export const LOCAL_AUTH_GROUPS =
+  localGroups.length > 0 ? localGroups : ["player"];
 
 export const LOCAL_AUTH_ROLE = LOCAL_AUTH_GROUPS.includes("admin")
   ? "admin"

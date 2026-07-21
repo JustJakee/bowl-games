@@ -26,15 +26,60 @@ export const dashboardEntries = [
 ];
 
 export const dashboardLeaderboard = [
-  { rank: 1, username: "mturner", entryName: "Main Card", points: 134, record: "34-8" },
-  { rank: 2, username: "bkoons", entryName: "Holiday Heater", points: 130, record: "33-9" },
-  { rank: 3, username: "jake", entryName: "Jake's Picks", points: 128, record: "32-10" },
-  { rank: 4, username: "amyr", entryName: "Family Bracket", points: 124, record: "31-11" },
-  { rank: 5, username: "coachbob", entryName: "Office Pool", points: 118, record: "29-13" },
+  {
+    rank: 1,
+    username: "mturner",
+    entryName: "Main Card",
+    points: 134,
+    record: "34-8",
+  },
+  {
+    rank: 2,
+    username: "bkoons",
+    entryName: "Holiday Heater",
+    points: 130,
+    record: "33-9",
+  },
+  {
+    rank: 3,
+    username: "jake",
+    entryName: "Jake's Picks",
+    points: 128,
+    record: "32-10",
+  },
+  {
+    rank: 4,
+    username: "amyr",
+    entryName: "Family Bracket",
+    points: 124,
+    record: "31-11",
+  },
+  {
+    rank: 5,
+    username: "coachbob",
+    entryName: "Office Pool",
+    points: 118,
+    record: "29-13",
+  },
 ];
 
 export const dashboardQuickLinks = [
-  { label: "View Schedule", description: "See every bowl and kickoff", to: "/schedule", icon: "schedule" },
-  { label: "Rules & Scoring", description: "Review the pool rules", to: "/rules", icon: "rules" },
-  { label: "Manage Account", description: "Update your account and profile", to: "/more", icon: "account" },
+  {
+    label: "View Schedule",
+    description: "See every bowl and kickoff",
+    to: "/schedule",
+    icon: "schedule",
+  },
+  {
+    label: "Rules & Scoring",
+    description: "Review the pool rules",
+    to: "/rules",
+    icon: "rules",
+  },
+  {
+    label: "Manage Account",
+    description: "Update your account and profile",
+    to: "/more",
+    icon: "account",
+  },
 ];

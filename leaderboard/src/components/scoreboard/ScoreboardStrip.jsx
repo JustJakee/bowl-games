@@ -154,7 +154,10 @@ const ScoreboardStrip = () => {
                     variant="rounded"
                     width={220}
                     height={126}
-                    sx={{ borderRadius: (currentTheme) => currentTheme.customShape?.scoreboardRadius ?? 3 }}
+                    sx={{
+                      borderRadius: (currentTheme) =>
+                        currentTheme.customShape?.scoreboardRadius ?? 3,
+                    }}
                   />
                 ))
               : null}
@@ -168,7 +171,11 @@ const ScoreboardStrip = () => {
                 No bowl games available right now.
               </Typography>
             ) : null}
-            {!loading && !error ? games.map((game) => <ScoreboardGameCard key={game.id} game={game} />) : null}
+            {!loading && !error
+              ? games.map((game) => (
+                  <ScoreboardGameCard key={game.id} game={game} />
+                ))
+              : null}
           </Stack>
         </Box>
 

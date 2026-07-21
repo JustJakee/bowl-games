@@ -20,7 +20,10 @@ import {
   signIn,
 } from "aws-amplify/auth";
 import { useAuth } from "../auth/AuthContext";
-import { UserProfileProvider, useUserProfile } from "../auth/UserProfileContext.jsx";
+import {
+  UserProfileProvider,
+  useUserProfile,
+} from "../auth/UserProfileContext.jsx";
 import {
   createCurrentUserProfile,
   isUsernameTaken,
@@ -128,7 +131,7 @@ const ProfileGate = ({ children }) => {
   const privateEmail = email || formatUserLabel(user);
   const usernamePreview = useMemo(
     () => normalizeUsernameKey(usernameInput || ""),
-    [usernameInput]
+    [usernameInput],
   );
 
   const handleProfileSubmit = async (event) => {
@@ -142,7 +145,9 @@ const ProfileGate = ({ children }) => {
     }
 
     if (!privateEmail) {
-      setSubmitError("Your signed-in email was not available from the session.");
+      setSubmitError(
+        "Your signed-in email was not available from the session.",
+      );
       return;
     }
 
@@ -153,7 +158,9 @@ const ProfileGate = ({ children }) => {
       const taken = await isUsernameTaken(usernameKey);
 
       if (taken) {
-        setSubmitError("That username is already taken. Please choose another.");
+        setSubmitError(
+          "That username is already taken. Please choose another.",
+        );
         return;
       }
 
@@ -167,7 +174,7 @@ const ProfileGate = ({ children }) => {
     } catch (profileError) {
       setSubmitError(
         profileError?.message ||
-          "Unable to save your username right now. Please try again."
+          "Unable to save your username right now. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -196,7 +203,9 @@ const ProfileGate = ({ children }) => {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Your account is signed in, but the profile data could not be loaded.
         </Typography>
-        <Alert severity="error" sx={{ mt: 3 }}>{error}</Alert>
+        <Alert severity="error" sx={{ mt: 3 }}>
+          {error}
+        </Alert>
         <Button variant="outlined" onClick={signOut} sx={{ mt: 3 }}>
           Sign out
         </Button>
@@ -209,12 +218,20 @@ const ProfileGate = ({ children }) => {
       <GateFrame>
         <Typography variant="h6">Choose your public username</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          You sign in with email, but the app displays your public username on leaderboards and dashboard surfaces.
+          You sign in with email, but the app displays your public username on
+          leaderboards and dashboard surfaces.
         </Typography>
-        <Stack spacing={2} component="form" onSubmit={handleProfileSubmit} sx={{ mt: 3 }}>
+        <Stack
+          spacing={2}
+          component="form"
+          onSubmit={handleProfileSubmit}
+          sx={{ mt: 3 }}
+        >
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
             {groups.length > 0 ? (
-              groups.map((group) => <Chip key={group} label={group} size="small" color="primary" />)
+              groups.map((group) => (
+                <Chip key={group} label={group} size="small" color="primary" />
+              ))
             ) : (
               <Chip label="no role assigned" size="small" variant="outlined" />
             )}
@@ -245,7 +262,11 @@ const ProfileGate = ({ children }) => {
           {submitError ? <Alert severity="error">{submitError}</Alert> : null}
           <Divider />
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-            <Button variant="outlined" onClick={signOut} disabled={isSubmitting}>
+            <Button
+              variant="outlined"
+              onClick={signOut}
+              disabled={isSubmitting}
+            >
               Sign out
             </Button>
             <Button type="submit" variant="contained" disabled={isSubmitting}>
@@ -294,7 +315,9 @@ const AuthShell = ({ children }) => {
         setEmail(currentEmail);
 
         if (resetStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") {
-          setInfo("We sent a confirmation code to the recovery method associated with your account.");
+          setInfo(
+            "We sent a confirmation code to the recovery method associated with your account.",
+          );
           setAuthView("confirmReset");
           return;
         }
@@ -302,8 +325,8 @@ const AuthShell = ({ children }) => {
         setError(
           mapAuthErrorMessage(
             resetError,
-            "A confirmation code could not be sent. Contact the pool administrator."
-          )
+            "A confirmation code could not be sent. Contact the pool administrator.",
+          ),
         );
         setAuthView("signIn");
         return;
@@ -314,7 +337,9 @@ const AuthShell = ({ children }) => {
       console.warn("Unhandled sign-in step:", step);
     }
 
-    setError("Additional account verification is required. Contact the pool administrator.");
+    setError(
+      "Additional account verification is required. Contact the pool administrator.",
+    );
   };
 
   const handleSignIn = async ({ email: submittedEmail, password }) => {
@@ -329,7 +354,12 @@ const AuthShell = ({ children }) => {
 
       await handleSignInNextStep(result, submittedEmail.trim());
     } catch (signInError) {
-      setError(mapAuthErrorMessage(signInError, "Unable to sign in right now. Please try again."));
+      setError(
+        mapAuthErrorMessage(
+          signInError,
+          "Unable to sign in right now. Please try again.",
+        ),
+      );
       throw signInError;
     }
   };
@@ -346,24 +376,31 @@ const AuthShell = ({ children }) => {
       const resetStep = output?.nextStep?.resetPasswordStep;
 
       if (resetStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") {
-        setInfo("We sent a confirmation code to the recovery method associated with your account.");
+        setInfo(
+          "We sent a confirmation code to the recovery method associated with your account.",
+        );
         setAuthView("confirmReset");
         return;
       }
 
-      setError("A confirmation code could not be sent. Contact the pool administrator.");
+      setError(
+        "A confirmation code could not be sent. Contact the pool administrator.",
+      );
     } catch (resetError) {
       setError(
         mapAuthErrorMessage(
           resetError,
-          "A confirmation code could not be sent. Contact the pool administrator."
-        )
+          "A confirmation code could not be sent. Contact the pool administrator.",
+        ),
       );
       throw resetError;
     }
   };
 
-  const handleConfirmResetPassword = async ({ confirmationCode, newPassword }) => {
+  const handleConfirmResetPassword = async ({
+    confirmationCode,
+    newPassword,
+  }) => {
     resetMessages();
 
     try {
@@ -374,13 +411,15 @@ const AuthShell = ({ children }) => {
       });
 
       setAuthView("signIn");
-      setSuccess("Your password has been updated. Sign in with your new password.");
+      setSuccess(
+        "Your password has been updated. Sign in with your new password.",
+      );
     } catch (confirmError) {
       setError(
         mapAuthErrorMessage(
           confirmError,
-          "The confirmation code is invalid or expired."
-        )
+          "The confirmation code is invalid or expired.",
+        ),
       );
       throw confirmError;
     }
@@ -399,8 +438,8 @@ const AuthShell = ({ children }) => {
       setError(
         mapAuthErrorMessage(
           confirmError,
-          "Your new password does not meet the account requirements."
-        )
+          "Your new password does not meet the account requirements.",
+        ),
       );
       throw confirmError;
     }
@@ -415,7 +454,9 @@ const AuthShell = ({ children }) => {
         </Typography>
         <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 3 }}>
           <CircularProgress size={22} />
-          <Typography variant="body2">Loading authentication status...</Typography>
+          <Typography variant="body2">
+            Loading authentication status...
+          </Typography>
         </Stack>
       </GateFrame>
     );
@@ -426,7 +467,8 @@ const AuthShell = ({ children }) => {
       <GateFrame>
         <Typography variant="h6">Authentication not configured</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          This environment still needs frontend authentication outputs before the app can sign users in.
+          This environment still needs frontend authentication outputs before
+          the app can sign users in.
         </Typography>
         <Alert severity="warning" sx={{ mt: 3 }}>
           `amplify_outputs.json` must be available for the frontend build.
@@ -478,10 +520,7 @@ const AuthShell = ({ children }) => {
         ) : null}
 
         {authView === "newPassword" ? (
-          <NewPasswordForm
-            error={error}
-            onSubmit={handleConfirmNewPassword}
-          />
+          <NewPasswordForm error={error} onSubmit={handleConfirmNewPassword} />
         ) : null}
       </GateFrame>
     );

@@ -8,7 +8,7 @@ const destinationPath = path.join(publicDir, "amplify_outputs.json");
 
 if (!fs.existsSync(sourcePath)) {
   console.warn(
-    "[sync-amplify-outputs] amplify_outputs.json not found at project root; skipping copy."
+    "[sync-amplify-outputs] amplify_outputs.json not found at project root; skipping copy.",
   );
   process.exit(0);
 }
@@ -16,5 +16,5 @@ if (!fs.existsSync(sourcePath)) {
 fs.mkdirSync(publicDir, { recursive: true });
 fs.copyFileSync(sourcePath, destinationPath);
 console.log(
-  `[sync-amplify-outputs] Copied ${path.basename(sourcePath)} to public/.`
+  `[sync-amplify-outputs] Copied ${path.basename(sourcePath)} to public/.`,
 );

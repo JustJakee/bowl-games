@@ -20,7 +20,11 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
 
   return (
     <Panel sx={{ width: "100%", height: "100%" }}>
-      <SectionHeader title="Leaderboard" actionLabel="See Full Leaderboard" actionTo="/leaderboard" />
+      <SectionHeader
+        title="Leaderboard"
+        actionLabel="See Full Leaderboard"
+        actionTo="/leaderboard"
+      />
       {hasRows ? (
         <TableContainer sx={{ mt: 1.5 }}>
           <Table size="small" aria-label="Leaderboard preview">
@@ -30,13 +34,16 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
                 <TableCell>Username</TableCell>
                 <TableCell>Entry Name</TableCell>
                 <TableCell align="right">Points</TableCell>
-                {showRecord ? <TableCell align="right">Record</TableCell> : null}
+                {showRecord ? (
+                  <TableCell align="right">Record</TableCell>
+                ) : null}
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.map((row) => {
                 const isCurrentUser =
-                  row.username.toLowerCase() === (currentUsername || "").toLowerCase();
+                  row.username.toLowerCase() ===
+                  (currentUsername || "").toLowerCase();
 
                 return (
                   <TableRow
@@ -56,12 +63,22 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
                       <Box sx={{ fontWeight: 700 }}>{row.username}</Box>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: { md: "0.82rem", lg: "0.9rem" } }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: { md: "0.82rem", lg: "0.9rem" } }}
+                      >
                         {row.entryName}
                       </Typography>
                     </TableCell>
-                    <TableCell align="right" sx={{ width: 80 }}>{row.points}</TableCell>
-                    {showRecord ? <TableCell align="right" sx={{ width: 96 }}>{row.record}</TableCell> : null}
+                    <TableCell align="right" sx={{ width: 80 }}>
+                      {row.points}
+                    </TableCell>
+                    {showRecord ? (
+                      <TableCell align="right" sx={{ width: 96 }}>
+                        {row.record}
+                      </TableCell>
+                    ) : null}
                   </TableRow>
                 );
               })}
@@ -70,11 +87,19 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
         </TableContainer>
       ) : (
         <Box sx={{ mt: 1.5 }}>
-          <Typography variant="subtitle1" sx={{ fontSize: "1rem", fontWeight: 700 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontSize: "1rem", fontWeight: 700 }}
+          >
             No leaderboard entries yet
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, fontSize: "0.875rem", lineHeight: 1.4 }}>
-            Leaderboard standings will appear after real entries and picks have been saved.
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 0.75, fontSize: "0.875rem", lineHeight: 1.4 }}
+          >
+            Leaderboard standings will appear after real entries and picks have
+            been saved.
           </Typography>
         </Box>
       )}

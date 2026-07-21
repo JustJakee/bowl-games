@@ -1,16 +1,10 @@
-import { generateClient } from "aws-amplify/api";
-
-let dataClient;
+import { dataClient as configuredDataClient } from "./amplifyConfig";
 
 const PROFILE_SELECTION = ["id", "owner", "email", "username", "usernameKey"];
 const USERNAME_LOOKUP_SELECTION = ["username", "usernameKey"];
 
 function getDataClient() {
-  if (!dataClient) {
-    dataClient = generateClient();
-  }
-
-  return dataClient;
+  return configuredDataClient;
 }
 
 function getFirstGraphQLError(result) {
@@ -54,7 +48,7 @@ export async function getCurrentUserProfile(owner) {
       limit: 1,
       selectionSet: PROFILE_SELECTION,
       authMode: "userPool",
-    }
+    },
   );
 
   throwIfGraphQLError(result, "Unable to load the current user profile.");
@@ -69,14 +63,18 @@ export async function isUsernameTaken(usernameKey) {
       limit: 1,
       selectionSet: USERNAME_LOOKUP_SELECTION,
       authMode: "userPool",
-    }
+    },
   );
 
   throwIfGraphQLError(result, "Unable to check username availability.");
   return (result.data?.length ?? 0) > 0;
 }
 
-export async function createCurrentUserProfile({ email, preferredGroup, username }) {
+export async function createCurrentUserProfile({
+  email,
+  preferredGroup,
+  username,
+}) {
   const client = getDataClient();
   const usernameKey = normalizeUsernameKey(username);
 
@@ -93,7 +91,7 @@ export async function createCurrentUserProfile({ email, preferredGroup, username
     {
       selectionSet: PROFILE_SELECTION,
       authMode: "userPool",
-    }
+    },
   );
 
   throwIfGraphQLError(result, "Unable to create the user profile.");

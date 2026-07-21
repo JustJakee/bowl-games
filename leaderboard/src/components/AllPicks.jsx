@@ -36,7 +36,7 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
           title: game?.game || "Bowl Game",
         })),
       })),
-    [playerPicks, matchups]
+    [playerPicks, matchups],
   );
 
   const columns = useMemo(() => {
@@ -53,7 +53,7 @@ const AllPicks = ({ playerPicks = [], matchups = [], loading = false }) => {
             <Tag className={`all-picks__tag all-picks__tag--${status}`}>
               {pick?.pick || "-"}
             </Tag>
-            {game.game === TIEBREAKER_BOWL_NAME&&(
+            {game.game === TIEBREAKER_BOWL_NAME && (
               <Tag className="all-picks__tag--tiebreaker">
                 {record.tiebreaker}
               </Tag>

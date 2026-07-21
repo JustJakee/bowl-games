@@ -11,7 +11,7 @@ export default function ScoreBug({
   network,
   isLive,
   gameId,
-  sx
+  sx,
 }) {
   const theme = useTheme();
   const espnLink = `https://www.espn.com/college-football/game/_/gameId/${gameId}/`;
@@ -32,7 +32,9 @@ export default function ScoreBug({
         outline: "none",
         ...sx,
       }}
-      onClick={() => {window.open(espnLink, '_blank');}}
+      onClick={() => {
+        window.open(espnLink, "_blank");
+      }}
     >
       {bowlGame && (
         <Typography
@@ -110,7 +112,7 @@ export default function ScoreBug({
         <Typography
           variant="subtitle2"
           sx={{
-            color: isLive ? theme.palette.error.main : "#a3a3a3af" ,
+            color: isLive ? theme.palette.error.main : "#a3a3a3af",
             fontWeight: 800,
             letterSpacing: 1,
             textTransform: "uppercase",

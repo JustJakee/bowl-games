@@ -1,4 +1,7 @@
-export const mapAuthErrorMessage = (error, fallback = "Something went wrong. Please try again.") => {
+export const mapAuthErrorMessage = (
+  error,
+  fallback = "Something went wrong. Please try again.",
+) => {
   const name = error?.name || "";
   const message = error?.message || "";
 
@@ -21,7 +24,10 @@ export const mapAuthErrorMessage = (error, fallback = "Something went wrong. Ple
     return "Your password must be reset before you can sign in.";
   }
 
-  if (name === "LimitExceededException" || message.toLowerCase().includes("attempt limit exceeded")) {
+  if (
+    name === "LimitExceededException" ||
+    message.toLowerCase().includes("attempt limit exceeded")
+  ) {
     return "Your account is temporarily locked. Try again later.";
   }
 
@@ -37,7 +43,10 @@ export const mapAuthErrorMessage = (error, fallback = "Something went wrong. Ple
     return "Your new password does not meet the account requirements.";
   }
 
-  if (name === "InvalidParameterException" && message.toLowerCase().includes("password")) {
+  if (
+    name === "InvalidParameterException" &&
+    message.toLowerCase().includes("password")
+  ) {
     return "Your new password does not meet the account requirements.";
   }
 

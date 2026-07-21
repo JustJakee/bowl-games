@@ -1,4 +1,11 @@
-import { Divider, List, ListItemButton, ListItemText, Stack, Typography } from "@mui/material";
+import {
+  Divider,
+  List,
+  ListItemButton,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import Panel from "../common/Panel";
 import SectionHeader from "./SectionHeader";
@@ -9,13 +16,25 @@ const EntriesCard = ({ entries }) => {
     return (
       <Panel sx={{ height: "100%" }}>
         <Stack spacing={1.5}>
-          <SectionHeader title="My Entries" actionLabel="View All Entries" actionTo="/entries" />
+          <SectionHeader
+            title="My Entries"
+            actionLabel="View All Entries"
+            actionTo="/entries"
+          />
           <Stack spacing={0.75}>
-            <Typography variant="subtitle1" sx={{ fontSize: "1rem", fontWeight: 700 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontSize: "1rem", fontWeight: 700 }}
+            >
               No entries yet
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}>
-              Your saved pick entries will appear here after you start making picks.
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}
+            >
+              Your saved pick entries will appear here after you start making
+              picks.
             </Typography>
           </Stack>
         </Stack>
@@ -26,11 +45,17 @@ const EntriesCard = ({ entries }) => {
   return (
     <Panel sx={{ height: "100%" }}>
       <Stack spacing={1.5}>
-        <SectionHeader title="My Entries" actionLabel="View All Entries" actionTo="/entries" />
+        <SectionHeader
+          title="My Entries"
+          actionLabel="View All Entries"
+          actionTo="/entries"
+        />
         <List disablePadding>
           {entries.map((entry, index) => (
             <div key={entry.id}>
-              <ListItemButton sx={{ px: 0, py: 1.1, borderRadius: 2, minHeight: { lg: 52 } }}>
+              <ListItemButton
+                sx={{ px: 0, py: 1.1, borderRadius: 2, minHeight: { lg: 52 } }}
+              >
                 <ListItemText
                   primary={entry.name}
                   secondary={`${entry.completedPicks} / ${entry.totalPicks} complete`}
