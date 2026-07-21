@@ -1,8 +1,8 @@
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
-import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
 import { matchPath, useLocation, useNavigate } from "react-router-dom";
 
@@ -10,15 +10,19 @@ const navItems = [
   { value: "/dashboard", label: "Dashboard", icon: <DashboardRoundedIcon /> },
   { value: "/leaderboard", label: "Leaderboard", icon: <EmojiEventsRoundedIcon /> },
   { value: "/picks", label: "Picks", icon: <SportsFootballRoundedIcon /> },
-  { value: "/entries", label: "Entries", icon: <ViewListRoundedIcon /> },
   { value: "/more", label: "Account", icon: <PersonOutlineRoundedIcon /> },
+  { value: "__more__", label: "More", icon: <MoreHorizRoundedIcon /> },
 ];
 
-const MobileBottomNavigation = () => {
+const MobileBottomNavigation = ({ menuOpen = false, onOpenMore }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentValue =
-    navItems.find((item) => matchPath({ path: item.value }, location.pathname))?.value ||
+    (menuOpen
+      ? "__more__"
+      : navItems.find(
+          (item) => item.value.startsWith("/") && matchPath({ path: item.value }, location.pathname)
+        )?.value) ||
     "/dashboard";
 
   return (
@@ -39,7 +43,14 @@ const MobileBottomNavigation = () => {
       <BottomNavigation
         showLabels
         value={currentValue}
-        onChange={(_event, nextValue) => navigate(nextValue)}
+        onChange={(_event, nextValue) => {
+          if (nextValue === "__more__") {
+            onOpenMore?.();
+            return;
+          }
+
+          navigate(nextValue);
+        }}
         sx={{
           backgroundColor: "background.paper",
           height: 64,

@@ -3,6 +3,7 @@ import {
   Box,
   Divider,
   Drawer,
+  IconButton,
   List,
   ListItemButton,
   ListItemText,
@@ -12,8 +13,8 @@ import {
 } from "@mui/material";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import { Link as RouterLink, NavLink, Outlet } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
+import { NavLink, Outlet } from "react-router-dom";
+import { alpha, useTheme } from "@mui/material/styles";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
 import ScoreboardStrip from "../components/scoreboard/ScoreboardStrip";
@@ -22,10 +23,7 @@ import MobileHeader from "./MobileHeader";
 import MobileBottomNavigation from "./MobileBottomNavigation";
 
 const drawerLinks = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/leaderboard", label: "Leaderboard" },
-  { to: "/picks", label: "Picks" },
-  { to: "/entries", label: "Entries" },
+  { to: "/entries", label: "My Entries" },
   { to: "/schedule", label: "Schedule" },
   { to: "/rules", label: "Rules" },
 ];
@@ -84,7 +82,12 @@ const AppShell = () => {
         </Box>
       </Box>
 
-      {!isDesktop ? <MobileBottomNavigation /> : null}
+      {!isDesktop ? (
+        <MobileBottomNavigation
+          menuOpen={menuOpen}
+          onOpenMore={() => setMenuOpen(true)}
+        />
+      ) : null}
 
       <Drawer
         anchor="right"
@@ -98,18 +101,34 @@ const AppShell = () => {
         }}
       >
         <Stack spacing={2} sx={{ p: 2.5 }}>
-          <div>
-            <Typography variant="overline" color="text.secondary">
-              Signed In
-            </Typography>
-            <Typography variant="h6">{username}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {email || "Authenticated user"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Role: {role || "unassigned"}
-            </Typography>
-          </div>
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="overline" color="text.secondary">
+                Signed In
+              </Typography>
+              <Typography variant="h6">{username}</Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ wordBreak: "break-word" }}
+              >
+                {email || "Authenticated user"}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Role: {role || "unassigned"}
+              </Typography>
+            </Box>
+            <IconButton
+              aria-label="Sign out"
+              onClick={signOut}
+              sx={{
+                color: "text.secondary",
+                borderColor: alpha(theme.palette.common.white, 0.12),
+              }}
+            >
+              <LogoutRoundedIcon fontSize="small" />
+            </IconButton>
+          </Stack>
           <Divider />
           <List disablePadding>
             {drawerLinks.map((link) => (
@@ -124,19 +143,6 @@ const AppShell = () => {
                 <ChevronRightRoundedIcon fontSize="small" />
               </ListItemButton>
             ))}
-            <ListItemButton
-              component={RouterLink}
-              to="/more"
-              onClick={() => setMenuOpen(false)}
-              sx={{ borderRadius: 2 }}
-            >
-              <ListItemText primary="Account" />
-              <ChevronRightRoundedIcon fontSize="small" />
-            </ListItemButton>
-            <ListItemButton onClick={signOut} sx={{ borderRadius: 2 }}>
-              <ListItemText primary="Sign Out" />
-              <LogoutRoundedIcon fontSize="small" />
-            </ListItemButton>
           </List>
         </Stack>
       </Drawer>
