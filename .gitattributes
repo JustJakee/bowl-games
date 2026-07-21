@@ -1,14 +1,6 @@
-# Enforce CRLF line endings for common text files
-*.js text eol=crlf
-*.jsx text eol=crlf
-*.ts text eol=crlf
-*.tsx text eol=crlf
-*.css text eol=crlf
-*.html text eol=crlf
-*.json text eol=crlf
-*.md text eol=crlf
-*.yml text eol=crlf
-*.yaml text eol=crlf
+# Keep repository text files consistent across Windows, macOS, and Linux.
+* text=auto eol=lf
 
-# Treat remaining files as text with CRLF unless overridden
-* text=auto eol=crlf
+# Windows command scripts require CRLF for reliable cmd.exe execution.
+*.bat text eol=crlf
+*.cmd text eol=crlf

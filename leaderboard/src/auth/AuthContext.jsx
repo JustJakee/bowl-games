@@ -1,16 +1,25 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Hub } from "aws-amplify/utils";
-import { fetchAuthSession, getCurrentUser, signOut } from "aws-amplify/auth";
-import { configureAmplifyFromOutputs } from "./amplifyConfig";
 import {
-  createLocalAuthUser,
-  LOCAL_AUTH_BYPASS,
-  LOCAL_AUTH_EMAIL,
-  LOCAL_AUTH_GROUPS,
-  LOCAL_AUTH_ROLE,
-} from "../constants/appFlags";
+  fetchAuthSession,
+  getCurrentUser,
+  signOut as amplifySignOut,
+} from "aws-amplify/auth";
+import { configureAmplifyFromOutputs } from "./amplifyConfig";
 
 const AuthContext = createContext(null);
+
+const unauthenticatedState = {
+  isLoading: false,
+  isConfigured: true,
+  isAuthenticated: false,
+  hasValidTokens: false,
+  user: null,
+  email: null,
+  groups: [],
+  role: null,
+  error: null,
+};
 
 const normalizeGroups = (value) => {
   if (!Array.isArray(value)) {
@@ -61,6 +70,7 @@ export function AuthProvider({ children }) {
     isLoading: true,
     isConfigured: false,
     isAuthenticated: false,
+    hasValidTokens: false,
     user: null,
     email: null,
     groups: [],
@@ -69,25 +79,16 @@ export function AuthProvider({ children }) {
   });
 
   useEffect(() => {
-    if (LOCAL_AUTH_BYPASS) {
-      // TODO(go-live): Remove this fake authenticated session path before production launch.
-      setState({
-        isLoading: false,
-        isConfigured: true,
-        isAuthenticated: true,
-        user: createLocalAuthUser(),
-        email: LOCAL_AUTH_EMAIL,
-        groups: LOCAL_AUTH_GROUPS,
-        role: LOCAL_AUTH_ROLE,
-        error: null,
-      });
-
-      return undefined;
-    }
-
     let isMounted = true;
 
     const syncAuthState = async () => {
+      setState((current) => ({
+        ...current,
+        isLoading: true,
+        hasValidTokens: false,
+        error: null,
+      }));
+
       try {
         await configureAmplifyFromOutputs();
       } catch (error) {
@@ -99,6 +100,7 @@ export function AuthProvider({ children }) {
           isLoading: false,
           isConfigured: false,
           isAuthenticated: false,
+          hasValidTokens: false,
           user: null,
           email: null,
           groups: [],
@@ -109,10 +111,14 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const [user, session] = await Promise.all([
-          getCurrentUser(),
-          fetchAuthSession(),
-        ]);
+        const session = await fetchAuthSession();
+        const accessToken = session?.tokens?.accessToken;
+
+        if (!accessToken) {
+          throw new Error("No authenticated Cognito session is available.");
+        }
+
+        const user = await getCurrentUser();
 
         if (!isMounted) {
           return;
@@ -123,6 +129,7 @@ export function AuthProvider({ children }) {
           isLoading: false,
           isConfigured: true,
           isAuthenticated: true,
+          hasValidTokens: true,
           user,
           email: getEmailFromAuth(user, session),
           groups,
@@ -134,22 +141,18 @@ export function AuthProvider({ children }) {
           return;
         }
 
-        setState({
-          isLoading: false,
-          isConfigured: true,
-          isAuthenticated: false,
-          user: null,
-          email: null,
-          groups: [],
-          role: null,
-          error: null,
-        });
+        setState(unauthenticatedState);
       }
     };
 
     syncAuthState();
 
-    const cancel = Hub.listen("auth", () => {
+    const cancel = Hub.listen("auth", ({ payload }) => {
+      if (payload?.event === "signedOut") {
+        setState(unauthenticatedState);
+        return;
+      }
+
       syncAuthState();
     });
 
@@ -163,22 +166,13 @@ export function AuthProvider({ children }) {
     () => ({
       ...state,
       signOut: async () => {
-        if (LOCAL_AUTH_BYPASS) {
-          // TODO(go-live): Remove this local-only fake sign-out behavior before production launch.
-          setState({
-            isLoading: false,
-            isConfigured: true,
-            isAuthenticated: false,
-            user: null,
-            email: null,
-            groups: [],
-            role: null,
-            error: null,
-          });
-          return;
-        }
+        setState({ ...unauthenticatedState, isLoading: true });
 
-        await signOut();
+        try {
+          await amplifySignOut();
+        } finally {
+          setState(unauthenticatedState);
+        }
       },
     }),
     [state],

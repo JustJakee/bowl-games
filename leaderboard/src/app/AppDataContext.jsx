@@ -67,7 +67,14 @@ const getActiveEntryStorageKey = (owner, seasonId) =>
 
 export const AppDataProvider = ({ children }) => {
   const { allGames: scoreboardGames, season } = useScoreboard();
-  const { email, isAuthenticated, isConfigured, user } = useAuth();
+  const {
+    email,
+    hasValidTokens,
+    isAuthenticated,
+    isConfigured,
+    isLoading: authLoading,
+    user,
+  } = useAuth();
   const [entries, setEntries] = useState([]);
   const [entriesLoading, setEntriesLoading] = useState(false);
   const [entriesError, setEntriesError] = useState("");
@@ -133,7 +140,14 @@ export const AppDataProvider = ({ children }) => {
   );
 
   const loadEntries = useCallback(async () => {
-    if (!isAuthenticated || !isConfigured || !owner || !currentSeasonId) {
+    if (
+      authLoading ||
+      !isAuthenticated ||
+      !isConfigured ||
+      !hasValidTokens ||
+      !owner ||
+      !currentSeasonId
+    ) {
       setEntries([]);
       setEntriesLoading(false);
       setEntriesError("");
@@ -175,7 +189,9 @@ export const AppDataProvider = ({ children }) => {
     }
   }, [
     activeEntryStorageKey,
+    authLoading,
     currentSeasonId,
+    hasValidTokens,
     isAuthenticated,
     isConfigured,
     owner,
@@ -188,7 +204,14 @@ export const AppDataProvider = ({ children }) => {
   }, [loadEntries]);
 
   useEffect(() => {
-    if (!activeEntryId || !currentSeasonId || !owner) {
+    if (
+      authLoading ||
+      !hasValidTokens ||
+      !isAuthenticated ||
+      !activeEntryId ||
+      !currentSeasonId ||
+      !owner
+    ) {
       resetActiveEntryState();
       setPicksLoading(false);
       setPicksError("");
@@ -248,7 +271,10 @@ export const AppDataProvider = ({ children }) => {
       });
   }, [
     activeEntryId,
+    authLoading,
     currentSeasonId,
+    hasValidTokens,
+    isAuthenticated,
     owner,
     requiredGameIds,
     resetActiveEntryState,

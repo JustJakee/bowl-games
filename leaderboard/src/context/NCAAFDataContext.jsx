@@ -6,11 +6,18 @@ import {
   useRef,
   useState,
 } from "react";
+import { useAuth } from "../auth/AuthContext";
 import { loadSeasonBundle } from "../data/seasonRepository";
 
 const ScoreboardContext = createContext(null);
 
 export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
+  const {
+    hasValidTokens,
+    isAuthenticated,
+    isConfigured,
+    isLoading: authLoading,
+  } = useAuth();
   const [data, setData] = useState(null);
   const [allGames, setAllGames] = useState(null);
   const [season, setSeason] = useState(null);
@@ -21,8 +28,14 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
   const mounted = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
   const firstLoad = useRef(true);
+  const canLoadData =
+    !authLoading && isConfigured && isAuthenticated && hasValidTokens;
 
   const load = async () => {
+    if (!canLoadData) {
+      return;
+    }
+
     const initial = firstLoad.current;
     if (initial) setLoading(true);
     else setRefreshing(true);
@@ -81,13 +94,30 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
 
   useEffect(() => {
     mounted.current = true;
+
+    if (!canLoadData) {
+      setData(null);
+      setAllGames(null);
+      setSeason(null);
+      setSeasonConfig(null);
+      setRawGames(null);
+      setError("");
+      setLoading(authLoading);
+      setRefreshing(false);
+      firstLoad.current = true;
+
+      return () => {
+        mounted.current = false;
+      };
+    }
+
     load();
     const id = setInterval(load, pollMs);
     return () => {
       mounted.current = false;
       clearInterval(id);
     };
-  }, [pollMs]);
+  }, [authLoading, canLoadData, pollMs]);
 
   const value = useMemo(
     () => ({
