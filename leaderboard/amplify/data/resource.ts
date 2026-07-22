@@ -224,7 +224,10 @@ const schema = a.schema({
     ])
     .authorization((allow) => [
       allow.authenticated().to(["read"]),
-      allow.ownerDefinedIn("owner").to(["create", "read", "update"]),
+      allow
+        .ownerDefinedIn("owner")
+        .identityClaim("sub")
+        .to(["create", "read", "update"]),
       allow.group("admin"),
     ]),
 
@@ -261,7 +264,7 @@ const schema = a.schema({
     ])
     .authorization((allow) => [
       allow.authenticated().to(["read"]),
-      allow.ownerDefinedIn("owner"),
+      allow.ownerDefinedIn("owner").identityClaim("sub"),
       allow.group("admin"),
     ]),
 
