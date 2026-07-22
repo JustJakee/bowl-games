@@ -1,7 +1,8 @@
 // DATA — PICKS — AMPLIFY DATA
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import { getEntryById, updateEntry } from "./entryRepository";
-import { listRawSeasonGames } from "./seasonRepository";
+
+let testDependencies = null;
 
 export const PICK_SET_STATUS = {
   DRAFT: "DRAFT",
@@ -20,7 +21,26 @@ const PICK_SELECTION = [
 ];
 
 const getDataClient = () => {
-  return configuredDataClient;
+  return testDependencies?.dataClient || configuredDataClient;
+};
+
+const readEntryById = (input) =>
+  (testDependencies?.getEntryById || getEntryById)(input);
+
+const persistEntryUpdate = (input) =>
+  (testDependencies?.updateEntry || updateEntry)(input);
+
+const readSeasonGames = async (input) => {
+  if (testDependencies?.listRawSeasonGames) {
+    return testDependencies.listRawSeasonGames(input);
+  }
+
+  const { listRawSeasonGames } = await import("./seasonRepository");
+  return listRawSeasonGames(input);
+};
+
+export const __setPicksRepositoryDependenciesForTests = (dependencies) => {
+  testDependencies = dependencies;
 };
 
 const getFirstGraphQLError = (result) => result?.errors?.[0]?.message || null;
@@ -205,7 +225,7 @@ export const saveEntryState = async ({
 }) => {
   // DATA — PICKS — AMPLIFY DATA
   // Save changed selections individually so an incomplete entry remains a resumable draft.
-  const entry = await getEntryById({ entryId, owner });
+  const entry = await readEntryById({ entryId, owner });
 
   if (!entry) {
     throw new Error("The requested entry was not found.");
@@ -217,7 +237,7 @@ export const saveEntryState = async ({
 
   const [savedPicks, seasonGames] = await Promise.all([
     loadEntryPicks({ entryId, seasonId, currentGameIds }),
-    listRawSeasonGames({ seasonId }),
+    readSeasonGames({ seasonId }),
   ]);
   const gamesById = new Map(seasonGames.map((game) => [game.id, game]));
   const nextSelections = Object.entries(selectionsByGameId).reduce(
@@ -246,9 +266,10 @@ export const saveEntryState = async ({
     validateSelection({ game, selectedTeam });
   }
 
+  const persistedTieBreakerValue = entry.tieBreakerValue ?? null;
   const normalizedTieBreakerValue =
     tieBreakerValue === undefined
-      ? entry.tieBreakerValue
+      ? persistedTieBreakerValue
       : validateTieBreaker({
           tieBreakerValue,
           tieBreakerGame: tieBreakerGameId
@@ -295,15 +316,38 @@ export const saveEntryState = async ({
     throwIfGraphQLError(createResult, "Unable to save a pick.");
   }
 
-  const nextEntry = await updateEntry({
+  const normalizedEntryName =
+    entryName === undefined ? entry.entryName : String(entryName).trim();
+  const normalizedContactEmail =
+    contactEmail === undefined
+      ? entry.contactEmail
+      : String(contactEmail).trim();
+  const entryUpdate = {
     entryId: entry.id,
     owner,
     seasonId,
-    entryName,
-    contactEmail,
-    tieBreakerValue: normalizedTieBreakerValue,
-    userProfileId,
-  });
+  };
+
+  if (normalizedEntryName !== entry.entryName) {
+    entryUpdate.entryName = normalizedEntryName;
+  }
+
+  if (normalizedContactEmail !== entry.contactEmail) {
+    entryUpdate.contactEmail = normalizedContactEmail;
+  }
+
+  if (userProfileId && userProfileId !== entry.userProfileId) {
+    entryUpdate.userProfileId = userProfileId;
+  }
+
+  if (normalizedTieBreakerValue !== persistedTieBreakerValue) {
+    entryUpdate.tieBreakerValue = normalizedTieBreakerValue;
+  }
+
+  const nextEntry =
+    Object.keys(entryUpdate).length > 3
+      ? await persistEntryUpdate(entryUpdate)
+      : entry;
 
   const refreshedPicks = await loadEntryPicks({
     entryId: entry.id,

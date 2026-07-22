@@ -39,6 +39,11 @@ import {
   PICK_SET_STATUS,
 } from "../../data/picksRepository";
 import {
+  buildAutosaveFailureState,
+  buildAutosaveSuccessState,
+  buildSyncedDraft,
+} from "./picksAutosaveState";
+import {
   formatPicksDateLabel,
   formatPicksMetaLabel,
   getTeamIdentity,
@@ -632,33 +637,15 @@ const PicksWorkspace = () => {
 
         setDraftsByEntryId((currentDrafts) => ({
           ...currentDrafts,
-          [currentEntry.id]: {
-            entryName: result.entry.entryName,
-            selectionsByGameId: result.selectionsByGameId,
-            tieBreakerValue:
-              result.entry.tieBreakerValue === null ||
-              result.entry.tieBreakerValue === undefined
-                ? ""
-                : String(result.entry.tieBreakerValue),
-            dirty: false,
-          },
+          [currentEntry.id]: buildSyncedDraft(result),
         }));
-        setSaveState({
-          state: "saved",
-          message: "Saved to account",
-          detail: "",
-        });
+        setSaveState(buildAutosaveSuccessState());
       } catch (saveError) {
         if (saveRequestIdRef.current !== requestId) {
           return;
         }
 
-        setSaveState({
-          state: "device",
-          message: "Saved to device",
-          detail:
-            saveError?.message || "Backend save failed. Retry is required.",
-        });
+        setSaveState(buildAutosaveFailureState(saveError));
       }
     }, 550);
 

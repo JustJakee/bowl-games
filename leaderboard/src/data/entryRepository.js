@@ -2,6 +2,8 @@
 // Entry operations recheck ownership client-side while Amplify enforces the authoritative owner rules.
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 
+let dataClientOverride = null;
+
 export const ENTRY_SELECTION = [
   "id",
   "seasonId",
@@ -21,7 +23,11 @@ export const ENTRY_SELECTION = [
 ];
 
 const getDataClient = () => {
-  return configuredDataClient;
+  return dataClientOverride || configuredDataClient;
+};
+
+export const __setEntryRepositoryDataClientForTests = (dataClient) => {
+  dataClientOverride = dataClient;
 };
 
 const getFirstGraphQLError = (result) => result?.errors?.[0]?.message || null;
@@ -185,7 +191,6 @@ export const createEntry = async ({
   const client = getDataClient();
   const result = await client.models.Entry.create(
     {
-      id: `entry-${seasonId}-${crypto.randomUUID()}`,
       seasonId,
       owner,
       userProfileId: userProfileId || undefined,
@@ -238,18 +243,34 @@ export const updateEntry = async ({
     });
   }
 
-  const nextValues = {
-    id: existingEntry.id,
-    userProfileId: userProfileId || existingEntry.userProfileId || undefined,
-    entryName: nextEntryName,
-    entryNameKey: nextEntryName.toLowerCase(),
-    contactEmail: nextContactEmail,
-    tieBreakerValue:
-      tieBreakerValue === undefined
-        ? existingEntry.tieBreakerValue
-        : tieBreakerValue,
-    isDeleted: false,
-  };
+  // DATA - ENTRIES - MINIMAL MUTATIONS
+  // Field authorization evaluates every supplied key, including null values. Only send fields
+  // that this operation changes so unrelated protected fields are not re-written.
+  const nextValues = { id: existingEntry.id };
+
+  if (userProfileId && userProfileId !== existingEntry.userProfileId) {
+    nextValues.userProfileId = userProfileId;
+  }
+
+  if (nextEntryName !== existingEntry.entryName) {
+    nextValues.entryName = nextEntryName;
+    nextValues.entryNameKey = nextEntryName.toLowerCase();
+  }
+
+  if (nextContactEmail !== existingEntry.contactEmail) {
+    nextValues.contactEmail = nextContactEmail;
+  }
+
+  if (
+    tieBreakerValue !== undefined &&
+    tieBreakerValue !== existingEntry.tieBreakerValue
+  ) {
+    nextValues.tieBreakerValue = tieBreakerValue;
+  }
+
+  if (Object.keys(nextValues).length === 1) {
+    return existingEntry;
+  }
 
   const client = getDataClient();
   const result = await client.models.Entry.update(nextValues, {
