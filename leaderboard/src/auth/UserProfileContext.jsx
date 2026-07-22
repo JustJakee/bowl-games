@@ -1,3 +1,4 @@
+// STATE — USER PROFILE — REACT CONTEXT
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext.jsx";
 import { getCurrentUserProfile } from "./userProfile";
@@ -16,6 +17,8 @@ export const UserProfileProvider = ({ children }) => {
   const owner = user?.userId || null;
 
   useEffect(() => {
+    // AUTH — USER PROFILE — AMPLIFY DATA
+    // Player-owned profile reads wait for Cognito restoration to produce valid tokens and an owner ID.
     if (
       isLoading ||
       !isAuthenticated ||

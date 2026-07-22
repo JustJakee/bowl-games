@@ -1,8 +1,7 @@
+// API — SCOREBOARD — ESPN
 const USE_MOCK_ESPN_DATA = import.meta.env.VITE_USE_MOCK_ESPN_DATA === "true";
 
-// Minimal ESPN API helper for NCAAF (college football)
-// Endpoint: ESPN public scoreboard for college football
-// Example: https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard
+// Mock mode preserves ESPN's response envelope so live and fixture data share one normalization path.
 
 export async function fetchNcaafScoreboard(params = {}) {
   if (USE_MOCK_ESPN_DATA) {

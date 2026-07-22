@@ -1,3 +1,4 @@
+// STATE — SCOREBOARD — REACT CONTEXT
 import {
   createContext,
   useContext,

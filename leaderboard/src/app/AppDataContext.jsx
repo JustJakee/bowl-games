@@ -1,3 +1,5 @@
+// STATE — ENTRIES — REACT CONTEXT
+// Coordinates the active entry and its picks after Auth and scoreboard season data are ready.
 import {
   createContext,
   useCallback,
@@ -140,6 +142,8 @@ export const AppDataProvider = ({ children }) => {
   );
 
   const loadEntries = useCallback(async () => {
+    // AUTH — SESSION RESTORATION — COGNITO
+    // Player-owned Data queries wait for configuration, usable tokens, and a resolved season and owner.
     if (
       authLoading ||
       !isAuthenticated ||
@@ -219,6 +223,8 @@ export const AppDataProvider = ({ children }) => {
     }
 
     const requestId = picksRequestIdRef.current + 1;
+    // STATE — PICKS — REACT CONTEXT
+    // A request ID prevents a slower prior entry request from overwriting the newly selected entry.
     picksRequestIdRef.current = requestId;
     setPicksLoading(true);
     setPicksError("");

@@ -1,3 +1,5 @@
+// API — SCOREBOARD — ESPN
+// Normalize live ESPN events and stored Amplify games into the shared display-game shape.
 import { fetchNcaafScoreboard } from "../api/espn";
 
 const getNetwork = (comp) =>

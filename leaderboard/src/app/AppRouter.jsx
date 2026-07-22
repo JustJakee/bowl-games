@@ -1,3 +1,4 @@
+// ROUTING — NAVIGATION — REACT ROUTER
 import { Navigate, Route, Routes } from "react-router-dom";
 import AuthenticatedApp from "./AuthenticatedApp.jsx";
 import DashboardPage from "../pages/DashboardPage.jsx";

@@ -1,3 +1,4 @@
+// UI — LEADERBOARD — REACT
 import { useMemo } from "react";
 import { CircularProgress } from "@mui/material";
 import firstMedal from "../assets/medals/first.png";

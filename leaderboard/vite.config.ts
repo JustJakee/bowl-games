@@ -1,3 +1,4 @@
+// CONFIG — APP — VITE
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 

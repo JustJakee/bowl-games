@@ -1,3 +1,4 @@
+// UI — PICKS — REACT
 import PicksWorkspace from "../components/picks/PicksWorkspace.jsx";
 
 const PicksPage = () => {

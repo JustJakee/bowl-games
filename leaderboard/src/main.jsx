@@ -1,3 +1,5 @@
+// CONFIG — APP — REACT
+// Provider order makes routing, authentication, scoreboard data, and player data available to every page.
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "@aws-amplify/ui-react/styles.css";

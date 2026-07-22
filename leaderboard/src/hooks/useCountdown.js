@@ -1,3 +1,4 @@
+// STATE — PICKS — REACT
 import { useEffect, useState } from "react";
 import { formatCountdown } from "../utils/countdown";
 

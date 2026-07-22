@@ -1,3 +1,5 @@
+// SEED — TEST26 — AMPLIFY DATA
+// The seed targets the backend referenced by the active amplify_outputs.json and upserts stable records.
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import { TEST_SEASON_ID } from "./seasonRepository";
 import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";

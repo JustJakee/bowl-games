@@ -1,3 +1,4 @@
+// UI — PICKS — REACT
 import { useEffect, useMemo, useRef, useState } from "react";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
@@ -45,6 +46,8 @@ import {
 
 const STORAGE_KEY_PREFIX = "bobs-bowl-games-picks-drafts";
 
+// STATE — PICKS — LOCAL STORAGE
+// Including player and season prevents partial drafts from crossing accounts or contests.
 const buildDraftStorageKey = (profileIdOrEmail, seasonId) =>
   `${STORAGE_KEY_PREFIX}:${profileIdOrEmail || "default"}:${seasonId || "none"}`;
 
@@ -603,6 +606,8 @@ const PicksWorkspace = () => {
     }
 
     const requestId = saveRequestIdRef.current + 1;
+    // DATA — PICKS — AUTOSAVE
+    // Debouncing collapses rapid edits; the request ID prevents an older save result from winning a race.
     saveRequestIdRef.current = requestId;
     setSaveState({
       state: "saving",

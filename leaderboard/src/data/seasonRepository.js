@@ -1,9 +1,12 @@
+// DATA — SEASONS — AMPLIFY DATA
 import { dataClient } from "../auth/amplifyConfig";
 import { mapStoredGamesToDisplayGames } from "../utils/formatGameData";
 
 export const ACTIVE_SEASON_SLUG =
   import.meta.env.VITE_ACTIVE_SEASON_SLUG || "test26";
 
+// SEED — TEST26 — AMPLIFY DATA
+// Development expects this stable ID in the backend selected by the active amplify_outputs.json.
 export const TEST_SEASON_ID = "test26";
 
 const SEASON_SELECTION = ["id", "year", "name", "slug", "status", "isActive"];
@@ -163,6 +166,8 @@ export const loadSeasonBundle = async ({ slug = ACTIVE_SEASON_SLUG } = {}) => {
   const season = await getSeasonBySlug({ slug });
 
   if (!season) {
+    // ERROR HANDLING — SEASONS — AMPLIFY DATA
+    // This message signals missing backend setup for the configured slug rather than an application crash.
     throw new Error(
       `Active season "${slug}" was not found. Seed it before loading the app.`,
     );

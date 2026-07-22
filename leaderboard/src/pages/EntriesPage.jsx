@@ -1,3 +1,4 @@
+// UI — ENTRIES — REACT
 import { useState } from "react";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";

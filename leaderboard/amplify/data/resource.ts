@@ -1,3 +1,5 @@
+// DATA — APP — AMPLIFY DATA
+// Model-level rules are the authoritative boundary for player ownership and admin-only corrections.
 import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 
 const schema = a.schema({
@@ -137,6 +139,8 @@ const schema = a.schema({
     ]),
 
   Entry: a
+    // DATA — ENTRIES — AMPLIFY DATA
+    // Entry-level payment and tiebreaker fields allow one player to own multiple independent submissions.
     .model({
       seasonId: a.id().required(),
       season: a.belongsTo("Season", "seasonId"),
@@ -225,6 +229,8 @@ const schema = a.schema({
     ]),
 
   Pick: a
+    // DATA — PICKS — AMPLIFY DATA
+    // Duplicating owner onto Pick enables owner authorization without granting broad entry reads.
     .model({
       seasonId: a.id().required(),
       season: a.belongsTo("Season", "seasonId"),
@@ -260,6 +266,8 @@ const schema = a.schema({
     ]),
 
   AdminAction: a
+    // ADMIN — PAYMENT STATUS — AMPLIFY DATA
+    // Immutable audit records preserve privileged corrections after payment or scoring changes.
     .model({
       actionType: a.string().required(),
       targetModel: a.string().required(),

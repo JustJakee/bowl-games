@@ -1,3 +1,4 @@
+// DATA — LEADERBOARD — AMPLIFY DATA
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 
 const ENTRY_LEADERBOARD_SELECTION = [

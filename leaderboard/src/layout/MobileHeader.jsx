@@ -1,3 +1,4 @@
+// UI — NAVIGATION — REACT
 import { IconButton, Stack, Typography } from "@mui/material";
 import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";

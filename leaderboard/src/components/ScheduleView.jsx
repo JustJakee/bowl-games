@@ -1,3 +1,4 @@
+// UI — GAMES — REACT
 import ScoreBug from "../constants/ScoreBug";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import "../styles/schedule-view.css";

@@ -1,3 +1,4 @@
+// UI — APP — REACT
 import AuthShell from "./components/AuthShell.jsx";
 import AppRouter from "./app/AppRouter.jsx";
 

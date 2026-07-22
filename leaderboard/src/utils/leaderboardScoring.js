@@ -1,3 +1,4 @@
+// BUSINESS RULE — LEADERBOARD — SCORING
 const buildGameWinnerLookup = (games = []) =>
   (games || []).reduce((accumulator, game) => {
     const winnerTeam = game?.winnerTeam || "";
@@ -20,6 +21,8 @@ export const scoreEntries = ({
   games = [],
   usernamesByOwner = {},
 }) => {
+  // BUSINESS RULE — TIEBREAKER — NATIONAL CHAMPIONSHIP
+  // Equal point totals rank by the smallest distance from the championship's final combined score.
   const winnersByGameId = buildGameWinnerLookup(games);
   const finalGameIds = Object.keys(winnersByGameId);
   const picksByEntryId = picks.reduce((accumulator, pick) => {

@@ -1,3 +1,5 @@
+// ERROR HANDLING — AUTHENTICATION — COGNITO
+// Translate provider-specific failures without exposing raw Cognito details in player-facing forms.
 export const mapAuthErrorMessage = (
   error,
   fallback = "Something went wrong. Please try again.",

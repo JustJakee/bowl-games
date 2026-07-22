@@ -1,3 +1,4 @@
+// AUTH — AUTHENTICATION — COGNITO
 import { defineAuth } from "@aws-amplify/backend";
 
 /**

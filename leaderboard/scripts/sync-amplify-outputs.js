@@ -1,3 +1,5 @@
+// CONFIG — AMPLIFY BUILD — NODE
+// Hosting needs the generated outputs in public while source imports use the project-root copy.
 const fs = require("fs");
 const path = require("path");
 

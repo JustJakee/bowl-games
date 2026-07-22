@@ -1,3 +1,5 @@
+// UI — LAYOUT — REACT
+// Desktop and mobile navigation share this authenticated shell and scoreboard entry point.
 import { useState } from "react";
 import {
   Box,

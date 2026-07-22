@@ -1,3 +1,4 @@
+// ROUTING — SCROLL RESTORATION — REACT ROUTER
 import { useLayoutEffect } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
 
@@ -7,6 +8,7 @@ const ScrollToTop = () => {
 
   useLayoutEffect(() => {
     if (navigationType === "POP") {
+      // Back and forward navigation retain the browser history entry's native scroll position.
       return;
     }
 

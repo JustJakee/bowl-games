@@ -1,3 +1,4 @@
+// UI — SCOREBOARD — REACT
 import { Box, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import TeamLogo from "../common/TeamLogo";

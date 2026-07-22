@@ -1,3 +1,4 @@
+// DATA — USER PROFILE — AMPLIFY DATA
 import { dataClient as configuredDataClient } from "./amplifyConfig";
 
 const PROFILE_SELECTION = ["id", "owner", "email", "username", "usernameKey"];

@@ -1,3 +1,4 @@
+// UI — NAVIGATION — REACT
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";

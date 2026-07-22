@@ -1,3 +1,4 @@
+// UI — NAVIGATION — REACT
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";

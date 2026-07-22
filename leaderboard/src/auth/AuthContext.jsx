@@ -1,3 +1,4 @@
+// AUTH — SESSION RESTORATION — COGNITO
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Hub } from "aws-amplify/utils";
 import {
@@ -82,6 +83,7 @@ export function AuthProvider({ children }) {
     let isMounted = true;
 
     const syncAuthState = async () => {
+      // Authentication remains loading until Amplify configuration and Cognito token restoration finish.
       setState((current) => ({
         ...current,
         isLoading: true,
@@ -148,6 +150,7 @@ export function AuthProvider({ children }) {
     syncAuthState();
 
     const cancel = Hub.listen("auth", ({ payload }) => {
+      // Hub events resynchronize state after interactive sign-in, token, and sign-out transitions.
       if (payload?.event === "signedOut") {
         setState(unauthenticatedState);
         return;

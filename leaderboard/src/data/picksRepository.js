@@ -1,3 +1,4 @@
+// DATA — PICKS — AMPLIFY DATA
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import { getEntryById, updateEntry } from "./entryRepository";
 import { listRawSeasonGames } from "./seasonRepository";
@@ -46,6 +47,8 @@ const buildPickId = (entryId, gameId) =>
   `pick-${sanitizeIdPart(entryId)}-${sanitizeIdPart(gameId)}`;
 
 export const isGameLocked = (kickoffAt, now = Date.now()) => {
+  // BUSINESS RULE — PICKS — GAME LOCKING
+  // Each selection becomes immutable at its own kickoff rather than at one season-wide deadline.
   if (!kickoffAt) {
     return false;
   }
@@ -90,6 +93,8 @@ export const calculatePickSetStatus = ({
   tieBreakerRequired = false,
   tieBreakerValue = null,
 }) => {
+  // BUSINESS RULE — TIEBREAKER — NATIONAL CHAMPIONSHIP
+  // Completion requires every current matchup plus the predicted total when the season config requires it.
   const gameIds = requiredGameIds.filter(Boolean);
 
   if (gameIds.length === 0) {
@@ -198,6 +203,8 @@ export const saveEntryState = async ({
   currentGameIds = [],
   tieBreakerRequired = false,
 }) => {
+  // DATA — PICKS — AMPLIFY DATA
+  // Save changed selections individually so an incomplete entry remains a resumable draft.
   const entry = await getEntryById({ entryId, owner });
 
   if (!entry) {

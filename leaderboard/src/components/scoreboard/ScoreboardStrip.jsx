@@ -1,3 +1,4 @@
+// UI — SCOREBOARD — REACT
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,

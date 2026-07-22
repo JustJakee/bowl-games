@@ -1,3 +1,5 @@
+// DATA — ENTRIES — AMPLIFY DATA
+// Entry operations recheck ownership client-side while Amplify enforces the authoritative owner rules.
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 
 export const ENTRY_SELECTION = [
