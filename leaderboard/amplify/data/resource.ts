@@ -167,23 +167,23 @@ const schema = a.schema({
       entryNameKey: a.string().required(),
       contactEmail: a
         .email()
-        .required()
+        // Restricted fields stay nullable so non-owners can read public entry data without exposing private values.
         .authorization((allow) => [
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
             .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       paymentStatus: a
         .ref("PaymentStatus")
-        .required()
+        // Admins persist payment state; player-facing reads treat a missing or redacted value as unpaid.
         .authorization((allow) => [
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+            .to(["read"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       paidAt: a
         .datetime()

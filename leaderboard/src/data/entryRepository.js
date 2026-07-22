@@ -38,6 +38,14 @@ const throwIfGraphQLError = (result, fallbackMessage) => {
   }
 };
 
+const normalizePlayerEntry = (entry) =>
+  entry
+    ? {
+        ...entry,
+        paymentStatus: entry.paymentStatus || "unpaid",
+      }
+    : entry;
+
 const sortEntries = (entries = []) =>
   (entries || []).slice().sort((left, right) => {
     const leftUpdated = new Date(
@@ -101,7 +109,9 @@ export const listEntriesForSeason = async ({ owner, seasonId }) => {
   });
 
   throwIfGraphQLError(result, "Unable to load your entries.");
-  return sortEntries((result.data || []).filter(Boolean));
+  return sortEntries(
+    (result.data || []).filter(Boolean).map(normalizePlayerEntry),
+  );
 };
 
 export const getEntryById = async ({ entryId, owner }) => {
@@ -119,7 +129,7 @@ export const getEntryById = async ({ entryId, owner }) => {
   );
 
   throwIfGraphQLError(result, "Unable to load the requested entry.");
-  const entry = result.data || null;
+  const entry = normalizePlayerEntry(result.data || null);
   ensureOwnership(entry, owner);
 
   if (entry?.isDeleted) {
@@ -182,7 +192,6 @@ export const createEntry = async ({
       entryName: normalizedEntryName,
       entryNameKey: normalizedEntryName.toLowerCase(),
       contactEmail: normalizedEmail,
-      paymentStatus: "unpaid",
       tieBreakerValue: null,
       isDeleted: false,
     },
@@ -193,7 +202,7 @@ export const createEntry = async ({
   );
 
   throwIfGraphQLError(result, "Unable to create your entry.");
-  return result.data;
+  return normalizePlayerEntry(result.data);
 };
 
 export const updateEntry = async ({
@@ -249,5 +258,5 @@ export const updateEntry = async ({
   });
 
   throwIfGraphQLError(result, "Unable to update your entry.");
-  return result.data;
+  return normalizePlayerEntry(result.data);
 };
