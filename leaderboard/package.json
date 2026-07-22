@@ -38,6 +38,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "amplify:typecheck": "tsc --project tsconfig.amplify.json --noEmit",
+    "seed:test26:outputs": "ampx generate outputs --app-id d1mqezo38x3xb8 --branch gen2-updates --out-dir tmp/amplify-outputs-gen2-updates --profile bobs-bowl-games",
+    "seed:test26:dry-run": "node scripts/test26/seed-test26.mjs dry-run",
+    "seed:test26:apply": "node scripts/test26/seed-test26.mjs apply",
+    "test:seed:test26": "node --test scripts/test26/core.test.mjs",
     "test": "echo \"No test runner is configured for the Vite migration.\""
   },
   "overrides": {

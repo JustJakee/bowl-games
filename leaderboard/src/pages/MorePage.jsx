@@ -1,6 +1,5 @@
 import { Stack, Typography } from "@mui/material";
 import Panel from "../components/common/Panel";
-import TestSeasonSeedPanel from "../components/dev/TestSeasonSeedPanel";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
 
@@ -36,7 +35,6 @@ const MorePage = () => {
           </Typography>
         </Stack>
       </Panel>
-      <TestSeasonSeedPanel role={role} />
     </Stack>
   );
 };

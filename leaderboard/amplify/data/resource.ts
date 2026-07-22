@@ -254,10 +254,7 @@ const schema = a.schema({
         .ref("PaymentStatus")
         // Admins persist payment state; player-facing reads treat a missing or redacted value as unpaid.
         .authorization((allow) => [
-          allow
-            .ownerDefinedIn("owner")
-            .identityClaim("sub")
-            .to(["read"]),
+          allow.ownerDefinedIn("owner").identityClaim("sub").to(["read"]),
           allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Optional payment timestamp protected from broad reads. The schema permits the owner to
