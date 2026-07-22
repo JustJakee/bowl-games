@@ -88,12 +88,14 @@ export const AppDataProvider = ({ children }) => {
   const [picksLoading, setPicksLoading] = useState(false);
   const [picksError, setPicksError] = useState("");
   const [activeEntryId, setActiveEntryIdState] = useState("");
+  const [hydratedEntryId, setHydratedEntryId] = useState("");
   const [savedSelectionsByGameId, setSavedSelectionsByGameId] = useState({});
   const [currentEntryStatus, setCurrentEntryStatus] = useState(
     PICK_SET_STATUS.DRAFT,
   );
   const [staleSavedPickIds, setStaleSavedPickIds] = useState([]);
   const picksRequestIdRef = useRef(0);
+  const hydratedEntryIdRef = useRef("");
 
   const owner = user?.userId || null;
   const currentSeasonId = season?.id || null;
@@ -169,6 +171,10 @@ export const AppDataProvider = ({ children }) => {
 
     setEntriesLoading(true);
     setEntriesError("");
+    setHydratedEntryId("");
+    setSavedSelectionsByGameId({});
+    setCurrentEntryStatus(PICK_SET_STATUS.DRAFT);
+    setStaleSavedPickIds([]);
 
     try {
       const nextEntries = await listEntriesForSeason({
@@ -194,6 +200,7 @@ export const AppDataProvider = ({ children }) => {
       setEntries([]);
       setEntriesError(error?.message || "Unable to load your entries.");
       setActiveEntryId("");
+      setHydratedEntryId("");
       resetActiveEntryState();
     } finally {
       setEntriesLoading(false);
@@ -215,6 +222,10 @@ export const AppDataProvider = ({ children }) => {
   }, [loadEntries]);
 
   useEffect(() => {
+    hydratedEntryIdRef.current = hydratedEntryId;
+  }, [hydratedEntryId]);
+
+  useEffect(() => {
     if (
       authLoading ||
       !hasValidTokens ||
@@ -233,8 +244,17 @@ export const AppDataProvider = ({ children }) => {
     // STATE — PICKS — REACT CONTEXT
     // A request ID prevents a slower prior entry request from overwriting the newly selected entry.
     picksRequestIdRef.current = requestId;
+    const isSelectedEntrySwitch =
+      hydratedEntryIdRef.current !== activeEntryId;
     setPicksLoading(true);
     setPicksError("");
+
+    if (isSelectedEntrySwitch) {
+      setHydratedEntryId("");
+      setSavedSelectionsByGameId({});
+      setCurrentEntryStatus(PICK_SET_STATUS.DRAFT);
+      setStaleSavedPickIds([]);
+    }
 
     Promise.all([
       getEntryById({ entryId: activeEntryId, owner }),
@@ -259,6 +279,7 @@ export const AppDataProvider = ({ children }) => {
           ),
         );
         setSavedSelectionsByGameId(savedPicks.selectionsByGameId);
+        setHydratedEntryId(entry.id);
         setCurrentEntryStatus(
           calculatePickSetStatus({
             requiredGameIds,
@@ -274,7 +295,10 @@ export const AppDataProvider = ({ children }) => {
           return;
         }
 
-        resetActiveEntryState();
+        if (isSelectedEntrySwitch) {
+          resetActiveEntryState();
+          setHydratedEntryId("");
+        }
         setPicksError(error?.message || "Unable to load the selected entry.");
       })
       .finally(() => {
@@ -292,6 +316,7 @@ export const AppDataProvider = ({ children }) => {
     requiredGameIds,
     resetActiveEntryState,
     tieBreakerRequired,
+    hydratedEntryIdRef,
   ]);
 
   const createSeasonEntry = useCallback(
@@ -417,6 +442,7 @@ export const AppDataProvider = ({ children }) => {
       entriesError,
       entriesLoading,
       matchups,
+      hydratedEntryId,
       picksLoading,
       picksError,
       picksLocked,
@@ -444,6 +470,7 @@ export const AppDataProvider = ({ children }) => {
       entriesLoading,
       loadEntries,
       matchups,
+      hydratedEntryId,
       picksError,
       picksLocked,
       picksLoading,

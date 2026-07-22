@@ -32,7 +32,7 @@ const ResetPasswordForm = ({
   return (
     <AuthFormLayout
       title="Reset your password"
-      description="Enter the email associated with your Bob's Bowl Games account and weâ€™ll send a confirmation code."
+      description="Enter the email associated with your Bob's Bowl Games account and we'll send a confirmation code."
       error={fieldError || error}
     >
       <Stack component="form" spacing={2.5} onSubmit={handleSubmit}>

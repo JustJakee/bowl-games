@@ -1,5 +1,11 @@
 // UI — PICKS — REACT
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
@@ -16,6 +22,7 @@ import {
   ButtonBase,
   Chip,
   Collapse,
+  CircularProgress,
   LinearProgress,
   MenuItem,
   Select,
@@ -33,13 +40,14 @@ import { TIEBREAKER_BOWL_NAME } from "../../constants/PickMatchupCard";
 import Panel from "../common/Panel";
 import TeamLogo from "../common/TeamLogo";
 import { useScoreboard } from "../../context/NCAAFDataContext.jsx";
-import {
-  calculatePickSetStatus,
-  PICK_SET_STATUS,
-} from "../../data/picksRepository";
+import { PICK_SET_STATUS } from "../../data/picksRepository";
 import {
   formatPickLockMessage,
 } from "../../utils/pickWindow";
+import { buildPickSelectionView } from "./pickSelectionView";
+import {
+  getSelectedEntryPickLoadRemainingMs,
+} from "./selectedEntryPickLoading";
 import {
   buildAutosaveFailureState,
   buildAutosaveSuccessState,
@@ -90,6 +98,82 @@ const buildNextEntryName = (entries, username) => {
   }
 
   return candidate;
+};
+
+const useSelectedEntryPickLoadGate = ({
+  isLoadingSelectedEntryPicks,
+  selectedEntryId,
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const loadingSessionRef = useRef({ entryId: "", startedAt: 0 });
+  const hideTimerRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (hideTimerRef.current) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+
+    if (!selectedEntryId) {
+      loadingSessionRef.current = { entryId: "", startedAt: 0 };
+      setIsVisible(false);
+      return undefined;
+    }
+
+    if (isLoadingSelectedEntryPicks) {
+      if (loadingSessionRef.current.entryId !== selectedEntryId) {
+        loadingSessionRef.current = {
+          entryId: selectedEntryId,
+          startedAt: Date.now(),
+        };
+      }
+
+      setIsVisible(true);
+      return undefined;
+    }
+
+    if (loadingSessionRef.current.entryId !== selectedEntryId) {
+      loadingSessionRef.current = { entryId: "", startedAt: 0 };
+      setIsVisible(false);
+      return undefined;
+    }
+
+    const remainingMs = getSelectedEntryPickLoadRemainingMs({
+      startedAt: loadingSessionRef.current.startedAt,
+      now: Date.now(),
+    });
+
+    if (remainingMs === 0) {
+      loadingSessionRef.current = { entryId: "", startedAt: 0 };
+      setIsVisible(false);
+      return undefined;
+    }
+
+    hideTimerRef.current = window.setTimeout(() => {
+      loadingSessionRef.current = { entryId: "", startedAt: 0 };
+      hideTimerRef.current = null;
+      setIsVisible(false);
+    }, remainingMs);
+
+    return () => {
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    };
+  }, [isLoadingSelectedEntryPicks, selectedEntryId]);
+
+  useEffect(
+    () => () => {
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    },
+    [],
+  );
+
+  return isVisible;
 };
 
 const normalizeColor = (value) => {
@@ -417,6 +501,7 @@ const PicksWorkspace = () => {
     activeEntryId,
     createSeasonEntry,
     currentEntry,
+    hydratedEntryId,
     currentSeasonId,
     defaultContactEmail,
     entries,
@@ -469,7 +554,19 @@ const PicksWorkspace = () => {
     groupedGames.forEach((group) => {
       nextExpanded[group.key] = expandedGroups[group.key] ?? true;
     });
-    setExpandedGroups(nextExpanded);
+    setExpandedGroups((current) => {
+      const currentKeys = Object.keys(current);
+      const nextKeys = Object.keys(nextExpanded);
+
+      if (
+        currentKeys.length === nextKeys.length &&
+        nextKeys.every((key) => current[key] === nextExpanded[key])
+      ) {
+        return current;
+      }
+
+      return nextExpanded;
+    });
   }, [groupedGames]);
 
   useEffect(() => {
@@ -559,38 +656,45 @@ const PicksWorkspace = () => {
   const activeDraft = currentEntry
     ? draftsByEntryId[currentEntry.id] || null
     : null;
-
-  const selectedCount = games.filter((game) =>
-    Boolean(activeDraft?.selectionsByGameId?.[game.id]),
-  ).length;
-  const hasTieBreaker =
-    activeDraft?.tieBreakerValue === 0 ||
-    Boolean(String(activeDraft?.tieBreakerValue || "").trim());
-  const incompleteCount = games.filter((game) => {
-    const hasSelection = Boolean(activeDraft?.selectionsByGameId?.[game.id]);
-    if (!hasSelection) return true;
-    if (game.isTieBreakerGame && tieBreakerRequired && !hasTieBreaker)
-      return true;
-    return false;
-  }).length;
-  const progressPercent =
-    games.length > 0 ? Math.round((selectedCount / games.length) * 100) : 0;
-  const entryStatus = picksLocked
-    ? "LOCKED"
-    : calculatePickSetStatus({
-          requiredGameIds: games.map((game) => game.id),
-          selectionsByGameId: activeDraft?.selectionsByGameId || {},
-          tieBreakerRequired,
-          tieBreakerValue: activeDraft?.tieBreakerValue,
-        }) === PICK_SET_STATUS.COMPLETE
-      ? "COMPLETE"
-      : "DRAFT";
+  const selectedEntryId = currentEntry?.id || "";
+  const pickView = buildPickSelectionView({
+    currentEntry,
+    hydratedEntryId,
+    activeDraft,
+    games,
+    picksLoading,
+    picksLocked,
+    tieBreakerRequired,
+  });
+  const {
+    entryStatus,
+    hasTieBreaker,
+    incompleteCount,
+    isLoadingSelectedEntryPicks,
+    progressPercent,
+    selectedCount,
+    selectionsByGameId,
+    tieBreakerValue,
+  } = pickView;
+  const showSelectedEntryPickLoadingCard = useSelectedEntryPickLoadGate({
+    isLoadingSelectedEntryPicks,
+    selectedEntryId,
+  });
+  const blockSelectedEntryPickUi = showSelectedEntryPickLoadingCard;
+  const progressCountLabel = blockSelectedEntryPickUi
+    ? "-- / --"
+    : `${selectedCount} / ${games.length}`;
+  const progressPercentLabel = blockSelectedEntryPickUi
+    ? "--%"
+    : `${progressPercent}%`;
+  const entryStatusLabel = blockSelectedEntryPickUi ? "--" : entryStatus;
 
   const filteredGames = useMemo(() => {
+    if (blockSelectedEntryPickUi) return [];
     if (!activeDraft) return games;
 
     return games.filter((game) => {
-      const hasSelection = Boolean(activeDraft.selectionsByGameId?.[game.id]);
+      const hasSelection = Boolean(selectionsByGameId?.[game.id]);
       const isIncomplete =
         !hasSelection ||
         (game.isTieBreakerGame && tieBreakerRequired && !hasTieBreaker);
@@ -599,7 +703,15 @@ const PicksWorkspace = () => {
       if (filter === "incomplete") return isIncomplete;
       return true;
     });
-  }, [activeDraft, filter, games, hasTieBreaker, tieBreakerRequired]);
+  }, [
+    activeDraft,
+    filter,
+    games,
+    hasTieBreaker,
+    blockSelectedEntryPickUi,
+    selectionsByGameId,
+    tieBreakerRequired,
+  ]);
 
   const filteredGroups = useMemo(
     () => buildGroups(filteredGames),
@@ -607,7 +719,12 @@ const PicksWorkspace = () => {
   );
 
   useEffect(() => {
-    if (!currentEntry || !activeDraft?.dirty || picksLocked) {
+    if (
+      !currentEntry ||
+      !activeDraft?.dirty ||
+      picksLocked ||
+      picksLoading
+    ) {
       return;
     }
 
@@ -658,12 +775,13 @@ const PicksWorkspace = () => {
     email,
     profile?.id,
     picksLocked,
+    picksLoading,
     retryKey,
     saveCurrentPicks,
   ]);
 
   const updateActiveDraft = (updater) => {
-    if (!currentEntry) {
+    if (!currentEntry || blockSelectedEntryPickUi) {
       return;
     }
 
@@ -694,7 +812,7 @@ const PicksWorkspace = () => {
   };
 
   const handleTeamPick = (gameId, teamCode) => {
-    if (picksLocked) {
+    if (picksLocked || blockSelectedEntryPickUi) {
       return;
     }
 
@@ -708,7 +826,7 @@ const PicksWorkspace = () => {
   };
 
   const handleTieBreakerChange = (value) => {
-    if (picksLocked) {
+    if (picksLocked || blockSelectedEntryPickUi) {
       return;
     }
 
@@ -772,8 +890,7 @@ const PicksWorkspace = () => {
 
   if (
     loading ||
-    entriesLoading ||
-    (picksLoading && currentEntry && !activeDraft)
+    entriesLoading
   ) {
     return (
       <Panel elevated>
@@ -894,77 +1011,132 @@ const PicksWorkspace = () => {
                     entryName: event.target.value,
                   })
                 }
-                disabled={!currentEntry}
+                disabled={!currentEntry || blockSelectedEntryPickUi}
               />
             </Stack>
 
-            <Stack spacing={1.15} sx={{ minWidth: 0 }}>
+            <Stack
+              spacing={1.15}
+              sx={{
+                minWidth: 0,
+                display: blockSelectedEntryPickUi ? "none" : "flex",
+              }}
+            >
               <Typography variant="overline" color="text.secondary">
                 Picks Progress
               </Typography>
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="baseline"
-                flexWrap="wrap"
-              >
-                <Typography
-                  variant="h4"
-                  sx={{ fontSize: { xs: "2rem", md: "2.25rem" } }}
-                >
-                  {selectedCount} / {games.length}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  Picks Complete
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <LinearProgress
-                  variant="determinate"
-                  value={progressPercent}
-                  sx={{
-                    flex: 1,
-                    height: 12,
-                    borderRadius: 999,
-                    bgcolor: alpha(theme.palette.common.white, 0.12),
-                    "& .MuiLinearProgress-bar": {
-                      borderRadius: 999,
-                      bgcolor: "primary.main",
-                    },
-                  }}
-                />
-                <Typography variant="h6">{progressPercent}%</Typography>
-              </Stack>
-              <SaveStatus
-                state={saveState.state}
-                message={saveState.message}
-                detail={saveState.detail}
-                onRetry={handleRetrySave}
-              />
+              {blockSelectedEntryPickUi ? (
+                <Stack spacing={1}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontSize: { xs: "2rem", md: "2.25rem" },
+                      color: "text.secondary",
+                    }}
+                  >
+                    {progressCountLabel}
+                  </Typography>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <CircularProgress size={20} thickness={5} />
+                    <Typography variant="body1" color="text.secondary">
+                      Loading picks…
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Box
+                      sx={{
+                        flex: 1,
+                        height: 12,
+                        borderRadius: 999,
+                        bgcolor: alpha(theme.palette.common.white, 0.08),
+                      }}
+                    />
+                    <Typography variant="h6" color="text.secondary">
+                      {progressPercentLabel}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              ) : (
+                <>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="baseline"
+                    flexWrap="wrap"
+                  >
+                    <Typography
+                      variant="h4"
+                      sx={{ fontSize: { xs: "2rem", md: "2.25rem" } }}
+                    >
+                      {selectedCount} / {games.length}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Picks Complete
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <LinearProgress
+                      variant="determinate"
+                      value={progressPercent}
+                      sx={{
+                        flex: 1,
+                        height: 12,
+                        borderRadius: 999,
+                        bgcolor: alpha(theme.palette.common.white, 0.12),
+                        "& .MuiLinearProgress-bar": {
+                          borderRadius: 999,
+                          bgcolor: "primary.main",
+                          transition: "none",
+                        },
+                      }}
+                    />
+                    <Typography variant="h6">{progressPercentLabel}</Typography>
+                  </Stack>
+                </>
+              )}
+              <Box sx={{ minHeight: 46, display: "flex", alignItems: "center" }}>
+                {blockSelectedEntryPickUi ? null : (
+                  <SaveStatus
+                    state={saveState.state}
+                    message={saveState.message}
+                    detail={saveState.detail}
+                    onRetry={handleRetrySave}
+                  />
+                )}
+              </Box>
             </Stack>
 
-            <Stack spacing={1.1}>
+            <Stack
+              spacing={1.1}
+              sx={{
+                display: blockSelectedEntryPickUi ? "none" : "flex",
+              }}
+            >
               <Typography variant="overline" color="text.secondary">
                 Entry Status
               </Typography>
               <Chip
-                label={entryStatus}
+                label={entryStatusLabel}
                 sx={{
                   alignSelf: "flex-start",
                   px: 1,
                   height: 34,
                   bgcolor:
-                    entryStatus === "LOCKED"
-                      ? alpha(theme.palette.error.main, 0.16)
-                      : entryStatus === "COMPLETE"
-                        ? alpha(theme.palette.success.main, 0.16)
-                        : alpha(theme.palette.common.white, 0.08),
+                    blockSelectedEntryPickUi
+                      ? alpha(theme.palette.common.white, 0.08)
+                      : entryStatus === "LOCKED"
+                        ? alpha(theme.palette.error.main, 0.16)
+                        : entryStatus === "COMPLETE"
+                          ? alpha(theme.palette.success.main, 0.16)
+                          : alpha(theme.palette.common.white, 0.08),
                   color:
-                    entryStatus === "LOCKED"
-                      ? "error.main"
-                      : entryStatus === "COMPLETE"
-                        ? "success.main"
-                        : "text.primary",
+                    blockSelectedEntryPickUi
+                      ? "text.secondary"
+                      : entryStatus === "LOCKED"
+                        ? "error.main"
+                        : entryStatus === "COMPLETE"
+                          ? "success.main"
+                          : "text.primary",
                   fontWeight: 800,
                 }}
               />
@@ -978,7 +1150,7 @@ const PicksWorkspace = () => {
 
           <Box
             sx={{
-              display: "grid",
+              display: blockSelectedEntryPickUi ? "none" : "grid",
               gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) auto" },
               gap: 1.5,
               alignItems: "stretch",
@@ -1032,7 +1204,7 @@ const PicksWorkspace = () => {
         </Stack>
       </Panel>
 
-      {entries.length === 0 ? (
+      {!blockSelectedEntryPickUi && entries.length === 0 ? (
         <Panel elevated>
           <Typography variant="body1" sx={{ fontWeight: 700 }}>
             Create your first entry to start making picks.
@@ -1043,7 +1215,16 @@ const PicksWorkspace = () => {
         </Panel>
       ) : null}
 
-      {entries.length > 0
+      {blockSelectedEntryPickUi ? (
+        <Panel elevated>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <CircularProgress size={22} thickness={5} />
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>
+              Loading selected entry picks...
+            </Typography>
+          </Stack>
+        </Panel>
+      ) : entries.length > 0
         ? filteredGroups.map((group) => (
             <Box
               key={group.key}
@@ -1108,12 +1289,11 @@ const PicksWorkspace = () => {
                   }
                 >
                   {group.games.map((game) => {
-                    const selection =
-                      activeDraft?.selectionsByGameId?.[game.id] || "";
+                    const selection = selectionsByGameId?.[game.id] || "";
                     const persistedSelection =
                       savedSelectionsByGameId?.[game.id] || "";
                     const metaLabel = formatPicksMetaLabel(game);
-                    const gameLocked = picksLocked;
+                    const gameLocked = picksLocked || blockSelectedEntryPickUi;
                     const matchupSaveState = !selection
                       ? ""
                       : selection === persistedSelection
@@ -1379,7 +1559,7 @@ const PicksWorkspace = () => {
                               <TextField
                                 label="Total Points"
                                 type="number"
-                                value={activeDraft?.tieBreakerValue ?? ""}
+                                value={tieBreakerValue ?? ""}
                                 size="small"
                                 disabled={picksLocked}
                                 onChange={(event) =>
@@ -1404,7 +1584,7 @@ const PicksWorkspace = () => {
           ))
         : null}
 
-      {entries.length > 0 && filteredGroups.length === 0 ? (
+      {!blockSelectedEntryPickUi && entries.length > 0 && filteredGroups.length === 0 ? (
         <Panel elevated>
           <Typography variant="body1">
             No games match the current filter.

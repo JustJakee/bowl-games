@@ -63,7 +63,7 @@ const DashboardHero = ({ username, deadline }) => {
                 variant="contained"
                 sx={{ minHeight: 42, px: 2.5 }}
               >
-                Make Your Picks
+                Go to Picks
               </Button>
               <Button
                 component={RouterLink}

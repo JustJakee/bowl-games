@@ -80,7 +80,7 @@ const Leaderboard = ({ playerPicks, matchups, rows, loading = false }) => {
     return (
       <div className="leaderboard-v2 loading-state">
         <CircularProgress size={20} />
-        <span>Loading leaderboardâ€¦</span>
+        <span>Loading leaderboard</span>
       </div>
     );
   }
