@@ -102,7 +102,7 @@ const SeasonStatusPanel = ({ deadline, links }) => {
             color="text.secondary"
             sx={{ fontSize: "0.875rem", lineHeight: 1.45 }}
           >
-            Make sure every entry is finished before the first bowl kicks off.
+            Make sure every entry is finished before the global pick deadline.
             Leaderboard and schedule views stay live throughout the season.
           </Typography>
         </Box>

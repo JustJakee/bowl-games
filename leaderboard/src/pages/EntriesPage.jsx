@@ -52,6 +52,7 @@ const EntriesPage = () => {
     entriesError,
     entriesLoading,
     matchups,
+    picksLocked,
     savedSelectionsByGameId,
     setActiveEntryId,
     tieBreakerRequired,
@@ -120,7 +121,9 @@ const EntriesPage = () => {
               {entries.map((entry) => {
                 const isCurrent = currentEntry?.id === entry.id;
                 const status = isCurrent
-                  ? calculatePickSetStatus({
+                  ? picksLocked
+                    ? "LOCKED"
+                    : calculatePickSetStatus({
                       requiredGameIds: matchups.map((matchup) => matchup.id),
                       selectionsByGameId: savedSelectionsByGameId,
                       tieBreakerRequired,
@@ -149,7 +152,9 @@ const EntriesPage = () => {
                     <Stack direction="row" spacing={1} alignItems="center">
                       <StatusChip
                         label={
-                          status === PICK_SET_STATUS.COMPLETE
+                          status === "LOCKED"
+                            ? "Locked"
+                            : status === PICK_SET_STATUS.COMPLETE
                             ? "Complete"
                             : "Draft"
                         }

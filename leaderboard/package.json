@@ -42,7 +42,7 @@
     "seed:test26:dry-run": "node scripts/test26/seed-test26.mjs dry-run",
     "seed:test26:apply": "node scripts/test26/seed-test26.mjs apply",
     "test:entry": "tsx --test src/data/entryRepository.test.js",
-    "test:picks": "tsx --test src/data/picksRepository.test.js src/components/picks/picksAutosaveState.test.js",
+    "test:picks": "tsx --test src/data/picksRepository.test.js src/components/picks/picksAutosaveState.test.js src/utils/pickWindow.test.js",
     "test:seed:test26": "node --test scripts/test26/core.test.mjs",
     "test": "echo \"No test runner is configured for the Vite migration.\""
   },

@@ -1,6 +1,4 @@
 // DATA — DASHBOARD — MOCK DATA
-export const SEASON_LOCK_DEADLINE = "2026-12-19T11:00:00-06:00";
-
 export const dashboardPickStatus = {
   entryName: "Jake's Picks",
   status: "In Progress",

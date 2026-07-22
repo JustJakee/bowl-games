@@ -25,6 +25,7 @@ const game = {
   teamAAbbr: "AAA",
   teamBAbbr: "BBB",
 };
+const futurePickDeadline = "2099-01-01T12:00:00.000Z";
 
 const createHarness = ({
   initialPicks = [],
@@ -101,6 +102,7 @@ const save = (overrides = {}) =>
     selectionsByGameId: {},
     currentGameIds: ["game-1"],
     tieBreakerRequired: false,
+    picksLockAt: futurePickDeadline,
     ...overrides,
   });
 
@@ -191,6 +193,72 @@ test("a valid tiebreaker is persisted once on Entry and never on Pick", async ()
     },
   ]);
   assert.equal(result.entry.tieBreakerValue, 42);
+});
+
+test("a later scheduled game remains editable before the global picksLockAt", async () => {
+  const { calls } = createHarness();
+  const picksLockAt = "2026-08-02T12:00:00.000Z";
+
+  await save({
+    selectionsByGameId: { "game-1": "AAA" },
+    picksLockAt,
+    now: new Date("2026-08-02T11:59:59.999Z").getTime(),
+  });
+
+  assert.equal(game.kickoffAt, "2099-12-31T12:00:00.000Z");
+  assert.equal(calls.create.length, 1);
+  assert.equal(calls.create[0].selectedTeam, "AAA");
+});
+
+test("at exactly picksLockAt all pick and tiebreaker writes are rejected", async () => {
+  const { calls } = createHarness();
+  const picksLockAt = "2026-08-02T12:00:00.000Z";
+
+  await assert.rejects(
+    save({
+      selectionsByGameId: { "game-1": "AAA" },
+      tieBreakerValue: "42",
+      tieBreakerGameId: "game-1",
+      picksLockAt,
+      now: new Date(picksLockAt).getTime(),
+    }),
+    /All picks are locked/,
+  );
+
+  assert.deepEqual(calls.create, []);
+  assert.deepEqual(calls.update, []);
+  assert.deepEqual(calls.entryUpdate, []);
+});
+
+test("after picksLockAt no player change is persisted", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+    ],
+  });
+  const picksLockAt = "2026-08-02T12:00:00.000Z";
+
+  await assert.rejects(
+    save({
+      selectionsByGameId: { "game-1": "BBB" },
+      tieBreakerValue: "42",
+      tieBreakerGameId: "game-1",
+      picksLockAt,
+      now: new Date("2026-08-02T12:00:00.001Z").getTime(),
+    }),
+    /All picks are locked/,
+  );
+
+  assert.deepEqual(calls.create, []);
+  assert.deepEqual(calls.update, []);
+  assert.deepEqual(calls.entryUpdate, []);
 });
 
 test("Pick create failures are surfaced and do not falsely continue to Entry updates", async () => {

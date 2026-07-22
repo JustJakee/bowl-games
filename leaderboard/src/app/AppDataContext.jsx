@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../auth/AuthContext.jsx";
 import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 import { useScoreboard } from "../context/NCAAFDataContext";
+import { usePickWindowLocked } from "../hooks/usePickWindowLocked";
 import {
   createEntry,
   getEntryById,
@@ -68,7 +69,11 @@ const getActiveEntryStorageKey = (owner, seasonId) =>
   `${ACTIVE_ENTRY_STORAGE_PREFIX}:${owner || "guest"}:${seasonId || "none"}`;
 
 export const AppDataProvider = ({ children }) => {
-  const { allGames: scoreboardGames, season } = useScoreboard();
+  const {
+    allGames: scoreboardGames,
+    season,
+    seasonConfig,
+  } = useScoreboard();
   const {
     email,
     hasValidTokens,
@@ -93,6 +98,8 @@ export const AppDataProvider = ({ children }) => {
   const owner = user?.userId || null;
   const currentSeasonId = season?.id || null;
   const currentSeasonYear = season?.year || null;
+  const picksLockAt = seasonConfig?.picksLockAt || null;
+  const picksLocked = usePickWindowLocked(picksLockAt);
   const activeEntryStorageKey = getActiveEntryStorageKey(
     owner,
     currentSeasonId,
@@ -349,6 +356,7 @@ export const AppDataProvider = ({ children }) => {
         selectionsByGameId,
         currentGameIds: requiredGameIds,
         tieBreakerRequired,
+        picksLockAt,
       });
 
       setEntries((currentEntries) =>
@@ -365,6 +373,7 @@ export const AppDataProvider = ({ children }) => {
     [
       currentSeasonId,
       owner,
+      picksLockAt,
       requiredGameIds,
       tieBreakerGameId,
       tieBreakerRequired,
@@ -410,7 +419,9 @@ export const AppDataProvider = ({ children }) => {
       matchups,
       picksLoading,
       picksError,
+      picksLocked,
       playerPicks,
+      picksLockAt,
       reloadEntries: loadEntries,
       renameSeasonEntry,
       saveCurrentPicks,
@@ -434,8 +445,10 @@ export const AppDataProvider = ({ children }) => {
       loadEntries,
       matchups,
       picksError,
+      picksLocked,
       picksLoading,
       playerPicks,
+      picksLockAt,
       renameSeasonEntry,
       saveCurrentPicks,
       savedSelectionsByGameId,

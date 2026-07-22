@@ -8,6 +8,7 @@ import PickMatchupCard, {
   TIEBREAKER_BOWL_NAME,
 } from "../constants/PickMatchupCard";
 import { useScoreboard } from "../context/NCAAFDataContext";
+import { formatPickLockMessage } from "../utils/pickWindow";
 import "../styles/pick-form.css";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,11 +21,13 @@ const PickForm = ({ onSubmitResult }) => {
     currentEntry,
     currentEntryStatus,
     defaultContactEmail,
+    picksLockAt,
+    picksLocked,
     picksLoading,
     saveCurrentPicks,
     savedSelectionsByGameId,
   } = useAppData();
-  const picksClosed = false;
+  const picksClosed = picksLocked;
   const [picks, setPicks] = useState({});
   const [entryName, setEntryName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -114,6 +117,10 @@ const PickForm = ({ onSubmitResult }) => {
   };
 
   const handleSelect = (gameId, teamCode) => {
+    if (picksClosed) {
+      return;
+    }
+
     setPicks((previous) => ({
       ...previous,
       [gameId]: teamCode,
@@ -126,7 +133,7 @@ const PickForm = ({ onSubmitResult }) => {
 
     if (picksClosed) {
       onSubmitResult?.({
-        message: "Bowl season coming soon. Picks will open once games are set.",
+        message: "All picks are locked because the first game has begun.",
         severity: "info",
       });
       return;
@@ -209,6 +216,7 @@ const PickForm = ({ onSubmitResult }) => {
           {...game}
           selection={picks?.[game.id]}
           onSelect={handleSelect}
+          disabled={picksClosed}
           setTieBreaker={setTieBreaker}
           tieBreaker={tieBreaker}
         />
@@ -262,7 +270,7 @@ const PickForm = ({ onSubmitResult }) => {
           color="primary"
           className="pick-form-submit"
           size="medium"
-          disabled={isSaving}
+          disabled={isSaving || picksClosed}
         >
           {isSaving ? "Saving..." : submitLabel}
         </Button>
@@ -271,7 +279,7 @@ const PickForm = ({ onSubmitResult }) => {
         <div className="pick-form-header">
           <div className="pick-form-field">
             Saved {selectedCount} of {games.length} picks. Status:{" "}
-            {currentEntryStatus}.
+            {picksLocked ? "LOCKED" : currentEntryStatus}.
           </div>
           <div className="pick-form-field">
             Tie-breaker bowl: {TIEBREAKER_BOWL_NAME}
@@ -286,11 +294,10 @@ const PickForm = ({ onSubmitResult }) => {
           aria-labelledby="picks-closed-title"
         >
           <div className="pick-form-overlay__content">
-            <p id="picks-closed-title">Bowl Season Coming Soon</p>
+            <p id="picks-closed-title">Picks Locked</p>
             <p className="pick-form-overlay__subtitle">
-              Picks will open as soon as the matchups are finalized.
+              {formatPickLockMessage(picksLockAt)}
             </p>
-            <p className="pick-form-overlay__subtitle">Check back soon!</p>
           </div>
         </div>
       ) : null}

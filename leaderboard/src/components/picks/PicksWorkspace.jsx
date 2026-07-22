@@ -35,9 +35,11 @@ import TeamLogo from "../common/TeamLogo";
 import { useScoreboard } from "../../context/NCAAFDataContext.jsx";
 import {
   calculatePickSetStatus,
-  isGameLocked,
   PICK_SET_STATUS,
 } from "../../data/picksRepository";
+import {
+  formatPickLockMessage,
+} from "../../utils/pickWindow";
 import {
   buildAutosaveFailureState,
   buildAutosaveSuccessState,
@@ -422,6 +424,8 @@ const PicksWorkspace = () => {
     entriesLoading,
     picksLoading,
     picksError,
+    picksLockAt,
+    picksLocked,
     saveCurrentPicks,
     savedSelectionsByGameId,
     setActiveEntryId,
@@ -452,7 +456,6 @@ const PicksWorkspace = () => {
     () => games.find((game) => game.id === tieBreakerGameId) || null,
     [games, tieBreakerGameId],
   );
-
   useEffect(() => {
     setDraftsByEntryId(readDraftCache(storageKey));
   }, [storageKey]);
@@ -572,9 +575,7 @@ const PicksWorkspace = () => {
   }).length;
   const progressPercent =
     games.length > 0 ? Math.round((selectedCount / games.length) * 100) : 0;
-  const allGamesLocked =
-    games.length > 0 && games.every((game) => isGameLocked(game.startDate));
-  const entryStatus = allGamesLocked
+  const entryStatus = picksLocked
     ? "LOCKED"
     : calculatePickSetStatus({
           requiredGameIds: games.map((game) => game.id),
@@ -606,7 +607,7 @@ const PicksWorkspace = () => {
   );
 
   useEffect(() => {
-    if (!currentEntry || !activeDraft?.dirty) {
+    if (!currentEntry || !activeDraft?.dirty || picksLocked) {
       return;
     }
 
@@ -656,6 +657,7 @@ const PicksWorkspace = () => {
     defaultContactEmail,
     email,
     profile?.id,
+    picksLocked,
     retryKey,
     saveCurrentPicks,
   ]);
@@ -692,9 +694,7 @@ const PicksWorkspace = () => {
   };
 
   const handleTeamPick = (gameId, teamCode) => {
-    const game = games.find((item) => item.id === gameId);
-
-    if (game && isGameLocked(game.startDate)) {
+    if (picksLocked) {
       return;
     }
 
@@ -708,7 +708,7 @@ const PicksWorkspace = () => {
   };
 
   const handleTieBreakerChange = (value) => {
-    if (tieBreakerGame && isGameLocked(tieBreakerGame.startDate)) {
+    if (picksLocked) {
       return;
     }
 
@@ -970,8 +970,7 @@ const PicksWorkspace = () => {
               />
               {games.length > 0 ? (
                 <Typography variant="body2" color="text.secondary">
-                  Per-game locking starts on{" "}
-                  {games[0]?.startDateLabel || "the first kickoff"}.
+                  {formatPickLockMessage(picksLockAt)}
                 </Typography>
               ) : null}
             </Stack>
@@ -1114,7 +1113,7 @@ const PicksWorkspace = () => {
                     const persistedSelection =
                       savedSelectionsByGameId?.[game.id] || "";
                     const metaLabel = formatPicksMetaLabel(game);
-                    const gameLocked = isGameLocked(game.startDate);
+                    const gameLocked = picksLocked;
                     const matchupSaveState = !selection
                       ? ""
                       : selection === persistedSelection
@@ -1333,7 +1332,7 @@ const PicksWorkspace = () => {
                               variant="caption"
                               color="text.secondary"
                             >
-                              Locked at kickoff
+                              Locked at the season deadline
                             </Typography>
                           ) : null}
 
@@ -1382,10 +1381,7 @@ const PicksWorkspace = () => {
                                 type="number"
                                 value={activeDraft?.tieBreakerValue ?? ""}
                                 size="small"
-                                disabled={Boolean(
-                                  tieBreakerGame &&
-                                  isGameLocked(tieBreakerGame.startDate),
-                                )}
+                                disabled={picksLocked}
                                 onChange={(event) =>
                                   handleTieBreakerChange(event.target.value)
                                 }

@@ -1,6 +1,7 @@
 // DATA — PICKS — AMPLIFY DATA
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import { getEntryById, updateEntry } from "./entryRepository";
+import { assertPickWindowOpen } from "../utils/pickWindow";
 
 let testDependencies = null;
 
@@ -65,22 +66,6 @@ const sanitizeIdPart = (value) =>
 
 const buildPickId = (entryId, gameId) =>
   `pick-${sanitizeIdPart(entryId)}-${sanitizeIdPart(gameId)}`;
-
-export const isGameLocked = (kickoffAt, now = Date.now()) => {
-  // BUSINESS RULE — PICKS — GAME LOCKING
-  // Each selection becomes immutable at its own kickoff rather than at one season-wide deadline.
-  if (!kickoffAt) {
-    return false;
-  }
-
-  const kickoffTime = new Date(kickoffAt).getTime();
-
-  if (Number.isNaN(kickoffTime)) {
-    return false;
-  }
-
-  return kickoffTime <= now;
-};
 
 const normalizeTieBreakerValue = (tieBreakerValue) => {
   if (
@@ -187,9 +172,6 @@ const validateSelection = ({ game, selectedTeam }) => {
     throw new Error("The selected team does not belong to that game.");
   }
 
-  if (isGameLocked(game?.kickoffAt)) {
-    throw new Error(`"${game?.bowlName || "This game"}" is already locked.`);
-  }
 };
 
 const validateTieBreaker = ({ tieBreakerValue, tieBreakerGame }) => {
@@ -201,10 +183,6 @@ const validateTieBreaker = ({ tieBreakerValue, tieBreakerGame }) => {
 
   if (!tieBreakerGame) {
     throw new Error("The tiebreaker game could not be found for this season.");
-  }
-
-  if (isGameLocked(tieBreakerGame.kickoffAt)) {
-    throw new Error("The tiebreaker is locked because that game has started.");
   }
 
   return normalizedTieBreakerValue;
@@ -222,9 +200,14 @@ export const saveEntryState = async ({
   selectionsByGameId = {},
   currentGameIds = [],
   tieBreakerRequired = false,
+  picksLockAt,
+  now = Date.now(),
 }) => {
   // DATA — PICKS — AMPLIFY DATA
   // Save changed selections individually so an incomplete entry remains a resumable draft.
+  // The entire entry closes at SeasonConfig.picksLockAt, before any player mutation is attempted.
+  assertPickWindowOpen(picksLockAt, now);
+
   const entry = await readEntryById({ entryId, owner });
 
   if (!entry) {

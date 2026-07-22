@@ -17,6 +17,7 @@ const PickMatchupCard = ({
   homeTeam,
   selection,
   onSelect,
+  disabled = false,
 }) => {
   const selectTeam = (teamCode) => {
     onSelect?.(id, teamCode);
@@ -43,6 +44,7 @@ const PickMatchupCard = ({
           record={awayTeam?.record}
           logoUrl={awayTeam?.logoUrl}
           isSelected={selection === awayTeam?.code}
+          disabled={disabled}
           onSelect={selectTeam}
         />
         <VersusBadge />
@@ -54,6 +56,7 @@ const PickMatchupCard = ({
           record={homeTeam?.record}
           logoUrl={homeTeam?.logoUrl}
           isSelected={selection === homeTeam?.code}
+          disabled={disabled}
           onSelect={selectTeam}
         />
         {isTieBreaker && (
@@ -65,6 +68,7 @@ const PickMatchupCard = ({
               type="number"
               size="small"
               fullWidth
+              disabled={disabled}
               onInvalid={(event) =>
                 event.target.setCustomValidity(
                   "Enter tie-breaker total points.",
