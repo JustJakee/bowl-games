@@ -281,3 +281,34 @@ export const updateEntry = async ({
   throwIfGraphQLError(result, "Unable to update your entry.");
   return normalizePlayerEntry(result.data);
 };
+
+export const softDeleteEntry = async ({ entryId, owner, picksLocked }) => {
+  if (picksLocked) {
+    throw new Error("Entries can no longer be deleted after picks lock.");
+  }
+
+  const existingEntry = await getEntryById({ entryId, owner });
+
+  if (!existingEntry) {
+    throw new Error("The requested entry was not found.");
+  }
+
+  if (existingEntry.isDeleted) {
+    return existingEntry;
+  }
+
+  const client = getDataClient();
+  const result = await client.models.Entry.update(
+    {
+      id: existingEntry.id,
+      isDeleted: true,
+    },
+    {
+      selectionSet: ENTRY_SELECTION,
+      authMode: "userPool",
+    },
+  );
+
+  throwIfGraphQLError(result, "Unable to delete your entry.");
+  return normalizePlayerEntry(result.data);
+};

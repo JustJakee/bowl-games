@@ -5,9 +5,15 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import {
   Alert,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   List,
   ListItemButton,
   ListItemText,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
@@ -15,6 +21,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Panel from "../components/common/Panel";
 import StatusChip from "../components/common/StatusChip";
 import { useAppData } from "../app/AppDataContext.jsx";
+import { useAuth } from "../auth/AuthContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
 import {
   calculatePickSetStatus,
@@ -44,9 +51,12 @@ const buildNextEntryName = (entries, username) => {
 const EntriesPage = () => {
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const { profile } = useUserProfile();
   const {
     createSeasonEntry,
+    deleteSeasonEntry,
     currentEntry,
     entries,
     entriesError,
@@ -59,6 +69,13 @@ const EntriesPage = () => {
   } = useAppData();
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
+  const [deleteDialogEntry, setDeleteDialogEntry] = useState(null);
+  const [deletingEntryId, setDeletingEntryId] = useState("");
+  const [deleteNotice, setDeleteNotice] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
   const handleCreateEntry = async () => {
     setCreating(true);
@@ -80,6 +97,50 @@ const EntriesPage = () => {
     }
   };
 
+  const handleOpenDeleteDialog = (entry) => {
+    if (picksLocked) {
+      return;
+    }
+
+    setDeleteDialogEntry(entry);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (deletingEntryId) {
+      return;
+    }
+
+    setDeleteDialogEntry(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteDialogEntry) {
+      return;
+    }
+
+    setDeletingEntryId(deleteDialogEntry.id);
+    setError("");
+
+    try {
+      await deleteSeasonEntry({ entryId: deleteDialogEntry.id });
+      setDeleteNotice({
+        open: true,
+        severity: "success",
+        message: "Entry deleted.",
+      });
+      setDeleteDialogEntry(null);
+    } catch (deleteError) {
+      setDeleteNotice({
+        open: true,
+        severity: "error",
+        message: "Could not delete entry. Please try again.",
+      });
+      setError(deleteError?.message || "Unable to delete the entry.");
+    } finally {
+      setDeletingEntryId("");
+    }
+  };
+
   return (
     <Stack spacing={2}>
       {entriesError ? <Alert severity="error">{entriesError}</Alert> : null}
@@ -98,14 +159,20 @@ const EntriesPage = () => {
               </Typography>
               <Typography variant="h4">My Entries</Typography>
             </div>
-            <Button
-              variant="contained"
-              startIcon={<AddRoundedIcon />}
-              onClick={handleCreateEntry}
-              disabled={creating}
-            >
-              {creating ? "Creating..." : "New Entry"}
-            </Button>
+            {!isAdmin ? (
+              <Button
+                variant="contained"
+                startIcon={<AddRoundedIcon />}
+                onClick={handleCreateEntry}
+                disabled={creating}
+              >
+                {creating ? "Creating..." : "New Entry"}
+              </Button>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Admin accounts cannot create entries.
+              </Typography>
+            )}
           </Stack>
           {entriesLoading ? (
             <Typography variant="body1">Loading your entries...</Typography>
@@ -116,7 +183,7 @@ const EntriesPage = () => {
               making picks.
             </Typography>
           ) : null}
-          {!entriesLoading && entries.length > 0 ? (
+            {!entriesLoading && entries.length > 0 ? (
             <List disablePadding>
               {entries.map((entry) => {
                 const isCurrent = currentEntry?.id === entry.id;
@@ -150,6 +217,19 @@ const EntriesPage = () => {
                       primaryTypographyProps={{ fontWeight: 700 }}
                     />
                     <Stack direction="row" spacing={1} alignItems="center">
+                      <Button
+                        size="small"
+                        color="error"
+                        variant="outlined"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleOpenDeleteDialog(entry);
+                        }}
+                        disabled={picksLocked || deletingEntryId === entry.id}
+                        sx={{ minWidth: 0, whiteSpace: "nowrap" }}
+                      >
+                        {deletingEntryId === entry.id ? "Deleting..." : "Delete"}
+                      </Button>
                       <StatusChip
                         label={
                           status === "LOCKED"
@@ -166,8 +246,59 @@ const EntriesPage = () => {
               })}
             </List>
           ) : null}
+          {picksLocked ? (
+            <Typography variant="body2" color="text.secondary">
+              Entries can no longer be deleted after picks lock time.
+            </Typography>
+          ) : null}
         </Stack>
       </Panel>
+
+      <Dialog
+        open={Boolean(deleteDialogEntry)}
+        onClose={handleCloseDeleteDialog}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Delete Entry?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this entry, this is permanent
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} disabled={Boolean(deletingEntryId)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+            disabled={Boolean(deletingEntryId)}
+          >
+            {deletingEntryId ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={deleteNotice.open}
+        autoHideDuration={3500}
+        onClose={() =>
+          setDeleteNotice((current) => ({ ...current, open: false }))
+        }
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={deleteNotice.severity}
+          variant="filled"
+          onClose={() =>
+            setDeleteNotice((current) => ({ ...current, open: false }))
+          }
+        >
+          {deleteNotice.message}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };

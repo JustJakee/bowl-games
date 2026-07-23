@@ -5,6 +5,7 @@ import {
   createEntry,
   getEntryById,
   listEntriesForSeason,
+  softDeleteEntry,
   updateEntry,
 } from "./entryRepository";
 
@@ -193,4 +194,63 @@ test("updateEntry skips the Amplify mutation when no Entry fields changed", asyn
 
   assert.equal(updateCalled, false);
   assert.equal(result.id, "amplify-entry-id");
+});
+
+test("softDeleteEntry marks the existing Entry as deleted without removing it", async () => {
+  let updatePayload;
+  __setEntryRepositoryDataClientForTests({
+    models: {
+      Entry: {
+        get: async () => ({ data: existingEntry }),
+        update: async (payload) => {
+          updatePayload = payload;
+          return {
+            data: {
+              ...existingEntry,
+              isDeleted: true,
+            },
+          };
+        },
+      },
+    },
+  });
+
+  const result = await softDeleteEntry({
+    entryId: "amplify-entry-id",
+    owner: "user-sub",
+    picksLocked: false,
+  });
+
+  assert.deepEqual(updatePayload, {
+    id: "amplify-entry-id",
+    isDeleted: true,
+  });
+  assert.equal(result.isDeleted, true);
+  assert.equal(result.id, "amplify-entry-id");
+});
+
+test("softDeleteEntry is blocked after picks lock", async () => {
+  let updateCalled = false;
+  __setEntryRepositoryDataClientForTests({
+    models: {
+      Entry: {
+        get: async () => ({ data: existingEntry }),
+        update: async () => {
+          updateCalled = true;
+          throw new Error("update should not be called");
+        },
+      },
+    },
+  });
+
+  await assert.rejects(
+    softDeleteEntry({
+      entryId: "amplify-entry-id",
+      owner: "user-sub",
+      picksLocked: true,
+    }),
+    /no longer be deleted/,
+  );
+
+  assert.equal(updateCalled, false);
 });

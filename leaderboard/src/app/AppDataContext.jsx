@@ -16,6 +16,7 @@ import { usePickWindowLocked } from "../hooks/usePickWindowLocked";
 import {
   createEntry,
   getEntryById,
+  softDeleteEntry,
   listEntriesForSeason,
   updateEntry,
 } from "../data/entryRepository";
@@ -80,8 +81,10 @@ export const AppDataProvider = ({ children }) => {
     isAuthenticated,
     isConfigured,
     isLoading: authLoading,
+    role,
     user,
   } = useAuth();
+  const isAdmin = role === "admin";
   const [entries, setEntries] = useState([]);
   const [entriesLoading, setEntriesLoading] = useState(false);
   const [entriesError, setEntriesError] = useState("");
@@ -321,6 +324,10 @@ export const AppDataProvider = ({ children }) => {
 
   const createSeasonEntry = useCallback(
     async ({ entryName, userProfileId }) => {
+      if (isAdmin) {
+        throw new Error("Admin accounts cannot create entries.");
+      }
+
       const createdEntry = await createEntry({
         owner,
         seasonId: currentSeasonId,
@@ -335,7 +342,42 @@ export const AppDataProvider = ({ children }) => {
 
       return createdEntry;
     },
-    [currentSeasonId, email, owner, resetActiveEntryState, setActiveEntryId],
+    [currentSeasonId, email, isAdmin, owner, resetActiveEntryState, setActiveEntryId],
+  );
+
+  const deleteSeasonEntry = useCallback(
+    async ({ entryId }) => {
+      if (!entryId) {
+        throw new Error("The requested entry was not found.");
+      }
+
+      const activeEntryWasDeleted = activeEntryId === entryId;
+      const nextEntryId = entries.find((entry) => entry.id !== entryId)?.id || "";
+      const deletedEntry = await softDeleteEntry({
+        entryId,
+        owner,
+        picksLocked,
+      });
+
+      setEntries((currentEntries) =>
+        currentEntries.filter((entry) => entry.id !== deletedEntry.id),
+      );
+
+      if (activeEntryWasDeleted) {
+        setActiveEntryId(nextEntryId);
+        resetActiveEntryState();
+      }
+
+      return deletedEntry;
+    },
+    [
+      activeEntryId,
+      entries,
+      owner,
+      picksLocked,
+      resetActiveEntryState,
+      setActiveEntryId,
+    ],
   );
 
   const renameSeasonEntry = useCallback(
@@ -438,6 +480,8 @@ export const AppDataProvider = ({ children }) => {
       currentSeasonId,
       currentSeasonYear,
       defaultContactEmail: email || "",
+      isAdmin,
+      deleteSeasonEntry,
       entries,
       entriesError,
       entriesLoading,
@@ -465,6 +509,8 @@ export const AppDataProvider = ({ children }) => {
       currentSeasonId,
       currentSeasonYear,
       email,
+      isAdmin,
+      deleteSeasonEntry,
       entries,
       entriesError,
       entriesLoading,

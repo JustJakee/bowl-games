@@ -494,7 +494,8 @@ const PicksWorkspace = () => {
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [searchParams, setSearchParams] = useSearchParams();
-  const { email } = useAuth();
+  const { email, role } = useAuth();
+  const isAdmin = role === "admin";
   const { profile } = useUserProfile();
   const { allGames, loading, error } = useScoreboard();
   const {
@@ -950,7 +951,12 @@ const PicksWorkspace = () => {
               <Typography variant="overline" color="text.secondary">
                 My Entry
               </Typography>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25}>
+              <Stack
+                direction="row"
+                spacing={1.25}
+                alignItems="center"
+                sx={{ flexWrap: "nowrap" }}
+              >
                 <Select
                   value={activeEntryId || ""}
                   onChange={(event) => {
@@ -970,6 +976,8 @@ const PicksWorkspace = () => {
                   disabled={entries.length === 0}
                   displayEmpty
                   sx={{
+                    flex: 1,
+                    minWidth: 0,
                     minHeight: 44,
                     "& .MuiSelect-select": {
                       display: "flex",
@@ -993,10 +1001,17 @@ const PicksWorkspace = () => {
                   variant="outlined"
                   startIcon={<AddRoundedIcon />}
                   onClick={handleNewEntry}
-                  disabled={creatingEntry || !currentSeasonId}
+                  disabled={creatingEntry || !currentSeasonId || isAdmin}
                   sx={{
                     whiteSpace: "nowrap",
-                    alignSelf: { xs: "stretch", sm: "auto" },
+                    flexShrink: 0,
+                    alignSelf: "center",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    "& .MuiButton-startIcon": {
+                      marginTop: 0,
+                      marginBottom: 0,
+                    },
                   }}
                 >
                   {creatingEntry ? "Creating..." : "New Entry"}
