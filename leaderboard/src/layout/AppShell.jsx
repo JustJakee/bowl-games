@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
@@ -32,11 +32,13 @@ const drawerLinks = [
 
 const AppShell = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
   const { signOut, role, email } = useAuth();
   const { profile } = useUserProfile();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const username = profile?.username || "Player";
+  const hideScoreboard = pathname === "/schedule" || pathname.startsWith("/schedule/");
 
   return (
     <Box sx={{ minHeight: "100vh", overflowX: "hidden" }}>
@@ -76,9 +78,9 @@ const AppShell = () => {
             pb: { xs: "calc(92px + env(safe-area-inset-bottom))", lg: 5 },
           }}
         >
-          <ScoreboardStrip />
+          {hideScoreboard ? null : <ScoreboardStrip />}
 
-          <Box sx={{ pt: { xs: 2, lg: 2 }, mt: 2 }}>
+          <Box sx={{ pt: { xs: 2, lg: 2 }, mt: hideScoreboard ? 0 : 2 }}>
             <Outlet />
           </Box>
         </Box>
