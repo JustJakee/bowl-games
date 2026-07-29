@@ -13,6 +13,8 @@ import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import TvRoundedIcon from "@mui/icons-material/TvRounded";
 import TeamLogo from "./common/TeamLogo";
 import { useScoreboard } from "../context/NCAAFDataContext";
+import { useGamePickSplitViews } from "../hooks/useGamePickSplitViews";
+import { getGamePickActionState } from "../utils/gamePickSplits";
 import "../styles/schedule-view.css";
 
 const DATE_KEY_FORMATTER = new Intl.DateTimeFormat(undefined, {
@@ -126,6 +128,111 @@ const ScheduleNetworkMeta = ({ network }) => (
   </span>
 );
 
+const PickSplitTeamRow = ({ team, revealed }) => {
+  return (
+    <div className="schedule-pick-team">
+      <div className="schedule-pick-team-header">
+        <span className="schedule-pick-team-name">{team.name}</span>
+        {revealed ? (
+          <span className="schedule-pick-count">
+            {team.count} {team.count === 1 ? "pick" : "picks"} ·{" "}
+            {team.percentage}%
+          </span>
+        ) : null}
+      </div>
+      {revealed ? (
+        <div className="schedule-pick-bar" aria-hidden="true">
+          <span style={{ width: `${team.percentage}%` }} />
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+const OwnedEntryPicks = ({ picks }) => {
+  return (
+    <div className="schedule-owned-picks">
+      <div className="schedule-pick-split-title">Your Picks</div>
+      {picks.length === 0 ? (
+        <p className="schedule-pick-hidden-copy">
+          No picks saved for your entries.
+        </p>
+      ) : (
+        <div className="schedule-owned-pick-list">
+          {picks.map((pick) => (
+            <div key={pick.entryId} className="schedule-owned-pick-row">
+              <span className="schedule-owned-entry-name">{pick.entryName}</span>
+              <span className="schedule-owned-team-name">
+                {pick.selectedTeamName || pick.selectedTeam}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ScheduleCardPickSplit = ({ game, pickSplit, loading, error }) => {
+  if (loading && !pickSplit) {
+    return (
+      <div className="schedule-pick-split schedule-pick-split--loading">
+        Loading pick breakdown...
+      </div>
+    );
+  }
+
+  if (error && !pickSplit) {
+    return (
+      <div className="schedule-pick-split schedule-pick-split--error">
+        Pick breakdown unavailable.
+      </div>
+    );
+  }
+
+  if (!pickSplit) {
+    return null;
+  }
+
+  const actionState = getGamePickActionState(pickSplit);
+  const action = actionState.enabled ? (
+    <RouterLink className="schedule-pick-link" to={`/schedule/${game.id}`}>
+      {actionState.label}
+    </RouterLink>
+  ) : (
+    <button
+      type="button"
+      className="schedule-pick-link schedule-pick-link--disabled"
+      disabled
+      aria-disabled="true"
+    >
+      {actionState.label}
+    </button>
+  );
+
+  if (!pickSplit.isLocked) {
+    return (
+      <div className="schedule-pick-split">
+        <OwnedEntryPicks picks={pickSplit.ownedPicks} />
+        {action}
+      </div>
+    );
+  }
+
+  return (
+    <div className="schedule-pick-split">
+      <div className="schedule-pick-split-title">Pick Split</div>
+      <div className="schedule-pick-teams">
+        {pickSplit.teamSplits.map((team) => (
+          <PickSplitTeamRow key={team.key || team.side} team={team} revealed />
+        ))}
+      </div>
+      <OwnedEntryPicks picks={pickSplit.ownedPicks} />
+      {action}
+    </div>
+  );
+};
+
 const TeamRow = ({ game, side }) => {
   const team = game?.[side] || {};
   const teamName = team.displayName || team.abbr || "TBD";
@@ -138,10 +245,6 @@ const TeamRow = ({ game, side }) => {
           alt={`${teamName} logo`}
           abbr={team.abbr}
           size={34}
-          sx={{
-            border: "1px solid rgba(245,248,255,0.18)",
-            backgroundColor: "rgba(255,255,255,0.05)",
-          }}
         />
         <span className="schedule-team-name">{teamName}</span>
       </div>
@@ -149,7 +252,7 @@ const TeamRow = ({ game, side }) => {
   );
 };
 
-const ScheduleCard = ({ game }) => {
+const ScheduleCard = ({ game, pickSplit, pickLoading, pickError }) => {
   const statusKind = getStatusKind(game);
   const network = game?.network || "Network TBD";
   const venue = getVenueText(game);
@@ -182,11 +285,18 @@ const ScheduleCard = ({ game }) => {
           {getMetaTime(game)}
         </span>
       </footer>
+
+      <ScheduleCardPickSplit
+        game={game}
+        pickSplit={pickSplit}
+        loading={pickLoading}
+        error={pickError}
+      />
     </article>
   );
 };
 
-const ScheduleDateSection = ({ group, mobile }) => {
+const ScheduleDateSection = ({ group, mobile, pickSplits, pickLoading, pickError }) => {
   const gameCount = group.games.length;
   const headingId = `schedule-date-${group.key.replace(/[^a-z0-9]/gi, "-")}`;
 
@@ -202,7 +312,13 @@ const ScheduleDateSection = ({ group, mobile }) => {
       </div>
       <div className="schedule-date-grid">
         {group.games.map((game, index) => (
-          <ScheduleCard key={game?.id || `${group.key}-${index}`} game={game} />
+          <ScheduleCard
+            key={game?.id || `${group.key}-${index}`}
+            game={game}
+            pickSplit={pickSplits[game?.id]}
+            pickLoading={pickLoading}
+            pickError={pickError}
+          />
         ))}
       </div>
     </section>
@@ -214,6 +330,11 @@ const ScheduleView = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const groupedGames = groupGamesByDate(scoreboardGames);
+  const {
+    viewsByGameId: pickSplits,
+    loading: pickSplitsLoading,
+    error: pickSplitsError,
+  } = useGamePickSplitViews(scoreboardGames);
 
   if (loading) {
     return (
@@ -243,7 +364,7 @@ const ScheduleView = () => {
       >
         <Box>
           <Typography component="h1" className="schedule-page-title">
-            2026-27 Bowl Schedule
+            2026-27 Bowl Games
           </Typography>
           <Typography className="schedule-page-subtitle">
             Comprehensive list of all upcoming NCAA bowl games, live scores, TV
@@ -273,6 +394,9 @@ const ScheduleView = () => {
               key={group.key}
               group={group}
               mobile={isMobile}
+              pickSplits={pickSplits}
+              pickLoading={pickSplitsLoading}
+              pickError={pickSplitsError}
             />
           ))}
         </div>

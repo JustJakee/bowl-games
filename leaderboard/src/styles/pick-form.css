@@ -377,9 +377,11 @@
 }
 
 .team-pick-logo {
+  display: block;
   width: 36px;
   height: 36px;
-  background: rgba(197, 197, 197, 0.24);
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .team-pick-option.team-home .team-pick-meta {

@@ -441,11 +441,6 @@ const TeamPickButton = ({ disabled, selected, team, onClick }) => (
             alt={`${team.displayName} logo`}
             abbr={team.abbr}
             size={selected ? 52 : 48}
-            sx={{
-              bgcolor: selected
-                ? alpha(team.color || "#ffcb05", 0.16)
-                : "rgba(255,255,255,0.08)",
-            }}
           />
           <Box sx={{ minWidth: 0 }}>
             <Typography

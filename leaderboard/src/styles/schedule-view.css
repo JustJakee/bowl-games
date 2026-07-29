@@ -281,6 +281,174 @@
   color: #ffcb05;
 }
 
+.schedule-pick-split {
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(216, 225, 238, 0.1);
+}
+
+.schedule-pick-split--loading,
+.schedule-pick-split--error,
+.schedule-pick-hidden-copy {
+  color: #9fb2ca;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.schedule-pick-split--error {
+  color: #ffcf81;
+}
+
+.schedule-pick-split-title {
+  color: #ffcb05;
+  font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.schedule-pick-hidden-copy {
+  margin: 0.3rem 0 0;
+}
+
+.schedule-pick-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+
+.schedule-pick-team {
+  min-width: 0;
+}
+
+.schedule-pick-team-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.schedule-pick-team-name {
+  min-width: 0;
+  overflow: hidden;
+  color: #edf4ff;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schedule-pick-count {
+  flex: 0 0 auto;
+  color: #d5dfec;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.schedule-pick-bar {
+  height: 7px;
+  margin-top: 0.3rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(159, 178, 202, 0.18);
+}
+
+.schedule-pick-bar span {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: inherit;
+  background: #ffcb05;
+}
+
+.schedule-owned-picks {
+  margin-top: 0.75rem;
+}
+
+.schedule-owned-pick-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.45rem;
+}
+
+.schedule-owned-pick-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(140px, 0.85fr);
+  gap: 0.9rem;
+  align-items: start;
+  padding: 0.38rem 0;
+}
+
+.schedule-owned-pick-row + .schedule-owned-pick-row {
+  border-top: 1px solid rgba(216, 225, 238, 0.08);
+}
+
+.schedule-owned-entry-name,
+.schedule-owned-team-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #edf4ff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.schedule-owned-team-name {
+  color: #f5f8ff;
+  text-align: right;
+}
+
+.schedule-owned-note {
+  color: #ffcb05;
+  font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.schedule-owned-note {
+  margin-top: 0.25rem;
+}
+
+.schedule-pick-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  margin-top: 0.75rem;
+  border: 1px solid rgba(255, 203, 5, 0.42);
+  border-radius: 6px;
+  color: #ffcb05;
+  font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.2;
+  padding: 0.45rem 0.65rem;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.schedule-pick-link:hover,
+.schedule-pick-link:focus-visible {
+  border-color: rgba(255, 203, 5, 0.78);
+  background: rgba(255, 203, 5, 0.08);
+  outline: none;
+}
+
+.schedule-pick-link--disabled,
+.schedule-pick-link--disabled:disabled {
+  border-color: rgba(159, 178, 202, 0.32);
+  background: rgba(159, 178, 202, 0.08);
+  color: #b8c5d6;
+  cursor: default;
+  font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  pointer-events: none;
+}
+
 @media (max-width: 1180px) {
   .schedule-date-grid {
     grid-template-columns: 1fr;
@@ -403,5 +571,51 @@
 
   .schedule-card-time--live {
     color: #ffcb05;
+  }
+
+  .schedule-pick-split {
+    margin-top: 1rem;
+    padding-top: 0.95rem;
+  }
+
+  .schedule-pick-split-title {
+    font-size: 0.95rem;
+  }
+
+  .schedule-pick-hidden-copy,
+  .schedule-pick-split--loading,
+  .schedule-pick-split--error {
+    font-size: 0.95rem;
+  }
+
+  .schedule-pick-team-name {
+    font-size: 1rem;
+    white-space: normal;
+  }
+
+  .schedule-pick-count,
+  .schedule-owned-note {
+    font-size: 0.9rem;
+  }
+
+  .schedule-owned-pick-row {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    padding: 0.48rem 0;
+  }
+
+  .schedule-owned-entry-name,
+  .schedule-owned-team-name {
+    font-size: 0.95rem;
+  }
+
+  .schedule-owned-team-name {
+    color: #ffcb05;
+    text-align: left;
+  }
+
+  .schedule-pick-link {
+    min-height: 42px;
+    font-size: 0.95rem;
   }
 }

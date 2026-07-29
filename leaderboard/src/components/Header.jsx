@@ -88,14 +88,14 @@ const Header = ({ currentPage, setCurrentPage, isLocked, gamesStarted }) => {
         { id: "home", label: "Home" },
         { id: "leaderboard", label: "Leaderboard" },
         { id: "all-picks", label: "All Picks" },
-        { id: "schedule-view", label: "Scores & Schedule" },
+        { id: "schedule-view", label: "Scores & Games" },
         { id: "csv", label: "Download Picks" },
       ]
     : [
         { id: "home", label: "Home" },
         { id: "picks", label: "Enter Your Picks" },
         { id: "leaderboard", label: "Leaderboard" },
-        { id: "schedule-view", label: "Schedule" },
+        { id: "schedule-view", label: "Games" },
       ];
 
   return (

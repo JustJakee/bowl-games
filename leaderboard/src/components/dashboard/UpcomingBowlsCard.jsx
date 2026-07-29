@@ -34,7 +34,7 @@ const UpcomingBowlsCard = () => {
       <Stack spacing={1.5}>
         <SectionHeader
           title="Upcoming Bowls"
-          actionLabel="View Full Schedule"
+          actionLabel="View All Games"
           actionTo="/schedule"
         />
         {loading ? (

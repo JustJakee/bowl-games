@@ -103,7 +103,7 @@ const SeasonStatusPanel = ({ deadline, links }) => {
             sx={{ fontSize: "0.875rem", lineHeight: 1.45 }}
           >
             Make sure every entry is finished before the global pick deadline.
-            Leaderboard and schedule views stay live throughout the season.
+            Leaderboard and games stay live throughout the season.
           </Typography>
         </Box>
       </Stack>

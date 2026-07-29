@@ -64,7 +64,7 @@ export const dashboardLeaderboard = [
 
 export const dashboardQuickLinks = [
   {
-    label: "View Schedule",
+    label: "View Games",
     description: "See every bowl and kickoff",
     to: "/schedule",
     icon: "schedule",

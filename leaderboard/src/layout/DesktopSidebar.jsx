@@ -34,7 +34,7 @@ const primaryNavItems = [
   },
   {
     to: "/schedule",
-    label: "Schedule",
+    label: "Games",
     icon: <CalendarMonthRoundedIcon fontSize="small" />,
   },
   {

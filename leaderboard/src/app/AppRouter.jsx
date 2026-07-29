@@ -5,6 +5,7 @@ import DashboardPage from "../pages/DashboardPage.jsx";
 import LeaderboardPage from "../pages/LeaderboardPage.jsx";
 import PicksPage from "../pages/PicksPage.jsx";
 import EntriesPage from "../pages/EntriesPage.jsx";
+import GameDetailPage from "../pages/GameDetailPage.jsx";
 import SchedulePage from "../pages/SchedulePage.jsx";
 import RulesPage from "../pages/RulesPage.jsx";
 import MorePage from "../pages/MorePage.jsx";
@@ -22,6 +23,7 @@ const AppRouter = () => {
           <Route path="/picks" element={<PicksPage />} />
           <Route path="/entries" element={<EntriesPage />} />
           <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/schedule/:gameId" element={<GameDetailPage />} />
           <Route path="/rules" element={<RulesPage />} />
           <Route path="/more" element={<MorePage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

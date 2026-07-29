@@ -1,4 +1,4 @@
-import { Avatar, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 const TeamPickOption = ({
   side = "away",
@@ -53,11 +53,11 @@ const TeamPickOption = ({
         </Typography>
       </div>
       {logoUrl && (
-        <Avatar
+        <img
           src={logoUrl}
           alt={`${code} logo`}
           className="team-pick-logo"
-          imgProps={{ loading: "lazy" }}
+          loading="lazy"
         />
       )}
     </button>

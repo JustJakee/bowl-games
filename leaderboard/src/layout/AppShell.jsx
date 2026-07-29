@@ -26,7 +26,7 @@ import MobileBottomNavigation from "./MobileBottomNavigation";
 
 const drawerLinks = [
   { to: "/entries", label: "My Entries" },
-  { to: "/schedule", label: "Schedule" },
+  { to: "/schedule", label: "Games" },
   { to: "/rules", label: "Rules" },
 ];
 

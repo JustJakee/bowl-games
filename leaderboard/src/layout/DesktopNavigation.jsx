@@ -7,7 +7,7 @@ const navItems = [
   { to: "/leaderboard", label: "Leaderboard" },
   { to: "/picks", label: "Make Picks" },
   { to: "/entries", label: "My Entries" },
-  { to: "/schedule", label: "Schedule" },
+  { to: "/schedule", label: "Games" },
   { to: "/rules", label: "Rules" },
 ];
 
