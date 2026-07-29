@@ -1,27 +1,30 @@
 // UI — LEADERBOARD — REACT
 import { Alert, Stack } from "@mui/material";
 import Leaderboard from "../components/Leaderboard.jsx";
-import Panel from "../components/common/Panel";
-import { useScoreboard } from "../context/NCAAFDataContext.jsx";
+import { useAppData } from "../app/AppDataContext.jsx";
 import { useSeasonLeaderboard } from "../hooks/useSeasonLeaderboard";
+import LeaderboardHeader from "../features/leaderboard/LeaderboardHeader";
+import { toLeaderboardEntries } from "../features/leaderboard/leaderboardViewModel";
 
 const LeaderboardPage = () => {
-  const { allGames } = useScoreboard();
+  const { picksLocked, currentSeasonYear } = useAppData();
   const { rows, loading, error } = useSeasonLeaderboard();
-
-  const matchups = allGames.map((game) => ({
-    id: game.id,
-    game: game.bowl,
-    winner: game.winnerTeam || "",
-    gameTotal: Number(game?.home?.score || 0) + Number(game?.away?.score || 0),
-  }));
+  const leaderboardEntries = toLeaderboardEntries(rows);
+  const isLiveLeaderboard = picksLocked;
 
   return (
-    <Stack spacing={2}>
+    <Stack className="leaderboard-page" spacing={2}>
+      <LeaderboardHeader
+        isLive={isLiveLeaderboard}
+        picksLocked={picksLocked}
+        seasonYear={currentSeasonYear}
+      />
       {error ? <Alert severity="error">{error}</Alert> : null}
-      <Panel elevated sx={{ p: { xs: 1.5, sm: 2.5 } }}>
-        <Leaderboard rows={rows} matchups={matchups} loading={loading} />
-      </Panel>
+      <Leaderboard
+        entries={leaderboardEntries}
+        loading={loading}
+        isLive={isLiveLeaderboard}
+      />
     </Stack>
   );
 };

@@ -15,6 +15,37 @@ const buildGameWinnerLookup = (games = []) =>
     return accumulator;
   }, {});
 
+const buildSelectionLookup = (picks = []) =>
+  picks.reduce((accumulator, pick) => {
+    if (pick?.gameId && pick?.selectedTeam) {
+      accumulator[pick.gameId] = pick.selectedTeam;
+    }
+
+    return accumulator;
+  }, {});
+
+const hasSubmittedPickSet = ({
+  entry,
+  entryPicks = [],
+  requiredGameIds = [],
+  tieBreakerRequired = false,
+}) => {
+  if (requiredGameIds.length === 0) {
+    return false;
+  }
+
+  const selectionsByGameId = buildSelectionLookup(entryPicks);
+  const hasAllSelections = requiredGameIds.every((gameId) =>
+    Boolean(selectionsByGameId[gameId]),
+  );
+  const hasTieBreaker =
+    !tieBreakerRequired ||
+    entry?.tieBreakerValue === 0 ||
+    Boolean(String(entry?.tieBreakerValue ?? "").trim());
+
+  return hasAllSelections && hasTieBreaker;
+};
+
 export const scoreEntries = ({
   entries = [],
   picks = [],
@@ -25,6 +56,14 @@ export const scoreEntries = ({
   // Equal point totals rank by the smallest distance from the championship's final combined score.
   const winnersByGameId = buildGameWinnerLookup(games);
   const finalGameIds = Object.keys(winnersByGameId);
+  const requiredGameIds = games.map((game) => game?.id).filter(Boolean);
+  const championshipGame = games.find(
+    (game) => String(game?.bowl || "").trim() === TIEBREAKER_BOWL_NAME,
+  );
+  const tieBreakerRequired = Boolean(championshipGame?.id);
+  const championshipTotal = championshipGame
+    ? winnersByGameId[championshipGame.id]?.gameTotal
+    : null;
   const picksByEntryId = picks.reduce((accumulator, pick) => {
     if (!pick?.entryId) {
       return accumulator;
@@ -39,18 +78,20 @@ export const scoreEntries = ({
   }, {});
 
   return (entries || [])
+    .filter((entry) =>
+      hasSubmittedPickSet({
+        entry,
+        entryPicks: picksByEntryId[entry.id] || [],
+        requiredGameIds,
+        tieBreakerRequired,
+      }),
+    )
     .map((entry) => {
       const entryPicks = picksByEntryId[entry.id] || [];
       const correctPicks = entryPicks.reduce((score, pick) => {
         const winner = winnersByGameId[pick.gameId]?.winnerTeam;
         return winner && pick.selectedTeam === winner ? score + 1 : score;
       }, 0);
-      const championshipGame = games.find(
-        (game) => String(game?.bowl || "").trim() === TIEBREAKER_BOWL_NAME,
-      );
-      const championshipTotal = championshipGame
-        ? winnersByGameId[championshipGame.id]?.gameTotal
-        : null;
       const tieBreakerGuess = Number(entry?.tieBreakerValue);
       const tieBreakerDistance =
         Number.isFinite(tieBreakerGuess) && Number.isFinite(championshipTotal)

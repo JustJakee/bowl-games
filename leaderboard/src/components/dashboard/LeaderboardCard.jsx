@@ -20,7 +20,7 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
 
   return (
     <Panel sx={{ width: "100%", height: "100%" }}>
-      <SectionHeader title="Leaderboard" />
+      <SectionHeader title="Leaderboard Snapshot" />
       {hasRows ? (
         <TableContainer sx={{ mt: 1.5 }}>
           <Table size="small" aria-label="Leaderboard preview">

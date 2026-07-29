@@ -71,7 +71,7 @@ const DashboardHero = ({ username, deadline }) => {
                 variant="outlined"
                 sx={{ minHeight: 42, px: 2.5 }}
               >
-                View Leaderboard
+                View Full Leaderboard
               </Button>
             </Stack>
           </Stack>

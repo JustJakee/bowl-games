@@ -43,6 +43,7 @@
     "seed:test26:apply": "node scripts/test26/seed-test26.mjs apply",
     "test:entry": "tsx --test src/data/entryRepository.test.js",
     "test:picks": "tsx --test src/data/picksRepository.test.js src/components/picks/picksAutosaveState.test.js src/components/picks/pickSelectionView.test.js src/components/picks/selectedEntryPickLoading.test.js src/utils/pickWindow.test.js",
+    "test:leaderboard": "tsx --test src/utils/leaderboardScoring.test.js",
     "test:schedule": "node --test src/utils/gamePickSplits.test.js",
     "test:dashboard": "tsx --test src/utils/dashboardEntryProgress.test.js",
     "test:seed:test26": "node --test scripts/test26/core.test.mjs",
