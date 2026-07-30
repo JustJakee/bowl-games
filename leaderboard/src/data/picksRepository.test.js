@@ -31,17 +31,40 @@ const createHarness = ({
   initialPicks = [],
   currentEntry = entry,
   createResult,
+  pickPageSize = 100,
 } = {}) => {
   let picks = initialPicks.map((pick) => ({ ...pick }));
   const calls = {
     create: [],
+    pickByEntryAndGame: [],
     update: [],
     entryUpdate: [],
   };
   const dataClient = {
     models: {
       Pick: {
-        list: async () => ({ data: picks.map((pick) => ({ ...pick })) }),
+        pickByEntryAndGame: async (input, options = {}) => {
+          calls.pickByEntryAndGame.push({ input, options });
+          const offset = options.nextToken
+            ? Number(String(options.nextToken).replace("offset-", ""))
+            : 0;
+          const matchingPicks = picks.filter(
+            (pick) =>
+              pick.entryId === input.entryId &&
+              (!options.filter?.seasonId?.eq ||
+                pick.seasonId === options.filter.seasonId.eq),
+          );
+          const page = matchingPicks.slice(offset, offset + pickPageSize);
+          const nextOffset = offset + page.length;
+
+          return {
+            data: page.map((pick) => ({ ...pick })),
+            nextToken:
+              nextOffset < matchingPicks.length
+                ? `offset-${nextOffset}`
+                : null,
+          };
+        },
         create: async (payload) => {
           calls.create.push(payload);
           if (createResult) {
@@ -274,7 +297,27 @@ test("Pick create failures are surfaced and do not falsely continue to Entry upd
       selectionsByGameId: { "game-1": "AAA" },
       tieBreakerValue: "",
     }),
-    /Backend Pick save failed/,
+    (error) => {
+      assert.equal(error.name, "PickPersistenceError");
+      assert.equal(error.message, "Backend Pick save failed.");
+      assert.equal(typeof error.correlationId, "string");
+      assert.equal(error.correlationId.length > 0, true);
+      assert.equal(error.operation, "create");
+      assert.equal(error.entryId, "entry-id");
+      assert.equal(error.gameId, "game-1");
+      assert.equal(error.pickId, "pick-entry-id-game-1");
+      assert.equal(error.selectedTeam, "AAA");
+      assert.deepEqual(error.graphQLErrors, [
+        {
+          message: "Backend Pick save failed.",
+          path: null,
+          errorType: null,
+          errorInfo: null,
+        },
+      ]);
+      assert.equal(error.returnedData, null);
+      return true;
+    },
   );
   assert.deepEqual(calls.entryUpdate, []);
 });
@@ -301,4 +344,91 @@ test("loading after refresh restores a successfully persisted partial pick", asy
 
   assert.deepEqual(result.selectionsByGameId, { "game-1": "AAA" });
   assert.equal(result.picks[0].id, "pick-entry-id-game-1");
+});
+
+test("loading an entry exhausts a 31 plus 17 page split", async () => {
+  const initialPicks = Array.from({ length: 48 }, (_, index) => ({
+    id: `pick-entry-id-game-${index + 1}`,
+    seasonId: "test26",
+    entryId: "entry-id",
+    gameId: `game-${index + 1}`,
+    owner: "user-sub",
+    selectedTeam: index % 2 === 0 ? "AAA" : "BBB",
+  }));
+  const { calls } = createHarness({
+    initialPicks,
+    pickPageSize: 31,
+  });
+
+  const result = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: initialPicks.map((pick) => pick.gameId),
+  });
+
+  assert.equal(result.picks.length, 48);
+  assert.equal(Object.keys(result.picksByGameId).length, 48);
+  assert.equal(Object.keys(result.selectionsByGameId).length, 48);
+  assert.deepEqual(
+    calls.pickByEntryAndGame.map(({ input, options }) => ({
+      input,
+      nextToken: options.nextToken,
+      seasonId: options.filter?.seasonId?.eq,
+    })),
+    [
+      {
+        input: { entryId: "entry-id" },
+        nextToken: undefined,
+        seasonId: "test26",
+      },
+      {
+        input: { entryId: "entry-id" },
+        nextToken: "offset-31",
+        seasonId: "test26",
+      },
+    ],
+  );
+});
+
+test("an existing Pick on a later page is updated instead of created", async () => {
+  const firstPagePicks = Array.from({ length: 31 }, (_, index) => ({
+    id: `pick-entry-id-filler-${index + 1}`,
+    seasonId: "test26",
+    entryId: "entry-id",
+    gameId: `filler-${index + 1}`,
+    owner: "user-sub",
+    selectedTeam: "AAA",
+  }));
+  const existingPick = {
+    id: "pick-entry-id-game-1",
+    seasonId: "test26",
+    entryId: "entry-id",
+    gameId: "game-1",
+    owner: "user-sub",
+    selectedTeam: "AAA",
+  };
+  const laterPagePicks = Array.from({ length: 16 }, (_, index) => ({
+    id: `pick-entry-id-later-${index + 1}`,
+    seasonId: "test26",
+    entryId: "entry-id",
+    gameId: `later-${index + 1}`,
+    owner: "user-sub",
+    selectedTeam: "BBB",
+  }));
+  const { calls } = createHarness({
+    initialPicks: [...firstPagePicks, existingPick, ...laterPagePicks],
+    pickPageSize: 31,
+  });
+
+  const result = await save({
+    selectionsByGameId: { "game-1": "BBB" },
+    tieBreakerValue: null,
+  });
+
+  assert.deepEqual(calls.create, []);
+  assert.deepEqual(calls.update, [
+    { id: "pick-entry-id-game-1", selectedTeam: "BBB" },
+  ]);
+  assert.equal(result.selectionsByGameId["game-1"], "BBB");
+  assert.equal(calls.pickByEntryAndGame.length, 4);
 });

@@ -49,9 +49,13 @@ import {
   getSelectedEntryPickLoadRemainingMs,
 } from "./selectedEntryPickLoading";
 import {
+  buildAutosaveDiagnostic,
   buildAutosaveFailureState,
   buildAutosaveSuccessState,
   buildSyncedDraft,
+  getDraftRevision,
+  isDraftCacheReady,
+  isDraftSyncedWithBackend,
 } from "./picksAutosaveState";
 import {
   formatPicksDateLabel,
@@ -503,11 +507,13 @@ const PicksWorkspace = () => {
     entries,
     entriesError,
     entriesLoading,
+    markCurrentPicksRevision,
+    nextCurrentPicksRevision,
     picksLoading,
     picksError,
     picksLockAt,
     picksLocked,
-    saveCurrentPicks,
+    queueCurrentPicksSave,
     savedSelectionsByGameId,
     setActiveEntryId,
     tieBreakerGameId,
@@ -518,14 +524,20 @@ const PicksWorkspace = () => {
     currentSeasonId,
   );
   const gameRefs = useRef({});
-  const saveRequestIdRef = useRef(0);
+  const isMountedRef = useRef(false);
+  const selectedEntryIdRef = useRef("");
+  const storageKeyRef = useRef(storageKey);
+  selectedEntryIdRef.current = currentEntry?.id || "";
+  storageKeyRef.current = storageKey;
   const [draftsByEntryId, setDraftsByEntryId] = useState({});
+  const [loadedDraftStorageKey, setLoadedDraftStorageKey] = useState("");
   const [filter, setFilter] = useState("all");
   const [saveState, setSaveState] = useState({
     state: "saved",
     message: "Saved to account",
     detail: "",
   });
+  const [draftStorageError, setDraftStorageError] = useState("");
   const [expandedGroups, setExpandedGroups] = useState({});
   const [retryKey, setRetryKey] = useState(0);
   const [entryActionError, setEntryActionError] = useState("");
@@ -537,13 +549,41 @@ const PicksWorkspace = () => {
     () => games.find((game) => game.id === tieBreakerGameId) || null,
     [games, tieBreakerGameId],
   );
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     setDraftsByEntryId(readDraftCache(storageKey));
+    setLoadedDraftStorageKey(storageKey);
   }, [storageKey]);
 
   useEffect(() => {
-    writeDraftCache(storageKey, draftsByEntryId);
-  }, [draftsByEntryId, storageKey]);
+    if (!isDraftCacheReady(loadedDraftStorageKey, storageKey)) {
+      return;
+    }
+
+    try {
+      writeDraftCache(storageKey, draftsByEntryId);
+      setDraftStorageError((currentError) =>
+        currentError ? "" : currentError,
+      );
+    } catch (storageError) {
+      console.error("Pick draft device persistence failed.", {
+        name: storageError?.name || "Error",
+        message:
+          storageError?.message || "Local storage rejected the draft.",
+      });
+      setDraftStorageError(
+        "This browser could not persist the latest draft. Keep this tab open and retry after freeing device storage.",
+      );
+    }
+  }, [draftsByEntryId, loadedDraftStorageKey, retryKey, storageKey]);
 
   useEffect(() => {
     const nextExpanded = {};
@@ -614,16 +654,23 @@ const PicksWorkspace = () => {
         currentEntry.tieBreakerValue === undefined
           ? ""
           : String(currentEntry.tieBreakerValue),
-      dirty: false,
     };
 
     setDraftsByEntryId((currentDrafts) => {
       const existingDraft = currentDrafts[currentEntry.id];
 
       if (!existingDraft || !existingDraft.dirty) {
+        if (isDraftSyncedWithBackend(existingDraft, backendDraft)) {
+          return currentDrafts;
+        }
+
         return {
           ...currentDrafts,
-          [currentEntry.id]: backendDraft,
+          [currentEntry.id]: {
+            ...backendDraft,
+            revision: getDraftRevision(existingDraft),
+            dirty: false,
+          },
         };
       }
 
@@ -632,26 +679,40 @@ const PicksWorkspace = () => {
 
     setSaveState((currentState) => {
       const existingDraft = draftsByEntryId[currentEntry.id];
+      const nextState = existingDraft?.dirty
+        ? {
+            state: "device",
+            message: "Saved to device",
+            detail: "Unsynced changes are waiting to be retried.",
+          }
+        : {
+            state: "saved",
+            message: "Saved to account",
+            detail: "",
+          };
 
-      if (existingDraft?.dirty) {
-        return {
-          state: "device",
-          message: "Saved to device",
-          detail: "Unsynced changes are waiting to be retried.",
-        };
+      if (
+        currentState.state === nextState.state &&
+        currentState.message === nextState.message &&
+        currentState.detail === nextState.detail
+      ) {
+        return currentState;
       }
 
-      return {
-        state: "saved",
-        message: "Saved to account",
-        detail: "",
-      };
+      return nextState;
     });
   }, [currentEntry, draftsByEntryId, savedSelectionsByGameId]);
 
   const activeDraft = currentEntry
     ? draftsByEntryId[currentEntry.id] || null
     : null;
+  const visibleSaveState = draftStorageError
+    ? {
+        state: "error",
+        message: "Device save failed",
+        detail: draftStorageError,
+      }
+    : saveState;
   const selectedEntryId = currentEntry?.id || "";
   const pickView = buildPickSelectionView({
     currentEntry,
@@ -724,10 +785,13 @@ const PicksWorkspace = () => {
       return;
     }
 
-    const requestId = saveRequestIdRef.current + 1;
+    const entryId = currentEntry.id;
+    const revision = getDraftRevision(activeDraft);
+    const requestStorageKey = storageKey;
     // DATA — PICKS — AUTOSAVE
-    // Debouncing collapses rapid edits; the request ID prevents an older save result from winning a race.
-    saveRequestIdRef.current = requestId;
+    // The provider serializes saves by Entry. Marking the revision before the
+    // debounce ensures an older in-flight response cannot clear a newer edit.
+    markCurrentPicksRevision(entryId, revision);
     setSaveState({
       state: "saving",
       message: "Saving...",
@@ -735,31 +799,59 @@ const PicksWorkspace = () => {
     });
 
     const timeoutId = window.setTimeout(async () => {
-      try {
-        const result = await saveCurrentPicks({
-          entryId: currentEntry.id,
-          entryName: activeDraft.entryName,
-          contactEmail: defaultContactEmail || email || "",
-          selectionsByGameId: activeDraft.selectionsByGameId || {},
-          tieBreakerValue: activeDraft.tieBreakerValue,
-          userProfileId: profile?.id,
+      const outcome = await queueCurrentPicksSave({
+        entryId,
+        revision,
+        entryName: activeDraft.entryName,
+        contactEmail: defaultContactEmail || email || "",
+        selectionsByGameId: activeDraft.selectionsByGameId || {},
+        tieBreakerValue: activeDraft.tieBreakerValue,
+        userProfileId: profile?.id,
+      });
+
+      if (
+        !isMountedRef.current ||
+        storageKeyRef.current !== requestStorageKey
+      ) {
+        return;
+      }
+
+      if (
+        outcome.status === "saved" &&
+        outcome.result?.entry?.id === entryId
+      ) {
+        setDraftsByEntryId((currentDrafts) => {
+          const latestDraft = currentDrafts[entryId];
+
+          if (getDraftRevision(latestDraft) !== revision) {
+            return currentDrafts;
+          }
+
+          return {
+            ...currentDrafts,
+            [entryId]: buildSyncedDraft(outcome.result, revision),
+          };
         });
 
-        if (saveRequestIdRef.current !== requestId) {
-          return;
+        if (selectedEntryIdRef.current === entryId) {
+          setSaveState(buildAutosaveSuccessState());
         }
+      } else if (outcome.status === "failed") {
+        console.error(
+          "Pick autosave failed.",
+          buildAutosaveDiagnostic({
+            error: outcome.error,
+            entryId,
+            revision,
+            localSelectionCount: Object.keys(
+              activeDraft.selectionsByGameId || {},
+            ).length,
+          }),
+        );
 
-        setDraftsByEntryId((currentDrafts) => ({
-          ...currentDrafts,
-          [currentEntry.id]: buildSyncedDraft(result),
-        }));
-        setSaveState(buildAutosaveSuccessState());
-      } catch (saveError) {
-        if (saveRequestIdRef.current !== requestId) {
-          return;
+        if (selectedEntryIdRef.current === entryId) {
+          setSaveState(buildAutosaveFailureState(outcome.error));
         }
-
-        setSaveState(buildAutosaveFailureState(saveError));
       }
     }, 550);
 
@@ -772,8 +864,10 @@ const PicksWorkspace = () => {
     profile?.id,
     picksLocked,
     picksLoading,
+    markCurrentPicksRevision,
+    queueCurrentPicksSave,
     retryKey,
-    saveCurrentPicks,
+    storageKey,
   ]);
 
   const updateActiveDraft = (updater) => {
@@ -781,8 +875,18 @@ const PicksWorkspace = () => {
       return;
     }
 
+    const entryId = currentEntry.id;
+    const nextRevision = nextCurrentPicksRevision(
+      entryId,
+      getDraftRevision(activeDraft),
+    );
+
+    if (!Number.isSafeInteger(nextRevision)) {
+      return;
+    }
+
     setDraftsByEntryId((currentDrafts) => {
-      const existingDraft = currentDrafts[currentEntry.id] || {
+      const existingDraft = currentDrafts[entryId] || {
         entryName: currentEntry.entryName,
         selectionsByGameId: savedSelectionsByGameId || {},
         tieBreakerValue:
@@ -799,8 +903,9 @@ const PicksWorkspace = () => {
 
       return {
         ...currentDrafts,
-        [currentEntry.id]: {
+        [entryId]: {
           ...nextDraft,
+          revision: nextRevision,
           dirty: true,
         },
       };
@@ -1107,9 +1212,9 @@ const PicksWorkspace = () => {
               <Box sx={{ minHeight: 46, display: "flex", alignItems: "center" }}>
                 {blockSelectedEntryPickUi ? null : (
                   <SaveStatus
-                    state={saveState.state}
-                    message={saveState.message}
-                    detail={saveState.detail}
+                    state={visibleSaveState.state}
+                    message={visibleSaveState.message}
+                    detail={visibleSaveState.detail}
                     onRetry={handleRetrySave}
                   />
                 )}
@@ -1308,14 +1413,14 @@ const PicksWorkspace = () => {
                       ? ""
                       : selection === persistedSelection
                         ? "saved"
-                        : saveState.state;
+                        : visibleSaveState.state;
                     const matchupSaveMessage = !selection
                       ? ""
                       : selection === persistedSelection
                         ? "Saved"
-                        : saveState.state === "saving"
+                        : visibleSaveState.state === "saving"
                           ? "Saving..."
-                          : saveState.state === "device"
+                          : visibleSaveState.state === "device"
                             ? "Saved to device"
                             : "Retry";
 

@@ -84,3 +84,54 @@ test("leaderboard excludes entries without a complete submitted pick set", () =>
     [["entry-complete", "Complete Player", 2, "2-0"]],
   );
 });
+
+test("leaderboard uses the public profile username without requiring an entry owner", () => {
+  const rows = scoreEntries({
+    games,
+    entries: [
+      {
+        id: "entry-public-profile",
+        entryName: "Public Profile Entry",
+        tieBreakerValue: 53,
+        userProfile: {
+          username: "Public Player",
+        },
+      },
+      {
+        id: "entry-name-fallback",
+        entryName: "Entry Name Player",
+        tieBreakerValue: 53,
+      },
+    ],
+    picks: [
+      {
+        entryId: "entry-public-profile",
+        gameId: "game-1",
+        selectedTeam: "AAA",
+      },
+      {
+        entryId: "entry-public-profile",
+        gameId: "game-2",
+        selectedTeam: "BBB",
+      },
+      {
+        entryId: "entry-name-fallback",
+        gameId: "game-1",
+        selectedTeam: "AAA",
+      },
+      {
+        entryId: "entry-name-fallback",
+        gameId: "game-2",
+        selectedTeam: "BBB",
+      },
+    ],
+  });
+
+  assert.deepEqual(
+    rows.map((row) => [row.entryId, row.username]),
+    [
+      ["entry-public-profile", "Public Player"],
+      ["entry-name-fallback", "Entry Name Player"],
+    ],
+  );
+});

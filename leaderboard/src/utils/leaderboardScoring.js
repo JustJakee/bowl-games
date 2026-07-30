@@ -102,7 +102,11 @@ export const scoreEntries = ({
         id: entry.id,
         entryId: entry.id,
         entryName: entry.entryName,
-        username: usernamesByOwner[entry.owner] || "Player",
+        username:
+          entry?.userProfile?.username ||
+          usernamesByOwner[entry.owner] ||
+          entry.entryName ||
+          "Player",
         points: correctPicks,
         record: `${correctPicks}-${Math.max(finalGameIds.length - correctPicks, 0)}`,
         tieBreakerValue: entry.tieBreakerValue,

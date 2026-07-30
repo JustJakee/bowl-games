@@ -26,6 +26,10 @@ import {
   PICK_SET_STATUS,
   saveEntryState,
 } from "../data/picksRepository";
+import {
+  createPerEntryAutosaveCoordinator,
+  shouldApplyPickSaveResult,
+} from "../components/picks/picksAutosaveState";
 
 const AppDataContext = createContext(null);
 const ACTIVE_ENTRY_STORAGE_PREFIX = "bobs-bowl-games-active-entry";
@@ -99,12 +103,19 @@ export const AppDataProvider = ({ children }) => {
   const [staleSavedPickIds, setStaleSavedPickIds] = useState([]);
   const picksRequestIdRef = useRef(0);
   const hydratedEntryIdRef = useRef("");
+  const activeEntryIdRef = useRef("");
+  const saveScopeRef = useRef("");
+  const persistCurrentPicksRef = useRef(null);
+  const applySavedPicksResultRef = useRef(null);
+  const autosaveCoordinatorRef = useRef(null);
 
   const owner = user?.userId || null;
   const currentSeasonId = season?.id || null;
   const currentSeasonYear = season?.year || null;
   const picksLockAt = seasonConfig?.picksLockAt || null;
   const picksLocked = usePickWindowLocked(picksLockAt);
+  const saveScope = `${owner || "guest"}:${currentSeasonId || "none"}`;
+  saveScopeRef.current = saveScope;
   const activeEntryStorageKey = getActiveEntryStorageKey(
     owner,
     currentSeasonId,
@@ -137,7 +148,9 @@ export const AppDataProvider = ({ children }) => {
 
   const setActiveEntryId = useCallback(
     (nextEntryId) => {
-      setActiveEntryIdState(nextEntryId || "");
+      const normalizedEntryId = nextEntryId || "";
+      activeEntryIdRef.current = normalizedEntryId;
+      setActiveEntryIdState(normalizedEntryId);
 
       if (!activeEntryStorageKey) {
         return;
@@ -192,6 +205,7 @@ export const AppDataProvider = ({ children }) => {
         "";
 
       setEntries(nextEntries);
+      activeEntryIdRef.current = fallbackEntryId;
       setActiveEntryIdState(fallbackEntryId);
 
       if (fallbackEntryId) {
@@ -223,6 +237,10 @@ export const AppDataProvider = ({ children }) => {
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
+
+  useEffect(() => {
+    activeEntryIdRef.current = activeEntryId;
+  }, [activeEntryId]);
 
   useEffect(() => {
     hydratedEntryIdRef.current = hydratedEntryId;
@@ -402,7 +420,7 @@ export const AppDataProvider = ({ children }) => {
     [currentSeasonId, email, owner],
   );
 
-  const saveCurrentPicks = useCallback(
+  const persistCurrentPicks = useCallback(
     async ({
       entryId,
       contactEmail,
@@ -426,15 +444,6 @@ export const AppDataProvider = ({ children }) => {
         picksLockAt,
       });
 
-      setEntries((currentEntries) =>
-        currentEntries.map((entry) =>
-          entry.id === result.entry.id ? result.entry : entry,
-        ),
-      );
-      setSavedSelectionsByGameId(result.selectionsByGameId);
-      setCurrentEntryStatus(result.status);
-      setStaleSavedPickIds(result.stalePicks.map((pick) => pick.gameId));
-
       return result;
     },
     [
@@ -445,6 +454,131 @@ export const AppDataProvider = ({ children }) => {
       tieBreakerGameId,
       tieBreakerRequired,
     ],
+  );
+
+  const applySavedPicksResult = useCallback(
+    ({ entryId, result, scope = saveScopeRef.current }) => {
+      const resultEntryId = result?.entry?.id || "";
+      const resultBelongsToRequest =
+        entryId &&
+        resultEntryId === entryId &&
+        scope === saveScopeRef.current;
+
+      if (!resultBelongsToRequest) {
+        return false;
+      }
+
+      setEntries((currentEntries) =>
+        currentEntries.map((entry) =>
+          entry.id === result.entry.id ? result.entry : entry,
+        ),
+      );
+
+      const applyToActiveEntry = shouldApplyPickSaveResult({
+        activeEntryId: activeEntryIdRef.current,
+        requestedEntryId: entryId,
+        resultEntryId,
+        currentScope: saveScopeRef.current,
+        requestScope: scope,
+      });
+
+      if (applyToActiveEntry) {
+        setSavedSelectionsByGameId(result.selectionsByGameId);
+        setCurrentEntryStatus(result.status);
+        setStaleSavedPickIds(
+          (result.stalePicks || []).map((pick) => pick.gameId),
+        );
+      }
+
+      return true;
+    },
+    [],
+  );
+
+  persistCurrentPicksRef.current = persistCurrentPicks;
+  applySavedPicksResultRef.current = applySavedPicksResult;
+
+  if (!autosaveCoordinatorRef.current) {
+    autosaveCoordinatorRef.current = createPerEntryAutosaveCoordinator({
+      save: ({ input, persist }) => persist(input),
+      onSuccess: ({ entryId, result, scope }) => {
+        return applySavedPicksResultRef.current({ entryId, result, scope });
+      },
+    });
+  }
+
+  useEffect(() => {
+    // Pending requests belong to the account and season that queued them.
+    // An in-flight request cannot be aborted, but its response is scope-guarded.
+    autosaveCoordinatorRef.current.cancelPending();
+  }, [saveScope]);
+
+  const markCurrentPicksRevision = useCallback((entryId, revision) => {
+    return autosaveCoordinatorRef.current.markLatest(
+      entryId,
+      revision,
+      saveScopeRef.current,
+    );
+  }, []);
+
+  const nextCurrentPicksRevision = useCallback(
+    (entryId, minimumRevision = 0) => {
+      return autosaveCoordinatorRef.current.nextRevision(
+        entryId,
+        minimumRevision,
+        saveScopeRef.current,
+      );
+    },
+    [],
+  );
+
+  const queueCurrentPicksSave = useCallback(
+    ({ revision, entryId, ...input }) => {
+      const targetEntryId = entryId || activeEntryIdRef.current;
+      const scope = saveScopeRef.current;
+
+      return autosaveCoordinatorRef.current.enqueue({
+        entryId: targetEntryId,
+        revision,
+        scope,
+        persist: persistCurrentPicksRef.current,
+        input: {
+          ...input,
+          entryId: targetEntryId,
+        },
+      });
+    },
+    [],
+  );
+
+  const saveCurrentPicks = useCallback(
+    async ({ entryId, ...input }) => {
+      const targetEntryId = entryId || activeEntryIdRef.current;
+
+      if (!targetEntryId) {
+        throw new Error("The requested entry was not found.");
+      }
+
+      const revision = nextCurrentPicksRevision(targetEntryId);
+      const outcome = await queueCurrentPicksSave({
+        ...input,
+        entryId: targetEntryId,
+        revision,
+      });
+
+      if (outcome.status === "saved") {
+        return outcome.result;
+      }
+
+      if (outcome.status === "failed") {
+        throw outcome.error;
+      }
+
+      throw new Error(
+        "This save was replaced by a newer set of picks. Please retry if your latest choices are not visible.",
+      );
+    },
+    [nextCurrentPicksRevision, queueCurrentPicksSave],
   );
 
   const playerPicks = useMemo(
@@ -486,6 +620,8 @@ export const AppDataProvider = ({ children }) => {
       entriesError,
       entriesLoading,
       matchups,
+      markCurrentPicksRevision,
+      nextCurrentPicksRevision,
       hydratedEntryId,
       picksLoading,
       picksError,
@@ -494,6 +630,7 @@ export const AppDataProvider = ({ children }) => {
       picksLockAt,
       reloadEntries: loadEntries,
       renameSeasonEntry,
+      queueCurrentPicksSave,
       saveCurrentPicks,
       savedSelectionsByGameId,
       setActiveEntryId,
@@ -516,6 +653,8 @@ export const AppDataProvider = ({ children }) => {
       entriesLoading,
       loadEntries,
       matchups,
+      markCurrentPicksRevision,
+      nextCurrentPicksRevision,
       hydratedEntryId,
       picksError,
       picksLocked,
@@ -523,6 +662,7 @@ export const AppDataProvider = ({ children }) => {
       playerPicks,
       picksLockAt,
       renameSeasonEntry,
+      queueCurrentPicksSave,
       saveCurrentPicks,
       savedSelectionsByGameId,
       setActiveEntryId,

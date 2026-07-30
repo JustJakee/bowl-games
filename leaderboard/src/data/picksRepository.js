@@ -46,16 +46,83 @@ export const __setPicksRepositoryDependenciesForTests = (dependencies) => {
 
 const getFirstGraphQLError = (result) => result?.errors?.[0]?.message || null;
 
-const throwIfGraphQLError = (result, fallbackMessage) => {
+const createCorrelationId = () =>
+  globalThis.crypto?.randomUUID?.() ||
+  `pick-save-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+const normalizeGraphQLErrors = (errors = []) =>
+  errors.map((error) => ({
+    message: error?.message || "Unknown GraphQL error.",
+    path: error?.path || null,
+    errorType: error?.errorType || error?.extensions?.errorType || null,
+    errorInfo: error?.errorInfo || error?.extensions?.errorInfo || null,
+  }));
+
+const buildRepositoryError = ({
+  result,
+  cause,
+  fallbackMessage,
+  diagnostics = {},
+}) => {
+  const error = new Error(
+    getFirstGraphQLError(result) ||
+      cause?.message ||
+      fallbackMessage,
+    cause ? { cause } : undefined,
+  );
+  error.name = diagnostics.correlationId
+    ? "PickPersistenceError"
+    : "PickDataError";
+  Object.assign(error, diagnostics, {
+    graphQLErrors: normalizeGraphQLErrors(result?.errors),
+    returnedData: result?.data ?? null,
+  });
+  return error;
+};
+
+const throwIfGraphQLError = (
+  result,
+  fallbackMessage,
+  diagnostics = {},
+) => {
   const errorMessage = getFirstGraphQLError(result);
 
   if (errorMessage) {
-    throw new Error(errorMessage);
+    throw buildRepositoryError({
+      result,
+      fallbackMessage,
+      diagnostics,
+    });
   }
 
   if (!result) {
-    throw new Error(fallbackMessage);
+    throw buildRepositoryError({
+      result,
+      fallbackMessage,
+      diagnostics,
+    });
   }
+};
+
+const executePickMutation = async ({
+  execute,
+  fallbackMessage,
+  diagnostics,
+}) => {
+  let result;
+
+  try {
+    result = await execute();
+  } catch (cause) {
+    throw buildRepositoryError({
+      cause,
+      fallbackMessage,
+      diagnostics,
+    });
+  }
+
+  throwIfGraphQLError(result, fallbackMessage, diagnostics);
+  return result;
 };
 
 const sanitizeIdPart = (value) =>
@@ -134,18 +201,32 @@ export const loadEntryPicks = async ({
   }
 
   const client = getDataClient();
-  const result = await client.models.Pick.list({
-    filter: {
-      entryId: { eq: entryId },
-      seasonId: { eq: seasonId },
-    },
-    selectionSet: PICK_SELECTION,
-    authMode: "userPool",
-  });
+  const picks = [];
+  let nextToken;
 
-  throwIfGraphQLError(result, "Unable to load your saved picks.");
+  do {
+    const result = await client.models.Pick.pickByEntryAndGame(
+      { entryId },
+      {
+        filter: {
+          seasonId: { eq: seasonId },
+        },
+        nextToken,
+        selectionSet: PICK_SELECTION,
+        authMode: "userPool",
+      },
+    );
 
-  const picks = (result.data || []).filter(Boolean);
+    throwIfGraphQLError(result, "Unable to load your saved picks.");
+    picks.push(
+      ...(result.data || []).filter(
+        (pick) =>
+          pick && pick.entryId === entryId && pick.seasonId === seasonId,
+      ),
+    );
+    nextToken = result.nextToken || null;
+  } while (nextToken);
+
   const currentIdSet = new Set(currentGameIds.filter(Boolean));
   const stalePicks = picks.filter(
     (pick) => currentIdSet.size > 0 && !currentIdSet.has(pick.gameId),
@@ -261,42 +342,64 @@ export const saveEntryState = async ({
         });
 
   const client = getDataClient();
+  const correlationId = createCorrelationId();
 
   for (const [gameId, selectedTeam] of changedSelections) {
     const existingPick = savedPicks.picksByGameId[gameId];
 
     if (existingPick) {
-      const updateResult = await client.models.Pick.update(
-        {
-          id: existingPick.id,
+      await executePickMutation({
+        execute: () =>
+          client.models.Pick.update(
+            {
+              id: existingPick.id,
+              selectedTeam,
+            },
+            {
+              selectionSet: PICK_SELECTION,
+              authMode: "userPool",
+            },
+          ),
+        fallbackMessage: "Unable to update a saved pick.",
+        diagnostics: {
+          correlationId,
+          operation: "update",
+          entryId: entry.id,
+          gameId,
+          pickId: existingPick.id,
           selectedTeam,
         },
-        {
-          selectionSet: PICK_SELECTION,
-          authMode: "userPool",
-        },
-      );
-
-      throwIfGraphQLError(updateResult, "Unable to update a saved pick.");
+      });
       continue;
     }
 
-    const createResult = await client.models.Pick.create(
-      {
-        id: buildPickId(entry.id, gameId),
-        seasonId,
+    const pickId = buildPickId(entry.id, gameId);
+    await executePickMutation({
+      execute: () =>
+        client.models.Pick.create(
+          {
+            id: pickId,
+            seasonId,
+            entryId: entry.id,
+            gameId,
+            owner,
+            selectedTeam,
+          },
+          {
+            selectionSet: PICK_SELECTION,
+            authMode: "userPool",
+          },
+        ),
+      fallbackMessage: "Unable to save a pick.",
+      diagnostics: {
+        correlationId,
+        operation: "create",
         entryId: entry.id,
         gameId,
-        owner,
+        pickId,
         selectedTeam,
       },
-      {
-        selectionSet: PICK_SELECTION,
-        authMode: "userPool",
-      },
-    );
-
-    throwIfGraphQLError(createResult, "Unable to save a pick.");
+    });
   }
 
   const normalizedEntryName =
@@ -339,6 +442,7 @@ export const saveEntryState = async ({
   });
 
   return {
+    correlationId,
     entry: nextEntry,
     ...refreshedPicks,
     status: calculatePickSetStatus({
