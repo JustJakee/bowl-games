@@ -323,6 +323,7 @@ export const saveEntryState = async ({
   const clearedPicks = savedPicks.picks.filter(
     (pick) =>
       currentGameIdSet.has(pick.gameId) &&
+      Boolean(savedPicks.selectionsByGameId[pick.gameId]) &&
       !nextSelections[pick.gameId],
   );
 
@@ -387,8 +388,11 @@ export const saveEntryState = async ({
     try {
       await executePickMutation({
         execute: () =>
-          client.models.Pick.delete(
-            { id: pick.id },
+          client.models.Pick.update(
+            {
+              id: pick.id,
+              selectedTeam: "",
+            },
             {
               selectionSet: PICK_SELECTION,
               authMode: "userPool",
@@ -397,7 +401,7 @@ export const saveEntryState = async ({
         fallbackMessage: "Unable to clear a saved pick.",
         diagnostics: {
           correlationId,
-          operation: "delete",
+          operation: "clear",
           entryId: entry.id,
           gameId: pick.gameId,
           pickId: pick.id,
@@ -406,7 +410,7 @@ export const saveEntryState = async ({
       });
       completedPickChanges.push({
         gameId: pick.gameId,
-        operation: "delete",
+        operation: "clear",
         selectedTeam: null,
       });
     } catch (error) {

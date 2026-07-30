@@ -61,11 +61,12 @@ test("Picks bulk actions use MUI confirmation and duplicate-operation guards", (
   assert.doesNotMatch(source, /window\.confirm/);
 });
 
-test("individual team clicks use toggle semantics instead of sentinel values", () => {
+test("individual team clicks use toggle semantics and the authorized clear update", () => {
   const source = readSource("../components/picks/PicksWorkspace.jsx");
   const repository = readSource("../data/picksRepository.js");
 
   assert.match(source, /toggleGameSelection/);
-  assert.match(repository, /client\.models\.Pick\.delete/);
-  assert.doesNotMatch(repository, /selectedTeam:\s*["']{2}/);
+  assert.match(repository, /client\.models\.Pick\.update/);
+  assert.match(repository, /selectedTeam:\s*["']{2}/);
+  assert.doesNotMatch(repository, /client\.models\.Pick\.delete/);
 });

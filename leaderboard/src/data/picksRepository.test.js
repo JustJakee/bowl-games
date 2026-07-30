@@ -38,14 +38,13 @@ const createHarness = ({
   initialPicks = [],
   currentEntry = entry,
   createResult,
-  deleteResult,
   pickPageSize = 100,
   seasonGames = [game],
+  updateResult,
 } = {}) => {
   let picks = initialPicks.map((pick) => ({ ...pick }));
   const calls = {
     create: [],
-    delete: [],
     pickByEntryAndGame: [],
     update: [],
     entryUpdate: [],
@@ -95,24 +94,18 @@ const createHarness = ({
           picks.push(created);
           return { data: created };
         },
-        delete: async (payload) => {
-          calls.delete.push(payload);
-          if (deleteResult) {
+        update: async (payload) => {
+          calls.update.push(payload);
+          if (updateResult) {
             const overriddenResult =
-              typeof deleteResult === "function"
-                ? deleteResult(payload, calls)
-                : deleteResult;
+              typeof updateResult === "function"
+                ? updateResult(payload, calls)
+                : updateResult;
             if (overriddenResult) {
               return overriddenResult;
             }
           }
 
-          const deleted = picks.find((pick) => pick.id === payload.id) || null;
-          picks = picks.filter((pick) => pick.id !== payload.id);
-          return { data: deleted };
-        },
-        update: async (payload) => {
-          calls.update.push(payload);
           picks = picks.map((pick) =>
             pick.id === payload.id ? { ...pick, ...payload } : pick,
           );
@@ -215,7 +208,7 @@ test("changing a winner sends only the Pick id and selectedTeam", async () => {
   assert.equal(result.selectionsByGameId["game-1"], "BBB");
 });
 
-test("unchecking a winner deletes only that Pick and remains clear after reload", async () => {
+test("unchecking a winner clears only that Pick and remains incomplete after reload", async () => {
   const { calls } = createHarness({
     initialPicks: [
       {
@@ -249,15 +242,16 @@ test("unchecking a winner deletes only that Pick and remains clear after reload"
     currentGameIds: ["game-1", "game-2"],
   });
 
-  assert.deepEqual(calls.delete, [{ id: "pick-entry-id-game-1" }]);
+  assert.deepEqual(calls.update, [
+    { id: "pick-entry-id-game-1", selectedTeam: "" },
+  ]);
   assert.deepEqual(calls.create, []);
-  assert.deepEqual(calls.update, []);
   assert.deepEqual(calls.entryUpdate, []);
   assert.deepEqual(result.selectionsByGameId, { "game-2": "CCC" });
   assert.deepEqual(reloaded.selectionsByGameId, { "game-2": "CCC" });
 });
 
-test("a failed Pick clear remains persisted and reports delete diagnostics", async () => {
+test("a failed Pick clear remains selected and reports clear diagnostics", async () => {
   const { calls } = createHarness({
     initialPicks: [
       {
@@ -269,7 +263,7 @@ test("a failed Pick clear remains persisted and reports delete diagnostics", asy
         selectedTeam: "AAA",
       },
     ],
-    deleteResult: {
+    updateResult: {
       data: null,
       errors: [{ message: "Backend Pick clear failed." }],
     },
@@ -280,7 +274,7 @@ test("a failed Pick clear remains persisted and reports delete diagnostics", asy
     (error) => {
       assert.equal(error.name, "PickPersistenceError");
       assert.equal(error.message, "Backend Pick clear failed.");
-      assert.equal(error.operation, "delete");
+      assert.equal(error.operation, "clear");
       assert.equal(error.entryId, "entry-id");
       assert.equal(error.gameId, "game-1");
       assert.equal(error.pickId, "pick-entry-id-game-1");
@@ -293,11 +287,44 @@ test("a failed Pick clear remains persisted and reports delete diagnostics", asy
     seasonId: "test26",
     currentGameIds: ["game-1"],
   });
-  assert.deepEqual(calls.delete, [{ id: "pick-entry-id-game-1" }]);
+  assert.deepEqual(calls.update, [
+    { id: "pick-entry-id-game-1", selectedTeam: "" },
+  ]);
   assert.deepEqual(reloaded.selectionsByGameId, { "game-1": "AAA" });
 });
 
-test("a partial bulk clear keeps successful deletes and preserves the failed Pick", async () => {
+test("a cleared Pick is not cleared repeatedly and is reused when reselected", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+    ],
+  });
+
+  await save({ selectionsByGameId: {} });
+  await save({ selectionsByGameId: {} });
+  await save({ selectionsByGameId: { "game-1": "BBB" } });
+
+  assert.deepEqual(calls.create, []);
+  assert.deepEqual(calls.update, [
+    { id: "pick-entry-id-game-1", selectedTeam: "" },
+    { id: "pick-entry-id-game-1", selectedTeam: "BBB" },
+  ]);
+  const reloaded = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: ["game-1"],
+  });
+  assert.deepEqual(reloaded.selectionsByGameId, { "game-1": "BBB" });
+});
+
+test("a partial bulk clear keeps successful clears and preserves the failed Pick", async () => {
   const { calls } = createHarness({
     initialPicks: [
       {
@@ -317,8 +344,8 @@ test("a partial bulk clear keeps successful deletes and preserves the failed Pic
         selectedTeam: "CCC",
       },
     ],
-    deleteResult: (_payload, currentCalls) =>
-      currentCalls.delete.length === 2
+    updateResult: (_payload, currentCalls) =>
+      currentCalls.update.length === 2
         ? {
             data: null,
             errors: [{ message: "Second clear failed." }],
@@ -337,7 +364,7 @@ test("a partial bulk clear keeps successful deletes and preserves the failed Pic
       assert.deepEqual(error.completedPickChanges, [
         {
           gameId: "game-1",
-          operation: "delete",
+          operation: "clear",
           selectedTeam: null,
         },
       ]);
@@ -353,9 +380,9 @@ test("a partial bulk clear keeps successful deletes and preserves the failed Pic
     seasonId: "test26",
     currentGameIds: ["game-1", "game-2"],
   });
-  assert.deepEqual(calls.delete, [
-    { id: "pick-entry-id-game-1" },
-    { id: "pick-entry-id-game-2" },
+  assert.deepEqual(calls.update, [
+    { id: "pick-entry-id-game-1", selectedTeam: "" },
+    { id: "pick-entry-id-game-2", selectedTeam: "" },
   ]);
   assert.deepEqual(reloaded.selectionsByGameId, { "game-2": "CCC" });
 });
