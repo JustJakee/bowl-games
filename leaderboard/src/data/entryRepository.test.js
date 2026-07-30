@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test, { afterEach } from "node:test";
 import {
   __setEntryRepositoryDataClientForTests,
+  createOrLoadEntry,
   createEntry,
+  getCanonicalEntryForUser,
   getEntryById,
   listEntriesForSeason,
   softDeleteEntry,
@@ -124,10 +126,114 @@ test("existing Entry list and get behavior remains unchanged", async () => {
   assert.deepEqual(calls[0][1].filter, {
     owner: { eq: "user-sub" },
     seasonId: { eq: "test26" },
-    isDeleted: { eq: false },
   });
   assert.deepEqual(calls[1][1], { id: "amplify-entry-id" });
   assert.equal(calls[1][2].authMode, "userPool");
+});
+
+test("listEntriesForSeason paginates and retains legacy null delete flags", async () => {
+  const calls = [];
+  const legacyEntry = {
+    ...existingEntry,
+    id: "legacy-entry",
+    isDeleted: null,
+  };
+
+  __setEntryRepositoryDataClientForTests({
+    models: {
+      Entry: {
+        list: async (input) => {
+          calls.push(input);
+          return input.nextToken
+            ? { data: [legacyEntry], nextToken: null }
+            : {
+                data: [{ ...existingEntry, isDeleted: true }],
+                nextToken: "next-page",
+              };
+        },
+      },
+    },
+  });
+
+  const entries = await listEntriesForSeason({
+    owner: "user-sub",
+    seasonId: "test26",
+  });
+
+  assert.deepEqual(entries.map(({ id }) => id), ["legacy-entry"]);
+  assert.deepEqual(
+    calls.map(({ nextToken }) => nextToken),
+    [undefined, "next-page"],
+  );
+});
+
+test("getCanonicalEntryForUser uses latest Pick activity across legacy entries", async () => {
+  const olderEntry = {
+    ...existingEntry,
+    id: "older-entry",
+    updatedAt: "2026-07-22T20:00:00.000Z",
+  };
+  const activeEntry = {
+    ...existingEntry,
+    id: "active-entry",
+    entryName: "Most Recent Picks",
+    updatedAt: "2026-07-22T19:00:00.000Z",
+  };
+
+  __setEntryRepositoryDataClientForTests({
+    models: {
+      Entry: {
+        list: async () => ({ data: [olderEntry, activeEntry] }),
+      },
+      Pick: {
+        list: async () => ({
+          data: [
+            {
+              id: "pick-active",
+              seasonId: "test26",
+              entryId: "active-entry",
+              updatedAt: "2026-07-22T21:00:00.000Z",
+            },
+          ],
+        }),
+      },
+    },
+  });
+
+  const result = await getCanonicalEntryForUser({
+    owner: "user-sub",
+    seasonId: "test26",
+  });
+
+  assert.equal(result.id, "active-entry");
+});
+
+test("createOrLoadEntry loads an existing pick set instead of creating another", async () => {
+  let createCalled = false;
+  __setEntryRepositoryDataClientForTests({
+    models: {
+      Entry: {
+        list: async () => ({ data: [existingEntry] }),
+        create: async () => {
+          createCalled = true;
+          throw new Error("create should not be called");
+        },
+      },
+      Pick: {
+        list: async () => ({ data: [] }),
+      },
+    },
+  });
+
+  const result = await createOrLoadEntry({
+    owner: "user-sub",
+    seasonId: "test26",
+    entryName: "Another Entry",
+    contactEmail: "player@example.com",
+  });
+
+  assert.equal(result.id, existingEntry.id);
+  assert.equal(createCalled, false);
 });
 
 test("updateEntry continues using the ID read from the existing Entry", async () => {

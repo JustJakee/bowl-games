@@ -25,17 +25,27 @@ const game = {
   teamAAbbr: "AAA",
   teamBAbbr: "BBB",
 };
+const secondGame = {
+  ...game,
+  id: "game-2",
+  bowlName: "Second Bowl",
+  teamAAbbr: "CCC",
+  teamBAbbr: "DDD",
+};
 const futurePickDeadline = "2099-01-01T12:00:00.000Z";
 
 const createHarness = ({
   initialPicks = [],
   currentEntry = entry,
   createResult,
+  deleteResult,
   pickPageSize = 100,
+  seasonGames = [game],
 } = {}) => {
   let picks = initialPicks.map((pick) => ({ ...pick }));
   const calls = {
     create: [],
+    delete: [],
     pickByEntryAndGame: [],
     update: [],
     entryUpdate: [],
@@ -68,7 +78,13 @@ const createHarness = ({
         create: async (payload) => {
           calls.create.push(payload);
           if (createResult) {
-            return createResult;
+            const overriddenResult =
+              typeof createResult === "function"
+                ? createResult(payload, calls)
+                : createResult;
+            if (overriddenResult) {
+              return overriddenResult;
+            }
           }
 
           const created = {
@@ -78,6 +94,22 @@ const createHarness = ({
           };
           picks.push(created);
           return { data: created };
+        },
+        delete: async (payload) => {
+          calls.delete.push(payload);
+          if (deleteResult) {
+            const overriddenResult =
+              typeof deleteResult === "function"
+                ? deleteResult(payload, calls)
+                : deleteResult;
+            if (overriddenResult) {
+              return overriddenResult;
+            }
+          }
+
+          const deleted = picks.find((pick) => pick.id === payload.id) || null;
+          picks = picks.filter((pick) => pick.id !== payload.id);
+          return { data: deleted };
         },
         update: async (payload) => {
           calls.update.push(payload);
@@ -93,7 +125,7 @@ const createHarness = ({
   __setPicksRepositoryDependenciesForTests({
     dataClient,
     getEntryById: async () => currentEntry,
-    listRawSeasonGames: async () => [game],
+    listRawSeasonGames: async () => seasonGames,
     updateEntry: async (input) => {
       calls.entryUpdate.push(input);
       return {
@@ -181,6 +213,310 @@ test("changing a winner sends only the Pick id and selectedTeam", async () => {
   assert.equal(Object.hasOwn(calls.update[0], "tieBreakerValue"), false);
   assert.deepEqual(calls.entryUpdate, []);
   assert.equal(result.selectionsByGameId["game-1"], "BBB");
+});
+
+test("unchecking a winner deletes only that Pick and remains clear after reload", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+      {
+        id: "pick-entry-id-game-2",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-2",
+        owner: "user-sub",
+        selectedTeam: "CCC",
+      },
+    ],
+    seasonGames: [game, secondGame],
+  });
+
+  const result = await save({
+    currentGameIds: ["game-1", "game-2"],
+    selectionsByGameId: { "game-2": "CCC" },
+    tieBreakerValue: null,
+  });
+  const reloaded = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: ["game-1", "game-2"],
+  });
+
+  assert.deepEqual(calls.delete, [{ id: "pick-entry-id-game-1" }]);
+  assert.deepEqual(calls.create, []);
+  assert.deepEqual(calls.update, []);
+  assert.deepEqual(calls.entryUpdate, []);
+  assert.deepEqual(result.selectionsByGameId, { "game-2": "CCC" });
+  assert.deepEqual(reloaded.selectionsByGameId, { "game-2": "CCC" });
+});
+
+test("a failed Pick clear remains persisted and reports delete diagnostics", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+    ],
+    deleteResult: {
+      data: null,
+      errors: [{ message: "Backend Pick clear failed." }],
+    },
+  });
+
+  await assert.rejects(
+    save({ selectionsByGameId: {}, tieBreakerValue: null }),
+    (error) => {
+      assert.equal(error.name, "PickPersistenceError");
+      assert.equal(error.message, "Backend Pick clear failed.");
+      assert.equal(error.operation, "delete");
+      assert.equal(error.entryId, "entry-id");
+      assert.equal(error.gameId, "game-1");
+      assert.equal(error.pickId, "pick-entry-id-game-1");
+      return true;
+    },
+  );
+
+  const reloaded = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: ["game-1"],
+  });
+  assert.deepEqual(calls.delete, [{ id: "pick-entry-id-game-1" }]);
+  assert.deepEqual(reloaded.selectionsByGameId, { "game-1": "AAA" });
+});
+
+test("a partial bulk clear keeps successful deletes and preserves the failed Pick", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+      {
+        id: "pick-entry-id-game-2",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-2",
+        owner: "user-sub",
+        selectedTeam: "CCC",
+      },
+    ],
+    deleteResult: (_payload, currentCalls) =>
+      currentCalls.delete.length === 2
+        ? {
+            data: null,
+            errors: [{ message: "Second clear failed." }],
+          }
+        : null,
+    seasonGames: [game, secondGame],
+  });
+
+  await assert.rejects(
+    save({
+      currentGameIds: ["game-1", "game-2"],
+      selectionsByGameId: {},
+    }),
+    (error) => {
+      assert.match(error.message, /Second clear failed/);
+      assert.deepEqual(error.completedPickChanges, [
+        {
+          gameId: "game-1",
+          operation: "delete",
+          selectedTeam: null,
+        },
+      ]);
+      assert.deepEqual(error.partialResult.selectionsByGameId, {
+        "game-2": "CCC",
+      });
+      return true;
+    },
+  );
+
+  const reloaded = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: ["game-1", "game-2"],
+  });
+  assert.deepEqual(calls.delete, [
+    { id: "pick-entry-id-game-1" },
+    { id: "pick-entry-id-game-2" },
+  ]);
+  assert.deepEqual(reloaded.selectionsByGameId, { "game-2": "CCC" });
+});
+
+test("a partial multi-pick save reports and reloads its successful mutations", async () => {
+  const { calls } = createHarness({
+    createResult: (_payload, currentCalls) =>
+      currentCalls.create.length === 2
+        ? {
+            data: null,
+            errors: [{ message: "Second random pick failed." }],
+          }
+        : null,
+    seasonGames: [game, secondGame],
+  });
+
+  await assert.rejects(
+    save({
+      currentGameIds: ["game-1", "game-2"],
+      selectionsByGameId: {
+        "game-1": "BBB",
+        "game-2": "DDD",
+      },
+    }),
+    (error) => {
+      assert.match(error.message, /Second random pick failed/);
+      assert.deepEqual(error.completedPickChanges, [
+        {
+          gameId: "game-1",
+          operation: "create",
+          selectedTeam: "BBB",
+        },
+      ]);
+      assert.deepEqual(error.partialResult.selectionsByGameId, {
+        "game-1": "BBB",
+      });
+      return true;
+    },
+  );
+
+  const reloaded = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: ["game-1", "game-2"],
+  });
+  assert.equal(calls.create.length, 2);
+  assert.deepEqual(reloaded.selectionsByGameId, { "game-1": "BBB" });
+});
+
+test("multiple new selections use canonical payloads and survive reload", async () => {
+  const { calls } = createHarness({
+    seasonGames: [game, secondGame],
+  });
+
+  await save({
+    currentGameIds: ["game-1", "game-2"],
+    selectionsByGameId: {
+      "game-1": "AAA",
+      "game-2": "DDD",
+    },
+  });
+  const reloaded = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: ["game-1", "game-2"],
+  });
+
+  assert.equal(calls.create.length, 2);
+  assert.deepEqual(
+    calls.create.map(({ entryId, owner, seasonId }) => ({
+      entryId,
+      owner,
+      seasonId,
+    })),
+    [
+      {
+        entryId: "entry-id",
+        owner: "user-sub",
+        seasonId: "test26",
+      },
+      {
+        entryId: "entry-id",
+        owner: "user-sub",
+        seasonId: "test26",
+      },
+    ],
+  );
+  assert.deepEqual(reloaded.selectionsByGameId, {
+    "game-1": "AAA",
+    "game-2": "DDD",
+  });
+});
+
+test("changing and restoring one pick preserves unrelated persisted picks", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+      {
+        id: "pick-entry-id-game-2",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-2",
+        owner: "user-sub",
+        selectedTeam: "CCC",
+      },
+    ],
+    seasonGames: [game, secondGame],
+  });
+  const input = {
+    currentGameIds: ["game-1", "game-2"],
+    selectionsByGameId: {
+      "game-1": "BBB",
+      "game-2": "CCC",
+    },
+  };
+
+  const changed = await save(input);
+  const changedReload = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: input.currentGameIds,
+  });
+  const restored = await save({
+    ...input,
+    selectionsByGameId: {
+      ...input.selectionsByGameId,
+      "game-1": "AAA",
+    },
+  });
+  const restoredReload = await loadEntryPicks({
+    entryId: "entry-id",
+    seasonId: "test26",
+    currentGameIds: input.currentGameIds,
+  });
+
+  assert.deepEqual(changed.selectionsByGameId, {
+    "game-1": "BBB",
+    "game-2": "CCC",
+  });
+  assert.deepEqual(changedReload.selectionsByGameId, changed.selectionsByGameId);
+  assert.deepEqual(restored.selectionsByGameId, {
+    "game-1": "AAA",
+    "game-2": "CCC",
+  });
+  assert.deepEqual(
+    restoredReload.selectionsByGameId,
+    restored.selectionsByGameId,
+  );
+  assert.deepEqual(calls.create, []);
+  assert.deepEqual(calls.update, [
+    { id: "pick-entry-id-game-1", selectedTeam: "BBB" },
+    { id: "pick-entry-id-game-1", selectedTeam: "AAA" },
+  ]);
+  assert.deepEqual(calls.entryUpdate, []);
 });
 
 test("undefined and null unset tiebreakers do not produce an Entry mutation", async (t) => {

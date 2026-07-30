@@ -1,5 +1,5 @@
 // UI - DASHBOARD - REACT
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Box, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppData } from "../app/AppDataContext.jsx";
@@ -11,22 +11,20 @@ import LeaderboardCard from "../components/dashboard/LeaderboardCard";
 import UpcomingBowlsCard from "../components/dashboard/UpcomingBowlsCard";
 import DashboardQuickLinks from "../components/dashboard/DashboardQuickLinks";
 import SeasonStatusPanel from "../components/dashboard/SeasonStatusPanel";
-import { loadEntryPicks } from "../data/picksRepository";
 import { buildDashboardEntries } from "../utils/dashboardEntryProgress";
 import { dashboardQuickLinks } from "../data/dashboardMockData";
 
 const DashboardPage = () => {
   const { profile } = useUserProfile();
   const {
-    currentSeasonId,
-    entries,
+    currentEntry,
     matchups,
     picksLockAt,
     picksLocked,
     tieBreakerRequired,
+    savedSelectionsByGameId,
   } = useAppData();
   const { rows: leaderboardRows } = useSeasonLeaderboard();
-  const [entryProgressById, setEntryProgressById] = useState({});
   const theme = useTheme();
   const isWideDesktop = useMediaQuery(theme.breakpoints.up("xl"));
   const totalPicks = matchups.length;
@@ -35,8 +33,15 @@ const DashboardPage = () => {
     [matchups],
   );
   const dashboardEntries = buildDashboardEntries({
-    entries,
-    progressByEntryId: entryProgressById,
+    entries: currentEntry ? [currentEntry] : [],
+    progressByEntryId: currentEntry
+      ? {
+          [currentEntry.id]: {
+            requiredGameIds,
+            selectionsByGameId: savedSelectionsByGameId,
+          },
+        }
+      : {},
     totalPicks,
     picksLocked,
     tieBreakerRequired,
@@ -48,47 +53,6 @@ const DashboardPage = () => {
     points: row.points,
     record: row.record,
   }));
-
-  useEffect(() => {
-    if (!currentSeasonId || entries.length === 0) {
-      setEntryProgressById({});
-      return;
-    }
-
-    let cancelled = false;
-
-    Promise.all(
-      entries.map(async (entry) => {
-        const entryPicks = await loadEntryPicks({
-          entryId: entry.id,
-          seasonId: currentSeasonId,
-          currentGameIds: requiredGameIds,
-        });
-
-        return [
-          entry.id,
-          {
-            requiredGameIds,
-            selectionsByGameId: entryPicks.selectionsByGameId,
-          },
-        ];
-      }),
-    )
-      .then((results) => {
-        if (!cancelled) {
-          setEntryProgressById(Object.fromEntries(results));
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setEntryProgressById({});
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [currentSeasonId, entries, requiredGameIds]);
 
   if (isWideDesktop) {
     return (
@@ -133,7 +97,7 @@ const DashboardPage = () => {
             deadline={picksLockAt}
             links={dashboardQuickLinks}
           />
-          <EntriesCard entries={dashboardEntries} />
+          <EntriesCard entry={dashboardEntries[0] || null} />
         </Box>
       </Box>
     );
@@ -154,7 +118,7 @@ const DashboardPage = () => {
             alignItems: "start",
           }}
         >
-          <EntriesCard entries={dashboardEntries} />
+          <EntriesCard entry={dashboardEntries[0] || null} />
           <Box sx={{ gridColumn: { xs: "1 / -1", md: "auto" } }}>
             <LeaderboardCard
               rows={dashboardLeaderboard}

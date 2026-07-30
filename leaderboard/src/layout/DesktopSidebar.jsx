@@ -39,7 +39,7 @@ const primaryNavItems = [
   },
   {
     to: "/entries",
-    label: "Entries",
+    label: "My Pick Set",
     icon: <ListAltRoundedIcon fontSize="small" />,
   },
   {

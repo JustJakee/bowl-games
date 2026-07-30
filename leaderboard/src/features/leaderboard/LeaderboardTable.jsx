@@ -9,7 +9,7 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
         <tr>
           <th>Rank</th>
           <th>Username</th>
-          <th>Entry Name</th>
+          <th>Picks</th>
           {isLive ? (
             <>
               <th>Correct Picks</th>

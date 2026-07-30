@@ -23,8 +23,8 @@ const Leaderboard = ({ entries, loading = false, isLive = false }) => {
   if (sortedEntries.length === 0) {
     return (
       <section className="leaderboard-empty-state">
-        <h2>No leaderboard entries yet</h2>
-        <p>Standings will appear after entries and picks have been saved.</p>
+        <h2>No standings yet</h2>
+        <p>Standings will appear after players complete their picks.</p>
       </section>
     );
   }

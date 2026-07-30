@@ -28,6 +28,7 @@ export const buildDashboardEntries = ({
       name: entry.entryName,
       completedPicks,
       totalPicks,
+      isComplete: pickStatus === PICK_SET_STATUS.COMPLETE,
       status: picksLocked
         ? "Locked"
         : pickStatus === PICK_SET_STATUS.COMPLETE

@@ -14,10 +14,9 @@ import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import { usePickWindowLocked } from "../hooks/usePickWindowLocked";
 import {
-  createEntry,
+  createOrLoadEntry,
+  getCanonicalEntryForUser,
   getEntryById,
-  softDeleteEntry,
-  listEntriesForSeason,
   updateEntry,
 } from "../data/entryRepository";
 import {
@@ -30,9 +29,10 @@ import {
   createPerEntryAutosaveCoordinator,
   shouldApplyPickSaveResult,
 } from "../components/picks/picksAutosaveState";
+import { runSingleFlight } from "../data/canonicalEntry";
 
 const AppDataContext = createContext(null);
-const ACTIVE_ENTRY_STORAGE_PREFIX = "bobs-bowl-games-active-entry";
+const LEGACY_ACTIVE_ENTRY_STORAGE_PREFIX = "bobs-bowl-games-active-entry";
 
 const buildMatchups = (scoreboardGames = []) => {
   const seen = {};
@@ -70,9 +70,6 @@ const buildMatchups = (scoreboardGames = []) => {
   });
 };
 
-const getActiveEntryStorageKey = (owner, seasonId) =>
-  `${ACTIVE_ENTRY_STORAGE_PREFIX}:${owner || "guest"}:${seasonId || "none"}`;
-
 export const AppDataProvider = ({ children }) => {
   const {
     allGames: scoreboardGames,
@@ -108,6 +105,7 @@ export const AppDataProvider = ({ children }) => {
   const persistCurrentPicksRef = useRef(null);
   const applySavedPicksResultRef = useRef(null);
   const autosaveCoordinatorRef = useRef(null);
+  const createEntryPromiseRef = useRef(null);
 
   const owner = user?.userId || null;
   const currentSeasonId = season?.id || null;
@@ -116,10 +114,6 @@ export const AppDataProvider = ({ children }) => {
   const picksLocked = usePickWindowLocked(picksLockAt);
   const saveScope = `${owner || "guest"}:${currentSeasonId || "none"}`;
   saveScopeRef.current = saveScope;
-  const activeEntryStorageKey = getActiveEntryStorageKey(
-    owner,
-    currentSeasonId,
-  );
   const matchups = useMemo(
     () => buildMatchups(scoreboardGames || []),
     [scoreboardGames],
@@ -151,19 +145,8 @@ export const AppDataProvider = ({ children }) => {
       const normalizedEntryId = nextEntryId || "";
       activeEntryIdRef.current = normalizedEntryId;
       setActiveEntryIdState(normalizedEntryId);
-
-      if (!activeEntryStorageKey) {
-        return;
-      }
-
-      if (!nextEntryId) {
-        window.localStorage.removeItem(activeEntryStorageKey);
-        return;
-      }
-
-      window.localStorage.setItem(activeEntryStorageKey, nextEntryId);
     },
-    [activeEntryStorageKey],
+    [],
   );
 
   const loadEntries = useCallback(async () => {
@@ -193,29 +176,22 @@ export const AppDataProvider = ({ children }) => {
     setStaleSavedPickIds([]);
 
     try {
-      const nextEntries = await listEntriesForSeason({
+      window.localStorage.removeItem(
+        `${LEGACY_ACTIVE_ENTRY_STORAGE_PREFIX}:${owner}:${currentSeasonId}`,
+      );
+      const canonicalEntry = await getCanonicalEntryForUser({
         owner,
         seasonId: currentSeasonId,
       });
-      const persistedEntryId =
-        window.localStorage.getItem(activeEntryStorageKey) || "";
-      const fallbackEntryId =
-        nextEntries.find((entry) => entry.id === persistedEntryId)?.id ||
-        nextEntries[0]?.id ||
-        "";
+      const nextEntries = canonicalEntry ? [canonicalEntry] : [];
+      const canonicalEntryId = canonicalEntry?.id || "";
 
       setEntries(nextEntries);
-      activeEntryIdRef.current = fallbackEntryId;
-      setActiveEntryIdState(fallbackEntryId);
-
-      if (fallbackEntryId) {
-        window.localStorage.setItem(activeEntryStorageKey, fallbackEntryId);
-      } else {
-        window.localStorage.removeItem(activeEntryStorageKey);
-      }
+      activeEntryIdRef.current = canonicalEntryId;
+      setActiveEntryIdState(canonicalEntryId);
     } catch (error) {
       setEntries([]);
-      setEntriesError(error?.message || "Unable to load your entries.");
+      setEntriesError(error?.message || "Unable to load your pick set.");
       setActiveEntryId("");
       setHydratedEntryId("");
       resetActiveEntryState();
@@ -223,7 +199,6 @@ export const AppDataProvider = ({ children }) => {
       setEntriesLoading(false);
     }
   }, [
-    activeEntryStorageKey,
     authLoading,
     currentSeasonId,
     hasValidTokens,
@@ -263,7 +238,7 @@ export const AppDataProvider = ({ children }) => {
 
     const requestId = picksRequestIdRef.current + 1;
     // STATE — PICKS — REACT CONTEXT
-    // A request ID prevents a slower prior entry request from overwriting the newly selected entry.
+    // A request ID prevents a slower prior hydration request from overwriting the canonical entry.
     picksRequestIdRef.current = requestId;
     const isSelectedEntrySwitch =
       hydratedEntryIdRef.current !== activeEntryId;
@@ -291,7 +266,7 @@ export const AppDataProvider = ({ children }) => {
         }
 
         if (!entry) {
-          throw new Error("The selected entry could not be found.");
+          throw new Error("Your pick set could not be found.");
         }
 
         setEntries((currentEntries) =>
@@ -320,7 +295,7 @@ export const AppDataProvider = ({ children }) => {
           resetActiveEntryState();
           setHydratedEntryId("");
         }
-        setPicksError(error?.message || "Unable to load the selected entry.");
+        setPicksError(error?.message || "Unable to load your pick set.");
       })
       .finally(() => {
         if (picksRequestIdRef.current === requestId) {
@@ -346,56 +321,22 @@ export const AppDataProvider = ({ children }) => {
         throw new Error("Admin accounts cannot create entries.");
       }
 
-      const createdEntry = await createEntry({
-        owner,
-        seasonId: currentSeasonId,
-        userProfileId,
-        entryName,
-        contactEmail: email || "",
-      });
-
-      setEntries((currentEntries) => [createdEntry, ...currentEntries]);
-      setActiveEntryId(createdEntry.id);
-      resetActiveEntryState();
-
-      return createdEntry;
+      return runSingleFlight(createEntryPromiseRef, () =>
+        createOrLoadEntry({
+          owner,
+          seasonId: currentSeasonId,
+          userProfileId,
+          entryName,
+          contactEmail: email || "",
+        }).then((entry) => {
+          setEntries([entry]);
+          setActiveEntryId(entry.id);
+          resetActiveEntryState();
+          return entry;
+        }),
+      );
     },
     [currentSeasonId, email, isAdmin, owner, resetActiveEntryState, setActiveEntryId],
-  );
-
-  const deleteSeasonEntry = useCallback(
-    async ({ entryId }) => {
-      if (!entryId) {
-        throw new Error("The requested entry was not found.");
-      }
-
-      const activeEntryWasDeleted = activeEntryId === entryId;
-      const nextEntryId = entries.find((entry) => entry.id !== entryId)?.id || "";
-      const deletedEntry = await softDeleteEntry({
-        entryId,
-        owner,
-        picksLocked,
-      });
-
-      setEntries((currentEntries) =>
-        currentEntries.filter((entry) => entry.id !== deletedEntry.id),
-      );
-
-      if (activeEntryWasDeleted) {
-        setActiveEntryId(nextEntryId);
-        resetActiveEntryState();
-      }
-
-      return deletedEntry;
-    },
-    [
-      activeEntryId,
-      entries,
-      owner,
-      picksLocked,
-      resetActiveEntryState,
-      setActiveEntryId,
-    ],
   );
 
   const renameSeasonEntry = useCallback(
@@ -504,6 +445,15 @@ export const AppDataProvider = ({ children }) => {
       onSuccess: ({ entryId, result, scope }) => {
         return applySavedPicksResultRef.current({ entryId, result, scope });
       },
+      onError: ({ entryId, error, scope }) => {
+        if (error?.partialResult) {
+          applySavedPicksResultRef.current({
+            entryId,
+            result: error.partialResult,
+            scope,
+          });
+        }
+      },
     });
   }
 
@@ -581,33 +531,8 @@ export const AppDataProvider = ({ children }) => {
     [nextCurrentPicksRevision, queueCurrentPicksSave],
   );
 
-  const playerPicks = useMemo(
-    () =>
-      entries.map((entry) => ({
-        id: entry.id,
-        name: entry.entryName?.trim() || "Unnamed Entry",
-        picks:
-          entry.id === currentEntry?.id
-            ? matchups.map((game) => savedSelectionsByGameId?.[game.id] || "-")
-            : [],
-        tiebreaker: entry.tieBreakerValue,
-        status:
-          entry.id === currentEntry?.id
-            ? currentEntryStatus
-            : PICK_SET_STATUS.DRAFT,
-      })),
-    [
-      currentEntry?.id,
-      currentEntryStatus,
-      entries,
-      matchups,
-      savedSelectionsByGameId,
-    ],
-  );
-
   const value = useMemo(
     () => ({
-      activeEntryId,
       createSeasonEntry,
       currentEntry,
       currentEntryStatus,
@@ -615,8 +540,6 @@ export const AppDataProvider = ({ children }) => {
       currentSeasonYear,
       defaultContactEmail: email || "",
       isAdmin,
-      deleteSeasonEntry,
-      entries,
       entriesError,
       entriesLoading,
       matchups,
@@ -626,20 +549,17 @@ export const AppDataProvider = ({ children }) => {
       picksLoading,
       picksError,
       picksLocked,
-      playerPicks,
       picksLockAt,
       reloadEntries: loadEntries,
       renameSeasonEntry,
       queueCurrentPicksSave,
       saveCurrentPicks,
       savedSelectionsByGameId,
-      setActiveEntryId,
       staleSavedPickIds,
       tieBreakerGameId,
       tieBreakerRequired,
     }),
     [
-      activeEntryId,
       createSeasonEntry,
       currentEntry,
       currentEntryStatus,
@@ -647,8 +567,6 @@ export const AppDataProvider = ({ children }) => {
       currentSeasonYear,
       email,
       isAdmin,
-      deleteSeasonEntry,
-      entries,
       entriesError,
       entriesLoading,
       loadEntries,
@@ -659,13 +577,11 @@ export const AppDataProvider = ({ children }) => {
       picksError,
       picksLocked,
       picksLoading,
-      playerPicks,
       picksLockAt,
       renameSeasonEntry,
       queueCurrentPicksSave,
       saveCurrentPicks,
       savedSelectionsByGameId,
-      setActiveEntryId,
       staleSavedPickIds,
       tieBreakerGameId,
       tieBreakerRequired,

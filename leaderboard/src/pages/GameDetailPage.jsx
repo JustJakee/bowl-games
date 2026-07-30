@@ -116,7 +116,7 @@ const YourPicksPanel = ({ pickSplit, unavailable }) => {
   if (unavailable) {
     return (
       <section className="game-detail-panel game-detail-your-picks">
-        <h2>Your Picks</h2>
+        <h2>Your Pick</h2>
         <p className="game-detail-muted">Your picks are unavailable.</p>
       </section>
     );
@@ -125,7 +125,7 @@ const YourPicksPanel = ({ pickSplit, unavailable }) => {
   if (!pickSplit) {
     return (
       <section className="game-detail-panel game-detail-your-picks">
-        <h2>Your Picks</h2>
+        <h2>Your Pick</h2>
         <p className="game-detail-muted">Loading your picks...</p>
       </section>
     );
@@ -133,9 +133,9 @@ const YourPicksPanel = ({ pickSplit, unavailable }) => {
 
   return (
     <section className="game-detail-panel game-detail-your-picks">
-      <h2>Your Picks</h2>
+      <h2>Your Pick</h2>
       {pickSplit.ownedPicks.length === 0 ? (
-        <p className="game-detail-muted">No pick saved for your entries.</p>
+        <p className="game-detail-muted">No pick saved in your pick set.</p>
       ) : (
         <div className="game-detail-owned-list">
           {pickSplit.ownedPicks.map((pick) => (
@@ -176,13 +176,13 @@ const TeamPickGroup = ({ team }) => (
     </div>
     <div className="game-detail-entry-list">
       {team.entries.length === 0 ? (
-        <p className="game-detail-muted">No entries picked this team.</p>
+        <p className="game-detail-muted">No players picked this team.</p>
       ) : (
         team.entries.map((entryPick) => (
           <div key={entryPick.entryId} className="game-detail-entry-row">
             <span>{entryPick.entryName}</span>
             {entryPick.isOwned ? (
-              <strong className="game-detail-entry-badge">Your Entry</strong>
+              <strong className="game-detail-entry-badge">Your Pick</strong>
             ) : null}
           </div>
         ))

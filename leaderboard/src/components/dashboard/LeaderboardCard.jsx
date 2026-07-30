@@ -28,7 +28,7 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
               <TableRow>
                 <TableCell>Rank</TableCell>
                 <TableCell>Username</TableCell>
-                <TableCell>Entry Name</TableCell>
+                <TableCell>Picks</TableCell>
                 <TableCell align="right">Points</TableCell>
                 {showRecord ? (
                   <TableCell align="right">Record</TableCell>
@@ -87,15 +87,14 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
             variant="subtitle1"
             sx={{ fontSize: "1rem", fontWeight: 700 }}
           >
-            No leaderboard entries yet
+            No standings yet
           </Typography>
           <Typography
             variant="body2"
             color="text.secondary"
             sx={{ mt: 0.75, fontSize: "0.875rem", lineHeight: 1.4 }}
           >
-            Leaderboard standings will appear after real entries and picks have
-            been saved.
+            Leaderboard standings will appear after players complete their picks.
           </Typography>
         </Box>
       )}

@@ -53,7 +53,7 @@ const DashboardHero = ({ username, deadline }) => {
                 maxWidth: 620,
               }}
             >
-              Track the bowl slate, finish your entries, and keep an eye on the
+              Track the bowl slate, finish your picks, and keep an eye on the
               pool before kickoff.
             </Typography>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
@@ -63,7 +63,7 @@ const DashboardHero = ({ username, deadline }) => {
                 variant="contained"
                 sx={{ minHeight: 42, px: 2.5 }}
               >
-                Go to Picks
+                Go to My Picks
               </Button>
               <Button
                 component={RouterLink}

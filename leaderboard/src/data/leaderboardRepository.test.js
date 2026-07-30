@@ -120,7 +120,6 @@ test("leaderboard lists every page without selecting protected entry owner data"
       assert.equal(call.selectionSet.includes("userProfile.username"), true);
       assert.deepEqual(call.filter, {
         seasonId: { eq: "season-1" },
-        isDeleted: { eq: false },
       });
     }
 
@@ -166,6 +165,68 @@ test("leaderboard rejects a partial page with GraphQL errors", async () => {
       loadSeasonLeaderboardData({ seasonId: "season-1" }),
       /Unexpected leaderboard authorization error/,
     );
+  } finally {
+    __setLeaderboardRepositoryDataClientForTests(null);
+  }
+});
+
+test("leaderboard returns only the canonical entry and picks for each player", async () => {
+  const profile = { id: "profile-1", username: "Legacy Player" };
+  const client = {
+    models: {
+      Entry: {
+        list: async () => ({
+          data: [
+            {
+              id: "old-entry",
+              seasonId: "season-1",
+              entryName: "Old",
+              isDeleted: false,
+              userProfile: profile,
+              updatedAt: "2026-01-01T00:00:00.000Z",
+            },
+            {
+              id: "canonical-entry",
+              seasonId: "season-1",
+              entryName: "Current",
+              isDeleted: false,
+              userProfile: profile,
+              updatedAt: "2026-01-02T00:00:00.000Z",
+            },
+          ],
+        }),
+      },
+      Pick: {
+        list: async () => ({
+          data: [
+            {
+              id: "old-pick",
+              seasonId: "season-1",
+              entryId: "old-entry",
+              gameId: "game-1",
+              selectedTeam: "AAA",
+              updatedAt: "2026-01-01T00:00:00.000Z",
+            },
+            {
+              id: "canonical-pick",
+              seasonId: "season-1",
+              entryId: "canonical-entry",
+              gameId: "game-1",
+              selectedTeam: "BBB",
+              updatedAt: "2026-01-02T00:00:00.000Z",
+            },
+          ],
+        }),
+      },
+    },
+  };
+
+  __setLeaderboardRepositoryDataClientForTests(client);
+
+  try {
+    const result = await loadSeasonLeaderboardData({ seasonId: "season-1" });
+    assert.deepEqual(result.entries.map(({ id }) => id), ["canonical-entry"]);
+    assert.deepEqual(result.picks.map(({ id }) => id), ["canonical-pick"]);
   } finally {
     __setLeaderboardRepositoryDataClientForTests(null);
   }

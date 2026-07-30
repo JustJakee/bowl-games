@@ -1,40 +1,32 @@
-import {
-  Divider,
-  List,
-  ListItemButton,
-  ListItemText,
-  Stack,
-  Typography,
-} from "@mui/material";
-import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import { Button, LinearProgress, Stack, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import Panel from "../common/Panel";
 import SectionHeader from "./SectionHeader";
 import StatusChip from "../common/StatusChip";
 
-const EntriesCard = ({ entries }) => {
-  if (!entries || entries.length === 0) {
+const EntriesCard = ({ entry }) => {
+  if (!entry) {
     return (
       <Panel sx={{ height: "100%" }}>
         <Stack spacing={1.5}>
           <SectionHeader
-            title="My Entries"
-            actionLabel="View All Entries"
-            actionTo="/entries"
+            title="My Pick Set"
+            actionLabel="Create Your Pick Set"
+            actionTo="/picks"
           />
           <Stack spacing={0.75}>
             <Typography
               variant="subtitle1"
               sx={{ fontSize: "1rem", fontWeight: 700 }}
             >
-              No entries yet
+              No pick set yet
             </Typography>
             <Typography
               variant="body2"
               color="text.secondary"
               sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}
             >
-              Your saved pick entries will appear here after you start making
-              picks.
+              Create your pick set to start choosing bowl winners.
             </Typography>
           </Stack>
         </Stack>
@@ -46,35 +38,35 @@ const EntriesCard = ({ entries }) => {
     <Panel sx={{ height: "100%" }}>
       <Stack spacing={1.5}>
         <SectionHeader
-          title="My Entries"
-          actionLabel="View All Entries"
+          title="My Pick Set"
+          actionLabel="View Pick Set"
           actionTo="/entries"
         />
-        <List disablePadding>
-          {entries.map((entry, index) => (
-            <div key={entry.id}>
-              <ListItemButton
-                sx={{ px: 0, py: 1.1, borderRadius: 2, minHeight: { lg: 52 } }}
-              >
-                <ListItemText
-                  primary={entry.name}
-                  secondary={`${entry.completedPicks} / ${entry.totalPicks} complete`}
-                  primaryTypographyProps={{ fontWeight: 700, fontSize: "1rem" }}
-                  secondaryTypographyProps={{
-                    color: "text.secondary",
-                    fontSize: "0.875rem",
-                    lineHeight: 1.4,
-                  }}
-                />
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <StatusChip label={entry.status} />
-                  <ChevronRightRoundedIcon sx={{ color: "text.secondary" }} />
-                </Stack>
-              </ListItemButton>
-              {index < entries.length - 1 ? <Divider /> : null}
+        <Stack spacing={1.25}>
+          <Stack direction="row" justifyContent="space-between" spacing={1}>
+            <div>
+              <Typography fontWeight={700}>{entry.name}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {entry.completedPicks} / {entry.totalPicks} complete
+              </Typography>
             </div>
-          ))}
-        </List>
+            <StatusChip label={entry.status} />
+          </Stack>
+          <LinearProgress
+            variant="determinate"
+            value={
+              entry.totalPicks > 0
+                ? Math.round((entry.completedPicks / entry.totalPicks) * 100)
+                : 0
+            }
+            sx={{ height: 9, borderRadius: 999 }}
+          />
+          <Button component={RouterLink} to="/picks" variant="contained">
+            {entry.isComplete
+              ? "Review Your Picks"
+              : "Continue Your Picks"}
+          </Button>
+        </Stack>
       </Stack>
     </Panel>
   );

@@ -152,19 +152,16 @@ const PickSplitTeamRow = ({ team, revealed }) => {
 const OwnedEntryPicks = ({ picks }) => {
   return (
     <div className="schedule-owned-picks">
-      <div className="schedule-pick-split-title">Your Picks</div>
+      <div className="schedule-pick-split-title">Your Pick</div>
       {picks.length === 0 ? (
         <p className="schedule-pick-hidden-copy">
-          No picks saved for your entries.
+          No picks saved in your pick set.
         </p>
       ) : (
         <div className="schedule-owned-pick-list">
           {picks.map((pick) => (
             <div key={pick.entryId} className="schedule-owned-pick-row">
-              <span className="schedule-owned-entry-name">{pick.entryName}</span>
-              <span className="schedule-owned-team-name">
-                {pick.selectedTeamName || pick.selectedTeam}
-              </span>
+              <span className="schedule-owned-entry-name">{pick.selectedTeamName || pick.selectedTeam}</span>
             </div>
           ))}
         </div>
@@ -381,7 +378,7 @@ const ScheduleView = () => {
             boxShadow: `0 10px 24px ${alpha(theme.palette.primary.main, 0.18)}`,
           }}
         >
-          My Entries
+          My Pick Set
         </Button>
       </Stack>
 

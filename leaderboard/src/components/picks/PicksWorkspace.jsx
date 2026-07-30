@@ -6,8 +6,9 @@ import {
   useRef,
   useState,
 } from "react";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
+import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
+import DeleteSweepRoundedIcon from "@mui/icons-material/DeleteSweepRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
 import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
@@ -23,16 +24,19 @@ import {
   Chip,
   Collapse,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   LinearProgress,
-  MenuItem,
-  Select,
+  Snackbar,
   Stack,
   TextField,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
-import { useSearchParams } from "react-router-dom";
 import { useAppData } from "../../app/AppDataContext.jsx";
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { useUserProfile } from "../../auth/UserProfileContext.jsx";
@@ -62,6 +66,14 @@ import {
   formatPicksMetaLabel,
   getTeamIdentity,
 } from "../../utils/picksGameUtils";
+import {
+  buildEditableGameIdSet,
+  clearEditableSelections,
+  getFilterCountBadgeColors,
+  getPickActionsState,
+  randomizeIncompleteSelections,
+  toggleGameSelection,
+} from "./pickActions";
 
 const STORAGE_KEY_PREFIX = "bobs-bowl-games-picks-drafts";
 
@@ -83,26 +95,8 @@ const writeDraftCache = (storageKey, draftsByEntryId) => {
   window.localStorage.setItem(storageKey, JSON.stringify(draftsByEntryId));
 };
 
-const buildEntryName = (username, index) =>
-  username ? `${username}'s Entry ${index}` : `Entry ${index}`;
-
-const buildNextEntryName = (entries, username) => {
-  const existingNames = new Set(
-    (entries || []).map((entry) =>
-      String(entry?.entryName || "").toLowerCase(),
-    ),
-  );
-
-  let index = entries.length + 1;
-  let candidate = buildEntryName(username, index);
-
-  while (existingNames.has(candidate.toLowerCase())) {
-    index += 1;
-    candidate = buildEntryName(username, index);
-  }
-
-  return candidate;
-};
+const buildDefaultPickSetName = (username) =>
+  username ? `${username}'s Pick Set` : "My Pick Set";
 
 const useSelectedEntryPickLoadGate = ({
   isLoadingSelectedEntryPicks,
@@ -292,11 +286,13 @@ const SegmentedButton = ({ active, count, label, onClick }) => (
       size="small"
       sx={{
         height: 24,
-        bgcolor: active
-          ? alpha("#08111f", 0.75)
-          : (theme) => alpha(theme.palette.common.white, 0.08),
-        color: active ? "primary.contrastText" : "text.primary",
+        minWidth: 30,
+        bgcolor: getFilterCountBadgeColors(active).backgroundColor,
+        color: getFilterCountBadgeColors(active).color,
         fontWeight: 700,
+        "& .MuiChip-label": {
+          px: 1,
+        },
       }}
     />
   </ButtonBase>
@@ -492,19 +488,16 @@ const PicksWorkspace = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [searchParams, setSearchParams] = useSearchParams();
   const { email, role } = useAuth();
   const isAdmin = role === "admin";
   const { profile } = useUserProfile();
   const { allGames, loading, error } = useScoreboard();
   const {
-    activeEntryId,
     createSeasonEntry,
     currentEntry,
     hydratedEntryId,
     currentSeasonId,
     defaultContactEmail,
-    entries,
     entriesError,
     entriesLoading,
     markCurrentPicksRevision,
@@ -515,7 +508,6 @@ const PicksWorkspace = () => {
     picksLocked,
     queueCurrentPicksSave,
     savedSelectionsByGameId,
-    setActiveEntryId,
     tieBreakerGameId,
     tieBreakerRequired,
   } = useAppData();
@@ -527,6 +519,7 @@ const PicksWorkspace = () => {
   const isMountedRef = useRef(false);
   const selectedEntryIdRef = useRef("");
   const storageKeyRef = useRef(storageKey);
+  const bulkOperationRef = useRef("");
   selectedEntryIdRef.current = currentEntry?.id || "";
   storageKeyRef.current = storageKey;
   const [draftsByEntryId, setDraftsByEntryId] = useState({});
@@ -542,12 +535,24 @@ const PicksWorkspace = () => {
   const [retryKey, setRetryKey] = useState(0);
   const [entryActionError, setEntryActionError] = useState("");
   const [creatingEntry, setCreatingEntry] = useState(false);
+  const [newPickSetName, setNewPickSetName] = useState("");
+  const [bulkOperation, setBulkOperation] = useState("");
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [bulkFeedback, setBulkFeedback] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
   const games = useMemo(() => buildPicksGames(allGames || []), [allGames]);
   const groupedGames = useMemo(() => buildGroups(games), [games]);
   const tieBreakerGame = useMemo(
     () => games.find((game) => game.id === tieBreakerGameId) || null,
     [games, tieBreakerGameId],
+  );
+  const editableGameIds = useMemo(
+    () => buildEditableGameIdSet({ games, picksLocked }),
+    [games, picksLocked],
   );
 
   useEffect(() => {
@@ -604,42 +609,6 @@ const PicksWorkspace = () => {
       return nextExpanded;
     });
   }, [groupedGames]);
-
-  useEffect(() => {
-    if (entriesLoading) {
-      return;
-    }
-
-    const requestedEntryId = searchParams.get("entry");
-
-    if (
-      requestedEntryId &&
-      entries.some((entry) => entry.id === requestedEntryId)
-    ) {
-      if (requestedEntryId !== activeEntryId) {
-        setActiveEntryId(requestedEntryId);
-      }
-      return;
-    }
-
-    if (!requestedEntryId && activeEntryId) {
-      setSearchParams(
-        (current) => {
-          const next = new URLSearchParams(current);
-          next.set("entry", activeEntryId);
-          return next;
-        },
-        { replace: true },
-      );
-    }
-  }, [
-    activeEntryId,
-    entries,
-    entriesLoading,
-    searchParams,
-    setActiveEntryId,
-    setSearchParams,
-  ]);
 
   useEffect(() => {
     if (!currentEntry) {
@@ -745,6 +714,11 @@ const PicksWorkspace = () => {
     ? "--%"
     : `${progressPercent}%`;
   const entryStatusLabel = blockSelectedEntryPickUi ? "--" : entryStatus;
+  const pickActionsState = getPickActionsState({
+    games,
+    selectionsByGameId,
+    editableGameIds,
+  });
 
   const filteredGames = useMemo(() => {
     if (blockSelectedEntryPickUi) return [];
@@ -780,7 +754,8 @@ const PicksWorkspace = () => {
       !currentEntry ||
       !activeDraft?.dirty ||
       picksLocked ||
-      picksLoading
+      picksLoading ||
+      bulkOperationRef.current
     ) {
       return;
     }
@@ -871,7 +846,11 @@ const PicksWorkspace = () => {
   ]);
 
   const updateActiveDraft = (updater) => {
-    if (!currentEntry || blockSelectedEntryPickUi) {
+    if (
+      !currentEntry ||
+      blockSelectedEntryPickUi ||
+      bulkOperationRef.current
+    ) {
       return;
     }
 
@@ -913,21 +892,31 @@ const PicksWorkspace = () => {
   };
 
   const handleTeamPick = (gameId, teamCode) => {
-    if (picksLocked || blockSelectedEntryPickUi) {
+    if (
+      picksLocked ||
+      blockSelectedEntryPickUi ||
+      bulkOperationRef.current
+    ) {
       return;
     }
 
     updateActiveDraft((draft) => ({
       ...draft,
-      selectionsByGameId: {
-        ...(draft.selectionsByGameId || {}),
-        [gameId]: teamCode,
-      },
+      selectionsByGameId: toggleGameSelection({
+        gameId,
+        selectedTeam: teamCode,
+        selectionsByGameId: draft.selectionsByGameId,
+        editableGameIds,
+      }),
     }));
   };
 
   const handleTieBreakerChange = (value) => {
-    if (picksLocked || blockSelectedEntryPickUi) {
+    if (
+      picksLocked ||
+      blockSelectedEntryPickUi ||
+      bulkOperationRef.current
+    ) {
       return;
     }
 
@@ -937,26 +926,186 @@ const PicksWorkspace = () => {
     }));
   };
 
-  const handleNewEntry = async () => {
+  const runBulkSelectionSave = async ({
+    operation,
+    nextSelectionsByGameId,
+    successMessage,
+  }) => {
+    if (
+      bulkOperationRef.current ||
+      !currentEntry ||
+      !activeDraft ||
+      blockSelectedEntryPickUi ||
+      picksLocked
+    ) {
+      return;
+    }
+
+    const entryId = currentEntry.id;
+    const revision = nextCurrentPicksRevision(
+      entryId,
+      getDraftRevision(activeDraft),
+    );
+
+    if (!Number.isSafeInteger(revision)) {
+      return;
+    }
+
+    const requestStorageKey = storageKey;
+    const nextDraft = {
+      ...activeDraft,
+      selectionsByGameId: nextSelectionsByGameId,
+      revision,
+      dirty: true,
+    };
+
+    bulkOperationRef.current = operation;
+    setBulkOperation(operation);
+    setDraftsByEntryId((currentDrafts) => ({
+      ...currentDrafts,
+      [entryId]: nextDraft,
+    }));
+    setSaveState({
+      state: "saving",
+      message: operation === "clear" ? "Clearing picks..." : "Randomizing picks...",
+      detail: "",
+    });
+
+    try {
+      const outcome = await queueCurrentPicksSave({
+        entryId,
+        revision,
+        entryName: nextDraft.entryName,
+        contactEmail: defaultContactEmail || email || "",
+        selectionsByGameId: nextDraft.selectionsByGameId,
+        tieBreakerValue: nextDraft.tieBreakerValue,
+        userProfileId: profile?.id,
+      });
+
+      if (
+        !isMountedRef.current ||
+        storageKeyRef.current !== requestStorageKey
+      ) {
+        return;
+      }
+
+      if (
+        outcome.status === "saved" &&
+        outcome.result?.entry?.id === entryId
+      ) {
+        setDraftsByEntryId((currentDrafts) => {
+          const latestDraft = currentDrafts[entryId];
+
+          if (getDraftRevision(latestDraft) !== revision) {
+            return currentDrafts;
+          }
+
+          return {
+            ...currentDrafts,
+            [entryId]: buildSyncedDraft(outcome.result, revision),
+          };
+        });
+        setSaveState(buildAutosaveSuccessState());
+        setBulkFeedback({
+          open: true,
+          severity: "success",
+          message: successMessage,
+        });
+        return;
+      }
+
+      const operationError =
+        outcome.error ||
+        new Error("The operation was replaced before it could finish.");
+      const partialResult = operationError.partialResult;
+
+      if (partialResult?.entry?.id === entryId) {
+        setDraftsByEntryId((currentDrafts) => {
+          const latestDraft = currentDrafts[entryId];
+
+          if (getDraftRevision(latestDraft) !== revision) {
+            return currentDrafts;
+          }
+
+          return {
+            ...currentDrafts,
+            [entryId]: buildSyncedDraft(partialResult, revision),
+          };
+        });
+        setSaveState({
+          state: "error",
+          message: "Partially saved",
+          detail:
+            "Saved changes were kept. Failed and unattempted changes were rolled back.",
+        });
+      } else {
+        setSaveState(buildAutosaveFailureState(operationError));
+      }
+      setBulkFeedback({
+        open: true,
+        severity: "error",
+        message: partialResult
+          ? "Some changes could not be saved. Saved changes were kept; failed changes were rolled back."
+          : "Changes could not be saved to your account. They remain saved on this device for Retry.",
+      });
+    } finally {
+      bulkOperationRef.current = "";
+      setBulkOperation("");
+      if (operation === "clear") {
+        setClearDialogOpen(false);
+      }
+    }
+  };
+
+  const handleRandomizePicks = () => {
+    if (!pickActionsState.canRandomize || bulkOperationRef.current) {
+      return;
+    }
+
+    const nextSelectionsByGameId = randomizeIncompleteSelections({
+      games,
+      selectionsByGameId,
+      editableGameIds,
+    });
+
+    void runBulkSelectionSave({
+      operation: "randomize",
+      nextSelectionsByGameId,
+      successMessage: "Randomized picks were saved to your account.",
+    });
+  };
+
+  const handleConfirmClearPicks = () => {
+    if (!pickActionsState.canClear || bulkOperationRef.current) {
+      return;
+    }
+
+    const nextSelectionsByGameId = clearEditableSelections({
+      selectionsByGameId,
+      editableGameIds,
+    });
+
+    void runBulkSelectionSave({
+      operation: "clear",
+      nextSelectionsByGameId,
+      successMessage: "Unlocked picks were cleared.",
+    });
+  };
+
+  const handleCreatePickSet = async () => {
+    if (creatingEntry) return;
+
     setCreatingEntry(true);
     setEntryActionError("");
 
     try {
-      const createdEntry = await createSeasonEntry({
-        entryName: buildNextEntryName(entries, profile?.username),
+      await createSeasonEntry({
+        entryName:
+          newPickSetName.trim() || buildDefaultPickSetName(profile?.username),
         userProfileId: profile?.id,
       });
-
-      setSearchParams(
-        (current) => {
-          const next = new URLSearchParams(current);
-          next.set("entry", createdEntry.id);
-          return next;
-        },
-        { replace: true },
-      );
     } catch (error) {
-      setEntryActionError(error?.message || "Unable to create a new entry.");
+      setEntryActionError(error?.message || "Unable to create your pick set.");
     } finally {
       setCreatingEntry(false);
     }
@@ -1010,6 +1159,49 @@ const PicksWorkspace = () => {
     );
   }
 
+  if (!currentEntry) {
+    return (
+      <Stack spacing={2.5}>
+        <Box>
+          <Typography variant="h3" sx={{ fontSize: { xs: "2rem", md: "2.25rem" } }}>
+            My Picks
+          </Typography>
+        </Box>
+        {entryActionError ? <Alert severity="error">{entryActionError}</Alert> : null}
+        <Panel elevated>
+          <Stack spacing={2}>
+            <Typography variant="h5">Create Your Pick Set</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Create your one pick set for this season, then start choosing winners.
+            </Typography>
+            {isAdmin ? (
+              <Alert severity="info">
+                Admin accounts cannot create player pick sets.
+              </Alert>
+            ) : (
+              <>
+                <TextField
+                  label="Pick Set Name"
+                  value={newPickSetName}
+                  placeholder={buildDefaultPickSetName(profile?.username)}
+                  onChange={(event) => setNewPickSetName(event.target.value)}
+                  inputProps={{ maxLength: 60 }}
+                />
+                <Button
+                  variant="contained"
+                  onClick={handleCreatePickSet}
+                  disabled={creatingEntry || !currentSeasonId}
+                >
+                  {creatingEntry ? "Creating..." : "Create Your Pick Set"}
+                </Button>
+              </>
+            )}
+          </Stack>
+        </Panel>
+      </Stack>
+    );
+  }
+
   return (
     <Stack spacing={2.5}>
       <Box>
@@ -1049,76 +1241,10 @@ const PicksWorkspace = () => {
           >
             <Stack spacing={1.25}>
               <Typography variant="overline" color="text.secondary">
-                My Entry
+                My Pick Set
               </Typography>
-              <Stack
-                direction="row"
-                spacing={1.25}
-                alignItems="center"
-                sx={{ flexWrap: "nowrap" }}
-              >
-                <Select
-                  value={activeEntryId || ""}
-                  onChange={(event) => {
-                    const nextEntryId = event.target.value;
-                    setActiveEntryId(nextEntryId);
-                    setSearchParams(
-                      (current) => {
-                        const next = new URLSearchParams(current);
-                        next.set("entry", nextEntryId);
-                        return next;
-                      },
-                      { replace: true },
-                    );
-                  }}
-                  fullWidth
-                  size="small"
-                  disabled={entries.length === 0}
-                  displayEmpty
-                  sx={{
-                    flex: 1,
-                    minWidth: 0,
-                    minHeight: 44,
-                    "& .MuiSelect-select": {
-                      display: "flex",
-                      alignItems: "center",
-                      fontWeight: 700,
-                    },
-                  }}
-                >
-                  {entries.length === 0 ? (
-                    <MenuItem value="" disabled>
-                      No entries yet
-                    </MenuItem>
-                  ) : null}
-                  {entries.map((entry) => (
-                    <MenuItem key={entry.id} value={entry.id}>
-                      {entry.entryName}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <Button
-                  variant="outlined"
-                  startIcon={<AddRoundedIcon />}
-                  onClick={handleNewEntry}
-                  disabled={creatingEntry || !currentSeasonId || isAdmin}
-                  sx={{
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                    alignSelf: "center",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    "& .MuiButton-startIcon": {
-                      marginTop: 0,
-                      marginBottom: 0,
-                    },
-                  }}
-                >
-                  {creatingEntry ? "Creating..." : "New Entry"}
-                </Button>
-              </Stack>
               <TextField
-                label="Entry Name"
+                label="Pick Set Name"
                 value={activeDraft?.entryName || ""}
                 size="small"
                 onChange={(event) =>
@@ -1126,8 +1252,59 @@ const PicksWorkspace = () => {
                     entryName: event.target.value,
                   })
                 }
-                disabled={!currentEntry || blockSelectedEntryPickUi}
+                disabled={
+                  !currentEntry ||
+                  blockSelectedEntryPickUi ||
+                  Boolean(bulkOperation)
+                }
               />
+              {pickActionsState.canRandomize || pickActionsState.canClear ? (
+                <Stack
+                  direction={{ xs: "column", sm: "row", md: "column", xl: "row" }}
+                  spacing={1}
+                  sx={{ pt: 0.25 }}
+                >
+                  {pickActionsState.canRandomize ? (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={
+                        bulkOperation === "randomize" ? (
+                          <CircularProgress size={16} color="inherit" />
+                        ) : (
+                          <CasinoRoundedIcon />
+                        )
+                      }
+                      onClick={handleRandomizePicks}
+                      disabled={Boolean(bulkOperation)}
+                      sx={{
+                        flex: 1,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {bulkOperation === "randomize"
+                        ? "Randomizing..."
+                        : pickActionsState.randomizeLabel}
+                    </Button>
+                  ) : null}
+                  {pickActionsState.canClear ? (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      startIcon={<DeleteSweepRoundedIcon />}
+                      onClick={() => setClearDialogOpen(true)}
+                      disabled={Boolean(bulkOperation)}
+                      sx={{
+                        flex: 1,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Clear All Picks
+                    </Button>
+                  ) : null}
+                </Stack>
+              ) : null}
             </Stack>
 
             <Stack
@@ -1215,7 +1392,7 @@ const PicksWorkspace = () => {
                     state={visibleSaveState.state}
                     message={visibleSaveState.message}
                     detail={visibleSaveState.detail}
-                    onRetry={handleRetrySave}
+                    onRetry={activeDraft?.dirty ? handleRetrySave : undefined}
                   />
                 )}
               </Box>
@@ -1228,7 +1405,7 @@ const PicksWorkspace = () => {
               }}
             >
               <Typography variant="overline" color="text.secondary">
-                Entry Status
+                Pick Set Status
               </Typography>
               <Chip
                 label={entryStatusLabel}
@@ -1319,28 +1496,16 @@ const PicksWorkspace = () => {
         </Stack>
       </Panel>
 
-      {!blockSelectedEntryPickUi && entries.length === 0 ? (
-        <Panel elevated>
-          <Typography variant="body1" sx={{ fontWeight: 700 }}>
-            Create your first entry to start making picks.
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Entries are stored in your account for the active `test26` season.
-          </Typography>
-        </Panel>
-      ) : null}
-
       {blockSelectedEntryPickUi ? (
         <Panel elevated>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <CircularProgress size={22} thickness={5} />
             <Typography variant="body1" sx={{ fontWeight: 700 }}>
-              Loading selected entry picks...
+              Loading your picks...
             </Typography>
           </Stack>
         </Panel>
-      ) : entries.length > 0
-        ? filteredGroups.map((group) => (
+      ) : filteredGroups.map((group) => (
             <Box
               key={group.key}
               sx={{
@@ -1408,7 +1573,10 @@ const PicksWorkspace = () => {
                     const persistedSelection =
                       savedSelectionsByGameId?.[game.id] || "";
                     const metaLabel = formatPicksMetaLabel(game);
-                    const gameLocked = picksLocked || blockSelectedEntryPickUi;
+                    const gameLocked =
+                      picksLocked ||
+                      blockSelectedEntryPickUi ||
+                      Boolean(bulkOperation);
                     const matchupSaveState = !selection
                       ? ""
                       : selection === persistedSelection
@@ -1676,7 +1844,7 @@ const PicksWorkspace = () => {
                                 type="number"
                                 value={tieBreakerValue ?? ""}
                                 size="small"
-                                disabled={picksLocked}
+                                disabled={picksLocked || Boolean(bulkOperation)}
                                 onChange={(event) =>
                                   handleTieBreakerChange(event.target.value)
                                 }
@@ -1696,16 +1864,83 @@ const PicksWorkspace = () => {
                 </Stack>
               </Collapse>
             </Box>
-          ))
-        : null}
+          ))}
 
-      {!blockSelectedEntryPickUi && entries.length > 0 && filteredGroups.length === 0 ? (
+      {!blockSelectedEntryPickUi && filteredGroups.length === 0 ? (
         <Panel elevated>
           <Typography variant="body1">
             No games match the current filter.
           </Typography>
         </Panel>
       ) : null}
+
+      <Dialog
+        open={clearDialogOpen}
+        onClose={
+          bulkOperation
+            ? undefined
+            : () => setClearDialogOpen(false)
+        }
+        fullWidth
+        maxWidth="xs"
+        aria-labelledby="clear-picks-dialog-title"
+        aria-describedby="clear-picks-dialog-description"
+      >
+        <DialogTitle id="clear-picks-dialog-title">
+          Clear all picks?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="clear-picks-dialog-description">
+            This will remove all of your currently selected teams for unlocked
+            games. This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setClearDialogOpen(false)}
+            disabled={Boolean(bulkOperation)}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleConfirmClearPicks}
+            disabled={Boolean(bulkOperation)}
+            startIcon={
+              bulkOperation === "clear" ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <DeleteSweepRoundedIcon />
+              )
+            }
+          >
+            {bulkOperation === "clear" ? "Clearing..." : "Clear Picks"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={bulkFeedback.open}
+        autoHideDuration={5000}
+        onClose={(_event, reason) => {
+          if (reason !== "clickaway") {
+            setBulkFeedback((current) => ({ ...current, open: false }));
+          }
+        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={bulkFeedback.severity}
+          variant="filled"
+          onClose={() =>
+            setBulkFeedback((current) => ({ ...current, open: false }))
+          }
+          sx={{ width: "100%" }}
+        >
+          {bulkFeedback.message}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };

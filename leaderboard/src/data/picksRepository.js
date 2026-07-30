@@ -319,6 +319,12 @@ export const saveEntryState = async ({
     ([gameId, selectedTeam]) =>
       savedPicks.selectionsByGameId?.[gameId] !== selectedTeam,
   );
+  const currentGameIdSet = new Set(currentGameIds.filter(Boolean));
+  const clearedPicks = savedPicks.picks.filter(
+    (pick) =>
+      currentGameIdSet.has(pick.gameId) &&
+      !nextSelections[pick.gameId],
+  );
 
   for (const [gameId, selectedTeam] of changedSelections) {
     const game = gamesById.get(gameId);
@@ -343,16 +349,120 @@ export const saveEntryState = async ({
 
   const client = getDataClient();
   const correlationId = createCorrelationId();
+  const completedPickChanges = [];
+  const throwWithPartialPickResult = async (error) => {
+    error.completedPickChanges = completedPickChanges.slice();
+
+    if (completedPickChanges.length > 0) {
+      try {
+        const refreshedPicks = await loadEntryPicks({
+          entryId: entry.id,
+          seasonId,
+          currentGameIds,
+        });
+        error.partialResult = {
+          entry,
+          ...refreshedPicks,
+          status: calculatePickSetStatus({
+            requiredGameIds: currentGameIds,
+            selectionsByGameId: refreshedPicks.selectionsByGameId,
+            tieBreakerRequired,
+            tieBreakerValue: entry.tieBreakerValue,
+          }),
+        };
+      } catch (partialReadError) {
+        error.partialReadError = {
+          name: partialReadError?.name || "Error",
+          message:
+            partialReadError?.message ||
+            "Unable to reconcile partially saved picks.",
+        };
+      }
+    }
+
+    throw error;
+  };
+
+  for (const pick of clearedPicks) {
+    try {
+      await executePickMutation({
+        execute: () =>
+          client.models.Pick.delete(
+            { id: pick.id },
+            {
+              selectionSet: PICK_SELECTION,
+              authMode: "userPool",
+            },
+          ),
+        fallbackMessage: "Unable to clear a saved pick.",
+        diagnostics: {
+          correlationId,
+          operation: "delete",
+          entryId: entry.id,
+          gameId: pick.gameId,
+          pickId: pick.id,
+          selectedTeam: null,
+        },
+      });
+      completedPickChanges.push({
+        gameId: pick.gameId,
+        operation: "delete",
+        selectedTeam: null,
+      });
+    } catch (error) {
+      await throwWithPartialPickResult(error);
+    }
+  }
 
   for (const [gameId, selectedTeam] of changedSelections) {
     const existingPick = savedPicks.picksByGameId[gameId];
 
     if (existingPick) {
+      try {
+        await executePickMutation({
+          execute: () =>
+            client.models.Pick.update(
+              {
+                id: existingPick.id,
+                selectedTeam,
+              },
+              {
+                selectionSet: PICK_SELECTION,
+                authMode: "userPool",
+              },
+            ),
+          fallbackMessage: "Unable to update a saved pick.",
+          diagnostics: {
+            correlationId,
+            operation: "update",
+            entryId: entry.id,
+            gameId,
+            pickId: existingPick.id,
+            selectedTeam,
+          },
+        });
+        completedPickChanges.push({
+          gameId,
+          operation: "update",
+          selectedTeam,
+        });
+      } catch (error) {
+        await throwWithPartialPickResult(error);
+      }
+      continue;
+    }
+
+    const pickId = buildPickId(entry.id, gameId);
+    try {
       await executePickMutation({
         execute: () =>
-          client.models.Pick.update(
+          client.models.Pick.create(
             {
-              id: existingPick.id,
+              id: pickId,
+              seasonId,
+              entryId: entry.id,
+              gameId,
+              owner,
               selectedTeam,
             },
             {
@@ -360,46 +470,24 @@ export const saveEntryState = async ({
               authMode: "userPool",
             },
           ),
-        fallbackMessage: "Unable to update a saved pick.",
+        fallbackMessage: "Unable to save a pick.",
         diagnostics: {
           correlationId,
-          operation: "update",
+          operation: "create",
           entryId: entry.id,
           gameId,
-          pickId: existingPick.id,
+          pickId,
           selectedTeam,
         },
       });
-      continue;
-    }
-
-    const pickId = buildPickId(entry.id, gameId);
-    await executePickMutation({
-      execute: () =>
-        client.models.Pick.create(
-          {
-            id: pickId,
-            seasonId,
-            entryId: entry.id,
-            gameId,
-            owner,
-            selectedTeam,
-          },
-          {
-            selectionSet: PICK_SELECTION,
-            authMode: "userPool",
-          },
-        ),
-      fallbackMessage: "Unable to save a pick.",
-      diagnostics: {
-        correlationId,
-        operation: "create",
-        entryId: entry.id,
+      completedPickChanges.push({
         gameId,
-        pickId,
+        operation: "create",
         selectedTeam,
-      },
-    });
+      });
+    } catch (error) {
+      await throwWithPartialPickResult(error);
+    }
   }
 
   const normalizedEntryName =

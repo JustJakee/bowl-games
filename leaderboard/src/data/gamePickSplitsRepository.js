@@ -4,6 +4,7 @@ import {
   buildGamePickSplitView,
   isGamePickLocked,
 } from "../utils/gamePickSplits";
+import { selectCanonicalEntriesByUser } from "./canonicalEntry";
 
 let dataClientOverride = null;
 
@@ -14,9 +15,18 @@ const ENTRY_PUBLIC_SELECTION = [
   "isDeleted",
   "createdAt",
   "updatedAt",
+  "userProfile.id",
+  "userProfile.username",
 ];
 
-const PICK_SUBMISSION_SELECTION = ["id", "seasonId", "entryId", "gameId"];
+const PICK_SUBMISSION_SELECTION = [
+  "id",
+  "seasonId",
+  "entryId",
+  "gameId",
+  "createdAt",
+  "updatedAt",
+];
 
 const PICK_REVEALED_SELECTION = [
   "id",
@@ -95,7 +105,6 @@ export const loadGamePickSplitViews = async ({
         {
           filter: {
             seasonId: { eq: seasonId },
-            isDeleted: { eq: false },
           },
           selectionSet: ENTRY_PUBLIC_SELECTION,
           authMode: "userPool",
@@ -147,15 +156,24 @@ export const loadGamePickSplitViews = async ({
     ]);
 
   const revealedPicksByGameId = Object.fromEntries(revealedPicksByGame);
-  const activeEntries = sortEntriesByName(entries);
+  const activeEntries = sortEntriesByName(
+    selectCanonicalEntriesByUser({ entries, picks: submittedPicks, seasonId }),
+  );
+  const canonicalEntryIds = new Set(activeEntries.map((entry) => entry.id));
+  const canonicalSubmittedPicks = submittedPicks.filter((pick) =>
+    canonicalEntryIds.has(pick.entryId),
+  );
+  const canonicalOwnedPicks = ownedPicks.filter((pick) =>
+    canonicalEntryIds.has(pick.entryId),
+  );
 
   return games.reduce((accumulator, game) => {
     accumulator[game.id] = buildGamePickSplitView({
       game,
       entries: activeEntries,
-      submittedPicks,
+      submittedPicks: canonicalSubmittedPicks,
       revealedPicks: revealedPicksByGameId[game.id] || [],
-      ownedPicks,
+      ownedPicks: canonicalOwnedPicks,
       currentEntryIds,
       now,
     });

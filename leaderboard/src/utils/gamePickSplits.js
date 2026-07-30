@@ -119,7 +119,7 @@ export const buildGamePickSplitView = ({
     const team = teamsByKey.get(teamKey);
     accumulator[teamKey].push({
       entryId: pick.entryId,
-      entryName: entry?.entryName || "Unnamed Entry",
+      entryName: entry?.entryName || "Unnamed Pick Set",
       selectedTeam: teamKey,
       selectedTeamName: team?.name || teamKey,
       selectedTeamLogo: team?.logo || "",
@@ -137,7 +137,7 @@ export const buildGamePickSplitView = ({
 
     accumulator[teamKey].push({
       entryId: pick.entryId,
-      entryName: entry?.entryName || "Unnamed Entry",
+      entryName: entry?.entryName || "Unnamed Pick Set",
       selectedTeam: teamKey,
       isOwned: ownedEntryIdSet.has(pick.entryId),
     });
@@ -184,7 +184,7 @@ export const buildGamePickSplitView = ({
       const team = teamsByKey.get(teamKey);
       return {
         entryId: pick.entryId,
-        entryName: entry?.entryName || "Unnamed Entry",
+        entryName: entry?.entryName || "Unnamed Pick Set",
         selectedTeam: teamKey,
         selectedTeamName: team?.name || teamKey,
         selectedTeamLogo: team?.logo || "",

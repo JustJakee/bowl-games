@@ -1,6 +1,7 @@
 // DATA — ENTRIES — AMPLIFY DATA
 // Entry operations recheck ownership client-side while Amplify enforces the authoritative owner rules.
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
+import { selectCanonicalEntry } from "./canonicalEntry";
 
 let dataClientOverride = null;
 
@@ -63,11 +64,33 @@ const sortEntries = (entries = []) =>
     return rightUpdated - leftUpdated;
   });
 
+const PICK_ACTIVITY_SELECTION = [
+  "id",
+  "seasonId",
+  "entryId",
+  "createdAt",
+  "updatedAt",
+];
+
+const listAllPages = async ({ listPage, input, fallbackMessage }) => {
+  const items = [];
+  let nextToken;
+
+  do {
+    const result = await listPage({ ...input, limit: 100, nextToken });
+    throwIfGraphQLError(result, fallbackMessage);
+    items.push(...(result.data || []).filter(Boolean));
+    nextToken = result.nextToken || null;
+  } while (nextToken);
+
+  return items;
+};
+
 export const normalizeEntryName = (entryName) => {
   const trimmed = String(entryName || "").trim();
 
   if (trimmed.length < 3 || trimmed.length > 60) {
-    throw new Error("Entry names must be between 3 and 60 characters.");
+    throw new Error("Pick set names must be between 3 and 60 characters.");
   }
 
   return trimmed;
@@ -104,20 +127,47 @@ export const listEntriesForSeason = async ({ owner, seasonId }) => {
   }
 
   const client = getDataClient();
-  const result = await client.models.Entry.list({
-    filter: {
-      owner: { eq: owner },
-      seasonId: { eq: seasonId },
-      isDeleted: { eq: false },
+  const entries = await listAllPages({
+    listPage: (input) => client.models.Entry.list(input),
+    input: {
+      filter: {
+        owner: { eq: owner },
+        seasonId: { eq: seasonId },
+      },
+      selectionSet: ENTRY_SELECTION,
+      authMode: "userPool",
     },
-    selectionSet: ENTRY_SELECTION,
-    authMode: "userPool",
+    fallbackMessage: "Unable to load your pick set.",
   });
 
-  throwIfGraphQLError(result, "Unable to load your entries.");
   return sortEntries(
-    (result.data || []).filter(Boolean).map(normalizePlayerEntry),
+    entries
+      .filter((entry) => entry?.isDeleted !== true)
+      .map(normalizePlayerEntry),
   );
+};
+
+export const getCanonicalEntryForUser = async ({ owner, seasonId }) => {
+  if (!owner || !seasonId) return null;
+
+  const client = getDataClient();
+  const [entries, picks] = await Promise.all([
+    listEntriesForSeason({ owner, seasonId }),
+    listAllPages({
+      listPage: (input) => client.models.Pick.list(input),
+      input: {
+        filter: {
+          owner: { eq: owner },
+          seasonId: { eq: seasonId },
+        },
+        selectionSet: PICK_ACTIVITY_SELECTION,
+        authMode: "userPool",
+      },
+      fallbackMessage: "Unable to determine your latest pick set.",
+    }),
+  ]);
+
+  return selectCanonicalEntry({ entries, picks, owner, seasonId });
 };
 
 export const getEntryById = async ({ entryId, owner }) => {
@@ -206,8 +256,13 @@ export const createEntry = async ({
     },
   );
 
-  throwIfGraphQLError(result, "Unable to create your entry.");
+  throwIfGraphQLError(result, "Unable to create your pick set.");
   return normalizePlayerEntry(result.data);
+};
+
+export const createOrLoadEntry = async (input) => {
+  const existingEntry = await getCanonicalEntryForUser(input);
+  return existingEntry || createEntry(input);
 };
 
 export const updateEntry = async ({
@@ -278,7 +333,7 @@ export const updateEntry = async ({
     authMode: "userPool",
   });
 
-  throwIfGraphQLError(result, "Unable to update your entry.");
+  throwIfGraphQLError(result, "Unable to update your pick set.");
   return normalizePlayerEntry(result.data);
 };
 

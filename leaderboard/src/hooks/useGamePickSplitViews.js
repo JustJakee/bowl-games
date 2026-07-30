@@ -5,7 +5,7 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { loadGamePickSplitViews } from "../data/gamePickSplitsRepository";
 
 export const useGamePickSplitViews = (games = []) => {
-  const { currentSeasonId, entries } = useAppData();
+  const { currentSeasonId, currentEntry } = useAppData();
   const { user } = useAuth();
   const owner = user?.userId || "";
   const [viewsByGameId, setViewsByGameId] = useState({});
@@ -33,7 +33,7 @@ export const useGamePickSplitViews = (games = []) => {
     loadGamePickSplitViews({
       seasonId: currentSeasonId,
       games,
-      currentEntries: entries,
+      currentEntries: currentEntry ? [currentEntry] : [],
       owner,
     })
       .then((nextViews) => {
@@ -51,7 +51,7 @@ export const useGamePickSplitViews = (games = []) => {
           setLoading(false);
         }
       });
-  }, [currentSeasonId, entries, gameIdsKey, games, owner]);
+  }, [currentEntry, currentSeasonId, gameIdsKey, games, owner]);
 
   return {
     viewsByGameId,

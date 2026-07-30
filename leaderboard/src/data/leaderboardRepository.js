@@ -1,5 +1,6 @@
 // DATA — LEADERBOARD — AMPLIFY DATA
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
+import { selectCanonicalEntriesByUser } from "./canonicalEntry";
 
 const LEADERBOARD_PAGE_LIMIT = 100;
 
@@ -9,6 +10,9 @@ const ENTRY_LEADERBOARD_SELECTION = [
   "entryName",
   "tieBreakerValue",
   "isDeleted",
+  "createdAt",
+  "updatedAt",
+  "userProfile.id",
   "userProfile.username",
 ];
 
@@ -18,6 +22,8 @@ const PICK_LEADERBOARD_SELECTION = [
   "entryId",
   "gameId",
   "selectedTeam",
+  "createdAt",
+  "updatedAt",
 ];
 
 let dataClientOverride = null;
@@ -79,7 +85,6 @@ export const loadSeasonLeaderboardData = async ({ seasonId }) => {
       input: {
         filter: {
           seasonId: { eq: seasonId },
-          isDeleted: { eq: false },
         },
         selectionSet: ENTRY_LEADERBOARD_SELECTION,
         authMode: "userPool",
@@ -99,9 +104,16 @@ export const loadSeasonLeaderboardData = async ({ seasonId }) => {
     }),
   ]);
 
-  return {
+  const canonicalEntries = selectCanonicalEntriesByUser({
     entries,
     picks,
+    seasonId,
+  });
+  const canonicalEntryIds = new Set(canonicalEntries.map((entry) => entry.id));
+
+  return {
+    entries: canonicalEntries,
+    picks: picks.filter((pick) => canonicalEntryIds.has(pick.entryId)),
     usernamesByOwner: {},
   };
 };

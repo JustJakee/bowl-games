@@ -141,7 +141,7 @@ const PickForm = ({ onSubmitResult }) => {
 
     if (!hasEntryName) {
       onSubmitResult?.({
-        message: "Please enter a name for your entry before saving picks.",
+        message: "Please name your pick set before saving picks.",
         severity: "error",
       });
       return;
@@ -225,13 +225,13 @@ const PickForm = ({ onSubmitResult }) => {
         <div className="pick-form-field">
           <TextField
             label="Add a Name to Your Picks"
-            placeholder="Name your entry"
+            placeholder="Name your pick set"
             value={entryName}
             onChange={(event) => {
               setEntryName(event.target.value);
             }}
             onInvalid={(event) =>
-              setValidityMessage(event, "Please enter a name for your entry.")
+              setValidityMessage(event, "Please name your pick set.")
             }
             onInput={clearValidityMessage}
             size="small"
