@@ -1561,14 +1561,13 @@ const PicksWorkspace = () => {
               </ButtonBase>
 
               <Collapse in={expandedGroups[group.key]}>
-                <Stack
-                  divider={
-                    <Box
-                      sx={{ borderTop: "1px solid", borderColor: "divider" }}
-                    />
-                  }
+                <Box
+                  sx={{
+                    p: { xs: "20px 16px 24px", sm: 2.5, md: 2 },
+                  }}
                 >
-                  {group.games.map((game) => {
+                  <Stack spacing={{ xs: 3, sm: 2.5, md: 2 }}>
+                    {group.games.map((game) => {
                     const selection = selectionsByGameId?.[game.id] || "";
                     const persistedSelection =
                       savedSelectionsByGameId?.[game.id] || "";
@@ -1599,17 +1598,20 @@ const PicksWorkspace = () => {
                           gameRefs.current[game.id] = element;
                         }}
                         sx={{
-                          px: { xs: 1.4, md: 1.75 },
-                          py: { xs: 1.7, md: 1.6 },
+                          overflow: "hidden",
+                          p: { xs: 2, sm: 2.5, md: 2 },
+                          border: "1px solid",
+                          borderColor: alpha(theme.palette.common.white, 0.14),
+                          borderRadius: 2,
                           borderLeft: game.isTieBreakerGame
                             ? "2px solid"
                             : "none",
-                          borderColor: game.isTieBreakerGame
+                          borderLeftColor: game.isTieBreakerGame
                             ? "primary.main"
                             : "transparent",
                           backgroundColor: game.isTieBreakerGame
                             ? alpha(theme.palette.primary.main, 0.04)
-                            : "transparent",
+                            : alpha(theme.palette.background.default, 0.22),
                           opacity: gameLocked ? 0.88 : 1,
                         }}
                       >
@@ -1741,7 +1743,7 @@ const PicksWorkspace = () => {
                               />
                             </Box>
                           ) : (
-                            <Stack spacing={1.1} sx={{ pt: 0.5 }}>
+                            <Stack spacing={1.5} sx={{ pt: 0.5 }}>
                               <TeamPickButton
                                 disabled={gameLocked}
                                 selected={selection === game.away.abbr}
@@ -1860,8 +1862,9 @@ const PicksWorkspace = () => {
                         </Stack>
                       </Box>
                     );
-                  })}
-                </Stack>
+                    })}
+                  </Stack>
+                </Box>
               </Collapse>
             </Box>
           ))}

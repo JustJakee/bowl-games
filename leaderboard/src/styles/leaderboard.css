@@ -518,7 +518,7 @@
 
   .leaderboard-mobile-list--prelive .leaderboard-mobile-list-header,
   .leaderboard-mobile-list--prelive .leaderboard-mobile-row {
-    grid-template-columns: 3.15rem minmax(0, 1fr);
+    grid-template-columns: 3.5rem minmax(0, 1fr);
   }
 
   .leaderboard-mobile-list-header {
@@ -535,10 +535,19 @@
     text-align: right;
   }
 
+  .leaderboard-mobile-list--prelive .leaderboard-mobile-list-header span:last-child,
+  .leaderboard-mobile-list--prelive .leaderboard-mobile-rank {
+    text-align: left;
+  }
+
   .leaderboard-mobile-row {
     min-height: 4.75rem;
     padding: 0.85rem 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .leaderboard-mobile-list--prelive .leaderboard-mobile-row {
+    min-height: 3.5rem;
   }
 
   .leaderboard-mobile-rank {

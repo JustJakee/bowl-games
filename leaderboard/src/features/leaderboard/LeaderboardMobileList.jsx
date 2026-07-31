@@ -11,7 +11,7 @@ const LeaderboardMobileList = ({ entries, showFourthPrize, isLive }) => (
   >
     <div className="leaderboard-mobile-list-header">
       <span>Rank</span>
-      <span>User & Entry</span>
+      <span>{isLive ? "User & Entry" : "Player"}</span>
       {isLive ? <span>Correct Picks</span> : null}
     </div>
     {entries.map((entry) => {
@@ -20,7 +20,7 @@ const LeaderboardMobileList = ({ entries, showFourthPrize, isLive }) => (
       return (
         <article className="leaderboard-mobile-row" key={entry.id}>
           <div className="leaderboard-mobile-rank">{entry.rank}</div>
-          <LeaderboardIdentity entry={entry} />
+          <LeaderboardIdentity entry={entry} showEntryName={isLive} />
           {isLive ? (
             <div className="leaderboard-mobile-score">
               <strong>{entry.correctPicks}</strong>
