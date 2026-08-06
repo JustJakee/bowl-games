@@ -1,7 +1,7 @@
 // UI - SCHEDULE GAME DETAIL - REACT
 import { useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
-import { Alert, Box, Button, Divider, Stack } from "@mui/material";
+import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, Divider, Stack } from "@mui/material";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
@@ -151,7 +151,6 @@ const YourPicksPanel = ({ pickSplit, unavailable }) => {
                 ) : null}
                 <span>{pick.selectedTeamName || pick.selectedTeam}</span>
               </div>
-              <span className="game-detail-owned-entry">{pick.entryName}</span>
             </div>
           ))}
         </div>
@@ -160,7 +159,14 @@ const YourPicksPanel = ({ pickSplit, unavailable }) => {
   );
 };
 
-const TeamPickGroup = ({ team }) => (
+const MAX_VISIBLE_PLAYERS = 10;
+
+const TeamPickGroup = ({ team, onShowMore }) => {
+  const otherPlayers = team.entries.filter((entryPick) => !entryPick.isOwned);
+  const visiblePlayers = otherPlayers.slice(0, MAX_VISIBLE_PLAYERS);
+  const additionalPlayerCount = otherPlayers.length - visiblePlayers.length;
+
+  return (
   <div className="game-detail-team-group">
     <div className="game-detail-team-group-heading">
       <div className="game-detail-team-group-title">
@@ -168,30 +174,30 @@ const TeamPickGroup = ({ team }) => (
         <h3>{team.name}</h3>
       </div>
       <strong>
-        {team.count} {team.count === 1 ? "pick" : "picks"} · {team.percentage}%
+        {team.count} {team.count === 1 ? "pick" : "picks"}
       </strong>
     </div>
-    <div className="game-detail-split-bar" aria-hidden="true">
-      <span style={{ width: `${team.percentage}%` }} />
-    </div>
     <div className="game-detail-entry-list">
-      {team.entries.length === 0 ? (
-        <p className="game-detail-muted">No players picked this team.</p>
+      {visiblePlayers.length === 0 ? (
+        <p className="game-detail-muted">No other players picked this team.</p>
       ) : (
-        team.entries.map((entryPick) => (
+        visiblePlayers.map((entryPick) => (
           <div key={entryPick.entryId} className="game-detail-entry-row">
-            <span>{entryPick.entryName}</span>
-            {entryPick.isOwned ? (
-              <strong className="game-detail-entry-badge">Your Pick</strong>
-            ) : null}
+            <span>{entryPick.playerName}</span>
           </div>
         ))
       )}
+      {additionalPlayerCount > 0 ? (
+        <button type="button" className="game-detail-more-players" onClick={() => onShowMore?.(team, otherPlayers)}>
+          +{additionalPlayerCount} more
+        </button>
+      ) : null}
     </div>
   </div>
-);
+  );
+};
 
-const AllPicksPanel = ({ pickSplit }) => {
+const AllPicksPanel = ({ pickSplit, onShowMore }) => {
   if (!pickSplit) {
     return (
       <section className="game-detail-panel game-detail-all-picks">
@@ -217,7 +223,7 @@ const AllPicksPanel = ({ pickSplit }) => {
       <h2>All Picks</h2>
       <div className="game-detail-all-picks-grid">
         {pickSplit.teamSplits.map((team) => (
-          <TeamPickGroup key={team.key || team.side} team={team} />
+          <TeamPickGroup key={team.key || team.side} team={team} onShowMore={onShowMore} />
         ))}
       </div>
       {pickSplit.hasInvalidRevealedPicks ? (
@@ -239,6 +245,7 @@ const GameDetailPage = () => {
   } = useGamePickSplitViews(game ? [game] : []);
   const pickSplit = game ? viewsByGameId[game.id] : null;
   const showScore = game?.state === "in" || game?.state === "post" || game?.isFinal;
+  const [playersDialog, setPlayersDialog] = useState(null);
 
   if (loading) {
     return <div className="game-detail-page">Loading game...</div>;
@@ -323,13 +330,21 @@ const GameDetailPage = () => {
             </div>
           </section>
 
-          <AllPicksPanel pickSplit={pickSplit} />
+          <AllPicksPanel pickSplit={pickSplit} onShowMore={(team, players) => setPlayersDialog({ team, players })} />
         </main>
 
         <aside className="game-detail-sidebar">
           <YourPicksPanel pickSplit={pickSplit} unavailable={Boolean(picksError)} />
         </aside>
       </div>
+      <Dialog open={Boolean(playersDialog)} onClose={() => setPlayersDialog(null)} fullWidth maxWidth="xs">
+        <DialogTitle>{playersDialog?.team?.name || "Team"} picks</DialogTitle>
+        <DialogContent dividers>
+          <div className="game-detail-player-modal-list">
+            {playersDialog?.players?.map((entryPick) => <div key={entryPick.entryId}>{entryPick.playerName}</div>)}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

@@ -74,6 +74,7 @@ import {
   randomizeIncompleteSelections,
   toggleGameSelection,
 } from "./pickActions";
+import LockedPicksView from "./LockedPicksView";
 
 const STORAGE_KEY_PREFIX = "bobs-bowl-games-picks-drafts";
 
@@ -204,6 +205,9 @@ const buildPicksGames = (games = []) =>
         startTime,
         startTimeText: game?.startTimeText || game?.statusText || "Time TBD",
         statusText: game?.statusText || "",
+        state: game?.state || "pre",
+        isFinal: Boolean(game?.isFinal),
+        winnerTeam: game?.winnerTeam || "",
         isTieBreakerGame:
           String(game?.bowl || "").trim() === TIEBREAKER_BOWL_NAME,
         away: {
@@ -214,6 +218,7 @@ const buildPicksGames = (games = []) =>
           mascot: awayIdentity.mascot,
           rank: game?.away?.rank && game.away.rank < 99 ? game.away.rank : null,
           logo: game?.away?.logo || "",
+          score: game?.away?.score ?? "",
           color: normalizeColor(
             game?.away?.color || game?.away?.alternateColor,
           ),
@@ -226,6 +231,7 @@ const buildPicksGames = (games = []) =>
           mascot: homeIdentity.mascot,
           rank: game?.home?.rank && game.home.rank < 99 ? game.home.rank : null,
           logo: game?.home?.logo || "",
+          score: game?.home?.score ?? "",
           color: normalizeColor(
             game?.home?.color || game?.home?.alternateColor,
           ),
@@ -648,17 +654,22 @@ const PicksWorkspace = () => {
 
     setSaveState((currentState) => {
       const existingDraft = draftsByEntryId[currentEntry.id];
+      // A dirty draft is normally queued for autosave. Do not label it
+      // device-only until a save has actually failed; that old optimistic
+      // label was what made desktop matchup labels disagree with mobile.
       const nextState = existingDraft?.dirty
-        ? {
-            state: "device",
-            message: "Saved to device",
-            detail: "Unsynced changes are waiting to be retried.",
-          }
+        ? currentState.state === "device" || currentState.state === "error"
+          ? currentState
+          : {
+              state: "saving",
+              message: "Saving...",
+              detail: "",
+            }
         : {
-            state: "saved",
-            message: "Saved to account",
-            detail: "",
-          };
+              state: "saved",
+              message: "Saved to account",
+              detail: "",
+            };
 
       if (
         currentState.state === nextState.state &&
@@ -1156,6 +1167,25 @@ const PicksWorkspace = () => {
         {entriesError ? <Alert severity="error">{entriesError}</Alert> : null}
         {picksError ? <Alert severity="error">{picksError}</Alert> : null}
       </Stack>
+    );
+  }
+
+  if (picksLocked) {
+    if (currentEntry && hydratedEntryId !== currentEntry.id) {
+      return (
+        <Panel elevated>
+          <Typography variant="body1">Loading your locked picks...</Typography>
+        </Panel>
+      );
+    }
+
+    return (
+      <LockedPicksView
+        entry={currentEntry}
+        games={games}
+        selectionsByGameId={savedSelectionsByGameId}
+        picksLockAt={picksLockAt}
+      />
     );
   }
 

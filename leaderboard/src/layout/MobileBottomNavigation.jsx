@@ -1,21 +1,21 @@
 // UI — NAVIGATION — REACT
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
-import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
 import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
 import { matchPath, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   { value: "/dashboard", label: "Dashboard", icon: <DashboardRoundedIcon /> },
+  { value: "/picks", label: "Picks", icon: <SportsFootballRoundedIcon /> },
+  { value: "/schedule", label: "Games", icon: <CalendarMonthRoundedIcon /> },
   {
     value: "/leaderboard",
     label: "Leaderboard",
     icon: <EmojiEventsRoundedIcon />,
   },
-  { value: "/picks", label: "Picks", icon: <SportsFootballRoundedIcon /> },
-  { value: "/more", label: "Account", icon: <PersonOutlineRoundedIcon /> },
   { value: "__more__", label: "More", icon: <MoreHorizRoundedIcon /> },
 ];
 

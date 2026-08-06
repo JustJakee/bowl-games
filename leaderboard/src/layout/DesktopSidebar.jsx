@@ -2,7 +2,6 @@
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
-import ListAltRoundedIcon from "@mui/icons-material/ListAltRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
@@ -36,11 +35,6 @@ const primaryNavItems = [
     to: "/schedule",
     label: "Games",
     icon: <CalendarMonthRoundedIcon fontSize="small" />,
-  },
-  {
-    to: "/entries",
-    label: "My Pick Set",
-    icon: <ListAltRoundedIcon fontSize="small" />,
   },
   {
     to: "/rules",

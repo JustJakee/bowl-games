@@ -21,7 +21,7 @@ const AppRouter = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/picks" element={<PicksPage />} />
-          <Route path="/entries" element={<EntriesPage />} />
+          <Route path="/entries" element={<Navigate to="/picks" replace />} />
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/schedule/:gameId" element={<GameDetailPage />} />
           <Route path="/rules" element={<RulesPage />} />

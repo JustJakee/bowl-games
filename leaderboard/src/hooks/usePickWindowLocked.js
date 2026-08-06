@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { isPickWindowLocked } from "../utils/pickWindow";
+import { isSeasonPickLocked } from "../utils/pickWindow";
 
-export const usePickWindowLocked = (picksLockAt) => {
+export const usePickWindowLocked = (picksLockAt, seasonStatus) => {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -31,5 +31,5 @@ export const usePickWindowLocked = (picksLockAt) => {
     return () => window.clearTimeout(timeoutId);
   }, [picksLockAt]);
 
-  return isPickWindowLocked(picksLockAt, now);
+  return isSeasonPickLocked({ picksLockAt, seasonStatus, now });
 };

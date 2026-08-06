@@ -84,12 +84,21 @@ export function AuthProvider({ children }) {
 
     const syncAuthState = async () => {
       // Authentication remains loading until Amplify configuration and Cognito token restoration finish.
-      setState((current) => ({
-        ...current,
-        isLoading: true,
-        hasValidTokens: false,
-        error: null,
-      }));
+      setState((current) => {
+        // Token refresh Hub events are background work. Retain a usable
+        // authenticated session until refresh actually fails so data providers
+        // do not clear and remount the active route.
+        if (current.isAuthenticated && current.hasValidTokens) {
+          return { ...current, error: null };
+        }
+
+        return {
+          ...current,
+          isLoading: true,
+          hasValidTokens: false,
+          error: null,
+        };
+      });
 
       try {
         await configureAmplifyFromOutputs();

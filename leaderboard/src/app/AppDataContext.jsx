@@ -111,7 +111,7 @@ export const AppDataProvider = ({ children }) => {
   const currentSeasonId = season?.id || null;
   const currentSeasonYear = season?.year || null;
   const picksLockAt = seasonConfig?.picksLockAt || null;
-  const picksLocked = usePickWindowLocked(picksLockAt);
+  const picksLocked = usePickWindowLocked(picksLockAt, season?.status);
   const saveScope = `${owner || "guest"}:${currentSeasonId || "none"}`;
   saveScopeRef.current = saveScope;
   const matchups = useMemo(
@@ -122,6 +122,7 @@ export const AppDataProvider = ({ children }) => {
     () => matchups.map((matchup) => matchup.id).filter(Boolean),
     [matchups],
   );
+  const requiredGameIdsKey = requiredGameIds.join("|");
   const tieBreakerGame = useMemo(
     () =>
       (scoreboardGames || []).find(
@@ -242,7 +243,9 @@ export const AppDataProvider = ({ children }) => {
     picksRequestIdRef.current = requestId;
     const isSelectedEntrySwitch =
       hydratedEntryIdRef.current !== activeEntryId;
-    setPicksLoading(true);
+    // A same-entry refresh retains hydrated data. Only expose a blocking
+    // loading state while changing entries for the first time.
+    setPicksLoading(isSelectedEntrySwitch);
     setPicksError("");
 
     if (isSelectedEntrySwitch) {
@@ -309,7 +312,7 @@ export const AppDataProvider = ({ children }) => {
     hasValidTokens,
     isAuthenticated,
     owner,
-    requiredGameIds,
+    requiredGameIdsKey,
     resetActiveEntryState,
     tieBreakerRequired,
     hydratedEntryIdRef,

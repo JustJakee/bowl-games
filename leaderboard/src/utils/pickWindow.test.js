@@ -5,6 +5,7 @@ import { buildSyncedDraft } from "../components/picks/picksAutosaveState";
 import {
   formatPickLockMessage,
   isPickWindowLocked,
+  isSeasonPickLocked,
 } from "./pickWindow";
 
 const picksLockAt = "2026-08-02T12:00:00.000Z";
@@ -26,6 +27,17 @@ test("the global pick window is open before, and locked at and after, picksLockA
       picksLockAt,
       new Date("2026-08-02T12:00:00.001Z").getTime(),
     ),
+    true,
+  );
+});
+
+test("an explicit locked season overrides a future pick deadline", () => {
+  assert.equal(
+    isSeasonPickLocked({
+      seasonStatus: "locked",
+      picksLockAt: "2099-01-01T00:00:00.000Z",
+      now: Date.now(),
+    }),
     true,
   );
 });

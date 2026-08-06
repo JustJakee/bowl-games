@@ -64,8 +64,12 @@ const DashboardPage = () => {
           lg: "minmax(0, 2fr) minmax(280px, 1fr)",
         },
         gridTemplateAreas: {
-          xs: `"hero" "pickSet" "seasonStatus" "leaderboard" "upcoming"`,
-          lg: `"hero pickSet" "leaderboard seasonStatus" "upcoming upcoming"`,
+          xs: picksLocked
+            ? `"hero" "seasonStatus" "leaderboard" "upcoming"`
+            : `"hero" "pickSet" "seasonStatus" "leaderboard" "upcoming"`,
+          lg: picksLocked
+            ? `"hero seasonStatus" "leaderboard leaderboard" "upcoming upcoming"`
+            : `"hero pickSet" "leaderboard seasonStatus" "upcoming upcoming"`,
         },
         gap: { xs: 2.5, lg: 2 },
         alignItems: { xs: "start", lg: "stretch" },
@@ -77,17 +81,20 @@ const DashboardPage = () => {
           picksLocked={picksLocked}
         />
       </Box>
-      <Box sx={{ gridArea: "pickSet", minWidth: 0 }}>
-        <EntriesCard
-          entry={dashboardEntries[0] || null}
-          paymentStatus={currentEntry?.paymentStatus}
-          deadline={picksLockAt}
-        />
-      </Box>
+      {!picksLocked ? (
+        <Box sx={{ gridArea: "pickSet", minWidth: 0 }}>
+          <EntriesCard
+            entry={dashboardEntries[0] || null}
+            paymentStatus={currentEntry?.paymentStatus}
+            deadline={picksLockAt}
+          />
+        </Box>
+      ) : null}
       <Box sx={{ gridArea: "seasonStatus", minWidth: 0 }}>
         <SeasonStatusPanel
           deadline={picksLockAt}
           links={dashboardQuickLinks}
+          picksLocked={picksLocked}
         />
       </Box>
       <Box sx={{ gridArea: "leaderboard", minWidth: 0 }}>

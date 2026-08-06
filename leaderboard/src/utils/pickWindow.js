@@ -11,6 +11,14 @@ export const isPickWindowLocked = (picksLockAt, now = Date.now()) => {
   return Number.isFinite(deadline) && deadline <= now;
 };
 
+// The season lifecycle is the explicit operator-controlled source of truth.
+// The deadline remains a safety net and lets the UI lock itself at the exact
+// configured instant even before the next season refresh arrives.
+export const isSeasonPickLocked = ({ seasonStatus, picksLockAt, now } = {}) =>
+  ["locked", "complete", "archived"].includes(
+    String(seasonStatus || "").toLowerCase(),
+  ) || isPickWindowLocked(picksLockAt, now);
+
 export const assertPickWindowOpen = (picksLockAt, now = Date.now()) => {
   const deadline = parseDeadline(picksLockAt);
 

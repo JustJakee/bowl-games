@@ -244,6 +244,22 @@
   gap: 1rem;
 }
 
+.game-detail-pick-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+  color: #9fb2ca;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.game-detail-pick-summary span {
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .game-detail-team-group {
   min-width: 0;
   padding: 0.9rem;
@@ -307,6 +323,36 @@
   overflow-wrap: anywhere;
 }
 
+.game-detail-more-players {
+  width: fit-content;
+  margin-top: 0.65rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #57b4ff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.game-detail-more-players:hover,
+.game-detail-more-players:focus-visible {
+  color: #8bcbff;
+  text-decoration: underline;
+}
+
+.game-detail-player-modal-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.game-detail-player-modal-list > div {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(216, 225, 238, 0.1);
+}
+
+.game-detail-player-modal-list > div:last-child { border-bottom: 0; }
+
 .game-detail-entry-badge {
   flex: 0 0 auto;
   color: #ffcb05;
@@ -359,6 +405,8 @@
 
   .game-detail-your-picks {
     order: 2;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .game-detail-all-picks {
@@ -370,33 +418,38 @@
     border-radius: 12px;
   }
 
-  .game-detail-title-row,
-  .game-detail-matchup,
-  .game-detail-team {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  .game-detail-title-row { display: block; }
 
   .game-detail-hero h1 {
     font-size: clamp(1.9rem, 8vw, 2.8rem);
   }
 
   .game-detail-status {
-    margin-top: 0.75rem;
+    margin-top: 0.9rem;
   }
 
   .game-detail-matchup {
-    gap: 1.15rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.25rem 0;
   }
 
   .game-detail-vs {
     align-self: center;
+    padding: 0.35rem 0.25rem;
+    font-size: 0.78rem;
   }
 
   .game-detail-team {
-    width: 100%;
+    display: flex;
+    width: auto;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: flex-start;
   }
+
+  .game-detail-team:last-child { align-items: flex-end; text-align: right; }
 
   .game-detail-logo {
     width: 48px;
@@ -404,17 +457,45 @@
   }
 
   .game-detail-score {
-    font-size: 2.35rem;
+    font-size: 1.9rem;
   }
 
   .game-detail-all-picks-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
   }
 
   .game-detail-entry-row,
+  .game-detail-team-group-heading { gap: 0.35rem; }
+
+  .game-detail-team-group {
+    padding: 0.9rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .game-detail-team-group + .game-detail-team-group {
+    border-left: 1px solid rgba(216, 225, 238, 0.1);
+  }
+
   .game-detail-team-group-heading {
     align-items: flex-start;
     flex-direction: column;
-    gap: 0.35rem;
+  }
+
+  .game-detail-team-group-heading strong {
+    padding: 0.25rem 0.45rem;
+    border-radius: 5px;
+    background: rgba(255, 203, 5, 0.1);
+    color: #ffcb05;
+    font-size: 0.78rem;
+  }
+
+  .game-detail-entry-list { gap: 0; }
+
+  .game-detail-entry-row {
+    min-height: 38px;
+    padding: 0.2rem 0;
   }
 }

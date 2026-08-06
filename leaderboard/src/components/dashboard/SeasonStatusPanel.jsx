@@ -15,7 +15,7 @@ const iconMap = {
   account: ManageAccountsRoundedIcon,
 };
 
-const SeasonStatusPanel = ({ deadline, links }) => {
+const SeasonStatusPanel = ({ deadline, links, picksLocked = false }) => {
   const countdown = useCountdown(deadline);
 
   return (
@@ -41,22 +41,35 @@ const SeasonStatusPanel = ({ deadline, links }) => {
               color="text.secondary"
               sx={{ fontSize: "0.8rem" }}
             >
-              Picks Lock
+              {picksLocked ? "Picks Locked" : "Picks Lock"}
             </Typography>
           </Stack>
-          <Typography
-            variant="subtitle1"
-            sx={{ fontSize: "1rem", fontWeight: 700 }}
-          >
-            {formatDeadline(deadline)}
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}
-          >
-            {countdown}
-          </Typography>
+          {!picksLocked ? (
+            <Typography
+              variant="subtitle1"
+              sx={{ fontSize: "1rem", fontWeight: 700 }}
+            >
+              {formatDeadline(deadline)}
+            </Typography>
+          ) : null}
+          {picksLocked ? (
+            <Stack spacing={0.45}>
+              <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.4 }}>
+                Your picks are locked for the season.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}>
+                Follow the schedule, live scores, and leaderboard throughout the bowl season.
+              </Typography>
+            </Stack>
+          ) : (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}
+            >
+              {countdown}
+            </Typography>
+          )}
         </Stack>
         <Divider sx={{ my: 0.5 }} />
         <Stack spacing={0}>
@@ -102,8 +115,9 @@ const SeasonStatusPanel = ({ deadline, links }) => {
             color="text.secondary"
             sx={{ fontSize: "0.875rem", lineHeight: 1.45 }}
           >
-            Make sure your pick set is finished before the global pick deadline.
-            Leaderboard and games stay live throughout the season.
+            {picksLocked
+              ? ""
+              : "Make sure your pick set is finished before the global pick deadline. Leaderboard and games stay live throughout the season."}
           </Typography>
         </Box>
       </Stack>

@@ -67,10 +67,13 @@ const sortEntryPicks = (left, right) => {
     return left.isOwned ? -1 : 1;
   }
 
-  return left.entryName.localeCompare(right.entryName, undefined, {
+  return left.playerName.localeCompare(right.playerName, undefined, {
     sensitivity: "base",
   });
 };
+
+const getPlayerName = (entry) =>
+  entry?.userProfile?.username || entry?.entryName || "Player";
 
 export const buildGamePickSplitView = ({
   game,
@@ -120,6 +123,7 @@ export const buildGamePickSplitView = ({
     accumulator[teamKey].push({
       entryId: pick.entryId,
       entryName: entry?.entryName || "Unnamed Pick Set",
+      playerName: getPlayerName(entry),
       selectedTeam: teamKey,
       selectedTeamName: team?.name || teamKey,
       selectedTeamLogo: team?.logo || "",
@@ -138,6 +142,7 @@ export const buildGamePickSplitView = ({
     accumulator[teamKey].push({
       entryId: pick.entryId,
       entryName: entry?.entryName || "Unnamed Pick Set",
+      playerName: getPlayerName(entry),
       selectedTeam: teamKey,
       isOwned: ownedEntryIdSet.has(pick.entryId),
     });
@@ -185,6 +190,7 @@ export const buildGamePickSplitView = ({
       return {
         entryId: pick.entryId,
         entryName: entry?.entryName || "Unnamed Pick Set",
+        playerName: getPlayerName(entry),
         selectedTeam: teamKey,
         selectedTeamName: team?.name || teamKey,
         selectedTeamLogo: team?.logo || "",

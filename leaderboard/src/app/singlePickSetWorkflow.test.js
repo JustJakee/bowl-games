@@ -34,7 +34,7 @@ test("shared player state resolves canonical data and keeps admin creation block
   assert.doesNotMatch(source, /deleteSeasonEntry/);
 });
 
-test("dashboard and navigation use only singular pick-set terminology", () => {
+test("dashboard and navigation keep Picks as the only player pick destination", () => {
   const dashboard = readSource("../pages/DashboardPage.jsx");
   const navigation = [
     readSource("../layout/AppShell.jsx"),
@@ -44,7 +44,11 @@ test("dashboard and navigation use only singular pick-set terminology", () => {
 
   assert.match(dashboard, /currentEntry \? \[currentEntry\] : \[\]/);
   assert.doesNotMatch(navigation, /My Entries/);
-  assert.match(navigation, /My Pick Set/);
+  assert.doesNotMatch(navigation, /My Pick Set/);
+  assert.match(
+    readSource("./AppRouter.jsx"),
+    /path="\/entries" element={<Navigate to="\/picks" replace/,
+  );
 });
 
 test("Picks bulk actions use MUI confirmation and duplicate-operation guards", () => {
