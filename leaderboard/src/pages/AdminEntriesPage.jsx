@@ -17,7 +17,6 @@ import {
   TextField,
   Typography,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import { useScoreboard } from "../context/NCAAFDataContext";
@@ -31,12 +30,12 @@ import { isSeasonPickLocked } from "../utils/pickWindow";
 
 const paid = (value) => String(value || "").toUpperCase() === "PAID";
 
-const PickCompletion = ({ row }) => {
+const PickCompletion = ({ row, showPicksLabel = false }) => {
   const complete = row.completedPicks === row.totalPicks && row.totalPicks > 0;
   return (
     <Stack spacing={0.4} alignItems="flex-start">
       <Typography variant="body2">
-        {row.completedPicks} / {row.totalPicks}
+        {row.completedPicks} / {row.totalPicks}{showPicksLabel ? " picks" : ""}
       </Typography>
       <Chip
         size="small"
@@ -49,8 +48,7 @@ const PickCompletion = ({ row }) => {
 
 const AdminEntriesPage = () => {
   const { season, seasonConfig, allGames } = useScoreboard();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isNarrow = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -186,16 +184,16 @@ const AdminEntriesPage = () => {
   );
 
   return (
-    <Stack spacing={2.5}>
+    <Stack spacing={{ xs: 1.75, md: 2.5 }}>
       <Box>
-        <Typography variant="h3">Entries</Typography>
-        <Typography color="text.secondary">
+        <Typography variant="h3" sx={{ mb: 0.25 }}>Entries</Typography>
+        <Typography variant="body2" color="text.secondary">
           Manage active player pick sets and payment status.
         </Typography>
       </Box>
 
-      <Panel sx={{ p: 1.5 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={1.25}>
+      <Panel sx={{ p: { xs: 1.25, md: 1.5 } }}>
+        <Stack spacing={{ xs: 1, md: 1.25 }}>
           <TextField
             size="small"
             label="Search entries"
@@ -203,48 +201,63 @@ const AdminEntriesPage = () => {
             onChange={(event) => setSearch(event.target.value)}
             sx={{ flex: 1 }}
           />
-          <Select
-            size="small"
-            value={payment}
-            onChange={(event) => setPayment(event.target.value)}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", md: "auto auto 1fr" },
+              gap: 1,
+            }}
           >
-            <MenuItem value="all">All payments</MenuItem>
-            <MenuItem value="paid">Paid</MenuItem>
-            <MenuItem value="due">Payment Due</MenuItem>
-          </Select>
-          <Select
-            size="small"
-            value={effectiveCompletion}
-            onChange={(event) => setCompletion(event.target.value)}
-          >
-            <MenuItem value="all">All picks</MenuItem>
-            <MenuItem value="complete">Complete</MenuItem>
-            {!picksLocked ? <MenuItem value="incomplete">Incomplete</MenuItem> : null}
-          </Select>
-          <Button
-            onClick={() => load({ force: true })}
-            disabled={refreshing}
-            startIcon={<RefreshRoundedIcon />}
-          >
-            {refreshing ? "Refreshing" : "Refresh"}
-          </Button>
+            <Select
+              size="small"
+              value={payment}
+              onChange={(event) => setPayment(event.target.value)}
+              fullWidth
+            >
+              <MenuItem value="all">All payments</MenuItem>
+              <MenuItem value="paid">Paid</MenuItem>
+              <MenuItem value="due">Payment Due</MenuItem>
+            </Select>
+            <Select
+              size="small"
+              value={effectiveCompletion}
+              onChange={(event) => setCompletion(event.target.value)}
+              fullWidth
+            >
+              <MenuItem value="all">All picks</MenuItem>
+              <MenuItem value="complete">Complete</MenuItem>
+              {!picksLocked ? <MenuItem value="incomplete">Incomplete</MenuItem> : null}
+            </Select>
+            <Box sx={{ display: { xs: "none", md: "block" } }} />
+          </Box>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+            <Typography variant="body2" color="text.secondary">
+              {visibleRows.length} of {eligibleRows.length} active entries
+            </Typography>
+            <Button
+              size="small"
+              onClick={() => load({ force: true })}
+              disabled={refreshing}
+              startIcon={<RefreshRoundedIcon />}
+              sx={{ flexShrink: 0 }}
+            >
+              {refreshing ? "Refreshing" : "Refresh"}
+            </Button>
+          </Stack>
         </Stack>
       </Panel>
 
       {error ? <Alert severity="error">{error}</Alert> : null}
-      <Typography variant="body2" color="text.secondary">
-        {visibleRows.length} of {eligibleRows.length} active entries
-      </Typography>
 
       {loading && rows.length === 0 ? (
         <CircularProgress />
-      ) : isMobile ? (
+      ) : isNarrow ? (
         <Stack spacing={1.25}>
           {visibleRows.map((row) => (
-            <Panel key={row.id} sx={{ p: 1.75 }}>
+            <Panel key={row.id} sx={{ p: 2 }}>
               <Stack spacing={1.25}>
                 <Box>
-                  <Typography variant="subtitle1" fontWeight={700}>
+                  <Typography variant="subtitle1" fontWeight={800}>
                     {row.playerName}
                   </Typography>
                   <Typography
@@ -256,24 +269,18 @@ const AdminEntriesPage = () => {
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.25 }}>
                     Pick Set
                   </Typography>
-                  <Typography variant="body1" fontWeight={600}>
+                  <Typography variant="body1" fontWeight={700} sx={{ overflowWrap: "anywhere" }}>
                     {row.entryName || "Unnamed pick set"}
                   </Typography>
                 </Box>
-                <Stack direction="row" justifyContent="space-between" spacing={2}>
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-end" spacing={2}>
                   <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Picks
-                    </Typography>
-                    <PickCompletion row={row} />
+                    <PickCompletion row={row} showPicksLabel />
                   </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Payment Status
-                    </Typography>
+                  <Box sx={{ flexShrink: 0 }}>
                     {paymentButton(row)}
                   </Box>
                 </Stack>

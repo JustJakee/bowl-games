@@ -1,8 +1,7 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import Panel from "../components/common/Panel";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
-import { Link as RouterLink } from "react-router-dom";
 
 const MorePage = () => {
   const { email, role, groups } = useAuth();
@@ -30,11 +29,6 @@ const MorePage = () => {
             Role: {role || "unassigned"}
             {groups?.length ? ` (${groups.join(", ")})` : ""}
           </Typography>
-          {role === "admin" ? (
-            <Button component={RouterLink} to="/admin/entries" variant="outlined">
-              Open Admin Workspace
-            </Button>
-          ) : null}
         </Stack>
       </Panel>
     </Stack>
