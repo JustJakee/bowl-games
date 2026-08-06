@@ -17,6 +17,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import Panel from "../common/Panel";
 import TeamLogo from "../common/TeamLogo";
+import PaymentStatusChip from "../common/PaymentStatusChip";
 import {
   buildLockedPickItems,
   getPickStatusCounts,
@@ -136,7 +137,10 @@ const LockedPicksView = ({ entry, games = [], selectionsByGameId = {} }) => {
 
       <Panel elevated sx={{ p: { xs: 2, md: 2.75 } }}>
         <Stack spacing={{ xs: 2.5, md: 3 }}>
-          <Box><Typography variant="h5">{entry.entryName}</Typography></Box>
+          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+            <Typography variant="h5">{entry.entryName}</Typography>
+            <PaymentStatusChip paymentStatus={entry.paymentStatus} />
+          </Stack>
           <Stack direction="row" spacing={{ xs: 1.25, sm: 2.5, md: 4 }} flexWrap="wrap" divider={<Divider orientation="vertical" flexItem />}>
             <SummaryStat status="correct" count={counts.correct} />
             <SummaryStat status="incorrect" count={counts.incorrect} />

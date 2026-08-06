@@ -11,20 +11,7 @@ import Panel from "../common/Panel";
 import SectionHeader from "./SectionHeader";
 import { formatDeadline } from "../../utils/countdown";
 
-const paymentStatusDetails = (paymentStatus) => {
-  switch (String(paymentStatus || "UNPAID").toUpperCase()) {
-    case "PAID":
-      return { label: "Paid", color: "success" };
-    case "WAIVED":
-      return { label: "Waived", color: "info" };
-    case "REFUNDED":
-      return { label: "Refunded", color: "default" };
-    default:
-      return { label: "Unpaid", color: "warning" };
-  }
-};
-
-const EntriesCard = ({ entry, paymentStatus, deadline }) => {
+const EntriesCard = ({ entry, deadline }) => {
   const theme = useTheme();
 
   if (!entry) {
@@ -49,7 +36,6 @@ const EntriesCard = ({ entry, paymentStatus, deadline }) => {
       : 0;
   const remainingPicks = Math.max(entry.totalPicks - entry.completedPicks, 0);
   const isComplete = entry.isComplete && entry.totalPicks > 0;
-  const payment = paymentStatusDetails(paymentStatus);
   const completionMessage = isComplete
     ? "All picks are in. You're ready for the season."
     : entry.totalPicks === 0
@@ -115,24 +101,14 @@ const EntriesCard = ({ entry, paymentStatus, deadline }) => {
 
         <Divider />
 
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="overline" color="text.secondary">
-              Payment Status
-            </Typography>
-            <Box sx={{ mt: 0.3 }}>
-              <Chip size="small" label={payment.label} color={payment.color} sx={{ fontWeight: 800 }} />
-            </Box>
-          </Box>
-          <Box sx={{ flex: 1 }}>
+        <Box>
             <Typography variant="overline" color="text.secondary">
               Pick Deadline
             </Typography>
             <Typography variant="body2" sx={{ mt: 0.3, fontWeight: 700, lineHeight: 1.35 }}>
               {formatDeadline(deadline)}
             </Typography>
-          </Box>
-        </Stack>
+        </Box>
       </Stack>
     </Panel>
   );

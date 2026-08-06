@@ -1,7 +1,8 @@
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import Panel from "../components/common/Panel";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
+import { Link as RouterLink } from "react-router-dom";
 
 const MorePage = () => {
   const { email, role, groups } = useAuth();
@@ -29,10 +30,11 @@ const MorePage = () => {
             Role: {role || "unassigned"}
             {groups?.length ? ` (${groups.join(", ")})` : ""}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Public signup is still disabled. Account and help surfaces will
-            expand in a later milestone.
-          </Typography>
+          {role === "admin" ? (
+            <Button component={RouterLink} to="/admin/entries" variant="outlined">
+              Open Admin Workspace
+            </Button>
+          ) : null}
         </Stack>
       </Panel>
     </Stack>

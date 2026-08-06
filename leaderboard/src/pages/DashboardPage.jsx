@@ -85,7 +85,6 @@ const DashboardPage = () => {
         <Box sx={{ gridArea: "pickSet", minWidth: 0 }}>
           <EntriesCard
             entry={dashboardEntries[0] || null}
-            paymentStatus={currentEntry?.paymentStatus}
             deadline={picksLockAt}
           />
         </Box>
@@ -95,6 +94,8 @@ const DashboardPage = () => {
           deadline={picksLockAt}
           links={dashboardQuickLinks}
           picksLocked={picksLocked}
+          paymentStatus={currentEntry?.paymentStatus}
+          hasEntry={Boolean(currentEntry)}
         />
       </Box>
       <Box sx={{ gridArea: "leaderboard", minWidth: 0 }}>

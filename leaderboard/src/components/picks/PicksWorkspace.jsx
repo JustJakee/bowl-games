@@ -43,6 +43,7 @@ import { useUserProfile } from "../../auth/UserProfileContext.jsx";
 import { TIEBREAKER_BOWL_NAME } from "../../constants/PickMatchupCard";
 import Panel from "../common/Panel";
 import TeamLogo from "../common/TeamLogo";
+import PaymentStatusChip from "../common/PaymentStatusChip";
 import { useScoreboard } from "../../context/NCAAFDataContext.jsx";
 import { PICK_SET_STATUS } from "../../data/picksRepository";
 import {
@@ -1270,9 +1271,12 @@ const PicksWorkspace = () => {
             }}
           >
             <Stack spacing={1.25}>
-              <Typography variant="overline" color="text.secondary">
-                My Pick Set
-              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                <Typography variant="overline" color="text.secondary">
+                  My Pick Set
+                </Typography>
+                <PaymentStatusChip paymentStatus={currentEntry?.paymentStatus} />
+              </Stack>
               <TextField
                 label="Pick Set Name"
                 value={activeDraft?.entryName || ""}

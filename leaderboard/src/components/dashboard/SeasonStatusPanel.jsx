@@ -6,6 +6,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import Panel from "../common/Panel";
+import PaymentStatusChip from "../common/PaymentStatusChip";
 import useCountdown from "../../hooks/useCountdown";
 import { formatDeadline } from "../../utils/countdown";
 
@@ -15,7 +16,13 @@ const iconMap = {
   account: ManageAccountsRoundedIcon,
 };
 
-const SeasonStatusPanel = ({ deadline, links, picksLocked = false }) => {
+const SeasonStatusPanel = ({
+  deadline,
+  links,
+  picksLocked = false,
+  paymentStatus,
+  hasEntry = false,
+}) => {
   const countdown = useCountdown(deadline);
 
   return (
@@ -34,7 +41,7 @@ const SeasonStatusPanel = ({ deadline, links, picksLocked = false }) => {
           Season Status
         </Typography>
         <Stack spacing={1}>
-          <Stack direction="row" spacing={1.25} alignItems="center">
+          <Stack direction="row" spacing={1.25} alignItems="center" flexWrap="wrap">
             <LockOutlinedIcon sx={{ color: "primary.main" }} />
             <Typography
               variant="overline"
@@ -43,6 +50,7 @@ const SeasonStatusPanel = ({ deadline, links, picksLocked = false }) => {
             >
               {picksLocked ? "Picks Locked" : "Picks Lock"}
             </Typography>
+            {hasEntry ? <PaymentStatusChip paymentStatus={paymentStatus} /> : null}
           </Stack>
           {!picksLocked ? (
             <Typography
