@@ -9,7 +9,7 @@ export const ACTIVE_SEASON_SLUG =
 // Development expects this stable ID in the backend selected by the active amplify_outputs.json.
 export const TEST_SEASON_ID = "test26";
 
-const SEASON_SELECTION = ["id", "year", "name", "slug", "status", "isActive"];
+const SEASON_SELECTION = ["id", "year", "name", "slug", "status", "isActive", "isTestSeason"];
 
 const SEASON_CONFIG_SELECTION = [
   "id",

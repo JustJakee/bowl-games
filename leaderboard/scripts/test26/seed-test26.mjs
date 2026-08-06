@@ -23,7 +23,7 @@ import {
 import { configureAmplifyForNode } from "./auth-session.mjs";
 
 const MODEL_FIELDS = {
-  Season: ["id", "year", "name", "slug", "status", "entryFeeCents", "isActive"],
+  Season: ["id", "year", "name", "slug", "status", "entryFeeCents", "isActive", "isTestSeason"],
   SeasonConfig: [
     "id",
     "seasonId",

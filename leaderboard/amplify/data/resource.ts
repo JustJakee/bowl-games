@@ -97,6 +97,9 @@ const schema = a.schema({
       entryFeeCents: a.integer().required(),
       // Required application flag identifying a season as active for current workflows.
       isActive: a.boolean().required(),
+      // Explicitly enables future test-only admin game tools. This is never
+      // inferred from the season lifecycle or player pick-lock state.
+      isTestSeason: a.boolean().default(false),
       // One-to-one configuration resolved through SeasonConfig's `seasonId` foreign key.
       config: a.hasOne("SeasonConfig", "seasonId"),
       // Reverse one-to-many relationships resolved through each child model's `seasonId`.
