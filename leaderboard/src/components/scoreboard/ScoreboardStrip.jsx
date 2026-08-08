@@ -1,5 +1,5 @@
 // UI — SCOREBOARD — REACT
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   IconButton,
@@ -12,6 +12,7 @@ import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useScoreboard } from "../../context/NCAAFDataContext";
+import { selectTopScoreboardGames } from "../../utils/scoreboardGames";
 import ScoreboardGameCard from "./ScoreboardGameCard";
 
 const ARROW_WIDTH = 44;
@@ -24,6 +25,7 @@ const ScoreboardStrip = () => {
   const viewportRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const scoreboardGames = useMemo(() => selectTopScoreboardGames(games), [games]);
 
   const updateScrollState = useCallback(() => {
     const container = viewportRef.current;
@@ -73,7 +75,7 @@ const ScoreboardStrip = () => {
       window.removeEventListener("resize", updateScrollState);
       resizeObserver?.disconnect();
     };
-  }, [games, isDesktop, loading, updateScrollState]);
+  }, [scoreboardGames, isDesktop, loading, updateScrollState]);
 
   const scrollScoreboard = (direction) => {
     const container = viewportRef.current;
@@ -167,13 +169,13 @@ const ScoreboardStrip = () => {
                 {error}
               </Typography>
             ) : null}
-            {!loading && !error && games.length === 0 ? (
+            {!loading && !error && scoreboardGames.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
-                No bowl games available right now.
+                No live or upcoming bowl games right now.
               </Typography>
             ) : null}
             {!loading && !error
-              ? games.map((game) => (
+              ? scoreboardGames.map((game) => (
                   <ScoreboardGameCard key={game.id} game={game} />
                 ))
               : null}

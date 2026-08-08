@@ -144,6 +144,9 @@ export const formatStoredGame = (game) => {
 
   return {
     id: game?.id,
+    // Retain the persisted lifecycle enum for consumers such as the top
+    // scoreboard. Display state alone cannot distinguish a canceled game.
+    status: game?.status || "",
     bowl: game?.bowlName || game?.gameName || "Bowl Game",
     network: game?.network || "",
     state,

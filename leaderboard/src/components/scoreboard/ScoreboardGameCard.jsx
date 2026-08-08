@@ -1,8 +1,9 @@
 // UI — SCOREBOARD — REACT
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Chip, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import TeamLogo from "../common/TeamLogo";
 import Panel from "../common/Panel";
+import { isLiveScoreboardGame } from "../../utils/scoreboardGames";
 
 const TeamRow = ({ team, score, showScore }) => {
   return (
@@ -42,8 +43,8 @@ const TeamRow = ({ team, score, showScore }) => {
 
 const ScoreboardGameCard = ({ game }) => {
   const theme = useTheme();
-  const showScores =
-    game?.state === "in" || game?.state === "post" || game?.isFinal;
+  const isLive = isLiveScoreboardGame(game);
+  const showScores = isLive;
 
   return (
     <Panel
@@ -59,13 +60,21 @@ const ScoreboardGameCard = ({ game }) => {
     >
       <Stack spacing={1}>
         <Box>
+          {isLive ? (
+            <Chip
+              size="small"
+              label="LIVE"
+              color="primary"
+              sx={{ height: 21, mb: 0.65, mr: 0.75, fontSize: "0.68rem", letterSpacing: ".08em" }}
+            />
+          ) : null}
           <Typography
             variant="caption"
             color="text.secondary"
             sx={{ fontSize: "0.7rem" }}
           >
-            {showScores
-              ? game.statusText || "Final"
+            {isLive
+              ? game.statusText || "Live"
               : `${game.startDateText || "Date TBD"} ${game.startTimeText || "TBD"}`}
           </Typography>
           <Typography

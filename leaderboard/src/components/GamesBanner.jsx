@@ -10,6 +10,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import SportsFootballIcon from "@mui/icons-material/SportsFootball";
 import LiveGlowIcon from "../constants/LiveGlowIcon";
 import { useScoreboard } from "../context/NCAAFDataContext";
+import { selectTopScoreboardGames } from "../utils/scoreboardGames";
 import "../styles/games-banner.css";
 
 const GamesBanner = ({ hideOnSmall = true, header = "Bowl Games" }) => {
@@ -18,17 +19,7 @@ const GamesBanner = ({ hideOnSmall = true, header = "Bowl Games" }) => {
   const { games: scoreboardGames, loading, error } = useScoreboard();
 
   const games = useMemo(() => {
-    return (scoreboardGames || [])
-      .slice()
-      .sort((a, b) => {
-        const liveA = a.state === "in";
-        const liveB = b.state === "in";
-        if (liveA !== liveB) return Number(liveB) - Number(liveA);
-        if (a.isFinal !== b.isFinal)
-          return Number(b.isFinal) - Number(a.isFinal);
-        return 0;
-      })
-      .slice(0, 20);
+    return selectTopScoreboardGames(scoreboardGames).slice(0, 20);
   }, [scoreboardGames]);
 
   const renderTeamRow = (team, key, gameState) => {
@@ -137,10 +128,14 @@ const GamesBanner = ({ hideOnSmall = true, header = "Bowl Games" }) => {
                 )}
                 <Typography variant="caption" className="games-banner__meta">
                   <span>
-                    {game.statusText}
                     {game.state === "in" && (
-                      <LiveGlowIcon className="games-banner__live-badge" />
+                      <>
+                        <strong>LIVE</strong>
+                        <LiveGlowIcon className="games-banner__live-badge" />
+                        {game.statusText ? ` · ${game.statusText}` : null}
+                      </>
                     )}
+                    {game.state !== "in" ? game.statusText : null}
                   </span>
                   {game.network ? (
                     <span className="games-banner__meta-network">
