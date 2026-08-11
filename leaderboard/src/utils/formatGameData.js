@@ -51,6 +51,7 @@ const formatGame = (event) => {
     alternateColor: side?.team?.alternateColor ?? "",
     displayName: side?.team?.displayName ?? "",
   });
+  const winningCompetitor = competitors.find((side) => side?.winner === true);
 
   const kickoffText = fmtKickoff(startIso);
   const locationParts = [
@@ -73,6 +74,7 @@ const formatGame = (event) => {
     away: mkTeam(away),
     location: locationParts.join(" | "),
     venueName: venue?.fullName ?? "",
+    winnerTeam: winningCompetitor?.team?.abbreviation ?? "",
   };
 };
 

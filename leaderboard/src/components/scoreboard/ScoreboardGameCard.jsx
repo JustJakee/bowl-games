@@ -3,15 +3,22 @@ import { Box, Chip, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import TeamLogo from "../common/TeamLogo";
 import Panel from "../common/Panel";
-import { isLiveScoreboardGame } from "../../utils/scoreboardGames";
+import { isFinalScoreboardGame, isLiveScoreboardGame } from "../../utils/scoreboardGames";
+import { getFinalGameWinner, getGameStatusPresentation } from "../../utils/gameStatusPresentation";
 
-const TeamRow = ({ team, score, showScore }) => {
+const TeamRow = ({ team, score, showScore, isWinner, isFinal, winnerText }) => {
   return (
     <Stack
       direction="row"
       justifyContent="space-between"
       alignItems="center"
       spacing={1}
+      sx={isWinner ? {
+        px: 0.5,
+        py: 0.2,
+        borderRadius: 0.75,
+        backgroundColor: "rgba(245, 248, 255, 0.09)",
+      } : undefined}
     >
       <Stack
         direction="row"
@@ -27,15 +34,22 @@ const TeamRow = ({ team, score, showScore }) => {
         />
         <Typography
           variant="body2"
-          sx={{ fontWeight: 700, fontSize: "0.9rem" }}
+          sx={{
+            color: isWinner ? winnerText : "text.primary",
+            fontWeight: isWinner ? 900 : 700,
+            fontSize: "0.9rem",
+            opacity: isFinal && !isWinner ? 0.72 : 1,
+          }}
         >
           {team?.abbr || "TBD"}
         </Typography>
       </Stack>
       {showScore ? (
-        <Typography variant="body2" sx={{ fontWeight: 800, fontSize: "1rem" }}>
-          {score}
-        </Typography>
+        <Stack direction="row" spacing={0.55} alignItems="center">
+          <Typography variant="body2" sx={{ color: isWinner ? winnerText : "text.primary", fontWeight: isWinner ? 900 : 800, fontSize: isWinner ? "1.12rem" : "1rem" }}>
+            {score}
+          </Typography>
+        </Stack>
       ) : null}
     </Stack>
   );
@@ -44,7 +58,11 @@ const TeamRow = ({ team, score, showScore }) => {
 const ScoreboardGameCard = ({ game }) => {
   const theme = useTheme();
   const isLive = isLiveScoreboardGame(game);
-  const showScores = isLive;
+  const isFinal = isFinalScoreboardGame(game);
+  const finalPresentation = getGameStatusPresentation("final");
+  const winnerTeam = isFinal ? getFinalGameWinner(game) : "";
+  const showScores = isLive || isFinal;
+  const score = (team) => team?.score === null || team?.score === undefined || team.score === "" ? "--" : team.score;
 
   return (
     <Panel
@@ -56,6 +74,8 @@ const ScoreboardGameCard = ({ game }) => {
         p: 1.5,
         flex: "0 0 auto",
         borderRadius: (theme) => theme.customShape?.scoreboardRadius ?? 6,
+        borderColor: isFinal ? finalPresentation.accent : undefined,
+        backgroundColor: isFinal ? finalPresentation.cardBackground : undefined,
       }}
     >
       <Stack spacing={1}>
@@ -68,6 +88,23 @@ const ScoreboardGameCard = ({ game }) => {
               sx={{ height: 21, mb: 0.65, mr: 0.75, fontSize: "0.68rem", letterSpacing: ".08em" }}
             />
           ) : null}
+          {isFinal ? (
+            <Chip
+              size="small"
+              label="FINAL"
+              sx={{
+                height: 21,
+                mb: 0.65,
+                mr: 0.75,
+                backgroundColor: finalPresentation.badgeBackground,
+                border: `1px solid ${finalPresentation.badgeBorder}`,
+                color: finalPresentation.badgeText,
+                fontSize: "0.68rem",
+                fontWeight: 900,
+                letterSpacing: ".08em",
+              }}
+            />
+          ) : null}
           <Typography
             variant="caption"
             color="text.secondary"
@@ -75,6 +112,8 @@ const ScoreboardGameCard = ({ game }) => {
           >
             {isLive
               ? game.statusText || "Live"
+              : isFinal
+                ? game.statusText || "Final"
               : `${game.startDateText || "Date TBD"} ${game.startTimeText || "TBD"}`}
           </Typography>
           <Typography
@@ -93,13 +132,19 @@ const ScoreboardGameCard = ({ game }) => {
         <Stack spacing={0.75}>
           <TeamRow
             team={game.away}
-            score={game.away?.score || "--"}
+            score={score(game.away)}
             showScore={showScores}
+            isFinal={isFinal}
+            isWinner={winnerTeam === game.away?.abbr}
+            winnerText={finalPresentation.winnerText}
           />
           <TeamRow
             team={game.home}
-            score={game.home?.score || "--"}
+            score={score(game.home)}
             showScore={showScores}
+            isFinal={isFinal}
+            isWinner={winnerTeam === game.home?.abbr}
+            winnerText={finalPresentation.winnerText}
           />
         </Stack>
         <Box

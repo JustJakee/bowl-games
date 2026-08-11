@@ -15,6 +15,7 @@ import TeamLogo from "./common/TeamLogo";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import { useGamePickSplitViews } from "../hooks/useGamePickSplitViews";
 import { getGamePickActionState } from "../utils/gamePickSplits";
+import { getFinalGameWinner, getGameStatusPresentation } from "../utils/gameStatusPresentation";
 import "../styles/schedule-view.css";
 
 const DATE_KEY_FORMATTER = new Intl.DateTimeFormat(undefined, {
@@ -230,12 +231,14 @@ const ScheduleCardPickSplit = ({ game, pickSplit, loading, error }) => {
   );
 };
 
-const TeamRow = ({ game, side }) => {
+const TeamRow = ({ game, side, isFinal, winnerTeam }) => {
   const team = game?.[side] || {};
   const teamName = team.displayName || team.abbr || "TBD";
+  const isWinner = isFinal && Boolean(winnerTeam) && winnerTeam === team.abbr;
+  const score = team.score === null || team.score === undefined || team.score === "" ? "--" : team.score;
 
   return (
-    <div className="schedule-team-row">
+    <div className={`schedule-team-row${isWinner ? " schedule-team-row--winner" : ""}${isFinal && !isWinner ? " schedule-team-row--loser" : ""}`}>
       <div className="schedule-team-main">
         <TeamLogo
           src={team.logo}
@@ -244,18 +247,41 @@ const TeamRow = ({ game, side }) => {
           size={34}
         />
         <span className="schedule-team-name">{teamName}</span>
+        {isWinner ? <span className="schedule-team-winner-label">Winner</span> : null}
       </div>
+      {isFinal ? <span className="schedule-team-score">{score}</span> : null}
     </div>
   );
 };
 
 const ScheduleCard = ({ game, pickSplit, pickLoading, pickError }) => {
   const statusKind = getStatusKind(game);
+  const isFinal = statusKind === "final";
+  const winnerTeam = isFinal ? getFinalGameWinner(game) : "";
+  const statusPresentation = getGameStatusPresentation(statusKind);
   const network = game?.network || "Network TBD";
   const venue = getVenueText(game);
 
   return (
-    <article className={`schedule-card schedule-card--${statusKind}`}>
+    <article
+      className={`schedule-card schedule-card--${statusKind}`}
+      style={isFinal ? {
+        "--final-accent": statusPresentation.accent,
+        "--final-badge-background": statusPresentation.badgeBackground,
+        "--final-badge-border": statusPresentation.badgeBorder,
+        "--final-badge-text": statusPresentation.badgeText,
+        "--final-card-background": statusPresentation.cardBackground,
+        "--final-card-background-end": statusPresentation.cardBackgroundEnd,
+        "--final-metadata-text": statusPresentation.metadataText,
+        "--final-metadata-accent": statusPresentation.metadataAccent,
+        "--final-divider": statusPresentation.divider,
+        "--final-pick-text": statusPresentation.pickText,
+        "--final-pick-border": statusPresentation.pickBorder,
+        "--final-pick-hover": statusPresentation.pickHover,
+        "--final-winner-surface": statusPresentation.winnerSurface,
+        "--final-winner-text": statusPresentation.winnerText,
+      } : undefined}
+    >
       <header className="schedule-card-header">
         <div className="schedule-card-title-wrap">
           <h3 className="schedule-card-title">{game?.bowl || "Bowl Game"}</h3>
@@ -272,8 +298,8 @@ const ScheduleCard = ({ game, pickSplit, pickLoading, pickError }) => {
       </header>
 
       <div className="schedule-team-list">
-        <TeamRow game={game} side="away" />
-        <TeamRow game={game} side="home" />
+        <TeamRow game={game} side="away" isFinal={isFinal} winnerTeam={winnerTeam} />
+        <TeamRow game={game} side="home" isFinal={isFinal} winnerTeam={winnerTeam} />
       </div>
 
       <footer className="schedule-card-meta">

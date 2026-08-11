@@ -117,6 +117,35 @@
   border-left: 4px solid #ef233c;
 }
 
+.schedule-card--final {
+  border-color: var(--final-accent, #687684);
+  border-left: 4px solid var(--final-accent, #687684);
+  background:
+    linear-gradient(155deg, var(--final-card-background, #303941), var(--final-card-background-end, #20272e)),
+    #20272e;
+  box-shadow:
+    inset 0 1px 0 rgba(244, 247, 250, 0.06),
+    0 8px 18px rgba(0, 0, 0, 0.14);
+}
+
+.schedule-card--final .schedule-card-title {
+  color: #e8f0f9;
+}
+
+.schedule-card--final .schedule-card-venue,
+.schedule-card--final .schedule-network-meta,
+.schedule-card--final .schedule-card-time,
+.schedule-card--final .schedule-pick-count,
+.schedule-card--final .schedule-pick-team-name,
+.schedule-card--final .schedule-owned-entry-name,
+.schedule-card--final .schedule-pick-hidden-copy {
+  color: var(--final-metadata-text, #9fb1c3);
+}
+
+.schedule-card--final .schedule-network-meta svg {
+  color: var(--final-metadata-accent, #7892ac);
+}
+
 .schedule-card-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -189,6 +218,16 @@
   color: #fff;
 }
 
+.schedule-status--final {
+  min-height: 30px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--final-badge-border, #8793a0);
+  background: var(--final-badge-background, #46525e);
+  color: var(--final-badge-text, #f4f7fa);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.1em;
+}
+
 .schedule-status--canceled,
 .schedule-status--postponed {
   background: rgba(255, 183, 77, 0.18);
@@ -204,6 +243,8 @@
 .schedule-team-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   min-height: 43px;
   color: #eff5ff;
 }
@@ -231,6 +272,54 @@
   white-space: nowrap;
 }
 
+.schedule-team-row--winner .schedule-team-name,
+.schedule-team-row--winner .schedule-team-score {
+  color: var(--final-winner-text, #f5f8ff);
+  font-weight: 900;
+}
+
+.schedule-card--final .schedule-team-row--winner {
+  margin: 0 -0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 5px;
+  background: var(--final-winner-surface, rgba(244, 247, 250, 0.07));
+}
+
+.schedule-card--final .schedule-team-score {
+  font-size: 1.72rem;
+}
+
+.schedule-card--final .schedule-team-row--winner .schedule-team-score {
+  font-size: 1.85rem;
+}
+
+.schedule-team-winner-label {
+  flex: 0 0 auto;
+  padding: 0.16rem 0.35rem;
+  border: 1px solid rgba(245, 248, 255, 0.34);
+  border-radius: 3px;
+  color: var(--final-winner-text, #f5f8ff);
+  font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.schedule-team-row--loser {
+  color: rgba(239, 245, 255, 0.72);
+}
+
+.schedule-team-score {
+  flex: 0 0 auto;
+  color: #f5f8ff;
+  font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  font-size: 1.55rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .schedule-card-meta {
   display: flex;
   align-items: center;
@@ -239,6 +328,11 @@
   margin-top: auto;
   padding-top: 0.7rem;
   border-top: 1px solid rgba(216, 225, 238, 0.08);
+}
+
+.schedule-card--final .schedule-card-meta,
+.schedule-card--final .schedule-pick-split {
+  border-color: var(--final-divider, rgba(143, 166, 190, 0.16));
 }
 
 .schedule-network-meta {
@@ -306,6 +400,19 @@
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.schedule-card--final .schedule-pick-split-title,
+.schedule-card--final .schedule-owned-team-name {
+  color: var(--final-pick-text, #b8c9d9);
+}
+
+.schedule-card--final .schedule-pick-bar span {
+  background: var(--final-metadata-accent, #7892ac);
+}
+
+.schedule-card--final .schedule-pick-bar {
+  background: rgba(195, 205, 214, 0.14);
 }
 
 .schedule-pick-hidden-copy {
@@ -439,6 +546,17 @@
   outline: none;
 }
 
+.schedule-card--final .schedule-pick-link {
+  border-color: var(--final-pick-border, rgba(120, 146, 172, 0.56));
+  color: var(--final-pick-text, #b8c9d9);
+}
+
+.schedule-card--final .schedule-pick-link:hover,
+.schedule-card--final .schedule-pick-link:focus-visible {
+  border-color: var(--final-metadata-accent, #7892ac);
+  background: var(--final-pick-hover, rgba(120, 146, 172, 0.14));
+}
+
 .schedule-pick-link--disabled,
 .schedule-pick-link--disabled:disabled {
   border-color: rgba(159, 178, 202, 0.32);
@@ -508,6 +626,10 @@
     border-left-width: 4px;
   }
 
+  .schedule-card--final {
+    border-left-width: 4px;
+  }
+
   .schedule-card-header {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.75rem;
@@ -547,6 +669,22 @@
     font-size: clamp(1.4rem, 5.5vw, 1.95rem);
     text-transform: none;
     white-space: normal;
+  }
+
+  .schedule-team-score {
+    font-size: 2rem;
+  }
+
+  .schedule-card--final .schedule-team-score {
+    font-size: 2.15rem;
+  }
+
+  .schedule-card--final .schedule-team-row--winner .schedule-team-score {
+    font-size: 2.3rem;
+  }
+
+  .schedule-team-winner-label {
+    font-size: 0.65rem;
   }
 
   .schedule-card-meta {

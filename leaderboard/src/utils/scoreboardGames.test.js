@@ -19,13 +19,15 @@ test("top scoreboard prioritizes live games ahead of scheduled kickoff order", (
   assert.deepEqual(selected.map((item) => item.id), ["live-first", "live-later", "scheduled-first", "scheduled-later"]);
 });
 
-test("top scoreboard removes completed and canceled games", () => {
+test("top scoreboard retains final games after live and scheduled games", () => {
   const selected = selectTopScoreboardGames([
-    game("final", "final", "2026-12-20T22:00:00Z"),
+    game("final-later", "final", "2026-12-21T22:00:00Z"),
     game("canceled", "canceled", "2026-12-20T22:00:00Z"),
     game("scheduled", "scheduled", "2026-12-21T22:00:00Z"),
+    game("live", "in_progress", "2026-12-22T22:00:00Z"),
+    game("final-first", "final", "2026-12-20T22:00:00Z"),
   ]);
-  assert.deepEqual(selected.map((item) => item.id), ["scheduled"]);
+  assert.deepEqual(selected.map((item) => item.id), ["live", "scheduled", "final-first", "final-later"]);
 });
 
 test("a live game without period or clock remains in the scoreboard", () => {
@@ -35,6 +37,9 @@ test("a live game without period or clock remains in the scoreboard", () => {
   );
 });
 
-test("all completed games produce an empty scoreboard collection", () => {
-  assert.deepEqual(selectTopScoreboardGames([game("final", "final"), game("canceled", "canceled")]), []);
+test("final-only scoreboards retain final games while excluding canceled games", () => {
+  assert.deepEqual(selectTopScoreboardGames([
+    game("final", "final"),
+    { ...game("canceled", "canceled"), state: "post" },
+  ]).map((item) => item.id), ["final"]);
 });
