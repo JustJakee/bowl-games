@@ -51,6 +51,7 @@ export const scoreEntries = ({
   picks = [],
   games = [],
   usernamesByOwner = {},
+  completeEntryIds,
 }) => {
   // BUSINESS RULE — TIEBREAKER — NATIONAL CHAMPIONSHIP
   // Equal point totals rank by the smallest distance from the championship's final combined score.
@@ -76,10 +77,11 @@ export const scoreEntries = ({
     accumulator[pick.entryId].push(pick);
     return accumulator;
   }, {});
+  const serverCompleteIds = completeEntryIds ? new Set(completeEntryIds) : null;
 
   return (entries || [])
     .filter((entry) =>
-      hasSubmittedPickSet({
+      serverCompleteIds ? serverCompleteIds.has(entry.id) : hasSubmittedPickSet({
         entry,
         entryPicks: picksByEntryId[entry.id] || [],
         requiredGameIds,

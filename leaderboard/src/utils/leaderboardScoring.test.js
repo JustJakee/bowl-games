@@ -135,3 +135,15 @@ test("leaderboard uses the public profile username without requiring an entry ow
     ],
   );
 });
+
+test("server-confirmed complete entries score only revealed final picks", () => {
+  const rows = scoreEntries({
+    games,
+    entries: [{ id: "other-entry", entryName: "Other", tieBreakerValue: null }],
+    picks: [{ entryId: "other-entry", gameId: "game-1", selectedTeam: "AAA" }],
+    completeEntryIds: ["other-entry"],
+  });
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].points, 1);
+  assert.equal(rows[0].record, "1-1");
+});

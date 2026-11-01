@@ -6,9 +6,12 @@ import { Amplify } from "aws-amplify";
 import { fetchAuthSession, signIn, signOut } from "aws-amplify/auth";
 import { generateClient } from "aws-amplify/data";
 import {
+  ALLOWED_SEASON_IDS,
   applyPlan,
+  applyResetPlan,
   buildSimulation,
   createDryRunPlan,
+  createResetPlan,
   hashValue,
   prepareModelMutation,
   validatePlanArtifact,
@@ -186,7 +189,7 @@ const paginate = async (operation, label) => {
   );
 };
 
-const createGateway = (client, modelIntrospection) => {
+const createGateway = (client, modelIntrospection, seasonId) => {
   const gameFieldNames = Object.keys(modelIntrospection.models.Game.fields);
   const deployedGameFields = new Set(gameFieldNames);
   const gameSelection = MODEL_FIELDS.Game.filter((field) =>
@@ -195,16 +198,16 @@ const createGateway = (client, modelIntrospection) => {
   return {
     async readState() {
       const seasonResult = await client.models.Season.get(
-        { id: "test26" },
+        { id: seasonId },
         { selectionSet: MODEL_FIELDS.Season, authMode: "userPool" },
       );
-      throwForErrors(seasonResult, "Get Season test26");
+      throwForErrors(seasonResult, `Get Season ${seasonId}`);
       const [seasonsBySlug, seasonConfigs, games, entries, picks] =
         await Promise.all([
           paginate(
             (nextToken) =>
               client.models.Season.seasonBySlug(
-                { slug: "test26" },
+                { slug: seasonId },
                 {
                   limit: 100,
                   nextToken,
@@ -217,7 +220,7 @@ const createGateway = (client, modelIntrospection) => {
           paginate(
             (nextToken) =>
               client.models.SeasonConfig.seasonConfigBySeasonId(
-                { seasonId: "test26" },
+                { seasonId },
                 {
                   limit: 100,
                   nextToken,
@@ -230,7 +233,7 @@ const createGateway = (client, modelIntrospection) => {
           paginate(
             (nextToken) =>
               client.models.Game.gamesBySeason(
-                { seasonId: "test26" },
+                { seasonId },
                 {
                   limit: 100,
                   nextToken,
@@ -243,7 +246,7 @@ const createGateway = (client, modelIntrospection) => {
           paginate(
             (nextToken) =>
               client.models.Entry.list({
-                filter: { seasonId: { eq: "test26" } },
+                filter: { seasonId: { eq: seasonId } },
                 limit: 100,
                 nextToken,
                 selectionSet: ["id"],
@@ -254,7 +257,7 @@ const createGateway = (client, modelIntrospection) => {
           paginate(
             (nextToken) =>
               client.models.Pick.picksBySeason(
-                { seasonId: "test26" },
+                { seasonId },
                 {
                   limit: 100,
                   nextToken,
@@ -295,6 +298,11 @@ const createGateway = (client, modelIntrospection) => {
         authMode: "userPool",
       });
       throwForErrors(result, `Update ${model}`);
+    },
+    async delete(model, id) {
+      const result = await client.models[model].delete({ id }, { authMode: "userPool" });
+      throwForErrors(result, `Delete ${model} ${id}`);
+      if (!result.data) throw new Error(`Delete ${model} ${id}: no confirmed record.`);
     },
   };
 };
@@ -363,9 +371,14 @@ const printReport = (plan) => {
 
 const main = async () => {
   const args = parseArgs(process.argv.slice(2));
-  if (!["dry-run", "apply"].includes(args.mode)) {
-    throw new Error("Use either dry-run or apply mode.");
+  if (!["dry-run", "apply", "reset-dry-run", "reset-apply"].includes(args.mode)) {
+    throw new Error("Use dry-run, apply, reset-dry-run, or reset-apply mode.");
   }
+  const seasonId = args["season-id"] || "test26";
+  if (!ALLOWED_SEASON_IDS.includes(seasonId))
+    throw new Error(`Refusing unsupported test season: ${seasonId}.`);
+  if (args.mode.startsWith("reset-") && seasonId !== "test26-r2")
+    throw new Error("Reset is allowed only for test26-r2.");
   const profile = args.profile || DEFAULT_AWS_PROFILE;
   if (args.outputs) {
     throw new Error(
@@ -373,7 +386,10 @@ const main = async () => {
     );
   }
   const outputsPath = path.resolve(ISOLATED_OUTPUTS_PATH);
-  const planPath = path.resolve(args.plan || PLAN_PATH);
+  const defaultPlanPath = args.mode.startsWith("reset-")
+    ? "tmp/test26-r2-reset-plan.json"
+    : seasonId === "test26" ? PLAN_PATH : `tmp/${seasonId}-seed-plan.json`;
+  const planPath = path.resolve(args.plan || defaultPlanPath);
   const { outputs, modelIntrospection } = await loadAndVerifyTarget({
     profile,
     outputsPath,
@@ -381,13 +397,25 @@ const main = async () => {
   let client;
   try {
     client = await authenticateAdmin(outputs);
-    const gateway = createGateway(client, modelIntrospection);
+    const gateway = createGateway(client, modelIntrospection, seasonId);
+    if (args.mode === "reset-dry-run") {
+      const state = await gateway.readState();
+      const plan = createResetPlan({ target: TEST26_TARGET, state });
+      console.log("Reset preview for test26-r2 on verified staging target:");
+      console.table({ target: TEST26_TARGET.appSyncApiId, branch: TEST26_TARGET.branch, ...Object.fromEntries(Object.entries(plan.ids).map(([model, ids]) => [model, ids.length])) });
+      if (plan.conflicts.length) throw new Error(`Reset conflicts: ${plan.conflicts.join("; ")}`);
+      await mkdir(path.dirname(planPath), { recursive: true });
+      await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+      console.log(`Plan: ${planPath}\nReset confirmation: ${plan.confirmation}`);
+      return;
+    }
     if (args.mode === "dry-run") {
       const mockPath = path.resolve("src/assets/mockBowls2026.json");
       const mock = JSON.parse(await readFile(mockPath, "utf8"));
       const simulation = buildSimulation({
         events: mock.events,
         startAt: args["start-at"] || new Date().toISOString(),
+        seasonId,
         picksOpenHours: args["picks-open-hours"],
         gameIntervalMinutes: args["game-interval-minutes"],
       });
@@ -418,6 +446,16 @@ const main = async () => {
       throw new Error(`A valid dry-run plan is required at ${planPath}.`);
     }
     verifyTarget({ expected: TEST26_TARGET, actual: plan.target });
+    if (args.mode === "reset-apply") {
+      if (args["destructive-confirmation"] !== "delete:test26-r2")
+        throw new Error("Reset requires --destructive-confirmation delete:test26-r2.");
+      const currentState = await gateway.readState();
+      const result = await applyResetPlan({ gateway, plan, confirmation: args.confirmation, currentState });
+      console.log("Reset complete:", result);
+      return;
+    }
+    if (plan.records.season.proposed.id !== seasonId || plan.records.season.proposed.slug !== seasonId)
+      throw new Error("Dry-run plan season does not match --season-id.");
     validatePlanArtifact({ plan, confirmation: args.confirmation });
     const currentState = await gateway.readState();
     const result = await applyPlan({
@@ -433,6 +471,6 @@ const main = async () => {
 };
 
 main().catch((error) => {
-  console.error(`test26 seed refused: ${error.message}`);
+  console.error(`test season seed refused: ${error.message}`);
   process.exitCode = 1;
 });

@@ -1,6 +1,11 @@
 // DATA — APP — AMPLIFY DATA
-// Model-level rules are the authoritative boundary for player ownership and admin-only corrections.
-import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
+// Model rules deny direct player writes; guarded operations enforce ownership and deadlines.
+import { a, defineData, defineFunction, type ClientSchema } from "@aws-amplify/backend";
+
+const securePicks = defineFunction({
+  name: "secure-picks",
+  entry: "./secure-picks/handler.js",
+});
 
 // Amplify's schema builder (`a`), deployment wrapper (`defineData`), and generated-client
 // type helper (`ClientSchema`) turn this definition into GraphQL/AppSync types, resolvers,
@@ -212,15 +217,15 @@ const schema = a.schema({
       seasonId: a.id().required(),
       season: a.belongsTo("Season", "seasonId"),
       // Optional Cognito subject copied onto the entry for owner-defined authorization. The
-      // owner can create/read/update this field; admins can read/update it.
+      // owner can read this field; admins can create/read/update it.
       owner: a
         .string()
         .authorization((allow) => [
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+            .to(["read"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Optional UserProfile foreign key. Its field rule prevents unrelated players from seeing
       // or changing the account linkage even when public Entry fields are readable.
@@ -230,8 +235,8 @@ const schema = a.schema({
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+            .to(["read"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Belongs-to navigation resolved from `userProfileId`; nullable because the key is nullable.
       userProfile: a.belongsTo("UserProfile", "userProfileId"),
@@ -248,7 +253,7 @@ const schema = a.schema({
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
+            .to(["read"]),
           allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Optional admin-controlled payment enum. The owner has read only; only admins may create
@@ -260,19 +265,21 @@ const schema = a.schema({
           allow.ownerDefinedIn("owner").identityClaim("sub").to(["read"]),
           allow.group("admin").to(["create", "read", "update"]),
         ]),
-      // Optional payment timestamp protected from broad reads. The schema permits the owner to
-      // create/read/update it and admins to read/update it; no default is generated.
+      // Optional payment timestamp protected from broad reads; admins may create or edit it.
       paidAt: a
         .datetime()
         .authorization((allow) => [
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+            .to(["read"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Optional player tiebreaker answer; whether it is required is season configuration.
-      tieBreakerValue: a.integer(),
+      tieBreakerValue: a.integer().authorization((allow) => [
+        allow.ownerDefinedIn("owner").identityClaim("sub").to(["read"]),
+        allow.group("admin").to(["create", "read", "update"]),
+      ]),
       // Required soft-delete marker. Amplify supplies `false` when omitted on creation; records
       // remain stored so application queries can exclude them without physical deletion.
       isDeleted: a.boolean().required().default(false),
@@ -283,8 +290,8 @@ const schema = a.schema({
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+            .to(["read"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Optional timestamp recording when this entry became immutable in the product workflow;
       // its owner/admin field boundary matches `submittedAt`.
@@ -294,8 +301,8 @@ const schema = a.schema({
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+            .to(["read"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Reverse one-to-many relationship to Pick records carrying this entry's required ID.
       picks: a.hasMany("Pick", "entryId"),
@@ -309,15 +316,15 @@ const schema = a.schema({
         .sortKeys(["entryNameKey"])
         .queryField("entriesBySeasonAndEntryNameKey"),
     ])
-    // Authenticated users can read leaderboard-safe Entry data. A caller whose Cognito `sub`
-    // matches `owner` can create/read/update their entry; admins have all model operations.
+    // Authenticated users can read leaderboard-safe Entry data. Player writes use guarded
+    // operations so deadline and persisted ownership checks cannot be skipped.
     // Explicit `sub` must match field-level owner rules to avoid duplicate generated owner args.
     .authorization((allow) => [
       allow.authenticated().to(["read"]),
       allow
         .ownerDefinedIn("owner")
         .identityClaim("sub")
-        .to(["create", "read", "update"]),
+        .to(["read"]),
       allow.group("admin"),
     ]),
 
@@ -335,15 +342,15 @@ const schema = a.schema({
       gameId: a.id().required(),
       game: a.belongsTo("Game", "gameId"),
       // Optional duplicated Cognito subject used for direct Pick owner authorization. The field
-      // owner can create/read/update it; admins can read/update it.
+      // owner can read it; admins can create/read/update it.
       owner: a
         .string()
         .authorization((allow) => [
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
-            .to(["create", "read", "update"]),
-          allow.group("admin").to(["read", "update"]),
+            .to(["read"]),
+          allow.group("admin").to(["create", "read", "update"]),
         ]),
       // Required player selection stored as the chosen team identifier/name used by the app.
       selectedTeam: a.string().required(),
@@ -364,14 +371,57 @@ const schema = a.schema({
       index("gameId").queryField("picksByGame"),
       index("seasonId").queryField("picksBySeason"),
     ])
-    // Authenticated players can read picks for standings. The matching `sub` owner receives the
-    // rule's unchanged default operations, and admins receive all operations. Using `sub` here
-    // consistently with the field rule prevents duplicate GraphQL subscription owner arguments.
+    .disableOperations(["subscriptions"])
+    // Player reads are owner-only. All player writes use saveSeasonPick, which validates
+    // the persisted Entry and season deadline with server time. Admin model operations remain.
     .authorization((allow) => [
-      allow.authenticated().to(["read"]),
-      allow.ownerDefinedIn("owner").identityClaim("sub"),
+      allow.ownerDefinedIn("owner").identityClaim("sub").to(["read"]),
       allow.group("admin"),
     ]),
+
+  VisiblePick: a.customType({
+    id: a.id().required(),
+    seasonId: a.id().required(),
+    entryId: a.id().required(),
+    gameId: a.id().required(),
+    selectedTeam: a.string().required(),
+    createdAt: a.datetime(),
+    updatedAt: a.datetime(),
+  }),
+  VisibleSeasonPicks: a.customType({
+    picks: a.ref("VisiblePick").array().required(),
+    completeEntryIds: a.id().array().required(),
+    tieBreakers: a.ref("VisibleTieBreaker").array().required(),
+    submissionCounts: a.ref("PickSubmissionCount").array().required(),
+  }),
+  PickSubmissionCount: a.customType({
+    gameId: a.id().required(),
+    count: a.integer().required(),
+  }),
+  VisibleTieBreaker: a.customType({
+    entryId: a.id().required(),
+    value: a.integer(),
+  }),
+  saveSeasonPick: a.mutation()
+    .arguments({ entryId: a.id().required(), gameId: a.id().required(), selectedTeam: a.string().required() })
+    .returns(a.ref("VisiblePick"))
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(securePicks)),
+  createSeasonEntry: a.mutation()
+    .arguments({ seasonId: a.id().required(), entryName: a.string().required(), contactEmail: a.email().required(), userProfileId: a.id() })
+    .returns(a.ref("Entry"))
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(securePicks)),
+  updateSeasonEntry: a.mutation()
+    .arguments({ entryId: a.id().required(), entryName: a.string(), contactEmail: a.email(), tieBreakerValue: a.integer(), userProfileId: a.id(), isDeleted: a.boolean() })
+    .returns(a.ref("Entry"))
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(securePicks)),
+  visibleSeasonPicks: a.query()
+    .arguments({ seasonId: a.id().required() })
+    .returns(a.ref("VisibleSeasonPicks"))
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(securePicks)),
 
   AdminAction: a
     // ADMIN — PAYMENT STATUS — AMPLIFY DATA
@@ -418,7 +468,7 @@ const schema = a.schema({
     })
     // The `admin` group receives the default full operation set; players have no model access.
     .authorization((allow) => [allow.group("admin")]),
-});
+}).authorization((allow) => [allow.resource(securePicks)]);
 
 // Exposes generated model/operation types to frontend code without creating runtime behavior.
 export type Schema = ClientSchema<typeof schema>;

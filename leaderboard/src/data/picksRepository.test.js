@@ -3,6 +3,7 @@ import test, { afterEach } from "node:test";
 import {
   __setPicksRepositoryDependenciesForTests,
   loadEntryPicks,
+  runSecurePickMutation,
   saveEntryState,
 } from "./picksRepository";
 
@@ -38,6 +39,7 @@ const createHarness = ({
   initialPicks = [],
   currentEntry = entry,
   createResult,
+  entryUpdateResult,
   pickPageSize = 100,
   seasonGames = [game],
   updateResult,
@@ -117,10 +119,24 @@ const createHarness = ({
 
   __setPicksRepositoryDependenciesForTests({
     dataClient,
+    savePick: ({ entryId, gameId, selectedTeam }) => {
+      const existing = picks.find((pick) => pick.entryId === entryId && pick.gameId === gameId);
+      return existing
+        ? dataClient.models.Pick.update({ id: existing.id, selectedTeam })
+        : dataClient.models.Pick.create({
+          id: `pick-${entryId}-${gameId}`,
+          seasonId: currentEntry.seasonId,
+          entryId,
+          gameId,
+          owner: currentEntry.owner,
+          selectedTeam,
+        });
+    },
     getEntryById: async () => currentEntry,
     listRawSeasonGames: async () => seasonGames,
     updateEntry: async (input) => {
       calls.entryUpdate.push(input);
+      if (entryUpdateResult) return entryUpdateResult(input, calls);
       return {
         ...currentEntry,
         ...(Object.hasOwn(input, "entryName")
@@ -138,6 +154,16 @@ const createHarness = ({
 
   return { calls };
 };
+
+test("production pick writes use only the authenticated guarded mutation", async () => {
+  const calls = [];
+  const client = {
+    models: { Pick: { create: () => { throw new Error("raw create called"); }, update: () => { throw new Error("raw update called"); } } },
+    mutations: { saveSeasonPick: async (...args) => { calls.push(args); return { data: { id: "p1" } }; } },
+  };
+  await runSecurePickMutation(client, { entryId: "e1", gameId: "g1", selectedTeam: "AAA" });
+  assert.deepEqual(calls, [[{ entryId: "e1", gameId: "g1", selectedTeam: "AAA" }, { authMode: "userPool" }]]);
+});
 
 const save = (overrides = {}) =>
   saveEntryState({
@@ -430,6 +456,24 @@ test("a partial multi-pick save reports and reloads its successful mutations", a
   });
   assert.equal(calls.create.length, 2);
   assert.deepEqual(reloaded.selectionsByGameId, { "game-1": "BBB" });
+});
+
+test("an Entry update failure reconciles picks already saved in the same request", async () => {
+  const { calls } = createHarness({
+    entryUpdateResult: () => { throw new Error("Entry update failed."); },
+  });
+  await assert.rejects(
+    save({ selectionsByGameId: { "game-1": "AAA" }, entryName: "Renamed entry" }),
+    (error) => {
+      assert.match(error.message, /Entry update failed/);
+      assert.deepEqual(error.completedPickChanges, [
+        { gameId: "game-1", operation: "create", selectedTeam: "AAA" },
+      ]);
+      assert.deepEqual(error.partialResult.selectionsByGameId, { "game-1": "AAA" });
+      return true;
+    },
+  );
+  assert.equal(calls.entryUpdate.length, 1);
 });
 
 test("multiple new selections use canonical payloads and survive reload", async () => {

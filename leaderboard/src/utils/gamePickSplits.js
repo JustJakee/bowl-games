@@ -79,6 +79,7 @@ export const buildGamePickSplitView = ({
   game,
   entries = [],
   submittedPicks = [],
+  submittedCount,
   revealedPicks = [],
   ownedPicks = [],
   currentEntryIds = [],
@@ -171,7 +172,7 @@ export const buildGamePickSplitView = ({
     };
   });
   const unsubmittedCount = Math.max(
-    activeEntries.length - validSubmittedPicks.length,
+    activeEntries.length - (submittedCount ?? validSubmittedPicks.length),
     0,
   );
 
@@ -179,7 +180,7 @@ export const buildGamePickSplitView = ({
     gameId: game?.id || "",
     isLocked: locked,
     totalEligibleEntries: activeEntries.length,
-    totalSubmittedPicks: validSubmittedPicks.length,
+    totalSubmittedPicks: submittedCount ?? validSubmittedPicks.length,
     totalRevealedPicks: revealedTotal,
     unsubmittedCount,
     teamSplits,

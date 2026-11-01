@@ -4,11 +4,19 @@ import test from "node:test";
 import { buildSyncedDraft } from "../components/picks/picksAutosaveState";
 import {
   formatPickLockMessage,
+  getEffectiveSeasonStatus,
   isPickWindowLocked,
   isSeasonPickLocked,
 } from "./pickWindow";
 
 const picksLockAt = "2026-08-02T12:00:00.000Z";
+
+test("effective season status turns open into locked at the global deadline", () => {
+  const deadline = Date.parse(picksLockAt);
+  assert.equal(getEffectiveSeasonStatus({ seasonStatus: "open", picksLockAt, now: deadline - 1 }), "open");
+  assert.equal(getEffectiveSeasonStatus({ seasonStatus: "open", picksLockAt, now: deadline }), "locked");
+  assert.equal(getEffectiveSeasonStatus({ seasonStatus: "complete", picksLockAt, now: deadline }), "complete");
+});
 
 test("the global pick window is open before, and locked at and after, picksLockAt", () => {
   assert.equal(

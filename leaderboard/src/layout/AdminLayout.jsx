@@ -23,12 +23,18 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { useAuth } from "../auth/AuthContext";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import { isAdminGameManagementEnabled } from "../utils/adminGameManagement";
+import { usePickWindowLocked } from "../hooks/usePickWindowLocked";
+import { getEffectiveSeasonStatus } from "../utils/pickWindow";
 import Panel from "../components/common/Panel";
 
 const AdminLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { role, signOut, email } = useAuth();
   const { season, seasonConfig, loading } = useScoreboard();
+  const picksLocked = usePickWindowLocked(seasonConfig?.picksLockAt, season?.status);
+  const effectiveSeasonStatus = picksLocked
+    ? getEffectiveSeasonStatus({ seasonStatus: season?.status, picksLockAt: seasonConfig?.picksLockAt })
+    : season?.status;
   const isAdmin = role === "admin";
 
   if (!isAdmin) return <Navigate to="/dashboard" replace />;
@@ -62,7 +68,7 @@ const AdminLayout = () => {
         </Typography>
       ) : null}
       <Typography variant="body2" color="text.secondary">
-        {season.status}
+        {effectiveSeasonStatus}
       </Typography>
       <Typography variant="caption" color="text.secondary">
         {seasonConfig?.picksLockAt || "Lock date unavailable"}

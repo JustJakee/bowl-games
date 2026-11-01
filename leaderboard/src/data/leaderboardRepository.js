@@ -8,22 +8,11 @@ const ENTRY_LEADERBOARD_SELECTION = [
   "id",
   "seasonId",
   "entryName",
-  "tieBreakerValue",
   "isDeleted",
   "createdAt",
   "updatedAt",
   "userProfile.id",
   "userProfile.username",
-];
-
-const PICK_LEADERBOARD_SELECTION = [
-  "id",
-  "seasonId",
-  "entryId",
-  "gameId",
-  "selectedTeam",
-  "createdAt",
-  "updatedAt",
 ];
 
 let dataClientOverride = null;
@@ -79,7 +68,7 @@ export const loadSeasonLeaderboardData = async ({ seasonId }) => {
   }
 
   const client = getDataClient();
-  const [entries, picks] = await Promise.all([
+  const [entries, visibleResult] = await Promise.all([
     listAllPages({
       listPage: (input) => client.models.Entry.list(input),
       input: {
@@ -91,18 +80,17 @@ export const loadSeasonLeaderboardData = async ({ seasonId }) => {
       },
       fallbackMessage: "Unable to load leaderboard entries.",
     }),
-    listAllPages({
-      listPage: (input) => client.models.Pick.list(input),
-      input: {
-        filter: {
-          seasonId: { eq: seasonId },
-        },
-        selectionSet: PICK_LEADERBOARD_SELECTION,
-        authMode: "userPool",
-      },
-      fallbackMessage: "Unable to load leaderboard picks.",
-    }),
+    client.queries.visibleSeasonPicks(
+      { seasonId },
+      { authMode: "userPool" },
+    ),
   ]);
+  throwIfGraphQLError(visibleResult, "Unable to load visible leaderboard picks.");
+  if (!visibleResult.data) throw new Error("Unable to load visible leaderboard picks.");
+  const picks = (visibleResult.data?.picks || []).filter(Boolean);
+  const completedIds = new Set(visibleResult.data?.completeEntryIds || []);
+  const tieBreakers = new Map((visibleResult.data?.tieBreakers || [])
+    .map((item) => [item.entryId, item.value]));
 
   const canonicalEntries = selectCanonicalEntriesByUser({
     entries,
@@ -112,8 +100,12 @@ export const loadSeasonLeaderboardData = async ({ seasonId }) => {
   const canonicalEntryIds = new Set(canonicalEntries.map((entry) => entry.id));
 
   return {
-    entries: canonicalEntries,
+    entries: canonicalEntries.map((entry) => ({
+      ...entry,
+      tieBreakerValue: tieBreakers.get(entry.id) ?? null,
+    })),
     picks: picks.filter((pick) => canonicalEntryIds.has(pick.entryId)),
+    completeEntryIds: [...completedIds].filter((id) => canonicalEntryIds.has(id)),
     usernamesByOwner: {},
   };
 };

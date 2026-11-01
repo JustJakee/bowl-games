@@ -41,14 +41,19 @@
     "seed:test26:outputs": "ampx generate outputs --app-id d1mqezo38x3xb8 --branch gen2-updates --out-dir tmp/amplify-outputs-gen2-updates --profile bobs-bowl-games",
     "seed:test26:dry-run": "node scripts/test26/seed-test26.mjs dry-run",
     "seed:test26:apply": "node scripts/test26/seed-test26.mjs apply",
+    "seed:test26-r2:dry-run": "node scripts/test26/seed-test26.mjs dry-run --season-id test26-r2",
+    "seed:test26-r2:apply": "node scripts/test26/seed-test26.mjs apply --season-id test26-r2",
+    "reset:test26-r2:dry-run": "node scripts/test26/seed-test26.mjs reset-dry-run --season-id test26-r2",
+    "reset:test26-r2:apply": "node scripts/test26/seed-test26.mjs reset-apply --season-id test26-r2",
     "season:mark-test": "node scripts/season-mark-test.mjs",
     "test:entry": "tsx --test src/data/canonicalEntry.test.js src/data/entryRepository.test.js",
     "test:picks": "tsx --test src/app/singlePickSetWorkflow.test.js src/data/picksRepository.test.js src/components/picks/pickActions.test.js src/components/picks/picksAutosaveState.test.js src/components/picks/pickSelectionView.test.js src/components/picks/selectedEntryPickLoading.test.js src/components/picks/lockedPicksStatus.test.js src/utils/pickWindow.test.js",
     "test:leaderboard": "tsx --test src/data/leaderboardRepository.test.js src/data/adminEntriesRepository.test.js src/utils/leaderboardScoring.test.js",
-    "test:schedule": "node --test src/utils/gamePickSplits.test.js",
+    "test:schedule": "tsx --test src/utils/gamePickSplits.test.js src/data/gamePickSplitsRepository.test.js",
     "test:dashboard": "tsx --test src/utils/dashboardEntryProgress.test.js src/utils/adminGameManagement.test.js src/utils/scoreboardGames.test.js",
     "test:seed:test26": "node --test scripts/test26/core.test.mjs",
-    "test": "npm run test:entry && npm run test:picks && npm run test:leaderboard && npm run test:schedule && npm run test:dashboard && npm run test:seed:test26"
+    "test:secure-picks": "node --test amplify/data/secure-picks/rules.test.mjs",
+    "test": "npm run test:entry && npm run test:picks && npm run test:leaderboard && npm run test:schedule && npm run test:dashboard && npm run test:seed:test26 && npm run test:secure-picks"
   },
   "overrides": {
     "@ardatan/relay-compiler@12.0.0": {

@@ -31,6 +31,12 @@ export const __setEntryRepositoryDataClientForTests = (dataClient) => {
   dataClientOverride = dataClient;
 };
 
+export const runSecureEntryMutation = (client, operation, input) =>
+  client.mutations[operation](input, {
+    selectionSet: ENTRY_SELECTION,
+    authMode: "userPool",
+  });
+
 const getFirstGraphQLError = (result) => result?.errors?.[0]?.message || null;
 
 const throwIfGraphQLError = (result, fallbackMessage) => {
@@ -239,8 +245,9 @@ export const createEntry = async ({
   });
 
   const client = getDataClient();
-  const result = await client.models.Entry.create(
-    {
+  const result = await (dataClientOverride
+    ? client.models.Entry.create(
+      {
       seasonId,
       owner,
       userProfileId: userProfileId || undefined,
@@ -250,11 +257,17 @@ export const createEntry = async ({
       tieBreakerValue: null,
       isDeleted: false,
     },
-    {
+      {
       selectionSet: ENTRY_SELECTION,
       authMode: "userPool",
-    },
-  );
+      },
+    )
+    : runSecureEntryMutation(client, "createSeasonEntry", {
+      seasonId,
+      entryName: normalizedEntryName,
+      contactEmail: normalizedEmail,
+      userProfileId: userProfileId || undefined,
+    }));
 
   throwIfGraphQLError(result, "Unable to create your pick set.");
   return normalizePlayerEntry(result.data);
@@ -328,10 +341,15 @@ export const updateEntry = async ({
   }
 
   const client = getDataClient();
-  const result = await client.models.Entry.update(nextValues, {
-    selectionSet: ENTRY_SELECTION,
-    authMode: "userPool",
-  });
+  const result = await (dataClientOverride
+    ? client.models.Entry.update(nextValues, {
+      selectionSet: ENTRY_SELECTION,
+      authMode: "userPool",
+    })
+    : runSecureEntryMutation(client, "updateSeasonEntry", {
+      entryId: existingEntry.id,
+      ...Object.fromEntries(Object.entries(nextValues).filter(([key]) => key !== "id")),
+    }));
 
   throwIfGraphQLError(result, "Unable to update your pick set.");
   return normalizePlayerEntry(result.data);
@@ -353,16 +371,14 @@ export const softDeleteEntry = async ({ entryId, owner, picksLocked }) => {
   }
 
   const client = getDataClient();
-  const result = await client.models.Entry.update(
-    {
-      id: existingEntry.id,
-      isDeleted: true,
-    },
-    {
-      selectionSet: ENTRY_SELECTION,
-      authMode: "userPool",
-    },
-  );
+  const result = await (dataClientOverride
+    ? client.models.Entry.update(
+      { id: existingEntry.id, isDeleted: true },
+      { selectionSet: ENTRY_SELECTION, authMode: "userPool" },
+    )
+    : runSecureEntryMutation(client, "updateSeasonEntry", {
+      entryId: existingEntry.id, isDeleted: true,
+    }));
 
   throwIfGraphQLError(result, "Unable to delete your entry.");
   return normalizePlayerEntry(result.data);

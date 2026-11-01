@@ -2,7 +2,6 @@
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import {
   buildGamePickSplitView,
-  isGamePickLocked,
 } from "../utils/gamePickSplits";
 import { selectCanonicalEntriesByUser } from "./canonicalEntry";
 
@@ -17,23 +16,6 @@ const ENTRY_PUBLIC_SELECTION = [
   "updatedAt",
   "userProfile.id",
   "userProfile.username",
-];
-
-const PICK_SUBMISSION_SELECTION = [
-  "id",
-  "seasonId",
-  "entryId",
-  "gameId",
-  "createdAt",
-  "updatedAt",
-];
-
-const PICK_REVEALED_SELECTION = [
-  "id",
-  "seasonId",
-  "entryId",
-  "gameId",
-  "selectedTeam",
 ];
 
 export const __setGamePickSplitsDataClientForTests = (dataClient) => {
@@ -96,9 +78,7 @@ export const loadGamePickSplitViews = async ({
 
   const client = getDataClient();
   const currentEntryIds = currentEntries.map((entry) => entry.id).filter(Boolean);
-  const lockedGames = games.filter((game) => isGamePickLocked(game, now));
-
-  const [entries, submittedPicks, ownedPicks, revealedPicksByGame] =
+  const [entries, visibleResult] =
     await Promise.all([
       listAllModelItems(
         client.models.Entry.list,
@@ -111,59 +91,18 @@ export const loadGamePickSplitViews = async ({
         },
         "Unable to load entries for pick splits.",
       ),
-      listAllModelItems(
-        client.models.Pick.list,
-        {
-          filter: {
-            seasonId: { eq: seasonId },
-          },
-          selectionSet: PICK_SUBMISSION_SELECTION,
-          authMode: "userPool",
-        },
-        "Unable to load pick submission totals.",
-      ),
-      owner
-        ? listAllModelItems(
-            client.models.Pick.list,
-            {
-              filter: {
-                seasonId: { eq: seasonId },
-                owner: { eq: owner },
-              },
-              selectionSet: PICK_REVEALED_SELECTION,
-              authMode: "userPool",
-            },
-            "Unable to load your picks for games.",
-          )
-        : Promise.resolve([]),
-      Promise.all(
-        lockedGames.map(async (game) => {
-          const picks = await listAllModelItems(
-            client.models.Pick.list,
-            {
-              filter: {
-                gameId: { eq: game.id },
-              },
-              selectionSet: PICK_REVEALED_SELECTION,
-              authMode: "userPool",
-            },
-            "Unable to load revealed pick splits.",
-          );
-
-          return [game.id, picks];
-        }),
-      ),
+      client.queries.visibleSeasonPicks({ seasonId }, { authMode: "userPool" }),
     ]);
-
-  const revealedPicksByGameId = Object.fromEntries(revealedPicksByGame);
+  throwIfGraphQLError(visibleResult, "Unable to load visible picks for games.");
+  if (!visibleResult.data) throw new Error("Unable to load visible picks for games.");
+  const visiblePicks = (visibleResult.data.picks || []).filter(Boolean);
+  const submissionCounts = new Map((visibleResult.data.submissionCounts || [])
+    .map((item) => [item.gameId, item.count]));
   const activeEntries = sortEntriesByName(
-    selectCanonicalEntriesByUser({ entries, picks: submittedPicks, seasonId }),
+    selectCanonicalEntriesByUser({ entries, picks: visiblePicks, seasonId }),
   );
   const canonicalEntryIds = new Set(activeEntries.map((entry) => entry.id));
-  const canonicalSubmittedPicks = submittedPicks.filter((pick) =>
-    canonicalEntryIds.has(pick.entryId),
-  );
-  const canonicalOwnedPicks = ownedPicks.filter((pick) =>
+  const canonicalVisiblePicks = visiblePicks.filter((pick) =>
     canonicalEntryIds.has(pick.entryId),
   );
 
@@ -171,9 +110,10 @@ export const loadGamePickSplitViews = async ({
     accumulator[game.id] = buildGamePickSplitView({
       game,
       entries: activeEntries,
-      submittedPicks: canonicalSubmittedPicks,
-      revealedPicks: revealedPicksByGameId[game.id] || [],
-      ownedPicks: canonicalOwnedPicks,
+      submittedPicks: canonicalVisiblePicks,
+      submittedCount: submissionCounts.get(game.id) ?? 0,
+      revealedPicks: canonicalVisiblePicks,
+      ownedPicks: canonicalVisiblePicks.filter((pick) => currentEntryIds.includes(pick.entryId)),
       currentEntryIds,
       now,
     });

@@ -125,6 +125,17 @@ const executePickMutation = async ({
   return result;
 };
 
+export const runSecurePickMutation = (client, { entryId, gameId, selectedTeam }) =>
+  client.mutations.saveSeasonPick(
+    { entryId, gameId, selectedTeam },
+    { authMode: "userPool" },
+  );
+
+const persistPickSelection = (client, input) =>
+  testDependencies?.savePick
+    ? testDependencies.savePick(input)
+    : runSecurePickMutation(client, input);
+
 const sanitizeIdPart = (value) =>
   String(value || "")
     .trim()
@@ -387,17 +398,7 @@ export const saveEntryState = async ({
   for (const pick of clearedPicks) {
     try {
       await executePickMutation({
-        execute: () =>
-          client.models.Pick.update(
-            {
-              id: pick.id,
-              selectedTeam: "",
-            },
-            {
-              selectionSet: PICK_SELECTION,
-              authMode: "userPool",
-            },
-          ),
+        execute: () => persistPickSelection(client, { entryId: entry.id, gameId: pick.gameId, selectedTeam: "" }),
         fallbackMessage: "Unable to clear a saved pick.",
         diagnostics: {
           correlationId,
@@ -424,17 +425,7 @@ export const saveEntryState = async ({
     if (existingPick) {
       try {
         await executePickMutation({
-          execute: () =>
-            client.models.Pick.update(
-              {
-                id: existingPick.id,
-                selectedTeam,
-              },
-              {
-                selectionSet: PICK_SELECTION,
-                authMode: "userPool",
-              },
-            ),
+          execute: () => persistPickSelection(client, { entryId: entry.id, gameId, selectedTeam }),
           fallbackMessage: "Unable to update a saved pick.",
           diagnostics: {
             correlationId,
@@ -459,21 +450,7 @@ export const saveEntryState = async ({
     const pickId = buildPickId(entry.id, gameId);
     try {
       await executePickMutation({
-        execute: () =>
-          client.models.Pick.create(
-            {
-              id: pickId,
-              seasonId,
-              entryId: entry.id,
-              gameId,
-              owner,
-              selectedTeam,
-            },
-            {
-              selectionSet: PICK_SELECTION,
-              authMode: "userPool",
-            },
-          ),
+        execute: () => persistPickSelection(client, { entryId: entry.id, gameId, selectedTeam }),
         fallbackMessage: "Unable to save a pick.",
         diagnostics: {
           correlationId,
@@ -522,10 +499,14 @@ export const saveEntryState = async ({
     entryUpdate.tieBreakerValue = normalizedTieBreakerValue;
   }
 
-  const nextEntry =
-    Object.keys(entryUpdate).length > 3
-      ? await persistEntryUpdate(entryUpdate)
-      : entry;
+  let nextEntry = entry;
+  if (Object.keys(entryUpdate).length > 3) {
+    try {
+      nextEntry = await persistEntryUpdate(entryUpdate);
+    } catch (error) {
+      await throwWithPartialPickResult(error);
+    }
+  }
 
   const refreshedPicks = await loadEntryPicks({
     entryId: entry.id,

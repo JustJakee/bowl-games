@@ -7,6 +7,7 @@ import {
   getCanonicalEntryForUser,
   getEntryById,
   listEntriesForSeason,
+  runSecureEntryMutation,
   softDeleteEntry,
   updateEntry,
 } from "./entryRepository";
@@ -28,6 +29,20 @@ const existingEntry = {
 
 afterEach(() => {
   __setEntryRepositoryDataClientForTests(null);
+});
+
+test("production Entry writes use guarded authenticated operations", async () => {
+  const calls = [];
+  const client = { mutations: {
+    createSeasonEntry: async (...args) => { calls.push(["create", ...args]); return { data: existingEntry }; },
+    updateSeasonEntry: async (...args) => { calls.push(["update", ...args]); return { data: existingEntry }; },
+  } };
+  await runSecureEntryMutation(client, "createSeasonEntry", { seasonId: "test26-r2", entryName: "Test", contactEmail: "player@example.com" });
+  await runSecureEntryMutation(client, "updateSeasonEntry", { entryId: "e1", tieBreakerValue: 42 });
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls[0][1], { seasonId: "test26-r2", entryName: "Test", contactEmail: "player@example.com" });
+  assert.deepEqual(calls[1][1], { entryId: "e1", tieBreakerValue: 42 });
+  assert.equal(calls[0][2].authMode, "userPool");
 });
 
 test("createEntry omits id and returns Amplify's generated response ID", async () => {

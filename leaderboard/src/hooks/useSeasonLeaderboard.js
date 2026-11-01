@@ -43,6 +43,7 @@ export const useSeasonLeaderboard = () => {
             entries: result.entries,
             picks: result.picks,
             games: allGames,
+            completeEntryIds: result.completeEntryIds,
             usernamesByOwner: result.usernamesByOwner,
           }),
         });

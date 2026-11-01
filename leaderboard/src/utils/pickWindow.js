@@ -11,6 +11,15 @@ export const isPickWindowLocked = (picksLockAt, now = Date.now()) => {
   return Number.isFinite(deadline) && deadline <= now;
 };
 
+// The stored lifecycle remains operator-controlled; readers derive the effective
+// in-season state at the same global deadline used by pick controls.
+export const getEffectiveSeasonStatus = ({ seasonStatus, picksLockAt, now = Date.now() } = {}) => {
+  const status = String(seasonStatus || "").toLowerCase();
+  return status === "open" && isPickWindowLocked(picksLockAt, now)
+    ? "locked"
+    : status;
+};
+
 // The season lifecycle is the explicit operator-controlled source of truth.
 // The deadline remains a safety net and lets the UI lock itself at the exact
 // configured instant even before the next season refresh arrives.
