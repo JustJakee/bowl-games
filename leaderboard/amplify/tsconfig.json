@@ -1,5 +1,7 @@
 {
+  "extends": "../tsconfig.amplify.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": false,
     "paths": {
       "$amplify/*": ["../.amplify/generated/*"]
     }
