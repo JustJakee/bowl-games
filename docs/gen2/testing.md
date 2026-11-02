@@ -23,6 +23,17 @@ previous placeholder description.
 Backend rule/seed tests use Node's test runner; frontend-oriented suites use
 `tsx --test`. Check `package.json` for the current exact file lists.
 
+Registration also runs production-handler/frontend contract tests. The offline
+synthesis step validates generated registration GraphQL arguments and dispatch
+templates, then replays the generated Lambda request payload through those
+tests. See the [dispatch regression](../backend/gen2-registration-dispatch-fix.md).
+
+Secure-picks also runs real-handler contract tests for all four operations.
+Synthesis verifies their schema arguments, player-group authorization stages,
+pipeline invocation linkage, and generated payloads before replaying those
+payloads through the tests. The custom Lambda field inventory must remain covered.
+See the [secure-picks follow-up](../backend/gen2-secure-picks-dispatch-fix.md).
+
 Additional checks:
 
 ```bash

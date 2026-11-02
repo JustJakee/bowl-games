@@ -3,6 +3,20 @@ import { Alert, Box, Button, CircularProgress, Stack, Typography } from "@mui/ma
 import Panel from "../components/common/Panel";
 import { approveRegistration, listPendingRegistrations } from "../data/registrationRepository";
 
+export function RegistrationResults({ loading, error, pending, approving, onApprove }) {
+  return <>
+    {loading ? <CircularProgress size={24} /> : null}
+    {!loading && !error && pending.length === 0 ? <Typography>No verified accounts are waiting for approval.</Typography> : null}
+    {!loading && pending.map((user) => <Box key={user.username} sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center", justifyContent: "space-between", borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
+      <Box>
+        <Typography fontWeight={700}>{user.email}</Typography>
+        <Typography variant="caption" color="text.secondary">Registered {user.createdAt ? new Date(user.createdAt).toLocaleString() : "recently"}</Typography>
+      </Box>
+      <Button variant="contained" disabled={Boolean(approving)} onClick={() => onApprove(user.username)}>{approving === user.username ? "Approving..." : "Approve player"}</Button>
+    </Box>)}
+  </>;
+}
+
 export default function AdminRegistrationsPage() {
   const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,15 +65,7 @@ export default function AdminRegistrationsPage() {
     <Panel>
       <Stack spacing={2}>
         <Button variant="outlined" onClick={refresh} disabled={loading || Boolean(approving)} sx={{ alignSelf: "flex-start" }}>Refresh registrations</Button>
-        {loading ? <CircularProgress size={24} /> : null}
-        {!loading && pending.length === 0 ? <Typography>No verified accounts are waiting for approval.</Typography> : null}
-        {!loading && pending.map((user) => <Box key={user.username} sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center", justifyContent: "space-between", borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
-          <Box>
-            <Typography fontWeight={700}>{user.email}</Typography>
-            <Typography variant="caption" color="text.secondary">Registered {user.createdAt ? new Date(user.createdAt).toLocaleString() : "recently"}</Typography>
-          </Box>
-          <Button variant="contained" disabled={Boolean(approving)} onClick={() => approve(user.username)}>{approving === user.username ? "Approving..." : "Approve player"}</Button>
-        </Box>)}
+        <RegistrationResults loading={loading} error={error} pending={pending} approving={approving} onApprove={approve} />
       </Stack>
     </Panel>
   </Stack>;

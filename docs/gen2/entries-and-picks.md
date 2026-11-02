@@ -49,6 +49,11 @@ also live in `src/app/singlePickSetWorkflow.test.js`.
 
 ## Server-enforced write rules
 
+The custom Lambda dispatch uses top-level `event.fieldName`, as emitted by the
+generated AppSync resolver. See the [secure-picks dispatch regression](../backend/gen2-secure-picks-dispatch-fix.md)
+for the four affected operations, generated-payload replay tests, and combined
+staging verification requirements.
+
 [secure-picks/rules.mjs](../../leaderboard/amplify/data/secure-picks/rules.mjs)
 and [handler.js](../../leaderboard/amplify/data/secure-picks/handler.js) enforce:
 

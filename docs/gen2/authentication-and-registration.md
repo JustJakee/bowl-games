@@ -32,6 +32,11 @@ Password reset and new-password flows remain in the auth UI. Profile data or
 
 ## Approval implementation
 
+The generated AppSync Lambda payload uses top-level `fieldName`, `typeName`,
+`arguments`, and `identity`. Registration dispatch must use `event.fieldName`,
+not `event.info.fieldName`. See the [dispatch regression and fix](../backend/gen2-registration-dispatch-fix.md)
+for the request trace, contract tests, and post-deployment checks.
+
 - [registrationRepository.js](../../leaderboard/src/data/registrationRepository.js)
   calls admin-only AppSync operations.
 - [registration-admin/handler.js](../../leaderboard/amplify/data/registration-admin/handler.js)

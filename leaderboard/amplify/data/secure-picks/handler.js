@@ -204,9 +204,10 @@ const visiblePicks = async (event) => {
 };
 
 export const handler = async (event) => {
-  if (event.info?.fieldName === "saveSeasonPick") return savePick(event);
-  if (event.info?.fieldName === "visibleSeasonPicks") return visiblePicks(event);
-  if (event.info?.fieldName === "createSeasonEntry") return createEntry(event);
-  if (event.info?.fieldName === "updateSeasonEntry") return updateEntry(event);
+  // Amplify's @function resolver sends the GraphQL field at the top level.
+  if (event.fieldName === "saveSeasonPick") return savePick(event);
+  if (event.fieldName === "visibleSeasonPicks") return visiblePicks(event);
+  if (event.fieldName === "createSeasonEntry") return createEntry(event);
+  if (event.fieldName === "updateSeasonEntry") return updateEntry(event);
   throw new Error("Unsupported pick operation.");
 };

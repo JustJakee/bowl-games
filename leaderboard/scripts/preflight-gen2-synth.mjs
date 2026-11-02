@@ -5,6 +5,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { tsImport } from "tsx/esm/api";
 import ts from "typescript";
 import { compileProject } from "../node_modules/@aws-amplify/backend-deployer/lib/ts_compiler.js";
+import { verifyRegistrationResolverContract } from "./tests/registration-resolver-contract.mjs";
+import { verifySecurePicksResolverContract } from "./tests/secure-picks-resolver-contract.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const generatedDir = path.join(projectRoot, ".amplify");
@@ -75,6 +77,8 @@ try {
   }
   // Amplify's deployer runs this compiler after synthesis, when generated env types exist.
   compileProject(path.join(projectRoot, "amplify"));
+  await verifyRegistrationResolverContract(outputDir, projectRoot);
+  await verifySecurePicksResolverContract(outputDir, projectRoot);
   console.log("Amplify backend synthesized, Lambda bundled, and backend-local TypeScript validated.");
 } finally {
   await removeCreatedDirectory(outputDir);

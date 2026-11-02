@@ -42,7 +42,8 @@ const approveRegistration = (username) => approveVerifiedPlayer({
 
 export const handler = async (event) => {
   assertAdminIdentity(event.identity);
-  if (event.info?.fieldName === "listPendingRegistrations") return listPendingRegistrations();
-  if (event.info?.fieldName === "approveRegistration") return approveRegistration(event.arguments?.username);
+  // Amplify's @function resolver flattens ctx.info into typeName/fieldName.
+  if (event.fieldName === "listPendingRegistrations") return listPendingRegistrations();
+  if (event.fieldName === "approveRegistration") return approveRegistration(event.arguments?.username);
   throw new Error("Unsupported registration operation.");
 };
