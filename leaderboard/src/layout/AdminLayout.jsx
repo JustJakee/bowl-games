@@ -27,6 +27,7 @@ import { isAdminGameManagementEnabled } from "../utils/adminGameManagement";
 import { usePickWindowLocked } from "../hooks/usePickWindowLocked";
 import { getEffectiveSeasonStatus } from "../utils/pickWindow";
 import Panel from "../components/common/Panel";
+import BuilderCredit from "../components/common/BuilderCredit";
 
 const AdminLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -187,6 +188,7 @@ const AdminLayout = () => {
           <LogoutRoundedIcon fontSize="small" />
           <Typography>Sign Out</Typography>
         </ButtonBase>
+        <BuilderCredit />
       </Stack>
 
       <Box
@@ -252,6 +254,7 @@ const AdminLayout = () => {
               <ListItemText primary="Sign Out" />
             </ListItemButton>
           </List>
+          <BuilderCredit />
         </Stack>
       </Drawer>
     </Box>

@@ -1,11 +1,14 @@
 # Leaderboard Frontend
 
+See the [Gen 2 development notes](../docs/gen2/README.md) for architecture,
+feature behavior, local setup, deployment, testing, and future development.
+
 ## Amplify Auth Note
 
-Frontend auth reads `amplify_outputs.json` at runtime and does not hardcode
-AWS identifiers in source. Local auth testing requires a generated
-`leaderboard/amplify_outputs.json` so the Vite app can serve it from `public/`
-during `npm run dev`, `npm start`, or `npm run build`.
+The shared Amplify client imports `leaderboard/amplify_outputs.json` before
+creating the Data client. Generate that file for the existing staging backend
+before starting or building the app. The predev/prestart/prebuild hooks also
+copy it to `public/`. See [local setup](../docs/gen2/local-development.md).
 
 This repo is not using local `ampx sandbox` right now. The current validation
 path for auth is the Amplify Console branch deployment, which generates
@@ -18,6 +21,8 @@ In the `leaderboard` directory:
 ### `npm run dev`
 
 Starts the Vite dev server.
+
+Open http://localhost:5174. The server uses a strict port.
 
 ### `npm start`
 
@@ -33,4 +38,6 @@ Serves the production build locally from `dist/`.
 
 ### `npm test`
 
-Placeholder script. No test runner is configured for this migration.
+Runs the focused entry, picks, leaderboard, schedule, dashboard, seed,
+secure-picks, registration, and season-experience suites. See the
+[test map](../docs/gen2/testing.md).

@@ -1,4 +1,10 @@
 # Bob's Bowl Game Pick'em 🏈
+
+## Development documentation
+
+Start with the [Gen 2 development notes](docs/gen2/README.md) for local setup,
+architecture, feature changes, deployment, testing, and future work.
+
 ![built-by-two-jakes](https://github.com/user-attachments/assets/55e48820-2564-4243-86eb-59c5ec4e99e0)
 
 ## Languages and Frameworks used: 

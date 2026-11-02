@@ -1,5 +1,10 @@
 # Amplify Gen 2 Console Deployment
 
+> Historical milestone: this document describes the initial auth-only staging
+> setup. Later work added the data layer, frontend integration, Vite, and
+> `amplify.yml`. Use the [current Gen 2 notes](../gen2/README.md) and
+> [deployment guide](../gen2/deployment.md) for the current implementation.
+
 ## Purpose
 
 This branch is prepared for deployment as a separate staging Amplify app through the AWS Amplify Console.

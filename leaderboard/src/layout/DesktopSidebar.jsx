@@ -9,6 +9,7 @@ import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded
 import { Box, ButtonBase, Divider, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
+import BuilderCredit from "../components/common/BuilderCredit";
 
 export const DESKTOP_SIDEBAR_WIDTH = {
   lg: "220px",
@@ -182,6 +183,7 @@ const DesktopSidebar = ({ signOut }) => {
           </Typography>
         </ButtonBase>
       </Stack>
+      <BuilderCredit />
     </Box>
   );
 };

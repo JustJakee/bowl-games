@@ -24,6 +24,7 @@ import ScoreboardStrip from "../components/scoreboard/ScoreboardStrip";
 import DesktopSidebar, { DESKTOP_SIDEBAR_WIDTH } from "./DesktopSidebar";
 import MobileHeader from "./MobileHeader";
 import MobileBottomNavigation from "./MobileBottomNavigation";
+import BuilderCredit from "../components/common/BuilderCredit";
 
 const drawerLinks = [
   { to: "/rules", label: "Rules", icon: <MenuBookRoundedIcon /> },
@@ -176,6 +177,7 @@ const AppShell = () => {
               <ListItemText primary="Sign Out" />
             </ListItemButton>
           </List>
+          <BuilderCredit />
         </Stack>
       </Drawer>
     </Box>
