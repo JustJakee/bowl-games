@@ -68,9 +68,10 @@ try {
   const manifest = JSON.parse(await readFile(path.join(outputDir, "manifest.json"), "utf8"));
   const generatedEnv = path.join(generatedDir, "generated", "env", "secure-picks.ts");
   const envSource = await readFile(generatedEnv, "utf8");
+  const registrationEnv = await readFile(path.join(generatedDir, "generated", "env", "registration-admin.ts"), "utf8");
   const outputFiles = await readdir(outputDir);
-  if (!Object.keys(manifest.artifacts || {}).length || !envSource.includes("process.env") || outputFiles.length === 0) {
-    throw new Error("Amplify synthesis did not produce the expected assembly and secure-picks environment module.");
+  if (!Object.keys(manifest.artifacts || {}).length || !envSource.includes("process.env") || !registrationEnv.includes("AMPLIFY_AUTH_USERPOOL_ID") || outputFiles.length === 0) {
+    throw new Error("Amplify synthesis did not produce the expected assembly and function environment modules.");
   }
   // Amplify's deployer runs this compiler after synthesis, when generated env types exist.
   compileProject(path.join(projectRoot, "amplify"));

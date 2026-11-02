@@ -1,4 +1,12 @@
 .winners-podium {
+  --color-surface: #0d1b31;
+  --color-surface-2: #122440;
+  --color-border: #29415d;
+  --color-text: #f5f8ff;
+  --color-muted: #9fb2ca;
+  --accent-primary: #ffcb05;
+  --accent-contrast: #08111f;
+  --page-bottom-gap: 48px;
   margin-top: 16px;
   margin-bottom: var(--page-bottom-gap);
   display: flex;
@@ -17,7 +25,7 @@
     radial-gradient(circle at 82% 0%, rgba(75, 146, 219, 0.2), transparent 45%),
     var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 20px;
+  border-radius: 6px;
   padding: 20px 24px;
   text-align: center;
   box-shadow: none;
@@ -58,7 +66,7 @@
 }
 
 .winners-podium__grid-card {
-  border-radius: 24px;
+  border-radius: 6px;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--color-border);
@@ -88,7 +96,7 @@
 }
 
 .winners-podium__card {
-  border-radius: 18px;
+  border-radius: 6px;
   padding: 16px;
   text-align: center;
   border: 1px solid var(--color-border);
@@ -207,7 +215,7 @@
 
 .winners-podium__suggestions-card {
   width: 100%;
-  border-radius: 20px;
+  border-radius: 6px;
   border: 1px solid var(--color-border);
   background:
     linear-gradient(
@@ -259,7 +267,7 @@
 }
 
 .winners-podium__suggestions-textarea {
-  border-radius: 14px;
+  border-radius: 4px;
   border: 1px solid var(--color-border);
   background: var(--color-surface-2);
   color: var(--color-text);
@@ -273,7 +281,7 @@
 .winners-podium__suggestions-textarea:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px rgba(204, 0, 0, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 203, 5, 0.25);
 }
 
 .winners-podium__suggestions-actions {
@@ -285,13 +293,9 @@
 }
 
 .winners-podium__suggestions-button {
-  border-radius: 12px;
-  border: 1px solid rgba(97, 189, 86, 0.6);
-  background: linear-gradient(
-    120deg,
-    rgba(97, 189, 86, 0.4),
-    rgba(97, 189, 86, 0.16)
-  );
+  border-radius: 4px;
+  border: 1px solid var(--accent-primary);
+  background: var(--accent-primary);
   color: var(--accent-contrast);
   font-weight: 700;
   letter-spacing: 0.04em;

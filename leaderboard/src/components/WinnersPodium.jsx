@@ -1,39 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/winners-podium.css";
 
-const TIEBREAKER_TOTAL = 61;
-
-const WINNERS = [
-  {
-    place: 1,
-    name: "Jeff Gumm",
-    picks: 25,
-    winnings: 110,
-    tiebreakerGuess: 48,
-  },
-  {
-    place: 2,
-    name: "David Newell",
-    picks: 25,
-    winnings: 50,
-    tiebreakerGuess: 42,
-  },
-  {
-    place: 3,
-    name: "Blythe",
-    picks: 24,
-    winnings: 30,
-    tiebreakerGuess: 57,
-  },
-  {
-    place: 4,
-    name: "Roll Tide!!!",
-    picks: 24,
-    winnings: 10,
-    tiebreakerGuess: 53,
-  },
-];
-
 const PLACE_LABELS = {
   1: "1st Place",
   2: "2nd Place",
@@ -47,11 +14,7 @@ const SUGGESTION_FIELD_ID = "entry.187247892";
 const SUGGESTION_COOLDOWN_MS = 60 * 60 * 1000;
 const SUGGESTION_COOLDOWN_KEY = "bowlSuggestionsCooldownUntil";
 
-const WinnersPodium = () => {
-  const winners = WINNERS.map((winner) => ({
-    ...winner,
-    tiebreakerMargin: Math.abs(TIEBREAKER_TOTAL - winner.tiebreakerGuess),
-  })).sort((a, b) => a.place - b.place);
+const WinnersPodium = ({ season, winners = [], tiebreakerTotal = null }) => {
   const [suggestion, setSuggestion] = useState("");
   const [submitState, setSubmitState] = useState("idle");
   const [submitMessage, setSubmitMessage] = useState("");
@@ -116,18 +79,19 @@ const WinnersPodium = () => {
   return (
     <section className="winners-podium" aria-label="Season winners podium">
       <div className="winners-podium__header">
-        <p className="winners-podium__eyebrow">Bowl Season 2025</p>
+        <p className="winners-podium__eyebrow">{season?.name || "Previous season"}</p>
         <h2 className="winners-podium__title">
-          BOWL SEASON IS OVER SEE YOU NEXT YEAR
+          PREVIOUS SEASON RESULTS
         </h2>
-        <p className="winners-podium__subtitle">CONGRATS TO OUR WINNERS!</p>
+        <p className="winners-podium__subtitle">{winners.length ? "CONGRATS TO OUR WINNERS!" : "RESULTS WILL APPEAR WHEN AVAILABLE"}</p>
         <p className="winners-podium__meta">
-          Tiebreaker total: {TIEBREAKER_TOTAL}
+          {tiebreakerTotal === null ? "Final tiebreaker total unavailable" : `Tiebreaker total: ${tiebreakerTotal}`}
         </p>
       </div>
 
       <div className="winners-podium__grid-card">
         <div className="winners-podium__grid">
+          {winners.length === 0 ? <p>Previous season results are not available yet.</p> : null}
           {winners.map((winner) => (
             <div
               key={winner.place}
@@ -141,12 +105,12 @@ const WinnersPodium = () => {
                 <span className="winners-podium__badge">
                   {winner.picks} picks
                 </span>
-                <span className="winners-podium__badge winners-podium__badge--margin">
+                {winner.tiebreakerMargin !== null ? <span className="winners-podium__badge winners-podium__badge--margin">
                   Tie Breaker Margin {winner.tiebreakerMargin}
-                </span>
-                <span className="winners-podium__badge winners-podium__badge--cash">
+                </span> : null}
+                {winner.winnings !== undefined ? <span className="winners-podium__badge winners-podium__badge--cash">
                   {`$${winner.winnings} winnings`}
-                </span>
+                </span> : null}
               </div>
             </div>
           ))}

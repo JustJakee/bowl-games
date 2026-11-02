@@ -1,8 +1,9 @@
 // UI - DASHBOARD - REACT
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Box, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppData } from "../app/AppDataContext.jsx";
+import { useScoreboard } from "../context/NCAAFDataContext.jsx";
 import { useUserProfile } from "../auth/UserProfileContext.jsx";
 import { useSeasonLeaderboard } from "../hooks/useSeasonLeaderboard";
 import DashboardHero from "../components/dashboard/DashboardHero";
@@ -12,8 +13,10 @@ import UpcomingBowlsCard from "../components/dashboard/UpcomingBowlsCard";
 import SeasonStatusPanel from "../components/dashboard/SeasonStatusPanel";
 import { buildDashboardEntries } from "../utils/dashboardEntryProgress";
 import { dashboardQuickLinks } from "../data/dashboardMockData";
+import { shouldShowSeasonPending } from "../utils/seasonExperience";
+import SeasonPendingPage from "./SeasonPendingPage.jsx";
 
-const DashboardPage = () => {
+const ActiveDashboardPage = () => {
   const { profile } = useUserProfile();
   const {
     currentEntry,
@@ -109,6 +112,28 @@ const DashboardPage = () => {
       </Box>
     </Box>
   );
+};
+
+const DashboardPage = () => {
+  const { season, seasonConfig, rawGames } = useScoreboard();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    let timer;
+    const refreshAtBoundary = () => {
+      const current = Date.now();
+      setNow(current);
+      const nextBoundary = [seasonConfig?.picksOpenAt, seasonConfig?.picksLockAt]
+        .map((value) => Date.parse(value || ""))
+        .filter((value) => Number.isFinite(value) && value > current)
+        .sort((left, right) => left - right)[0];
+      if (nextBoundary) timer = window.setTimeout(refreshAtBoundary, Math.min(nextBoundary - current + 1, 2_147_483_647));
+    };
+    refreshAtBoundary();
+    return () => window.clearTimeout(timer);
+  }, [seasonConfig?.picksOpenAt, seasonConfig?.picksLockAt]);
+  return shouldShowSeasonPending({ season, seasonConfig, games: rawGames, now })
+    ? <SeasonPendingPage season={season} seasonConfig={seasonConfig} />
+    : <ActiveDashboardPage />;
 };
 
 export default DashboardPage;

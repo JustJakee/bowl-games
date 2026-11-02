@@ -1,6 +1,7 @@
 // DATA — APP — AMPLIFY DATA
 // Model rules deny direct player writes; guarded operations enforce ownership and deadlines.
 import { a, defineData, defineFunction, type ClientSchema } from "@aws-amplify/backend";
+import { registrationAdmin } from "./registration-admin/resource.ts";
 
 const securePicks = defineFunction({
   name: "secure-picks",
@@ -38,13 +39,13 @@ const schema = a.schema({
             .to(["create", "read", "update"]),
           allow.group("admin").to(["read", "update"]),
         ]),
-      // Required player-facing display name. Authenticated reads support leaderboards; only
+      // Required player-facing display name. Approved player reads support leaderboards; only
       // the owner or an admin can write it.
       username: a
         .string()
         .required()
         .authorization((allow) => [
-          allow.authenticated().to(["read"]),
+          allow.group("player").to(["read"]),
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
@@ -52,12 +53,12 @@ const schema = a.schema({
           allow.group("admin").to(["read", "update"]),
         ]),
       // Required normalized username for lookup/availability checks, with the same write
-      // boundary as `username` and broad authenticated reads for discovery.
+      // boundary as `username` and approved player reads for discovery.
       usernameKey: a
         .string()
         .required()
         .authorization((allow) => [
-          allow.authenticated().to(["read"]),
+          allow.group("player").to(["read"]),
           allow
             .ownerDefinedIn("owner")
             .identityClaim("sub")
@@ -75,11 +76,11 @@ const schema = a.schema({
       index("owner").queryField("userProfileByOwner"),
       index("usernameKey").queryField("userProfileByUsernameKey"),
     ])
-    // Signed-in users may read profiles for standings. A matching Cognito `sub` may
+    // Approved players may read profiles for standings. A matching Cognito `sub` may
     // create/read/update its profile, while the `admin` group may read/update/delete it.
     // Field-level rules above further restrict protected values.
     .authorization((allow) => [
-      allow.authenticated().to(["read"]),
+      allow.group("player").to(["read"]),
       allow
         .ownerDefinedIn("owner")
         .identityClaim("sub")
@@ -114,9 +115,9 @@ const schema = a.schema({
     })
     // Creates a slug index and generated `seasonBySlug` query for route-level lookup.
     .secondaryIndexes((index) => [index("slug").queryField("seasonBySlug")])
-    // All authenticated players can read seasons; admins receive the full default operation set.
+    // Approved players can read seasons; admins receive the full default operation set.
     .authorization((allow) => [
-      allow.authenticated().to(["read"]),
+      allow.group("player").to(["read"]),
       allow.group("admin"),
     ]),
 
@@ -144,7 +145,7 @@ const schema = a.schema({
     ])
     // Players may read configuration; admins receive the full default operation set.
     .authorization((allow) => [
-      allow.authenticated().to(["read"]),
+      allow.group("player").to(["read"]),
       allow.group("admin"),
     ]),
 
@@ -202,9 +203,9 @@ const schema = a.schema({
     .secondaryIndexes((index) => [
       index("seasonId").sortKeys(["kickoffAt"]).queryField("gamesBySeason"),
     ])
-    // Schedule/results are readable by authenticated players; admins receive all operations.
+    // Schedule/results are readable by approved players; admins receive all operations.
     .authorization((allow) => [
-      allow.authenticated().to(["read"]),
+      allow.group("player").to(["read"]),
       allow.group("admin"),
     ]),
 
@@ -316,11 +317,11 @@ const schema = a.schema({
         .sortKeys(["entryNameKey"])
         .queryField("entriesBySeasonAndEntryNameKey"),
     ])
-    // Authenticated users can read leaderboard-safe Entry data. Player writes use guarded
+    // Approved players can read leaderboard-safe Entry data. Player writes use guarded
     // operations so deadline and persisted ownership checks cannot be skipped.
     // Explicit `sub` must match field-level owner rules to avoid duplicate generated owner args.
     .authorization((allow) => [
-      allow.authenticated().to(["read"]),
+      allow.group("player").to(["read"]),
       allow
         .ownerDefinedIn("owner")
         .identityClaim("sub")
@@ -405,23 +406,37 @@ const schema = a.schema({
   saveSeasonPick: a.mutation()
     .arguments({ entryId: a.id().required(), gameId: a.id().required(), selectedTeam: a.string().required() })
     .returns(a.ref("VisiblePick"))
-    .authorization((allow) => [allow.authenticated()])
+    .authorization((allow) => [allow.group("player")])
     .handler(a.handler.function(securePicks)),
   createSeasonEntry: a.mutation()
     .arguments({ seasonId: a.id().required(), entryName: a.string().required(), contactEmail: a.email().required(), userProfileId: a.id() })
     .returns(a.ref("Entry"))
-    .authorization((allow) => [allow.authenticated()])
+    .authorization((allow) => [allow.group("player")])
     .handler(a.handler.function(securePicks)),
   updateSeasonEntry: a.mutation()
     .arguments({ entryId: a.id().required(), entryName: a.string(), contactEmail: a.email(), tieBreakerValue: a.integer(), userProfileId: a.id(), isDeleted: a.boolean() })
     .returns(a.ref("Entry"))
-    .authorization((allow) => [allow.authenticated()])
+    .authorization((allow) => [allow.group("player")])
     .handler(a.handler.function(securePicks)),
   visibleSeasonPicks: a.query()
     .arguments({ seasonId: a.id().required() })
     .returns(a.ref("VisibleSeasonPicks"))
-    .authorization((allow) => [allow.authenticated()])
+    .authorization((allow) => [allow.group("player")])
     .handler(a.handler.function(securePicks)),
+  PendingRegistration: a.customType({
+    username: a.string().required(),
+    email: a.email().required(),
+    createdAt: a.datetime(),
+  }),
+  listPendingRegistrations: a.query()
+    .returns(a.ref("PendingRegistration").array())
+    .authorization((allow) => [allow.group("admin")])
+    .handler(a.handler.function(registrationAdmin)),
+  approveRegistration: a.mutation()
+    .arguments({ username: a.string().required() })
+    .returns(a.boolean())
+    .authorization((allow) => [allow.group("admin")])
+    .handler(a.handler.function(registrationAdmin)),
 
   AdminAction: a
     // ADMIN — PAYMENT STATUS — AMPLIFY DATA

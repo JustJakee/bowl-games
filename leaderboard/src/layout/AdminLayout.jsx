@@ -19,6 +19,7 @@ import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import HowToRegRoundedIcon from "@mui/icons-material/HowToRegRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { useAuth } from "../auth/AuthContext";
 import { useScoreboard } from "../context/NCAAFDataContext";
@@ -38,12 +39,13 @@ const AdminLayout = () => {
   const isAdmin = role === "admin";
 
   if (!isAdmin) return <Navigate to="/dashboard" replace />;
-  if (loading || !season) {
+  if (loading) {
     return <Box sx={{ p: 3 }}>Loading admin workspace...</Box>;
   }
 
   const testSeason = isAdminGameManagementEnabled(season);
   const items = [
+    { to: "/admin/registrations", label: "Approvals", icon: <HowToRegRoundedIcon /> },
     { to: "/admin/entries", label: "Entries", icon: <ListAltRoundedIcon /> },
     ...(testSeason
       ? [
@@ -61,7 +63,7 @@ const AdminLayout = () => {
       <Typography variant="overline" color="text.secondary">
         Season
       </Typography>
-      <Typography sx={{ fontWeight: 800 }}>{season.name}</Typography>
+      <Typography sx={{ fontWeight: 800 }}>{season?.name || "No selected season"}</Typography>
       {testSeason ? (
         <Typography variant="caption" color="primary.main">
           Test Season

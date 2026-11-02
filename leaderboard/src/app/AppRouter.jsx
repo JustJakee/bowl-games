@@ -11,6 +11,7 @@ import RulesPage from "../pages/RulesPage.jsx";
 import MorePage from "../pages/MorePage.jsx";
 import AdminEntriesPage from "../pages/AdminEntriesPage.jsx";
 import AdminGamesPage from "../pages/AdminGamesPage.jsx";
+import AdminRegistrationsPage from "../pages/AdminRegistrationsPage.jsx";
 import ScrollToTop from "../layout/ScrollToTop.jsx";
 
 const AppRouter = () => {
@@ -31,6 +32,7 @@ const AppRouter = () => {
           <Route path="/admin" element={<Navigate to="/admin/entries" replace />} />
           <Route path="/admin/entries" element={<AdminEntriesPage />} />
           <Route path="/admin/games" element={<AdminGamesPage />} />
+          <Route path="/admin/registrations" element={<AdminRegistrationsPage />} />
           <Route path="/admin/account" element={<MorePage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>

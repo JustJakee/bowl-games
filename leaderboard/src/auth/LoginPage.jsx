@@ -17,6 +17,7 @@ const LoginPage = ({
   error = "",
   success = "",
   onForgotPassword,
+  onRegister,
   onSubmit,
 }) => {
   const [email, setEmail] = useState(defaultEmail);
@@ -108,13 +109,16 @@ const LoginPage = ({
         >
           Forgot your password?
         </Button>
+        <Button type="button" variant="text" onClick={onRegister}>
+          Create an account
+        </Button>
       </Stack>
       <Typography
         variant="caption"
         color="text.secondary"
         sx={{ display: "block", textAlign: "center", mt: 3.5 }}
       >
-        Need access? Contact the administrator.
+        New accounts can register here and await administrator approval after email verification.
       </Typography>
     </AuthFormLayout>
   );

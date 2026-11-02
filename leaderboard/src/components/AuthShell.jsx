@@ -16,9 +16,13 @@ import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
 import { alpha } from "@mui/material/styles";
 import {
   confirmResetPassword,
+  confirmSignUp,
   confirmSignIn,
+  fetchAuthSession,
   resetPassword,
+  resendSignUpCode,
   signIn,
+  signUp,
 } from "aws-amplify/auth";
 import { useAuth } from "../auth/AuthContext";
 import {
@@ -33,6 +37,8 @@ import {
 } from "../auth/userProfile";
 import { themeTokens } from "../theme/theme";
 import LoginPage from "../auth/LoginPage.jsx";
+import RegisterPage from "../auth/RegisterPage.jsx";
+import ConfirmRegistrationPage from "../auth/ConfirmRegistrationPage.jsx";
 import ResetPasswordForm from "../auth/ResetPasswordForm.jsx";
 import ConfirmResetPasswordForm from "../auth/ConfirmResetPasswordForm.jsx";
 import NewPasswordForm from "../auth/NewPasswordForm.jsx";
@@ -283,7 +289,7 @@ const ProfileGate = ({ children }) => {
 };
 
 const AuthShell = ({ children }) => {
-  const { isAuthenticated, isConfigured, isLoading } = useAuth();
+  const { isAuthenticated, isConfigured, isLoading, role, email: signedInEmail, signOut } = useAuth();
   const [authView, setAuthView] = useState("signIn");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -300,6 +306,13 @@ const AuthShell = ({ children }) => {
     const step = result?.nextStep?.signInStep;
 
     if (step === "DONE" || result?.isSignedIn) {
+      return;
+    }
+
+    if (step === "CONFIRM_SIGN_UP") {
+      setEmail(currentEmail);
+      setAuthView("confirmRegistration");
+      setInfo("Verify your email before signing in.");
       return;
     }
 
@@ -355,6 +368,11 @@ const AuthShell = ({ children }) => {
 
       await handleSignInNextStep(result, submittedEmail.trim());
     } catch (signInError) {
+      if (signInError?.name === "UserNotConfirmedException") {
+        setAuthView("confirmRegistration");
+        setInfo("Verify your email before signing in.");
+        return;
+      }
       setError(
         mapAuthErrorMessage(
           signInError,
@@ -362,6 +380,47 @@ const AuthShell = ({ children }) => {
         ),
       );
       throw signInError;
+    }
+  };
+
+  const handleRegister = async ({ email: submittedEmail, password }) => {
+    resetMessages();
+    setEmail(submittedEmail);
+    try {
+      const result = await signUp({ username: submittedEmail, password, options: { userAttributes: { email: submittedEmail } } });
+      if (result?.nextStep?.signUpStep === "CONFIRM_SIGN_UP") {
+        setAuthView("confirmRegistration");
+        setInfo("A verification code was sent to your email.");
+      } else if (result?.isSignUpComplete) {
+        setAuthView("signIn");
+        setSuccess("Account created. Sign in and wait for administrator approval.");
+      } else {
+        setError("Registration needs another verification step. Contact the administrator.");
+      }
+    } catch (registrationError) {
+      setError(mapAuthErrorMessage(registrationError, "Unable to register. Check your details and try again."));
+    }
+  };
+
+  const handleConfirmRegistration = async (confirmationCode) => {
+    resetMessages();
+    try {
+      const result = await confirmSignUp({ username: email.trim(), confirmationCode });
+      if (!result?.isSignUpComplete) throw new Error("Registration verification is incomplete.");
+      setAuthView("signIn");
+      setSuccess("Email verified. Sign in to check your approval status.");
+    } catch (confirmationError) {
+      setError(mapAuthErrorMessage(confirmationError, "Could not verify the code. Try again."));
+    }
+  };
+
+  const handleResendRegistrationCode = async () => {
+    resetMessages();
+    try {
+      await resendSignUpCode({ username: email.trim() });
+      setInfo("A new verification code was sent to your email.");
+    } catch (resendError) {
+      setError(mapAuthErrorMessage(resendError, "Could not resend the code. Try again later."));
     }
   };
 
@@ -492,8 +551,15 @@ const AuthShell = ({ children }) => {
               setAuthView("forgotPassword");
             }}
             onSubmit={handleSignIn}
+            onRegister={() => {
+              resetMessages();
+              setAuthView("register");
+            }}
           />
         ) : null}
+
+        {authView === "register" ? <RegisterPage error={error} onSubmit={handleRegister} onBack={() => { resetMessages(); setAuthView("signIn"); }} /> : null}
+        {authView === "confirmRegistration" ? <ConfirmRegistrationPage email={email} error={error} info={info} onSubmit={handleConfirmRegistration} onResend={handleResendRegistrationCode} onBack={() => { resetMessages(); setAuthView("signIn"); }} /> : null}
 
         {authView === "forgotPassword" ? (
           <ResetPasswordForm
@@ -525,6 +591,28 @@ const AuthShell = ({ children }) => {
         ) : null}
       </GateFrame>
     );
+  }
+
+  if (role !== "player" && role !== "admin") {
+    return <GateFrame>
+      <Typography variant="h6">Awaiting administrator approval</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        {signedInEmail || "Your verified account"} is registered. An administrator must approve player access before you can enter the pool.
+      </Typography>
+      <Stack spacing={1.5} sx={{ mt: 3 }}>
+        {error ? <Alert severity="error">{error}</Alert> : null}
+        <Button variant="contained" onClick={async () => {
+          setError("");
+          try {
+            await fetchAuthSession({ forceRefresh: true });
+            window.location.reload();
+          } catch (refreshError) {
+            setError(mapAuthErrorMessage(refreshError, "Unable to refresh approval status. Try signing in again."));
+          }
+        }}>Check approval</Button>
+        <Button variant="outlined" onClick={signOut}>Sign out</Button>
+      </Stack>
+    </GateFrame>;
   }
 
   return (
