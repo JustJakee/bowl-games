@@ -38,6 +38,54 @@ export const isDraftSyncedWithBackend = (draft, backendDraft) =>
 export const isDraftCacheReady = (loadedStorageKey, currentStorageKey) =>
   Boolean(currentStorageKey && loadedStorageKey === currentStorageKey);
 
+export const reconcilePickDraft = ({
+  draft,
+  backendDraft,
+  cacheReady,
+  hydrated,
+  readError,
+}) => {
+  // Neither a loading placeholder nor a failed read is an empty account draft.
+  if (!cacheReady || !hydrated || readError) return draft;
+  if (!draft?.dirty) {
+    return isDraftSyncedWithBackend(draft, backendDraft)
+      ? draft
+      : { ...backendDraft, revision: getDraftRevision(draft), dirty: false };
+  }
+  // Only explicitly edited games override the account. Older device drafts
+  // lacked edit tracking; retain their selections without inferring removals.
+  const changedGameIds =
+    draft.changedGameIds || Object.keys(draft.selectionsByGameId || {});
+  const selectionsByGameId = { ...backendDraft.selectionsByGameId };
+  for (const gameId of changedGameIds) {
+    if (draft.selectionsByGameId?.[gameId])
+      selectionsByGameId[gameId] = draft.selectionsByGameId[gameId];
+    else delete selectionsByGameId[gameId];
+  }
+  if (
+    draft.changedGameIds &&
+    areSelectionMapsEqual(draft.selectionsByGameId, selectionsByGameId)
+  )
+    return draft;
+  return { ...draft, selectionsByGameId, changedGameIds };
+};
+
+export const getMatchupSaveState = ({
+  gameId,
+  draft,
+  persistedSelection,
+  saveState,
+}) => {
+  const selection = draft?.selectionsByGameId?.[gameId];
+  if (!selection) return "";
+  const pending =
+    draft?.dirty &&
+    (!draft.changedGameIds || draft.changedGameIds.includes(gameId));
+  if (pending || selection !== persistedSelection)
+    return saveState === "saved" ? "saving" : saveState;
+  return "saved";
+};
+
 export const buildSyncedDraft = (result, revision = 0) => ({
   entryName: result.entry.entryName,
   selectionsByGameId: result.selectionsByGameId,
@@ -66,6 +114,29 @@ export const buildAutosaveFailureState = (error) => {
     state: "device",
     message: "Saved to device",
     detail: `${message}${reference}`,
+  };
+};
+
+export const buildFailedClearDraft = (draft, error) => ({
+  ...draft,
+  // Keep the user's empty selections and explicit game IDs, including the
+  // games not reached before a failure. A partial result is not a synced draft.
+  dirty: true,
+  clearError: {
+    message: error?.message || "The backend did not confirm Clear All.",
+    correlationId: error?.correlationId || null,
+    partial: Boolean(error?.partialResult),
+  },
+});
+
+export const buildClearFailureState = (error) => {
+  const failure = buildAutosaveFailureState(error);
+  return {
+    ...failure,
+    ...(error?.partial
+      ? { state: "error", message: "Partially cleared" }
+      : {}),
+    detail: `${failure.detail} Clear All is incomplete. Your clear request is kept on this device; use Retry to finish.`,
   };
 };
 

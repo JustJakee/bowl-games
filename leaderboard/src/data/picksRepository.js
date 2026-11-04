@@ -2,6 +2,7 @@
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import { getEntryById, updateEntry } from "./entryRepository";
 import { assertPickWindowOpen } from "../utils/pickWindow";
+import { readEntryPickPages } from "../../shared/entryPickQuery.mjs";
 
 let testDependencies = null;
 
@@ -9,17 +10,6 @@ export const PICK_SET_STATUS = {
   DRAFT: "DRAFT",
   COMPLETE: "COMPLETE",
 };
-
-const PICK_SELECTION = [
-  "id",
-  "entryId",
-  "seasonId",
-  "gameId",
-  "owner",
-  "selectedTeam",
-  "createdAt",
-  "updatedAt",
-];
 
 const getDataClient = () => {
   return testDependencies?.dataClient || configuredDataClient;
@@ -72,16 +62,16 @@ const buildRepositoryError = ({
     ? "PickPersistenceError"
     : "PickDataError";
   Object.assign(error, diagnostics, {
-    graphQLErrors: normalizeGraphQLErrors(result?.errors),
+    graphQLErrors: normalizeGraphQLErrors(
+      result?.errors || cause?.errors || cause?.graphQLErrors,
+    ),
     returnedData: result?.data ?? null,
   });
   return error;
 };
 
 const throwIfGraphQLError = (result, fallbackMessage, diagnostics = {}) => {
-  const errorMessage = getFirstGraphQLError(result);
-
-  if (errorMessage) {
+  if (result?.errors?.length) {
     throw buildRepositoryError({
       result,
       fallbackMessage,
@@ -221,35 +211,17 @@ export const loadEntryPicks = async ({
   }
 
   const client = getDataClient();
-  const picks = [];
-  let nextToken;
-
-  do {
-    const result = await client.models.Pick.pickByEntryAndGame(
-      { entryId },
-      {
-        filter: {
-          seasonId: { eq: seasonId },
-        },
-        nextToken,
-        selectionSet: PICK_SELECTION,
-        authMode: "userPool",
-      },
-    );
-
-    throwIfGraphQLError(result, "Unable to load your saved picks.");
-    if (!Array.isArray(result.data))
-      throw new Error(
-        "Unable to load your saved picks: invalid backend response.",
-      );
-    picks.push(
-      ...result.data.filter(
-        (pick) =>
-          pick && pick.entryId === entryId && pick.seasonId === seasonId,
-      ),
-    );
-    nextToken = result.nextToken || null;
-  } while (nextToken);
+  const rows = await readEntryPickPages(client, {
+    entryId,
+    seasonId,
+    authMode: "userPool",
+    label: "Unable to load your saved picks",
+  });
+  const picks = rows.filter(
+    (pick) => pick.entryId === entryId && pick.seasonId === seasonId,
+  );
+  if (new Set(picks.map((pick) => pick.gameId)).size !== picks.length)
+    throw new Error("Multiple saved picks exist for this entry and game.");
 
   const currentIdSet = new Set(currentGameIds.filter(Boolean));
   const stalePicks = picks.filter(
@@ -286,7 +258,9 @@ const validateTieBreaker = ({ tieBreakerValue, tieBreakerGame }) => {
   }
 
   if (!tieBreakerGame) {
-    throw new Error("The tiebreaker game could not be found for this season.");
+    throw new Error(
+      "The tiebreaker game could not be found for this season.",
+    );
   }
 
   return normalizedTieBreakerValue;
@@ -302,7 +276,7 @@ export const saveEntryState = async ({
   tieBreakerGameId,
   selectionsByGameId = {},
   knownSelectionsByGameId = {},
-  forceGameIds = [],
+  forceGameIds,
   currentGameIds = [],
   tieBreakerRequired = false,
   picksLockAt,
@@ -339,7 +313,7 @@ export const saveEntryState = async ({
     {},
   );
 
-  const forcedGameIdSet = new Set(forceGameIds.filter(Boolean));
+  const forcedGameIdSet = new Set((forceGameIds || []).filter(Boolean));
   const changedSelections = Object.entries(nextSelections).filter(
     ([gameId, selectedTeam]) =>
       forcedGameIdSet.has(gameId) ||
@@ -354,7 +328,14 @@ export const saveEntryState = async ({
     ...forcedGameIdSet,
   ]);
   const clearedPicks = [...previouslySelectedIds]
-    .filter((gameId) => currentGameIdSet.has(gameId) && !nextSelections[gameId])
+    .filter(
+      (gameId) =>
+        currentGameIdSet.has(gameId) &&
+        !nextSelections[gameId] &&
+        // An individual draft's missing keys are not delete instructions. A
+        // newer account pick may have appeared since this draft was hydrated.
+        (!Array.isArray(forceGameIds) || forcedGameIdSet.has(gameId)),
+    )
     .map(
       (gameId) =>
         savedPicks.picksByGameId[gameId] || {

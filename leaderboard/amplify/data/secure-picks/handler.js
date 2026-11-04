@@ -2,6 +2,7 @@ import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from "@aws-amplify/backend/function/runtime";
 import { env } from "$amplify/env/secure-picks";
+import { readEntryPickPages } from "../../../shared/entryPickQuery.mjs";
 import {
   assertCanCreateEntry,
   assertCanSavePick,
@@ -126,29 +127,12 @@ const getEntry = async (entryId) =>
   );
 
 const getEntryPicksForGame = (entryId, gameId) =>
-  allPages(
-    (nextToken) =>
-      client.models.Pick.pickByEntryAndGame(
-        { entryId },
-        {
-          authMode,
-          nextToken,
-          limit: 100,
-          filter: { gameId: { eq: gameId } },
-          selectionSet: [
-            "id",
-            "entryId",
-            "seasonId",
-            "gameId",
-            "owner",
-            "selectedTeam",
-            "createdAt",
-            "updatedAt",
-          ],
-        },
-      ),
-    "Load current pick",
-  );
+  readEntryPickPages(client, {
+    entryId,
+    gameId,
+    authMode,
+    label: "Load current pick",
+  });
 
 const pickRecordSelection = [
   "id",
@@ -187,7 +171,14 @@ const isConditionalConflict = (result) =>
     ),
   );
 
-const clearUnseenPick = async ({ id, entryId, gameId, owner, seasonId }) => {
+const clearUnseenPick = async ({
+  id,
+  entryId,
+  gameId,
+  owner,
+  seasonId,
+  beforeWrite,
+}) => {
   // Both generated reads can be stale. DynamoDB evaluates this update's
   // existence and ownership conditions atomically against the stored item.
   const query = `mutation ClearUnseenPick($input: UpdatePickInput!, $condition: ModelPickConditionInput) {
@@ -215,8 +206,17 @@ const clearUnseenPick = async ({ id, entryId, gameId, owner, seasonId }) => {
       throw new Error(
         "The saved pick has conflicting ownership or target. Retry safely.",
       );
-    // The update's primary-key condition proves no deterministic Pick exists.
-    return { id, entryId, gameId, seasonId, selectedTeam: "" };
+    // A failed condition plus an eventual read cannot prove absence. Persist
+    // an empty record under the create condition; a hidden conflicting item
+    // must fail rather than producing a false account confirmation.
+    beforeWrite();
+    return checked(
+      await client.models.Pick.create(
+        { id, entryId, gameId, owner, seasonId, selectedTeam: "" },
+        { authMode, selectionSet: pickSelection },
+      ),
+      "Clear pick",
+    );
   }
   checked(response, "Clear pick");
   return response.data?.updatePick;
@@ -468,6 +468,17 @@ const savePick = async (event) => {
       gameId,
       owner: validation.owner,
       seasonId: validation.seasonId,
+      beforeWrite: () =>
+        assertCanSavePick({
+          identity: event.identity,
+          entry,
+          season,
+          config,
+          games,
+          game,
+          selectedTeam,
+          now: Date.now(),
+        }),
     });
     if (
       !cleared ||

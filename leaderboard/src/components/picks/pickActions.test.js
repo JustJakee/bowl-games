@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildEditableGameIdSet,
+  buildClearAllDraft,
   clearEditableSelections,
   getFilterCountBadgeColors,
   getPickActionsState,
@@ -142,6 +143,29 @@ test("clear removes editable selections and preserves locked selections", () => 
     }),
     { "game-3": "EEE" },
   );
+});
+
+test("Clear All explicitly clears every applicable game even when the local draft omits an account pick", () => {
+  const draft = {
+    selectionsByGameId: { "game-1": "AAA", locked: "CCC" },
+    tieBreakerValue: "42",
+  };
+  const result = buildClearAllDraft({
+    draft,
+    editableGameIds: new Set(["game-1", "game-2"]),
+    revision: 4,
+  });
+  assert.deepEqual(
+    new Set(result.changedGameIds),
+    new Set(["game-1", "game-2"]),
+  );
+  assert.deepEqual(result.selectionsByGameId, { locked: "CCC" });
+  assert.equal(result.tieBreakerValue, "42");
+  assert.equal(result.dirty, true);
+  assert.deepEqual(draft.selectionsByGameId, {
+    "game-1": "AAA",
+    locked: "CCC",
+  });
 });
 
 test("team selection toggles, switches, and respects locking", () => {

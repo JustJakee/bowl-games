@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { parse, print, valueFromASTUntyped } from "graphql";
+import {
+  buildASTSchema,
+  parse,
+  print,
+  validate,
+  valueFromASTUntyped,
+} from "graphql";
+import { ENTRY_PICK_QUERY } from "../../shared/entryPickQuery.mjs";
 
 const operations = {
   createSeasonEntry: {
@@ -39,6 +46,7 @@ export const verifySecurePicksResolverContract = async (
   const files = new Map();
   const resources = [];
   let modelSchema;
+  let generatedSchema;
   const walk = async (directory) => {
     for (const item of await readdir(directory, { withFileTypes: true })) {
       const file = path.join(directory, item.name);
@@ -50,6 +58,19 @@ export const verifySecurePicksResolverContract = async (
       const content = await readFile(file, "utf8");
       files.set(item.name, content);
       if (item.name === "model-schema.graphql") modelSchema = parse(content);
+      if (item.name.endsWith(".graphql")) {
+        const document = parse(content);
+        if (
+          document.definitions.some(
+            (type) =>
+              type.name?.value === "Query" &&
+              type.fields?.some(
+                (field) => field.name.value === "pickByEntryAndGame",
+              ),
+          )
+        )
+          generatedSchema = document;
+      }
       if (item.name.endsWith(".json")) {
         const template = JSON.parse(content);
         for (const [id, resource] of Object.entries(template.Resources || {}))
@@ -61,6 +82,70 @@ export const verifySecurePicksResolverContract = async (
   assert(
     modelSchema,
     "Missing Amplify model schema for custom operation audit",
+  );
+  assert(generatedSchema, "Missing generated pick query schema");
+  // AppSync supplies these scalars. Add declarations only for local validation.
+  const declared = new Set(
+    generatedSchema.definitions.map((type) => type.name?.value),
+  );
+  const scalars = [
+    "AWSDate",
+    "AWSDateTime",
+    "AWSTime",
+    "AWSTimestamp",
+    "AWSEmail",
+    "AWSJSON",
+    "AWSPhone",
+    "AWSURL",
+    "AWSIPAddress",
+  ];
+  const schema = buildASTSchema(
+    {
+      ...generatedSchema,
+      definitions: [
+        ...generatedSchema.definitions,
+        ...scalars
+          .filter((name) => !declared.has(name))
+          .flatMap((name) => parse(`scalar ${name}`).definitions),
+      ],
+    },
+    { assumeValidSDL: true },
+  );
+  assert.deepEqual(
+    validate(schema, parse(ENTRY_PICK_QUERY)).map((error) => error.message),
+    [],
+    "The shared account/current-pick query must match the generated AppSync schema",
+  );
+  const pickModel = modelSchema.definitions.find(
+    (type) => type.name?.value === "Pick",
+  );
+  const pickAuth = pickModel.directives.find(
+    (directive) => directive.name.value === "auth",
+  );
+  const pickRules = valueFromASTUntyped(
+    pickAuth.arguments.find((arg) => arg.name.value === "rules").value,
+  );
+  const playerPickRules = pickRules.filter(
+    (rule) => !rule.provider || rule.provider === "userPools",
+  );
+  assert(
+    playerPickRules.some(
+      (rule) =>
+        rule.allow === "owner" &&
+        rule.ownerField === "owner" &&
+        rule.identityClaim === "sub" &&
+        rule.operations.length === 1 &&
+        rule.operations[0] === "read",
+    ),
+  );
+  assert(
+    playerPickRules.every(
+      (rule) =>
+        rule.allow === "owner" ||
+        (rule.allow === "groups" &&
+          rule.groups.every((group) => group === "admin")),
+    ),
+    "The raw pick query must retain owner/admin-only model access",
   );
   const fields = modelSchema.definitions
     .filter((type) => ["Mutation", "Query"].includes(type.name?.value))
@@ -86,7 +171,9 @@ export const verifySecurePicksResolverContract = async (
     if (inline?.["Fn::Join"]) {
       const [separator, parts] = inline["Fn::Join"];
       return parts
-        .map((part) => (typeof part === "string" ? part : JSON.stringify(part)))
+        .map((part) =>
+          typeof part === "string" ? part : JSON.stringify(part),
+        )
         .join(separator);
     }
     const location = JSON.stringify(
@@ -123,7 +210,9 @@ export const verifySecurePicksResolverContract = async (
     const request = requestTemplate(dataFunction.Properties);
     assert(request.includes(`"operation": "${operation}"`));
     assert(
-      request.includes(`"id": {\n      "attributeExists": ${attributeExists}`),
+      request.includes(
+        `"id": {\n      "attributeExists": ${attributeExists}`,
+      ),
       `${fieldName} must keep its generated primary-key existence condition`,
     );
   }
@@ -220,7 +309,9 @@ export const verifySecurePicksResolverContract = async (
     assert(resolver, `Missing ${name} resolver`);
     const dispatch = requestTemplate(resolver.Properties);
     assert(dispatch.includes(`$ctx.stash.put("fieldName", "${name}")`));
-    assert(dispatch.includes(`$ctx.stash.put("typeName", "${expected.type}")`));
+    assert(
+      dispatch.includes(`$ctx.stash.put("typeName", "${expected.type}")`),
+    );
     const invoke = resources.find(
       (resource) =>
         resource.Type === "AWS::AppSync::FunctionConfiguration" &&
@@ -262,7 +353,10 @@ export const verifySecurePicksResolverContract = async (
       payload,
       /"arguments"\s*:\s*\$util\.toJson\(\$ctx\.arguments\)/,
     );
-    assert.match(payload, /"identity"\s*:\s*\$util\.toJson\(\$ctx\.identity\)/);
+    assert.match(
+      payload,
+      /"identity"\s*:\s*\$util\.toJson\(\$ctx\.identity\)/,
+    );
     assert.doesNotMatch(payload, /"(?:info|action)"\s*:/);
     payloads[name] = payload;
     console.log(

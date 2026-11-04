@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import test, { afterEach } from "node:test";
 import {
+  reconcilePickDraft,
+  createPerEntryAutosaveCoordinator,
+  buildFailedClearDraft,
+  buildClearFailureState,
+  buildSyncedDraft,
+} from "../components/picks/picksAutosaveState";
+import { buildClearAllDraft } from "../components/picks/pickActions";
+import { buildPickSelectionView } from "../components/picks/pickSelectionView";
+import {
   __setPicksRepositoryDependenciesForTests,
   loadEntryPicks,
   runSecurePickMutation,
@@ -74,7 +83,9 @@ const createHarness = ({
           return {
             data: page.map((pick) => ({ ...pick })),
             nextToken:
-              nextOffset < matchingPicks.length ? `offset-${nextOffset}` : null,
+              nextOffset < matchingPicks.length
+                ? `offset-${nextOffset}`
+                : null,
           };
         },
         create: async (payload) => {
@@ -118,6 +129,25 @@ const createHarness = ({
     },
   };
 
+  dataClient.graphql = async ({ query, variables, authMode }) => {
+    assert.match(query, /query EntryPicks/);
+    assert.equal(authMode, "userPool");
+    const { entryId, ...options } = variables;
+    const result = await dataClient.models.Pick.pickByEntryAndGame(
+      { entryId },
+      { ...options, authMode },
+    );
+    return {
+      data: {
+        pickByEntryAndGame: {
+          items: result.data,
+          nextToken: result.nextToken,
+        },
+      },
+      errors: result.errors,
+    };
+  };
+
   __setPicksRepositoryDependenciesForTests({
     dataClient,
     savePick: ({ entryId, gameId, selectedTeam }) => {
@@ -155,7 +185,7 @@ const createHarness = ({
     },
   });
 
-  return { calls };
+  return { calls, dataClient };
 };
 
 test("production pick writes use only the authenticated guarded mutation", async () => {
@@ -208,6 +238,307 @@ const save = (overrides = {}) =>
 
 afterEach(() => {
   __setPicksRepositoryDependenciesForTests(null);
+});
+
+const savedPick = (gameId = "game-1", selectedTeam = "AAA") => ({
+  id: `pick-entry-id-${gameId}`,
+  entryId: entry.id,
+  seasonId: entry.seasonId,
+  gameId,
+  owner: entry.owner,
+  selectedTeam,
+});
+
+test("raw pick reads use owner auth, season filtering and every page including empty pages", async () => {
+  const calls = [];
+  __setPicksRepositoryDependenciesForTests({
+    dataClient: {
+      graphql: async (request) => {
+        calls.push(request);
+        return {
+          data: {
+            pickByEntryAndGame:
+              calls.length === 1
+                ? { items: [], nextToken: "page-two" }
+                : { items: [savedPick()], nextToken: null },
+          },
+        };
+      },
+    },
+  });
+  const result = await loadEntryPicks({
+    entryId: entry.id,
+    seasonId: entry.seasonId,
+  });
+  assert.deepEqual(result.selectionsByGameId, { "game-1": "AAA" });
+  assert.deepEqual(
+    calls.map(({ authMode, variables }) => ({ authMode, variables })),
+    [
+      {
+        authMode: "userPool",
+        variables: {
+          entryId: entry.id,
+          filter: { seasonId: { eq: entry.seasonId } },
+          nextToken: undefined,
+          limit: 100,
+        },
+      },
+      {
+        authMode: "userPool",
+        variables: {
+          entryId: entry.id,
+          filter: { seasonId: { eq: entry.seasonId } },
+          nextToken: "page-two",
+          limit: 100,
+        },
+      },
+    ],
+  );
+});
+
+test("returned and thrown partial GraphQL errors fail the entire read, even on later pages", async () => {
+  for (const thrown of [false, true]) {
+    let calls = 0;
+    __setPicksRepositoryDependenciesForTests({
+      dataClient: {
+        graphql: async () => {
+          if (++calls === 1)
+            return {
+              data: {
+                pickByEntryAndGame: {
+                  items: [savedPick()],
+                  nextToken: "next",
+                },
+              },
+            };
+          const result = {
+            data: { pickByEntryAndGame: { items: [], nextToken: null } },
+            errors: [{ message: "Unauthorized", errorType: "Unauthorized" }],
+          };
+          if (thrown) throw result;
+          return result;
+        },
+      },
+    });
+    await assert.rejects(
+      loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }),
+      (error) =>
+        error.message.includes("Unauthorized") &&
+        error.graphQLErrors[0].errorType === "Unauthorized",
+    );
+    assert.equal(calls, 2);
+  }
+});
+
+test("malformed pick connections and repeated tokens cannot be accepted as an empty account", async () => {
+  for (const connection of [
+    null,
+    {},
+    { items: null },
+    { items: {} },
+    { items: [null] },
+    { items: [{}] },
+    { items: [], nextToken: 7 },
+  ]) {
+    __setPicksRepositoryDependenciesForTests({
+      dataClient: {
+        graphql: async () => ({ data: { pickByEntryAndGame: connection } }),
+      },
+    });
+    await assert.rejects(
+      loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }),
+      /invalid backend response/,
+    );
+  }
+  __setPicksRepositoryDependenciesForTests({
+    dataClient: {
+      graphql: async () => ({
+        data: { pickByEntryAndGame: { items: [], nextToken: "same" } },
+      }),
+    },
+  });
+  await assert.rejects(
+    loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }),
+    /repeated pagination token/,
+  );
+});
+
+test("duplicate picks are rejected instead of allowing list order to select a winner", async () => {
+  createHarness({
+    initialPicks: [
+      savedPick(),
+      { ...savedPick(), id: "legacy-pick", selectedTeam: "BBB" },
+    ],
+  });
+  await assert.rejects(
+    loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }),
+    /Multiple saved picks/,
+  );
+});
+
+test("a wrong-entry or wrong-season response fails closed instead of replacing the account with an empty draft", async () => {
+  for (const row of [
+    { ...savedPick(), entryId: "foreign" },
+    { ...savedPick(), seasonId: "another-season" },
+  ]) {
+    __setPicksRepositoryDependenciesForTests({
+      dataClient: {
+        graphql: async () => ({
+          data: { pickByEntryAndGame: { items: [row] } },
+        }),
+      },
+    });
+    await assert.rejects(
+      loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }),
+      /does not match the requested/,
+    );
+  }
+});
+
+test("a failed pre-save read performs no mutations", async () => {
+  let writes = 0;
+  __setPicksRepositoryDependenciesForTests({
+    dataClient: {
+      graphql: async () => ({
+        data: { pickByEntryAndGame: null },
+        errors: [{ message: "Read denied" }],
+      }),
+    },
+    getEntryById: async () => entry,
+    listRawSeasonGames: async () => [game],
+    savePick: async () => {
+      writes += 1;
+    },
+  });
+  await assert.rejects(
+    save({ selectionsByGameId: { "game-1": "AAA" } }),
+    /Read denied/,
+  );
+  assert.equal(writes, 0);
+});
+
+test("mutation partial errors never confirm a selection even when the returned record matches", async () => {
+  createHarness({ createResult: { data: savedPick(), errors: [{}] } });
+  await assert.rejects(
+    save({ selectionsByGameId: { "game-1": "AAA" } }),
+    (error) => {
+      assert.equal(error.name, "PickPersistenceError");
+      assert.equal(error.graphQLErrors.length, 1);
+      return true;
+    },
+  );
+});
+
+test("a fresh repository client restores a confirmed selection without a device draft", async () => {
+  const { dataClient } = createHarness();
+  await save({
+    selectionsByGameId: { "game-1": "BBB" },
+    forceGameIds: ["game-1"],
+  });
+  __setPicksRepositoryDependenciesForTests(null);
+  __setPicksRepositoryDependenciesForTests({
+    dataClient: { graphql: (request) => dataClient.graphql(request) },
+  });
+  const result = await loadEntryPicks({
+    entryId: entry.id,
+    seasonId: entry.seasonId,
+  });
+  assert.deepEqual(result.selectionsByGameId, { "game-1": "BBB" });
+});
+
+test("reconciled device edits preserve unrelated account picks through saving and reload", async () => {
+  createHarness({
+    initialPicks: [savedPick("game-2", "CCC")],
+    seasonGames: [game, secondGame],
+  });
+  const draft = reconcilePickDraft({
+    draft: {
+      dirty: true,
+      selectionsByGameId: { "game-1": "BBB" },
+      changedGameIds: ["game-1"],
+    },
+    backendDraft: { selectionsByGameId: { "game-2": "CCC" } },
+    cacheReady: true,
+    hydrated: true,
+  });
+  const result = await save({
+    currentGameIds: ["game-1", "game-2"],
+    selectionsByGameId: draft.selectionsByGameId,
+    forceGameIds: draft.changedGameIds,
+  });
+  const reloaded = await loadEntryPicks({
+    entryId: entry.id,
+    seasonId: entry.seasonId,
+  });
+  assert.deepEqual(result.selectionsByGameId, {
+    "game-1": "BBB",
+    "game-2": "CCC",
+  });
+  assert.deepEqual(reloaded.selectionsByGameId, result.selectionsByGameId);
+});
+
+test("an individual save cannot clear an account pick that appeared after hydration", async () => {
+  const { calls } = createHarness({
+    initialPicks: [savedPick("game-2", "CCC")],
+    seasonGames: [game, secondGame],
+  });
+  const result = await save({
+    currentGameIds: ["game-1", "game-2"],
+    selectionsByGameId: { "game-1": "BBB" },
+    forceGameIds: ["game-1"],
+  });
+  assert.deepEqual(calls.update, []);
+  assert.deepEqual(result.selectionsByGameId, {
+    "game-1": "BBB",
+    "game-2": "CCC",
+  });
+});
+
+test("overlapping select, replace and deselect requests drain to the latest persisted intent", async () => {
+  createHarness();
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  const applied = [];
+  const coordinator = createPerEntryAutosaveCoordinator({
+    save: async ({ revision, input }) => {
+      if (revision === 1) await gate;
+      return save(input);
+    },
+    onSuccess: ({ revision }) => applied.push(revision),
+  });
+  const first = coordinator.enqueue({
+    entryId: entry.id,
+    revision: 1,
+    input: {
+      selectionsByGameId: { "game-1": "AAA" },
+      forceGameIds: ["game-1"],
+    },
+  });
+  const replacement = coordinator.enqueue({
+    entryId: entry.id,
+    revision: 2,
+    input: {
+      selectionsByGameId: { "game-1": "BBB" },
+      forceGameIds: ["game-1"],
+    },
+  });
+  const clear = coordinator.enqueue({
+    entryId: entry.id,
+    revision: 3,
+    input: { selectionsByGameId: {}, forceGameIds: ["game-1"] },
+  });
+  release();
+  assert.equal((await first).status, "superseded");
+  assert.equal((await replacement).status, "superseded");
+  assert.equal((await clear).status, "saved");
+  assert.deepEqual(applied, [3]);
+  const reloaded = await loadEntryPicks({
+    entryId: entry.id,
+    seasonId: entry.seasonId,
+  });
+  assert.deepEqual(reloaded.selectionsByGameId, {});
 });
 
 test("selecting a first winner sends a minimal Pick create and no tiebreaker Entry update", async () => {
@@ -520,6 +851,244 @@ test("a partial bulk clear keeps successful clears and preserves the failed Pick
     { id: "pick-entry-id-game-2", selectedTeam: "" },
   ]);
   assert.deepEqual(reloaded.selectionsByGameId, { "game-2": "CCC" });
+});
+
+const clearDraft = (draft, revision = 1) =>
+  buildClearAllDraft({
+    draft,
+    editableGameIds: new Set([game.id, secondGame.id]),
+    revision,
+  });
+
+const saveClear = (draft) =>
+  save({
+    currentGameIds: [game.id, secondGame.id],
+    selectionsByGameId: draft.selectionsByGameId,
+    forceGameIds: draft.changedGameIds,
+    tieBreakerValue: draft.tieBreakerValue,
+    tieBreakerGameId: secondGame.id,
+    tieBreakerRequired: true,
+  });
+
+test("Clear All without pending saves clears hidden account picks and survives reload and a fresh authenticated client", async () => {
+  const accountEntry = { ...entry, tieBreakerValue: 42 };
+  const { calls, dataClient } = createHarness({
+    currentEntry: accountEntry,
+    initialPicks: [savedPick(), savedPick(secondGame.id, "CCC")],
+    hiddenIndexGameIds: [secondGame.id],
+    seasonGames: [game, secondGame],
+  });
+  // Only one of the two persisted choices is visible on this device.
+  const draft = clearDraft({
+    selectionsByGameId: { [game.id]: "AAA" },
+    tieBreakerValue: "42",
+  });
+  const result = await saveClear(draft);
+  assert.deepEqual(result.selectionsByGameId, {});
+  assert.deepEqual(
+    calls.update.map(({ selectedTeam }) => selectedTeam),
+    ["", ""],
+  );
+  assert.equal(result.entry.tieBreakerValue, 42);
+  assert.equal(result.status, "DRAFT");
+  assert.deepEqual(calls.entryUpdate, []);
+  assert.deepEqual(
+    (await loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }))
+      .selectionsByGameId,
+    {},
+  );
+
+  __setPicksRepositoryDependenciesForTests(null);
+  __setPicksRepositoryDependenciesForTests({
+    dataClient: { graphql: (request) => dataClient.graphql(request) },
+  });
+  const fresh = await loadEntryPicks({
+    entryId: entry.id,
+    seasonId: entry.seasonId,
+  });
+  assert.deepEqual(fresh.selectionsByGameId, {});
+  const view = buildPickSelectionView({
+    currentEntry: result.entry,
+    hydratedEntryId: entry.id,
+    activeDraft: buildSyncedDraft(result, 1),
+    games: [{ id: game.id }, { id: secondGame.id, isTieBreakerGame: true }],
+    tieBreakerRequired: true,
+  });
+  assert.equal(view.selectedCount, 0);
+  assert.equal(view.incompleteCount, 2);
+  assert.equal(view.hasTieBreaker, true);
+  assert.equal(view.entryStatus, "DRAFT");
+});
+
+test("Clear All waits for the in-flight save, supersedes older pending saves and rejects a late debounce", async () => {
+  const { calls } = createHarness({ seasonGames: [game, secondGame] });
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  const started = [];
+  const applied = [];
+  const coordinator = createPerEntryAutosaveCoordinator({
+    save: async ({ revision, draft }) => {
+      started.push(revision);
+      if (revision === 1) await gate;
+      return saveClear(draft);
+    },
+    onSuccess: ({ revision }) => applied.push(revision),
+  });
+  const local = {
+    selectionsByGameId: { [game.id]: "AAA", [secondGame.id]: "CCC" },
+    changedGameIds: [game.id, secondGame.id],
+    tieBreakerValue: "",
+  };
+  const first = coordinator.enqueue({
+    entryId: entry.id,
+    revision: 1,
+    draft: local,
+  });
+  const pending = coordinator.enqueue({
+    entryId: entry.id,
+    revision: 2,
+    draft: { ...local, selectionsByGameId: { [game.id]: "BBB" } },
+  });
+  const revision = coordinator.nextRevision(entry.id, 2);
+  const cleared = coordinator.enqueue({
+    entryId: entry.id,
+    revision,
+    draft: clearDraft(local, revision),
+  });
+  assert.equal((await pending).status, "superseded");
+  assert.deepEqual(started, [1]);
+  release();
+  assert.equal((await first).status, "superseded");
+  assert.equal((await cleared).status, "saved");
+  assert.deepEqual(started, [1, 3]);
+  assert.deepEqual(applied, [3]);
+  const beforeLate = calls.update.length;
+  const late = await coordinator.enqueue({
+    entryId: entry.id,
+    revision: 2,
+    draft: local,
+  });
+  assert.equal(late.status, "superseded");
+  assert.equal(calls.update.length, beforeLate);
+  assert.deepEqual(
+    (await loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }))
+      .selectionsByGameId,
+    {},
+  );
+});
+
+test("failed Clear All retains device intent and never marks partial completion as saved", async () => {
+  for (const failAt of [1, 2]) {
+    let failureEnabled = true;
+    const { calls } = createHarness({
+      initialPicks: [savedPick(), savedPick(secondGame.id, "CCC")],
+      seasonGames: [game, secondGame],
+      updateResult: (_payload, recorded) =>
+        failureEnabled && recorded.update.length === failAt
+          ? {
+              data: null,
+              errors: [
+                {
+                  message: "Conditional clear failed",
+                  errorType: "DynamoDB:ConditionalCheckFailedException",
+                },
+              ],
+            }
+          : null,
+    });
+    const draft = clearDraft({
+      selectionsByGameId: { [game.id]: "AAA", [secondGame.id]: "CCC" },
+      tieBreakerValue: "",
+    });
+    let failedDraft;
+    await assert.rejects(saveClear(draft), (error) => {
+      failedDraft = buildFailedClearDraft(draft, error);
+      assert.equal(error.completedPickChanges.length, failAt - 1);
+      assert.equal(failedDraft.clearError.partial, failAt === 2);
+      assert.deepEqual(failedDraft.selectionsByGameId, {});
+      assert.equal(failedDraft.dirty, true);
+      const state = buildClearFailureState(failedDraft.clearError);
+      assert.notEqual(state.state, "saved");
+      assert.match(state.detail, /Conditional clear failed/);
+      return true;
+    });
+    assert.equal(calls.update.length, failAt);
+    // Reload the actual device payload against the partly cleared account.
+    const device = JSON.parse(JSON.stringify(failedDraft));
+    const backend = await loadEntryPicks({
+      entryId: entry.id,
+      seasonId: entry.seasonId,
+    });
+    assert.deepEqual(
+      backend.selectionsByGameId,
+      failAt === 1
+        ? { [game.id]: "AAA", [secondGame.id]: "CCC" }
+        : { [secondGame.id]: "CCC" },
+    );
+    const restored = reconcilePickDraft({
+      draft: device,
+      backendDraft: backend,
+      cacheReady: true,
+      hydrated: true,
+    });
+    assert.deepEqual(restored.selectionsByGameId, {});
+    assert.equal(restored.dirty, true);
+    assert.match(restored.clearError.message, /Conditional clear failed/);
+    // Retry the original clear command, rather than resaving a partial snapshot.
+    failureEnabled = false;
+    const retried = await saveClear({ ...restored, clearError: null });
+    assert.deepEqual(retried.selectionsByGameId, {});
+    assert.deepEqual(
+      (await loadEntryPicks({ entryId: entry.id, seasonId: entry.seasonId }))
+        .selectionsByGameId,
+      {},
+    );
+  }
+});
+
+test("a device clear recorded before dispatch survives a reload against an older account snapshot", () => {
+  const device = JSON.parse(
+    JSON.stringify(
+      clearDraft({
+        selectionsByGameId: { [game.id]: "AAA" },
+        tieBreakerValue: "42",
+      }),
+    ),
+  );
+  const restored = reconcilePickDraft({
+    draft: device,
+    backendDraft: {
+      selectionsByGameId: { [game.id]: "AAA", [secondGame.id]: "CCC" },
+    },
+    cacheReady: true,
+    hydrated: true,
+  });
+  assert.deepEqual(restored.selectionsByGameId, {});
+  assert.equal(restored.tieBreakerValue, "42");
+  assert.equal(restored.clearAll, true);
+  assert.deepEqual(restored.changedGameIds, [game.id, secondGame.id]);
+});
+
+test("Clear All in a locked season dispatches no pick or entry writes", async () => {
+  const { calls } = createHarness({
+    initialPicks: [savedPick()],
+    seasonGames: [game, secondGame],
+  });
+  const draft = clearDraft({ selectionsByGameId: { [game.id]: "AAA" } });
+  await assert.rejects(
+    save({
+      selectionsByGameId: draft.selectionsByGameId,
+      forceGameIds: draft.changedGameIds,
+      currentGameIds: [game.id, secondGame.id],
+      now: Date.parse(futurePickDeadline),
+    }),
+    /locked/i,
+  );
+  assert.deepEqual(calls.update, []);
+  assert.deepEqual(calls.create, []);
+  assert.deepEqual(calls.entryUpdate, []);
 });
 
 test("a partial multi-pick save reports and reloads its successful mutations", async () => {
@@ -875,11 +1444,7 @@ test("loading after refresh restores a successfully persisted partial pick", asy
 test("a null pick page fails instead of erasing saved selections", async () => {
   __setPicksRepositoryDependenciesForTests({
     dataClient: {
-      models: {
-        Pick: {
-          pickByEntryAndGame: async () => ({ data: null }),
-        },
-      },
+      graphql: async () => ({ data: { pickByEntryAndGame: null } }),
     },
   });
   await assert.rejects(

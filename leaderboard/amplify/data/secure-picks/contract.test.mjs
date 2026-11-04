@@ -40,8 +40,12 @@ const instrumented = source
     'from "./rules.mjs";',
     `from "${pathToFileURL(path.join(root, "amplify/data/secure-picks/rules.mjs")).href}";`,
   );
+const runnable = instrumented.replace(
+  'from "../../../shared/entryPickQuery.mjs";',
+  `from "${pathToFileURL(path.join(root, "shared/entryPickQuery.mjs")).href}";`,
+);
 assert.notEqual(instrumented, source);
-await writeFile(path.join(directory, "handler.mjs"), instrumented);
+await writeFile(path.join(directory, "handler.mjs"), runnable);
 const { handler } = await import(
   pathToFileURL(path.join(directory, "handler.mjs")).href
 );
@@ -189,7 +193,31 @@ beforeEach(() => {
   conditionalClears = [];
   client.graphql = async ({ query, variables, authMode }) => {
     assert.equal(authMode, "iam");
-    assert.match(query, /updatePick\(input: \$input, condition: \$condition\)/);
+    if (query.includes("query EntryPicks")) {
+      assert.equal(
+        variables.filter?.gameId,
+        undefined,
+        "sort keys cannot be filtered",
+      );
+      const { entryId, gameId, ...options } = variables;
+      const result = await client.models.Pick.pickByEntryAndGame(
+        { entryId, gameId },
+        { ...options, authMode },
+      );
+      return {
+        data: {
+          pickByEntryAndGame: {
+            items: result.data,
+            nextToken: result.nextToken,
+          },
+        },
+        errors: result.errors,
+      };
+    }
+    assert.match(
+      query,
+      /updatePick\(input: \$input, condition: \$condition\)/,
+    );
     conditionalClears.push(variables);
     const pick = picks.find((row) => row.id === variables.input.id);
     if (
@@ -288,8 +316,12 @@ beforeEach(() => {
     },
     Pick: {
       get: read("Pick.get", ({ id }) => picks.find((pick) => pick.id === id)),
-      pickByEntryAndGame: read("Pick.entryIndex", ({ entryId }) =>
-        picks.filter((pick) => pick.entryId === entryId),
+      pickByEntryAndGame: read("Pick.entryIndex", ({ entryId, gameId }) =>
+        picks.filter(
+          (pick) =>
+            pick.entryId === entryId &&
+            (!gameId || pick.gameId === gameId.eq),
+        ),
       ),
       picksBySeason: read("Pick.seasonIndex", () => picks),
       create: write("Pick", "create"),
@@ -349,6 +381,179 @@ test("saveSeasonPick dispatches create/update/deselection with persisted owner a
   );
 });
 
+test("clearing every game preserves both entries, the tiebreaker and another player's picks", async () => {
+  picks = entries.flatMap((entry) =>
+    games.map((game) => ({
+      id: `pick-${entry.id}-${game.id}`,
+      entryId: entry.id,
+      gameId: game.id,
+      seasonId: "season",
+      owner: entry.owner,
+      selectedTeam: "AAA",
+    })),
+  );
+  const originalEntries = structuredClone(entries);
+  const otherPicks = structuredClone(
+    picks.filter((pick) => pick.owner !== PLAYER.sub),
+  );
+  for (const game of games) {
+    const cleared = await handler(
+      event("saveSeasonPick", {
+        entryId: "entry-one",
+        gameId: game.id,
+        selectedTeam: "",
+      }),
+    );
+    assert.equal(cleared.selectedTeam, "");
+  }
+  assert.deepEqual(entries, originalEntries);
+  assert.deepEqual(
+    picks.filter((pick) => pick.owner !== PLAYER.sub),
+    otherPicks,
+  );
+  assert(
+    writes.every(
+      ({ model, operation }) => model === "Pick" && operation === "update",
+    ),
+  );
+  const fresh = await handler(
+    event(
+      "visibleSeasonPicks",
+      { seasonId: "season" },
+      structuredClone(PLAYER),
+    ),
+  );
+  assert(
+    fresh.picks.every(
+      (pick) => pick.entryId === "entry-one" && pick.selectedTeam === "",
+    ),
+  );
+  assert.equal(fresh.completeEntryIds.includes("entry-one"), false);
+  assert.deepEqual(fresh.tieBreakers, [{ entryId: "entry-one", value: 42 }]);
+});
+
+test("clear mutations reject locked seasons and foreign ownership before writes", async () => {
+  const args = { ...argsByField.saveSeasonPick, selectedTeam: "" };
+  await assert.rejects(
+    handler(event("saveSeasonPick", args, { ...PLAYER, sub: "player-two" })),
+    /another player's entry/,
+  );
+  now = start + 3600000;
+  await assert.rejects(handler(event("saveSeasonPick", args)), /locked/);
+  assert.equal(writes.length, 0);
+  assert.equal(conditionalClears.length, 0);
+});
+
+test("a deadline reached during a multi-game clear stops remaining writes without reverting acknowledged clears", async () => {
+  picks = games.map((game) => ({
+    id: `pick-entry-one-${game.id}`,
+    entryId: "entry-one",
+    gameId: game.id,
+    seasonId: "season",
+    owner: PLAYER.sub,
+    selectedTeam: "AAA",
+  }));
+  const update = client.models.Pick.update;
+  client.models.Pick.update = async (...args) => {
+    const result = await update(...args);
+    now = start + 3600000;
+    return result;
+  };
+  await handler(
+    event("saveSeasonPick", {
+      entryId: "entry-one",
+      gameId: games[0].id,
+      selectedTeam: "",
+    }),
+  );
+  await assert.rejects(
+    handler(
+      event("saveSeasonPick", {
+        entryId: "entry-one",
+        gameId: games[1].id,
+        selectedTeam: "",
+      }),
+    ),
+    /locked/,
+  );
+  assert.equal(picks[0].selectedTeam, "");
+  assert.equal(picks[1].selectedTeam, "AAA");
+  assert.equal(writes.length, 1);
+});
+
+test("current-pick lookup uses the index sort key and cannot confuse another game's pick", async () => {
+  const requests = [];
+  const original = client.graphql;
+  client.graphql = async (request) => {
+    requests.push(request);
+    return original(request);
+  };
+  await handler(event("saveSeasonPick"));
+  await handler(
+    event("saveSeasonPick", {
+      ...argsByField.saveSeasonPick,
+      gameId: "championship",
+    }),
+  );
+  assert.equal(picks.length, 2);
+  assert.deepEqual(
+    requests.map(({ variables }) => variables.gameId),
+    [{ eq: "game-one" }, { eq: "championship" }],
+  );
+  assert(requests.every(({ variables }) => !variables.filter?.gameId));
+});
+
+test("null, malformed and partial current-pick reads never proceed to a write", async () => {
+  for (const response of [
+    { data: { pickByEntryAndGame: null } },
+    { data: { pickByEntryAndGame: { items: null } } },
+    {
+      data: { pickByEntryAndGame: { items: [] } },
+      errors: [{ message: "DynamoDB lookup failed" }],
+    },
+  ]) {
+    client.graphql = async () => response;
+    await assert.rejects(
+      handler(event("saveSeasonPick")),
+      /Load current pick:/,
+    );
+    assert.equal(writes.length, 0);
+  }
+});
+
+test("a later pick page error prevents writes and preserves the original GraphQL message", async () => {
+  let calls = 0;
+  client.graphql = async ({ variables }) => {
+    if (++calls === 1) {
+      assert.equal(variables.nextToken, undefined);
+      return {
+        data: { pickByEntryAndGame: { items: [], nextToken: "second" } },
+      };
+    }
+    assert.equal(variables.nextToken, "second");
+    throw {
+      data: { pickByEntryAndGame: null },
+      errors: [{ message: "Not authorized to access pick" }],
+    };
+  };
+  await assert.rejects(
+    handler(event("saveSeasonPick")),
+    /Load current pick: Not authorized/,
+  );
+  assert.equal(writes.length, 0);
+});
+
+test("the server rechecks its deadline after the current-pick read", async () => {
+  const original = client.graphql;
+  client.graphql = async (request) => {
+    const result = await original(request);
+    now = start + 3600000;
+    return result;
+  };
+  await assert.rejects(handler(event("saveSeasonPick")), /locked/);
+  assert.equal(writes.length, 0);
+});
+
 test("a delayed entry index cannot create over a saved pick or block its clear", async () => {
   await handler(event("saveSeasonPick"));
   client.models.Pick.pickByEntryAndGame = async () => ({ data: [] });
@@ -372,7 +577,7 @@ test("a delayed entry index cannot create over a saved pick or block its clear",
   );
 });
 
-test("clearing an absent pick is an acknowledged no-op", async () => {
+test("clearing an absent pick confirms an empty record under the create condition", async () => {
   const cleared = await handler(
     event("saveSeasonPick", {
       ...argsByField.saveSeasonPick,
@@ -381,8 +586,10 @@ test("clearing an absent pick is an acknowledged no-op", async () => {
   );
   assert.equal(cleared.selectedTeam, "");
   assert.equal(cleared.gameId, "game-one");
-  assert.equal(picks.length, 0);
-  assert.equal(writes.length, 0);
+  assert.equal(picks.length, 1);
+  assert.equal(picks[0].selectedTeam, "");
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0].operation, "create");
   assert.equal(conditionalClears.length, 1);
 });
 
@@ -441,6 +648,72 @@ test("conditional clear never changes a conflicting stored owner", async () => {
     /conflicting ownership/,
   );
   assert.equal(picks[0].selectedTeam, "AAA");
+});
+
+test("a clear with entirely invisible conflicting data fails instead of falsely confirming absence", async () => {
+  picks = [
+    {
+      id: "pick-entry-one-game-one",
+      entryId: "entry-one",
+      gameId: "game-one",
+      seasonId: "season",
+      owner: "another-owner",
+      selectedTeam: "AAA",
+    },
+  ];
+  client.models.Pick.pickByEntryAndGame = async () => ({ data: [] });
+  client.models.Pick.get = async () => ({ data: null });
+  await assert.rejects(
+    handler(
+      event("saveSeasonPick", {
+        ...argsByField.saveSeasonPick,
+        selectedTeam: "",
+      }),
+    ),
+    /Clear pick: The conditional request failed/,
+  );
+  assert.equal(picks[0].owner, "another-owner");
+  assert.equal(picks[0].selectedTeam, "AAA");
+});
+
+test("an absent clear rechecks the deadline before its conditional create", async () => {
+  const original = client.graphql;
+  client.graphql = async (request) => {
+    const result = await original(request);
+    if (request.query.includes("mutation ClearUnseenPick"))
+      now = start + 3600000;
+    return result;
+  };
+  await assert.rejects(
+    handler(
+      event("saveSeasonPick", {
+        ...argsByField.saveSeasonPick,
+        selectedTeam: "",
+      }),
+    ),
+    /locked/,
+  );
+  assert.equal(writes.length, 0);
+});
+
+test("unresolved conditional creates fail closed without replacing an invisible saved selection", async () => {
+  picks = [
+    {
+      id: "pick-entry-one-game-one",
+      entryId: "entry-one",
+      gameId: "game-one",
+      seasonId: "season",
+      owner: PLAYER.sub,
+      selectedTeam: "BBB",
+    },
+  ];
+  client.models.Pick.pickByEntryAndGame = async () => ({ data: [] });
+  client.models.Pick.get = async () => ({ data: null });
+  await assert.rejects(
+    handler(event("saveSeasonPick")),
+    /still becoming visible/,
+  );
+  assert.equal(picks[0].selectedTeam, "BBB");
 });
 
 test("a primary-key create conflict rechecks stored ownership and retries as an update", async () => {

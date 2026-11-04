@@ -1,5 +1,12 @@
 // UI — PICKS — REACT
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
 import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
 import DeleteSweepRoundedIcon from "@mui/icons-material/DeleteSweepRounded";
@@ -48,9 +55,12 @@ import {
   buildAutosaveFailureState,
   buildAutosaveSuccessState,
   buildSyncedDraft,
+  buildFailedClearDraft,
+  buildClearFailureState,
   getDraftRevision,
   isDraftCacheReady,
-  isDraftSyncedWithBackend,
+  reconcilePickDraft,
+  getMatchupSaveState,
 } from "./picksAutosaveState";
 import {
   formatPicksDateKey,
@@ -61,7 +71,7 @@ import {
 } from "../../utils/picksGameUtils";
 import {
   buildEditableGameIdSet,
-  clearEditableSelections,
+  buildClearAllDraft,
   getFilterCountBadgeColors,
   matchesEditableSelections,
   getPickActionsState,
@@ -571,16 +581,13 @@ const PicksWorkspace = () => {
     setLoadedDraftStorageKey(storageKey);
   }, [storageKey]);
 
-  useEffect(() => {
-    if (!isDraftCacheReady(loadedDraftStorageKey, storageKey)) {
-      return;
-    }
-
+  const persistDraftCache = useCallback((key, drafts) => {
     try {
-      writeDraftCache(storageKey, draftsByEntryId);
+      writeDraftCache(key, drafts);
       setDraftStorageError((currentError) =>
         currentError ? "" : currentError,
       );
+      return true;
     } catch (storageError) {
       console.error("Pick draft device persistence failed.", {
         name: storageError?.name || "Error",
@@ -589,8 +596,20 @@ const PicksWorkspace = () => {
       setDraftStorageError(
         "This browser could not persist the latest draft. Keep this tab open and retry after freeing device storage.",
       );
+      return false;
     }
-  }, [draftsByEntryId, loadedDraftStorageKey, retryKey, storageKey]);
+  }, []);
+
+  useEffect(() => {
+    if (!isDraftCacheReady(loadedDraftStorageKey, storageKey)) return;
+    persistDraftCache(storageKey, draftsByEntryId);
+  }, [
+    draftsByEntryId,
+    loadedDraftStorageKey,
+    retryKey,
+    storageKey,
+    persistDraftCache,
+  ]);
 
   useEffect(() => {
     const nextExpanded = {};
@@ -613,7 +632,12 @@ const PicksWorkspace = () => {
   }, [groupedGames]);
 
   useEffect(() => {
-    if (!currentEntry) {
+    if (
+      !currentEntry ||
+      !isDraftCacheReady(loadedDraftStorageKey, storageKey) ||
+      hydratedEntryId !== currentEntry.id ||
+      picksError
+    ) {
       return;
     }
 
@@ -630,22 +654,15 @@ const PicksWorkspace = () => {
     setDraftsByEntryId((currentDrafts) => {
       const existingDraft = currentDrafts[currentEntry.id];
 
-      if (!existingDraft || !existingDraft.dirty) {
-        if (isDraftSyncedWithBackend(existingDraft, backendDraft)) {
-          return currentDrafts;
-        }
-
-        return {
-          ...currentDrafts,
-          [currentEntry.id]: {
-            ...backendDraft,
-            revision: getDraftRevision(existingDraft),
-            dirty: false,
-          },
-        };
-      }
-
-      return currentDrafts;
+      const nextDraft = reconcilePickDraft({
+        draft: existingDraft,
+        backendDraft,
+        cacheReady: true,
+        hydrated: true,
+      });
+      return nextDraft === existingDraft
+        ? currentDrafts
+        : { ...currentDrafts, [currentEntry.id]: nextDraft };
     });
 
     setSaveState((currentState) => {
@@ -653,19 +670,21 @@ const PicksWorkspace = () => {
       // A dirty draft is normally queued for autosave. Do not label it
       // device-only until a save has actually failed; that old optimistic
       // label was what made desktop matchup labels disagree with mobile.
-      const nextState = existingDraft?.dirty
-        ? currentState.state === "device" || currentState.state === "error"
-          ? currentState
+      const nextState = existingDraft?.clearError
+        ? buildClearFailureState(existingDraft.clearError)
+        : existingDraft?.dirty
+          ? currentState.state === "device" || currentState.state === "error"
+            ? currentState
+            : {
+                state: "saving",
+                message: "Saving...",
+                detail: "",
+              }
           : {
-              state: "saving",
-              message: "Saving...",
+              state: "saved",
+              message: "Saved to account",
               detail: "",
-            }
-        : {
-            state: "saved",
-            message: "Saved to account",
-            detail: "",
-          };
+            };
 
       if (
         currentState.state === nextState.state &&
@@ -677,7 +696,15 @@ const PicksWorkspace = () => {
 
       return nextState;
     });
-  }, [currentEntry, draftsByEntryId, savedSelectionsByGameId]);
+  }, [
+    currentEntry,
+    draftsByEntryId,
+    savedSelectionsByGameId,
+    loadedDraftStorageKey,
+    storageKey,
+    hydratedEntryId,
+    picksError,
+  ]);
 
   const activeDraft = currentEntry
     ? draftsByEntryId[currentEntry.id] || null
@@ -688,7 +715,9 @@ const PicksWorkspace = () => {
         message: "Device save failed",
         detail: draftStorageError,
       }
-    : saveState;
+    : activeDraft?.dirty && saveState.state === "saved"
+      ? { state: "saving", message: "Saving...", detail: "" }
+      : saveState;
   const selectedEntryId = currentEntry?.id || "";
   const pickView = buildPickSelectionView({
     currentEntry,
@@ -759,7 +788,11 @@ const PicksWorkspace = () => {
   useEffect(() => {
     if (
       !currentEntry ||
+      !isDraftCacheReady(loadedDraftStorageKey, storageKey) ||
+      hydratedEntryId !== currentEntry.id ||
+      picksError ||
       !activeDraft?.dirty ||
+      activeDraft.clearError ||
       picksLocked ||
       picksLoading ||
       bulkOperationRef.current
@@ -828,7 +861,19 @@ const PicksWorkspace = () => {
           }),
         );
 
-        if (selectedEntryIdRef.current === entryId) {
+        if (activeDraft.clearAll) {
+          const failedDraft = buildFailedClearDraft(
+            activeDraft,
+            outcome.error,
+          );
+          setDraftsByEntryId((currentDrafts) =>
+            getDraftRevision(currentDrafts[entryId]) === revision
+              ? { ...currentDrafts, [entryId]: failedDraft }
+              : currentDrafts,
+          );
+          if (selectedEntryIdRef.current === entryId)
+            setSaveState(buildClearFailureState(failedDraft.clearError));
+        } else if (selectedEntryIdRef.current === entryId) {
           setSaveState(buildAutosaveFailureState(outcome.error));
         }
       }
@@ -837,6 +882,9 @@ const PicksWorkspace = () => {
     return () => window.clearTimeout(timeoutId);
   }, [
     activeDraft,
+    loadedDraftStorageKey,
+    hydratedEntryId,
+    picksError,
     currentEntry,
     defaultContactEmail,
     email,
@@ -886,6 +934,8 @@ const PicksWorkspace = () => {
           ...nextDraft,
           revision: nextRevision,
           dirty: true,
+          clearAll: false,
+          clearError: null,
         },
       };
     });
@@ -928,6 +978,9 @@ const PicksWorkspace = () => {
       bulkOperationRef.current ||
       !currentEntry ||
       !activeDraft ||
+      !isDraftCacheReady(loadedDraftStorageKey, storageKey) ||
+      hydratedEntryId !== currentEntry.id ||
+      picksError ||
       blockSelectedEntryPickUi ||
       picksLocked
     ) {
@@ -945,22 +998,50 @@ const PicksWorkspace = () => {
     }
 
     const requestStorageKey = storageKey;
-    const nextDraft = {
-      ...activeDraft,
-      selectionsByGameId: nextSelectionsByGameId,
-      changedGameIds: [
-        ...new Set([
-          ...(activeDraft.changedGameIds || []),
-          ...[...editableGameIds].filter(
-            (gameId) =>
-              (activeDraft.selectionsByGameId?.[gameId] || "") !==
-              (nextSelectionsByGameId?.[gameId] || ""),
-          ),
-        ]),
-      ],
-      revision,
-      dirty: true,
-    };
+    const nextDraft =
+      operation === "clear"
+        ? buildClearAllDraft({
+            draft: activeDraft,
+            editableGameIds,
+            revision,
+          })
+        : {
+            ...activeDraft,
+            selectionsByGameId: nextSelectionsByGameId,
+            changedGameIds: [
+              ...new Set([
+                ...(activeDraft.changedGameIds || []),
+                ...[...editableGameIds].filter(
+                  (gameId) =>
+                    (activeDraft.selectionsByGameId?.[gameId] || "") !==
+                    (nextSelectionsByGameId?.[gameId] || ""),
+                ),
+              ]),
+            ],
+            revision,
+            dirty: true,
+            clearAll: false,
+            clearError: null,
+          };
+
+    // Record clear intent before dispatching. If the page closes while the
+    // request is in flight, an older selected device draft must not survive it.
+    if (
+      operation === "clear" &&
+      !persistDraftCache(storageKey, {
+        ...draftsByEntryId,
+        [entryId]: nextDraft,
+      })
+    ) {
+      setBulkFeedback({
+        open: true,
+        severity: "error",
+        message:
+          "Clear All could not start because this browser could not store the clear request. Free device storage and retry.",
+      });
+      setClearDialogOpen(false);
+      return;
+    }
 
     bulkOperationRef.current = operation;
     setBulkOperation(operation);
@@ -985,7 +1066,7 @@ const PicksWorkspace = () => {
         forceGameIds: nextDraft.changedGameIds,
         tieBreakerValue: nextDraft.tieBreakerValue,
         userProfileId: profile?.id,
-      });
+      }).catch((error) => ({ status: "failed", error }));
 
       if (
         !isMountedRef.current ||
@@ -1031,7 +1112,15 @@ const PicksWorkspace = () => {
         );
       const partialResult = operationError.partialResult;
 
-      if (partialResult?.entry?.id === entryId) {
+      if (operation === "clear") {
+        const failedDraft = buildFailedClearDraft(nextDraft, operationError);
+        setDraftsByEntryId((currentDrafts) =>
+          getDraftRevision(currentDrafts[entryId]) === revision
+            ? { ...currentDrafts, [entryId]: failedDraft }
+            : currentDrafts,
+        );
+        setSaveState(buildClearFailureState(failedDraft.clearError));
+      } else if (partialResult?.entry?.id === entryId) {
         setDraftsByEntryId((currentDrafts) => {
           const latestDraft = currentDrafts[entryId];
 
@@ -1092,14 +1181,8 @@ const PicksWorkspace = () => {
       return;
     }
 
-    const nextSelectionsByGameId = clearEditableSelections({
-      selectionsByGameId,
-      editableGameIds,
-    });
-
     void runBulkSelectionSave({
       operation: "clear",
-      nextSelectionsByGameId,
       successMessage: "Unlocked picks were cleared.",
     });
   };
@@ -1143,6 +1226,20 @@ const PicksWorkspace = () => {
   const handleRetrySave = () => {
     if (!activeDraft?.dirty) {
       return;
+    }
+
+    if (activeDraft.clearError) {
+      const revision = nextCurrentPicksRevision(
+        currentEntry.id,
+        getDraftRevision(activeDraft),
+      );
+      if (!Number.isSafeInteger(revision)) return;
+      const nextDrafts = {
+        ...draftsByEntryId,
+        [currentEntry.id]: { ...activeDraft, revision, clearError: null },
+      };
+      if (!persistDraftCache(storageKey, nextDrafts)) return;
+      setDraftsByEntryId(nextDrafts);
     }
 
     setRetryKey((current) => current + 1);
@@ -1584,18 +1681,19 @@ const PicksWorkspace = () => {
                       picksLocked ||
                       blockSelectedEntryPickUi ||
                       Boolean(bulkOperation);
-                    const matchupSaveState = !selection
+                    const matchupSaveState = getMatchupSaveState({
+                      gameId: game.id,
+                      draft: activeDraft,
+                      persistedSelection,
+                      saveState: visibleSaveState.state,
+                    });
+                    const matchupSaveMessage = !matchupSaveState
                       ? ""
-                      : selection === persistedSelection
-                        ? "saved"
-                        : visibleSaveState.state;
-                    const matchupSaveMessage = !selection
-                      ? ""
-                      : selection === persistedSelection
+                      : matchupSaveState === "saved"
                         ? "Saved"
-                        : visibleSaveState.state === "saving"
+                        : matchupSaveState === "saving"
                           ? "Saving..."
-                          : visibleSaveState.state === "device"
+                          : matchupSaveState === "device"
                             ? "Saved to device"
                             : "Retry";
 

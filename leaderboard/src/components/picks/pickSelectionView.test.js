@@ -88,3 +88,53 @@ test("background refresh keeps the currently loaded entry visible", () => {
     "game-1": "AAA",
   });
 });
+
+test("48 selected teams can correctly leave the required championship tiebreaker incomplete", () => {
+  const seasonGames = Array.from({ length: 48 }, (_, index) => ({
+    id: `game-${index}`,
+    isTieBreakerGame: index === 47,
+  }));
+  const selectionsByGameId = Object.fromEntries(
+    seasonGames.map(({ id }) => [id, "AAA"]),
+  );
+  const input = {
+    currentEntry: { id: "entry-a" },
+    hydratedEntryId: "entry-a",
+    games: seasonGames,
+    activeDraft: { selectionsByGameId, tieBreakerValue: "" },
+    tieBreakerRequired: true,
+  };
+  const missing = buildPickSelectionView(input);
+  assert.equal(missing.selectedCount, 48);
+  assert.equal(missing.incompleteCount, 1);
+  assert.equal(missing.entryStatus, "DRAFT");
+  const complete = buildPickSelectionView({
+    ...input,
+    activeDraft: { selectionsByGameId, tieBreakerValue: 0 },
+  });
+  assert.equal(complete.incompleteCount, 0);
+  assert.equal(complete.entryStatus, "COMPLETE");
+  const optional = buildPickSelectionView({
+    ...input,
+    tieBreakerRequired: false,
+  });
+  assert.equal(optional.incompleteCount, 0);
+  assert.equal(optional.entryStatus, "COMPLETE");
+});
+
+test("deselection reduces progress and stale game IDs do not count toward completion", () => {
+  const view = buildPickSelectionView({
+    currentEntry: { id: "entry-a" },
+    hydratedEntryId: "entry-a",
+    games,
+    activeDraft: {
+      selectionsByGameId: { "game-2": "AAA", removed: "BBB" },
+      tieBreakerValue: "42",
+    },
+    tieBreakerRequired: true,
+  });
+  assert.equal(view.selectedCount, 1);
+  assert.equal(view.incompleteCount, 1);
+  assert.equal(view.progressPercent, 50);
+  assert.equal(view.entryStatus, "DRAFT");
+});

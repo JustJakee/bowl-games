@@ -10,6 +10,10 @@ import {
   isDraftCacheReady,
   isDraftSyncedWithBackend,
   shouldApplyPickSaveResult,
+  reconcilePickDraft,
+  getMatchupSaveState,
+  buildFailedClearDraft,
+  buildClearFailureState,
 } from "./picksAutosaveState";
 
 const createDeferred = () => {
@@ -76,6 +80,38 @@ test("a failed backend save remains visibly device-only instead of reporting suc
       detail: "Save rejected. Reference: correlation-1.",
     },
   );
+});
+
+test("partial Clear All acknowledgments never replace the desired empty draft or its retry scope", () => {
+  const draft = {
+    clearAll: true,
+    dirty: true,
+    revision: 7,
+    tieBreakerValue: "42",
+    selectionsByGameId: {},
+    changedGameIds: ["game-1", "game-2"],
+  };
+  const error = Object.assign(new Error("Second clear failed"), {
+    correlationId: "clear-ref",
+    partialResult: {
+      entry: { entryName: "Entry" },
+      selectionsByGameId: { "game-2": "BBB" },
+    },
+  });
+  const failed = buildFailedClearDraft(draft, error);
+  const cached = JSON.parse(JSON.stringify(failed));
+  assert.deepEqual(cached.selectionsByGameId, {});
+  assert.deepEqual(cached.changedGameIds, draft.changedGameIds);
+  assert.equal(cached.dirty, true);
+  assert.equal(cached.tieBreakerValue, "42");
+  assert.equal(cached.clearError.partial, true);
+  const state = buildClearFailureState(cached.clearError);
+  assert.equal(state.state, "error");
+  assert.equal(state.message, "Partially cleared");
+  assert.match(state.detail, /Second clear failed/);
+  assert.match(state.detail, /clear-ref/);
+  assert.match(state.detail, /Retry/);
+  assert.equal(buildClearFailureState(cached.clearError).state, "error");
 });
 
 test("autosave diagnostics retain safe mutation context for testing", () => {
@@ -191,7 +227,133 @@ test("draft persistence waits until the requested storage scope is loaded", () =
     isDraftCacheReady("owner-a:season-1", "owner-b:season-1"),
     false,
   );
-  assert.equal(isDraftCacheReady("owner-a:season-1", "owner-a:season-1"), true);
+  assert.equal(
+    isDraftCacheReady("owner-a:season-1", "owner-a:season-1"),
+    true,
+  );
+});
+
+test("loading, failed reads and an unloaded storage scope preserve both clean and dirty device drafts", () => {
+  for (const dirty of [false, true]) {
+    const draft = {
+      dirty,
+      revision: 7,
+      selectionsByGameId: { "game-1": "AAA" },
+    };
+    for (const guard of [
+      { hydrated: false },
+      { cacheReady: false },
+      { readError: "Read failed" },
+    ]) {
+      assert.equal(
+        reconcilePickDraft({
+          draft,
+          backendDraft: { selectionsByGameId: {} },
+          cacheReady: true,
+          hydrated: true,
+          ...guard,
+        }),
+        draft,
+      );
+    }
+  }
+});
+
+test("device reconciliation overlays only explicit edits including deselection", () => {
+  const draft = {
+    dirty: true,
+    revision: 4,
+    selectionsByGameId: { old: "AAA", edited: "BBB" },
+    changedGameIds: ["edited", "cleared"],
+  };
+  const result = reconcilePickDraft({
+    draft,
+    backendDraft: {
+      selectionsByGameId: {
+        old: "CCC",
+        edited: "AAA",
+        cleared: "AAA",
+        new: "DDD",
+      },
+    },
+    hydrated: true,
+    cacheReady: true,
+  });
+  assert.deepEqual(result.selectionsByGameId, {
+    old: "CCC",
+    edited: "BBB",
+    new: "DDD",
+  });
+  assert.equal(result.dirty, true);
+  assert.equal(result.revision, 4);
+  assert.deepEqual(draft.selectionsByGameId, { old: "AAA", edited: "BBB" });
+});
+
+test("legacy dirty device drafts retain selections without inferring deletion of account picks", () => {
+  const result = reconcilePickDraft({
+    draft: { dirty: true, selectionsByGameId: { local: "AAA" } },
+    backendDraft: { selectionsByGameId: { account: "BBB" } },
+    hydrated: true,
+    cacheReady: true,
+  });
+  assert.deepEqual(result.selectionsByGameId, {
+    account: "BBB",
+    local: "AAA",
+  });
+  assert.deepEqual(result.changedGameIds, ["local"]);
+  assert.equal(result.dirty, true);
+});
+
+test("a successful account read refreshes a clean device draft", () => {
+  const result = reconcilePickDraft({
+    draft: { dirty: false, revision: 5, selectionsByGameId: { old: "AAA" } },
+    backendDraft: {
+      entryName: "Entry",
+      selectionsByGameId: { account: "BBB" },
+      tieBreakerValue: "42",
+    },
+    hydrated: true,
+    cacheReady: true,
+  });
+  assert.deepEqual(result, {
+    entryName: "Entry",
+    selectionsByGameId: { account: "BBB" },
+    tieBreakerValue: "42",
+    revision: 5,
+    dirty: false,
+  });
+});
+
+test("returning to a previously confirmed team remains pending while an older replacement is in flight", () => {
+  const input = {
+    gameId: "game-1",
+    persistedSelection: "AAA",
+    draft: {
+      dirty: true,
+      changedGameIds: ["game-1"],
+      selectionsByGameId: { "game-1": "AAA" },
+    },
+  };
+  assert.equal(
+    getMatchupSaveState({ ...input, saveState: "saved" }),
+    "saving",
+  );
+  assert.equal(
+    getMatchupSaveState({ ...input, saveState: "saving" }),
+    "saving",
+  );
+  assert.equal(
+    getMatchupSaveState({ ...input, saveState: "device" }),
+    "device",
+  );
+  assert.equal(
+    getMatchupSaveState({
+      ...input,
+      draft: { ...input.draft, dirty: false },
+      saveState: "saved",
+    }),
+    "saved",
+  );
 });
 
 test("autosave serializes one entry and coalesces intermediate revisions", async () => {
@@ -322,8 +484,14 @@ test("revision allocation stays monotonic after a remount or cleared draft cache
 
   coordinator.markLatest("entry-a", 12, "owner-a:season-1");
 
-  assert.equal(coordinator.nextRevision("entry-a", 0, "owner-a:season-1"), 13);
-  assert.equal(coordinator.nextRevision("entry-a", 2, "owner-a:season-1"), 14);
+  assert.equal(
+    coordinator.nextRevision("entry-a", 0, "owner-a:season-1"),
+    13,
+  );
+  assert.equal(
+    coordinator.nextRevision("entry-a", 2, "owner-a:season-1"),
+    14,
+  );
   assert.equal(coordinator.nextRevision("entry-a", 0, "owner-b:season-1"), 1);
 });
 

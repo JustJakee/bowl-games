@@ -128,7 +128,7 @@ export const AppDataProvider = ({ children }) => {
     [scoreboardGames],
   );
   const tieBreakerGameId = tieBreakerGame?.id || "";
-  const tieBreakerRequired = Boolean(tieBreakerGameId);
+  const tieBreakerRequired = Boolean(seasonConfig?.tieBreakerRequired);
   const currentEntry =
     entries.find((entry) => entry.id === activeEntryId) || entries[0] || null;
 
@@ -236,6 +236,7 @@ export const AppDataProvider = ({ children }) => {
       !currentSeasonId ||
       !owner
     ) {
+      picksRequestIdRef.current += 1;
       resetActiveEntryState();
       setPicksLoading(false);
       setPicksError("");
@@ -243,6 +244,10 @@ export const AppDataProvider = ({ children }) => {
     }
 
     const requestId = picksRequestIdRef.current + 1;
+    const requestScope = saveScopeRef.current;
+    const isCurrentRequest = () =>
+      picksRequestIdRef.current === requestId &&
+      saveScopeRef.current === requestScope;
     // STATE — PICKS — REACT CONTEXT
     // A request ID prevents a slower prior hydration request from overwriting the canonical entry.
     picksRequestIdRef.current = requestId;
@@ -272,7 +277,7 @@ export const AppDataProvider = ({ children }) => {
       }),
     ])
       .then(([entry, savedPicks]) => {
-        if (picksRequestIdRef.current !== requestId) {
+        if (!isCurrentRequest()) {
           return;
         }
 
@@ -298,7 +303,7 @@ export const AppDataProvider = ({ children }) => {
         setStaleSavedPickIds(savedPicks.stalePicks.map((pick) => pick.gameId));
       })
       .catch((error) => {
-        if (picksRequestIdRef.current !== requestId) {
+        if (!isCurrentRequest()) {
           return;
         }
 
@@ -309,10 +314,14 @@ export const AppDataProvider = ({ children }) => {
         setPicksError(error?.message || "Unable to load your pick set.");
       })
       .finally(() => {
-        if (picksRequestIdRef.current === requestId) {
+        if (isCurrentRequest()) {
           setPicksLoading(false);
         }
       });
+    return () => {
+      if (picksRequestIdRef.current === requestId)
+        picksRequestIdRef.current += 1;
+    };
   }, [
     activeEntryId,
     authLoading,
@@ -440,6 +449,10 @@ export const AppDataProvider = ({ children }) => {
       });
 
       if (applyToActiveEntry) {
+        // A hydration started before this acknowledged mutation may still be
+        // in flight. It cannot replace the newer confirmed selections.
+        picksRequestIdRef.current += 1;
+        setPicksLoading(false);
         setSavedSelectionsByGameId(result.selectionsByGameId);
         setCurrentEntryStatus(result.status);
         setStaleSavedPickIds(

@@ -88,6 +88,29 @@ export const clearEditableSelections = ({
   return nextSelections;
 };
 
+export const buildClearAllDraft = ({ draft, editableGameIds, revision }) => {
+  const selectionsByGameId = clearEditableSelections({
+    selectionsByGameId: draft.selectionsByGameId,
+    editableGameIds,
+  });
+  return {
+    ...draft,
+    selectionsByGameId,
+    changedGameIds: [
+      ...new Set([
+        ...(draft.changedGameIds || []),
+        // Clear is a command for every applicable game, not a diff of a possibly
+        // stale device snapshot. Each empty selection needs an acknowledgment.
+        ...editableGameIds,
+      ]),
+    ],
+    revision,
+    dirty: true,
+    clearAll: true,
+    clearError: null,
+  };
+};
+
 export const toggleGameSelection = ({
   gameId,
   selectedTeam,
