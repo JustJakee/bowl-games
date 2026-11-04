@@ -39,14 +39,45 @@ export function normalizeUsernameKey(username) {
   return username.trim().toLowerCase();
 }
 
-export function validateUsername(username) {
-  const trimmed = username.trim();
+export const USERNAME_REQUIREMENTS = [
+  { id: "no-spaces", label: "No spaces" },
+  { id: "length", label: "3–20 characters" },
+  {
+    id: "allowed-characters",
+    label: "Letters, numbers, underscores, and hyphens only",
+  },
+];
 
-  if (trimmed.length < 3 || trimmed.length > 20) {
+export function evaluateUsernameRequirements(username = "") {
+  const value = String(username);
+  return [
+    {
+      ...USERNAME_REQUIREMENTS[0],
+      satisfied: value.length > 0 && !/\s/.test(value),
+    },
+    {
+      ...USERNAME_REQUIREMENTS[1],
+      satisfied: value.length >= 3 && value.length <= 20,
+    },
+    {
+      ...USERNAME_REQUIREMENTS[2],
+      satisfied: value.length > 0 && /^[A-Za-z0-9_-]+$/.test(value),
+    },
+  ];
+}
+
+export function validateUsername(username) {
+  const value = String(username || "");
+
+  if (value.length < 3 || value.length > 20) {
     return "Username must be between 3 and 20 characters.";
   }
 
-  if (!/^[A-Za-z0-9_-]+$/.test(trimmed)) {
+  if (/\s/.test(value)) {
+    return "Username cannot contain spaces.";
+  }
+
+  if (!/^[A-Za-z0-9_-]+$/.test(value)) {
     return "Use only letters, numbers, underscores, and hyphens.";
   }
 
@@ -108,7 +139,42 @@ export async function createCurrentUserProfile({
   );
 
   throwIfGraphQLError(result, "Unable to create the user profile.");
+  if (!result.data) throw new Error("Unable to create the user profile.");
   return result.data;
+}
+
+export async function createCurrentUserProfileWithFavoriteTeam({
+  email,
+  favoriteTeamId,
+  preferredGroup,
+  username,
+}) {
+  const profile = await createCurrentUserProfile({
+    email,
+    preferredGroup,
+    username,
+  });
+
+  if (!favoriteTeamId) {
+    return { profile, favoriteTeamError: null };
+  }
+
+  try {
+    const updatedProfile = await updateCurrentUserFavoriteTeam({
+      profileId: profile.id,
+      favoriteTeamId,
+    });
+    return {
+      profile: {
+        ...profile,
+        ...updatedProfile,
+        favoriteTeamId: String(favoriteTeamId),
+      },
+      favoriteTeamError: null,
+    };
+  } catch (favoriteTeamError) {
+    return { profile, favoriteTeamError };
+  }
 }
 
 export async function updateCurrentUserFavoriteTeam({

@@ -152,9 +152,22 @@ export const UserProfileProvider = ({ children }) => {
     [owner, state.profile],
   );
 
+  const adoptCreatedProfile = useCallback(
+    (createdProfile) => {
+      if (!profileBelongsToOwner(createdProfile, owner)) {
+        throw new Error("The saved profile does not match your account.");
+      }
+
+      profileRequestIdRef.current += 1;
+      setState({ status: "ready", profile: createdProfile, error: "" });
+      return createdProfile;
+    },
+    [owner],
+  );
+
   const value = useMemo(
-    () => ({ ...state, updateFavoriteTeam }),
-    [state, updateFavoriteTeam],
+    () => ({ ...state, adoptCreatedProfile, updateFavoriteTeam }),
+    [adoptCreatedProfile, state, updateFavoriteTeam],
   );
 
   return (

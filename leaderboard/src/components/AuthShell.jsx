@@ -5,10 +5,9 @@ import {
   Box,
   Button,
   CircularProgress,
-  Divider,
   Paper,
+  Snackbar,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
@@ -29,7 +28,7 @@ import {
   useUserProfile,
 } from "../auth/UserProfileContext.jsx";
 import {
-  createCurrentUserProfile,
+  createCurrentUserProfileWithFavoriteTeam,
   isUsernameTaken,
   normalizeUsernameKey,
   validateUsername,
@@ -41,6 +40,7 @@ import ConfirmRegistrationPage from "../auth/ConfirmRegistrationPage.jsx";
 import ResetPasswordForm from "../auth/ResetPasswordForm.jsx";
 import ConfirmResetPasswordForm from "../auth/ConfirmResetPasswordForm.jsx";
 import NewPasswordForm from "../auth/NewPasswordForm.jsx";
+import CompleteProfilePage from "../auth/CompleteProfilePage.jsx";
 import { mapAuthErrorMessage } from "../auth/authErrorMessages.js";
 
 const formatUserLabel = (user) => {
@@ -128,58 +128,44 @@ const GateFrame = ({ children }) => {
 };
 
 const ProfileGate = ({ children }) => {
-  const [usernameInput, setUsernameInput] = useState("");
-  const [submitError, setSubmitError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [completionWarning, setCompletionWarning] = useState("");
   const { email, role, signOut, user } = useAuth();
-  const { status, error, profile } = useUserProfile();
+  const { adoptCreatedProfile, status, error, profile } = useUserProfile();
 
   const privateEmail = email || formatUserLabel(user);
-  const handleProfileSubmit = async (event) => {
-    event.preventDefault();
-    setSubmitError("");
-
-    const validationMessage = validateUsername(usernameInput);
+  const handleProfileSubmit = async ({ favoriteTeamId, username }) => {
+    const validationMessage = validateUsername(username);
     if (validationMessage) {
-      setSubmitError(validationMessage);
-      return;
+      throw new Error(validationMessage);
     }
 
     if (!privateEmail) {
-      setSubmitError(
+      throw new Error(
         "Your signed-in email was not available from the session.",
       );
-      return;
     }
 
-    setIsSubmitting(true);
+    const usernameKey = normalizeUsernameKey(username);
+    const taken = await isUsernameTaken(usernameKey);
 
-    try {
-      const usernameKey = normalizeUsernameKey(usernameInput);
-      const taken = await isUsernameTaken(usernameKey);
+    if (taken) {
+      throw new Error("That username is already taken. Please choose another.");
+    }
 
-      if (taken) {
-        setSubmitError(
-          "That username is already taken. Please choose another.",
-        );
-        return;
-      }
+    const result = await createCurrentUserProfileWithFavoriteTeam({
+      email: privateEmail,
+      favoriteTeamId,
+      preferredGroup: role || undefined,
+      username,
+    });
 
-      await createCurrentUserProfile({
-        email: privateEmail,
-        preferredGroup: role || undefined,
-        username: usernameInput,
-      });
-
-      window.location.reload();
-    } catch (profileError) {
-      setSubmitError(
-        profileError?.message ||
-          "Unable to save your username right now. Please try again.",
+    if (result.favoriteTeamError) {
+      setCompletionWarning(
+        "Your profile was saved, but your favorite team could not be saved. You can choose it later in Account Settings.",
       );
-    } finally {
-      setIsSubmitting(false);
     }
+
+    adoptCreatedProfile(result.profile);
   };
 
   if (status === "loading" || status === "refreshing" || status === "idle") {
@@ -217,58 +203,34 @@ const ProfileGate = ({ children }) => {
   if (status === "needs-setup") {
     return (
       <GateFrame>
-        <Typography variant="h6">Choose your public username</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          You sign in with email, but the app displays your public username on
-          leaderboards and dashboard surfaces.
-        </Typography>
-        <Stack
-          spacing={2}
-          component="form"
-          onSubmit={handleProfileSubmit}
-          sx={{ mt: 3 }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            Signed in as {privateEmail}
-          </Typography>
-          <TextField
-            label="Username"
-            value={usernameInput}
-            onChange={(event) => {
-              setUsernameInput(event.target.value);
-              setSubmitError("");
-            }}
-            inputProps={{
-              autoCapitalize: "none",
-              autoCorrect: "off",
-              maxLength: 20,
-            }}
-            helperText={
-              "3-20 characters. Letters, numbers, underscores, and hyphens only."
-            }
-            autoComplete="off"
-            required
-          />
-          {submitError ? <Alert severity="error">{submitError}</Alert> : null}
-          <Divider />
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-            <Button
-              variant="outlined"
-              onClick={signOut}
-              disabled={isSubmitting}
-            >
-              Sign out
-            </Button>
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save username"}
-            </Button>
-          </Stack>
-        </Stack>
+        <CompleteProfilePage
+          email={privateEmail}
+          onSaveProfile={handleProfileSubmit}
+          onSignOut={signOut}
+        />
       </GateFrame>
     );
   }
 
-  return children(profile);
+  return (
+    <>
+      {children(profile)}
+      <Snackbar
+        open={Boolean(completionWarning)}
+        autoHideDuration={8000}
+        onClose={() => setCompletionWarning("")}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity="warning"
+          variant="filled"
+          onClose={() => setCompletionWarning("")}
+        >
+          {completionWarning}
+        </Alert>
+      </Snackbar>
+    </>
+  );
 };
 
 const AuthShell = ({ children }) => {
