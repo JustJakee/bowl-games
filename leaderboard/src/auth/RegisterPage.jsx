@@ -1,15 +1,21 @@
 import { useState } from "react";
-import { Button, CircularProgress, IconButton, InputAdornment, Stack, TextField } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+} from "@mui/material";
 import AuthFormLayout from "./AuthFormLayout";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
+import { passwordMeetsPolicy } from "./passwordPolicy.js";
+import PasswordRequirementsChecklist from "./PasswordRequirementsChecklist.jsx";
 
 /**
  * Builds the `slotProps.input` config for a password field with a
  * show/hide toggle button.
- *
- * Both password fields on the registration form share a single visibility
- * state, so toggling either one reveals or hides both at the same time.
  *
  * @param {boolean} visible - Whether the password text is currently shown.
  * @param {Function} onToggle - Callback that flips the visibility state.
@@ -43,8 +49,11 @@ export default function RegisterPage({ error, onBack, onSubmit }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmTouched, setConfirmTouched] = useState(false);
   const [fieldError, setFieldError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const passwordsMismatch = confirmTouched && password !== confirmPassword;
 
   /**
    * Validates that both passwords match, then submits the registration.
@@ -55,8 +64,12 @@ export default function RegisterPage({ error, onBack, onSubmit }) {
   const submit = async (event) => {
     event.preventDefault();
     setFieldError("");
+    setConfirmTouched(true);
     if (password !== confirmPassword) {
-      setFieldError("Passwords do not match.");
+      return;
+    }
+    if (!passwordMeetsPolicy(password)) {
+      setFieldError("Password does not meet all requirements.");
       return;
     }
     setSubmitting(true);
@@ -68,6 +81,8 @@ export default function RegisterPage({ error, onBack, onSubmit }) {
   };
 
   const toggleShowPassword = () => setShowPassword((current) => !current);
+  const toggleShowConfirmPassword = () =>
+    setShowConfirmPassword((current) => !current);
 
   return (
     <AuthFormLayout
@@ -75,7 +90,7 @@ export default function RegisterPage({ error, onBack, onSubmit }) {
       description="Verify your email, then wait for an administrator to approve player access."
       error={fieldError || error}
     >
-      <Stack component="form" spacing={2} onSubmit={submit}>
+      <Stack component="form" spacing={2.25} onSubmit={submit}>
         <TextField
           label="Email"
           type="email"
@@ -90,29 +105,59 @@ export default function RegisterPage({ error, onBack, onSubmit }) {
           type={showPassword ? "text" : "password"}
           autoComplete="new-password"
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => {
+            setPassword(event.target.value);
+            setFieldError("");
+          }}
           required
           fullWidth
-          slotProps={{ input: passwordToggleInput(showPassword, toggleShowPassword) }}
+          slotProps={{
+            input: passwordToggleInput(showPassword, toggleShowPassword),
+          }}
+        />
+        <PasswordRequirementsChecklist
+          password={password}
+          sx={{ mt: "-8px !important" }}
         />
         <TextField
           label="Confirm password"
-          type={showPassword ? "text" : "password"}
+          type={showConfirmPassword ? "text" : "password"}
           autoComplete="new-password"
           value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
+          onChange={(event) => {
+            setConfirmPassword(event.target.value);
+            if (confirmTouched) setFieldError("");
+          }}
+          onBlur={() => setConfirmTouched(true)}
+          error={passwordsMismatch}
+          helperText={passwordsMismatch ? "Passwords do not match." : " "}
           required
           fullWidth
-          slotProps={{ input: passwordToggleInput(showPassword, toggleShowPassword) }}
+          slotProps={{
+            input: passwordToggleInput(
+              showConfirmPassword,
+              toggleShowConfirmPassword,
+            ),
+          }}
         />
-        <Button type="submit" variant="contained" disabled={submitting}>
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={submitting}
+          sx={{ minHeight: 48, fontSize: "0.95rem" }}
+        >
           {submitting ? (
             <CircularProgress size={22} color="inherit" />
           ) : (
             "CREATE ACCOUNT"
           )}
         </Button>
-        <Button type="button" onClick={onBack}>
+        <Button
+          type="button"
+          onClick={onBack}
+          sx={{ alignSelf: "center", minHeight: "auto", px: 1, py: 0.75 }}
+        >
           Back to sign in
         </Button>
       </Stack>

@@ -73,6 +73,16 @@ const schema = a
           ]),
         // Optional player preference used to group or present their entries.
         preferredGroup: a.string(),
+        // Optional account-level ESPN team identifier. Only the profile owner may read or update
+        // it; approved-player and admin profile reads do not expose this preference.
+        favoriteTeamId: a
+          .string()
+          .authorization((allow) => [
+            allow
+              .ownerDefinedIn("owner")
+              .identityClaim("sub")
+              .to(["read", "update"]),
+          ]),
         // Virtual one-to-many connection to Entry records whose `userProfileId` is this profile.
         entries: a.hasMany("Entry", "userProfileId"),
       })

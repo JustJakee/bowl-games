@@ -1,9 +1,22 @@
 // STATE — USER PROFILE — REACT CONTEXT
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useAuth } from "./AuthContext.jsx";
-import { getCurrentUserProfile } from "./userProfile";
+import {
+  getCurrentUserProfile,
+  updateCurrentUserFavoriteTeam,
+} from "./userProfile";
 
 const UserProfileContext = createContext(null);
+
+export const profileBelongsToOwner = (profile, owner) =>
+  Boolean(profile?.owner && owner && profile.owner === owner);
 
 export const UserProfileProvider = ({ children }) => {
   const { hasValidTokens, isAuthenticated, isConfigured, isLoading, user } =
@@ -38,8 +51,12 @@ export const UserProfileProvider = ({ children }) => {
 
     const loadProfile = async () => {
       setState((current) => ({
-        status: current.profile ? "refreshing" : "loading",
-        profile: current.profile,
+        status: profileBelongsToOwner(current.profile, owner)
+          ? "refreshing"
+          : "loading",
+        profile: profileBelongsToOwner(current.profile, owner)
+          ? current.profile
+          : null,
         error: "",
       }));
 
@@ -70,7 +87,36 @@ export const UserProfileProvider = ({ children }) => {
     };
   }, [hasValidTokens, isAuthenticated, isConfigured, isLoading, owner]);
 
-  const value = useMemo(() => ({ ...state }), [state]);
+  const updateFavoriteTeam = useCallback(
+    async (favoriteTeamId) => {
+      if (!profileBelongsToOwner(state.profile, owner)) {
+        throw new Error("Your profile is not ready.");
+      }
+
+      const updatedProfile = await updateCurrentUserFavoriteTeam({
+        profileId: state.profile.id,
+        favoriteTeamId,
+      });
+
+      setState((current) =>
+        profileBelongsToOwner(current.profile, owner)
+          ? {
+              ...current,
+              status: "ready",
+              profile: { ...current.profile, ...updatedProfile },
+              error: "",
+            }
+          : current,
+      );
+      return updatedProfile;
+    },
+    [owner, state.profile],
+  );
+
+  const value = useMemo(
+    () => ({ ...state, updateFavoriteTeam }),
+    [state, updateFavoriteTeam],
+  );
 
   return (
     <UserProfileContext.Provider value={value}>

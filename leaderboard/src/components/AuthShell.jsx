@@ -1,10 +1,9 @@
 // AUTH — AUTHENTICATION — REACT
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
   Divider,
   Paper,
@@ -132,15 +131,10 @@ const ProfileGate = ({ children }) => {
   const [usernameInput, setUsernameInput] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { email, groups, role, signOut, user } = useAuth();
+  const { email, role, signOut, user } = useAuth();
   const { status, error, profile } = useUserProfile();
 
   const privateEmail = email || formatUserLabel(user);
-  const usernamePreview = useMemo(
-    () => normalizeUsernameKey(usernameInput || ""),
-    [usernameInput],
-  );
-
   const handleProfileSubmit = async (event) => {
     event.preventDefault();
     setSubmitError("");
@@ -234,15 +228,6 @@ const ProfileGate = ({ children }) => {
           onSubmit={handleProfileSubmit}
           sx={{ mt: 3 }}
         >
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-            {groups.length > 0 ? (
-              groups.map((group) => (
-                <Chip key={group} label={group} size="small" color="primary" />
-              ))
-            ) : (
-              <Chip label="no role assigned" size="small" variant="outlined" />
-            )}
-          </Stack>
           <Typography variant="body2" color="text.secondary">
             Signed in as {privateEmail}
           </Typography>
@@ -259,9 +244,7 @@ const ProfileGate = ({ children }) => {
               maxLength: 20,
             }}
             helperText={
-              usernameInput
-                ? `Username key: ${usernamePreview}`
-                : "3-20 characters. Letters, numbers, underscores, and hyphens only."
+              "3-20 characters. Letters, numbers, underscores, and hyphens only."
             }
             autoComplete="off"
             required

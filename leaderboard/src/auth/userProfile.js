@@ -1,12 +1,24 @@
 // DATA — USER PROFILE — AMPLIFY DATA
 import { dataClient as configuredDataClient } from "./amplifyConfig";
 
-const PROFILE_SELECTION = ["id", "owner", "email", "username", "usernameKey"];
+const PROFILE_SELECTION = [
+  "id",
+  "owner",
+  "email",
+  "username",
+  "usernameKey",
+  "favoriteTeamId",
+];
 const USERNAME_LOOKUP_SELECTION = ["username", "usernameKey"];
+let dataClientOverride = null;
 
 function getDataClient() {
-  return configuredDataClient;
+  return dataClientOverride || configuredDataClient;
 }
+
+export const __setUserProfileDataClientForTests = (client) => {
+  dataClientOverride = client;
+};
 
 function getFirstGraphQLError(result) {
   return result?.errors?.[0]?.message || null;
@@ -96,5 +108,26 @@ export async function createCurrentUserProfile({
   );
 
   throwIfGraphQLError(result, "Unable to create the user profile.");
+  return result.data;
+}
+
+export async function updateCurrentUserFavoriteTeam({
+  profileId,
+  favoriteTeamId,
+}) {
+  if (!profileId) throw new Error("A user profile is required.");
+  if (!favoriteTeamId) throw new Error("Select a favorite team.");
+
+  const client = getDataClient();
+  const result = await client.models.UserProfile.update(
+    { id: profileId, favoriteTeamId: String(favoriteTeamId) },
+    {
+      selectionSet: PROFILE_SELECTION,
+      authMode: "userPool",
+    },
+  );
+
+  throwIfGraphQLError(result, "Unable to save your favorite team.");
+  if (!result.data) throw new Error("Unable to save your favorite team.");
   return result.data;
 }
