@@ -110,8 +110,7 @@ const FavoriteTeamDialog = ({
       <DialogContent dividers>
         <Stack spacing={2.25}>
           <DialogContentText id="favorite-team-dialog-description">
-            Search the FBS team list and select one team to represent your
-            account.
+            Search the team list and select one team to represent your account.
           </DialogContentText>
 
           {error ? (
@@ -137,7 +136,7 @@ const FavoriteTeamDialog = ({
             >
               <CircularProgress size={18} />
               <Typography variant="body2" color="text.secondary">
-                Loading FBS teams...
+                Loading teams...
               </Typography>
             </Stack>
           ) : null}
@@ -156,8 +155,8 @@ const FavoriteTeamDialog = ({
             }
             getOptionLabel={(option) => option.displayName}
             isOptionEqualToValue={(option, value) => option.id === value.id}
-            noOptionsText="No FBS teams match your search."
-            loadingText="Loading FBS teams..."
+            noOptionsText="No teams match your search."
+            loadingText="Loading teams..."
             renderOption={(props, option) => {
               const { key, ...optionProps } = props;
               return (
@@ -184,7 +183,7 @@ const FavoriteTeamDialog = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Search FBS teams"
+                label="Search teams"
                 placeholder="Team name or abbreviation"
                 autoFocus
               />

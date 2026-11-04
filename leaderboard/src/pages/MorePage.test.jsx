@@ -6,6 +6,7 @@ import {
   AccountSettingsView,
   resolveAccountPaymentState,
 } from "./MorePage.jsx";
+import { applySavedFavoriteTeamToState } from "../auth/UserProfileContext.jsx";
 
 const renderAccount = (paymentState) =>
   renderToStaticMarkup(
@@ -147,6 +148,42 @@ test("saved favorite team appears in both account cards", () => {
   assert.match(markup, /Alabama Crimson Tide/);
   assert.match(markup, /Change Favorite Team/);
   assert.doesNotMatch(markup, /Select Favorite Team/);
+});
+
+test("a confirmed save updates both favorite-team surfaces without a reload", () => {
+  const next = applySavedFavoriteTeamToState(
+    {
+      status: "ready",
+      profile: {
+        id: "profile-1",
+        owner: "owner-1",
+        favoriteTeamId: "12",
+      },
+      error: "",
+    },
+    "owner-1",
+    { id: "profile-1", owner: "owner-1" },
+    "333",
+  );
+  const markup = renderToStaticMarkup(
+    <AccountSettingsView
+      username="Bowl Fan"
+      email="fan@example.com"
+      paymentState="paid"
+      favoriteTeamId={next.profile.favoriteTeamId}
+      favoriteTeam={{
+        id: "333",
+        displayName: "Alabama Crimson Tide",
+        abbreviation: "ALA",
+        logo: "https://a.espncdn.com/i/teamlogos/ncaa/500/333.png",
+      }}
+      onChooseFavoriteTeam={() => {}}
+      onChangePassword={() => {}}
+    />,
+  );
+
+  assert.equal(markup.match(/Alabama Crimson Tide logo/g)?.length, 2);
+  assert.match(markup, /Change Favorite Team/);
 });
 
 test("favorite team action opens the picker without changing other account logic", () => {

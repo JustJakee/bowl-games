@@ -115,10 +115,7 @@ export default function RegisterPage({ error, onBack, onSubmit }) {
             input: passwordToggleInput(showPassword, toggleShowPassword),
           }}
         />
-        <PasswordRequirementsChecklist
-          password={password}
-          sx={{ mt: "-8px !important" }}
-        />
+        <PasswordRequirementsChecklist password={password} />
         <TextField
           label="Confirm password"
           type={showConfirmPassword ? "text" : "password"}

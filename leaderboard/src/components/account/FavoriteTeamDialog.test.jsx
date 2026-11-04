@@ -62,8 +62,10 @@ test("picker includes loading, retry, empty, save, cancel, and duplicate guards"
     "utf8",
   );
 
-  assert.match(source, /loadingText="Loading FBS teams\.\.\."/);
-  assert.match(source, /No FBS teams match your search\./);
+  assert.match(source, /loadingText="Loading teams\.\.\."/);
+  assert.match(source, /No teams match your search\./);
+  assert.match(source, /label="Search teams"/);
+  assert.doesNotMatch(source, /FBS/);
   assert.match(source, />\s*Retry\s*</);
   assert.match(source, />\s*Cancel\s*</);
   assert.match(source, /"Save Team"/);

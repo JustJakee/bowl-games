@@ -5,7 +5,11 @@ import {
   getCurrentUserProfile,
   updateCurrentUserFavoriteTeam,
 } from "./userProfile.js";
-import { profileBelongsToOwner } from "./UserProfileContext.jsx";
+import {
+  applySavedFavoriteTeamToState,
+  mergePersistedFavoriteTeamProfile,
+  profileBelongsToOwner,
+} from "./UserProfileContext.jsx";
 
 afterEach(() => {
   __setUserProfileDataClientForTests(null);
@@ -78,4 +82,87 @@ test("unauthorized and failed preference writes are rejected", async () => {
     }),
     /Not authorized/,
   );
+});
+
+test("a confirmed favorite team write immediately publishes the requested team ID", () => {
+  const current = {
+    status: "ready",
+    profile: {
+      id: "profile-1",
+      owner: "owner-1",
+      favoriteTeamId: "12",
+    },
+    error: "",
+  };
+
+  const next = applySavedFavoriteTeamToState(
+    current,
+    "owner-1",
+    { id: "profile-1", owner: "owner-1" },
+    333,
+  );
+
+  assert.notEqual(next, current);
+  assert.equal(next.profile.favoriteTeamId, "333");
+  assert.equal(current.profile.favoriteTeamId, "12");
+});
+
+test("favorite team state cannot leak across account changes", () => {
+  const current = {
+    status: "ready",
+    profile: {
+      id: "profile-2",
+      owner: "owner-2",
+      favoriteTeamId: "12",
+    },
+    error: "",
+  };
+
+  assert.equal(
+    applySavedFavoriteTeamToState(
+      current,
+      "owner-1",
+      { id: "profile-1", owner: "owner-1", favoriteTeamId: "333" },
+      "333",
+    ),
+    current,
+  );
+});
+
+test("failed writes leave the previously saved favorite team unchanged", async () => {
+  const previous = {
+    id: "profile-1",
+    owner: "owner-1",
+    favoriteTeamId: "12",
+  };
+
+  __setUserProfileDataClientForTests({
+    models: {
+      UserProfile: {
+        update: async () => ({
+          data: null,
+          errors: [{ message: "Preference update failed" }],
+        }),
+      },
+    },
+  });
+
+  await assert.rejects(
+    updateCurrentUserFavoriteTeam({
+      profileId: previous.id,
+      favoriteTeamId: "333",
+    }),
+    /Preference update failed/,
+  );
+  assert.equal(previous.favoriteTeamId, "12");
+});
+
+test("the persisted ID wins when a mutation response omits the optional field", () => {
+  const merged = mergePersistedFavoriteTeamProfile(
+    { id: "profile-1", owner: "owner-1", favoriteTeamId: "12" },
+    { id: "profile-1", owner: "owner-1" },
+    "333",
+  );
+
+  assert.equal(merged.favoriteTeamId, "333");
 });

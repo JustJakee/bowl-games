@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useAuth } from "./AuthContext.jsx";
@@ -18,6 +19,35 @@ const UserProfileContext = createContext(null);
 export const profileBelongsToOwner = (profile, owner) =>
   Boolean(profile?.owner && owner && profile.owner === owner);
 
+export const mergePersistedFavoriteTeamProfile = (
+  profile,
+  updatedProfile,
+  favoriteTeamId,
+) => ({
+  ...profile,
+  ...updatedProfile,
+  favoriteTeamId: String(favoriteTeamId),
+});
+
+export const applySavedFavoriteTeamToState = (
+  current,
+  owner,
+  updatedProfile,
+  favoriteTeamId,
+) =>
+  profileBelongsToOwner(current.profile, owner)
+    ? {
+        ...current,
+        status: "ready",
+        profile: mergePersistedFavoriteTeamProfile(
+          current.profile,
+          updatedProfile,
+          favoriteTeamId,
+        ),
+        error: "",
+      }
+    : current;
+
 export const UserProfileProvider = ({ children }) => {
   const { hasValidTokens, isAuthenticated, isConfigured, isLoading, user } =
     useAuth();
@@ -26,6 +56,7 @@ export const UserProfileProvider = ({ children }) => {
     profile: null,
     error: "",
   });
+  const profileRequestIdRef = useRef(0);
 
   const owner = user?.userId || null;
 
@@ -39,6 +70,7 @@ export const UserProfileProvider = ({ children }) => {
       !hasValidTokens ||
       !owner
     ) {
+      profileRequestIdRef.current += 1;
       setState({
         status: "idle",
         profile: null,
@@ -47,6 +79,7 @@ export const UserProfileProvider = ({ children }) => {
       return;
     }
 
+    const requestId = ++profileRequestIdRef.current;
     let active = true;
 
     const loadProfile = async () => {
@@ -62,14 +95,14 @@ export const UserProfileProvider = ({ children }) => {
 
       try {
         const profile = await getCurrentUserProfile(owner);
-        if (!active) return;
+        if (!active || requestId !== profileRequestIdRef.current) return;
         setState({
           status: profile ? "ready" : "needs-setup",
           profile,
           error: "",
         });
       } catch (error) {
-        if (!active) return;
+        if (!active || requestId !== profileRequestIdRef.current) return;
         setState({
           status: "error",
           profile: null,
@@ -98,17 +131,23 @@ export const UserProfileProvider = ({ children }) => {
         favoriteTeamId,
       });
 
-      setState((current) =>
-        profileBelongsToOwner(current.profile, owner)
-          ? {
-              ...current,
-              status: "ready",
-              profile: { ...current.profile, ...updatedProfile },
-              error: "",
-            }
-          : current,
+      // The mutation has persisted successfully. Invalidate any older profile read
+      // before publishing the confirmed team ID to both account cards.
+      profileRequestIdRef.current += 1;
+      const savedProfile = mergePersistedFavoriteTeamProfile(
+        state.profile,
+        updatedProfile,
+        favoriteTeamId,
       );
-      return updatedProfile;
+      setState((current) =>
+        applySavedFavoriteTeamToState(
+          current,
+          owner,
+          updatedProfile,
+          favoriteTeamId,
+        ),
+      );
+      return savedProfile;
     },
     [owner, state.profile],
   );

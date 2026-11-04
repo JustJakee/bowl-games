@@ -96,7 +96,7 @@ export const fetchFbsTeams = ({ force = false } = {}) => {
         throw new Error(`ESPN team API error ${response.status}`);
       }
       const teams = normalizeFbsTeams(await response.json());
-      if (!teams.length) throw new Error("ESPN returned no FBS teams.");
+      if (!teams.length) throw new Error("ESPN returned no teams.");
       return teams;
     })
     .catch((error) => {

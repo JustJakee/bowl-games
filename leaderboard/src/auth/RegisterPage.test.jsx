@@ -53,6 +53,16 @@ test("registration renders persistent requirements and both visibility controls"
   assert.equal(markup.match(/aria-label="Show password"/g)?.length, 2);
 });
 
+test("password requirements keep the form spacing below the password field", () => {
+  const source = readFileSync(
+    new URL("./RegisterPage.jsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.doesNotMatch(source, /mt:\s*"-8px !important"/);
+  assert.match(source, /<PasswordRequirementsChecklist password=\{password\} \/>/);
+});
+
 test("registration preserves independent toggles, mismatch feedback, and submit contract", () => {
   const registerSource = readFileSync(
     new URL("./RegisterPage.jsx", import.meta.url),
