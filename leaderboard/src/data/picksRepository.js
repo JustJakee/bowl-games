@@ -281,6 +281,7 @@ export const saveEntryState = async ({
   tieBreakerRequired = false,
   picksLockAt,
   now = Date.now(),
+  onPickProgress,
 }) => {
   // DATA — PICKS — AMPLIFY DATA
   // Save changed selections individually so an incomplete entry remains a resumable draft.
@@ -368,6 +369,7 @@ export const saveEntryState = async ({
   const client = getDataClient();
   const correlationId = createCorrelationId();
   const completedPickChanges = [];
+  let acknowledgedClearCount = 0;
   const confirmedPicksByGameId = new Map(
     savedPicks.picks.map((pick) => [pick.gameId, pick]),
   );
@@ -402,6 +404,22 @@ export const saveEntryState = async ({
     throw error;
   };
 
+  const reportClearProgress = (acknowledgedChange = null) => {
+    if (typeof onPickProgress !== "function") return;
+
+    try {
+      onPickProgress({
+        completed: acknowledgedClearCount,
+        total: clearedPicks.length,
+        acknowledgedChange,
+      });
+    } catch {
+      // Presentation callbacks must never affect persistence or retry behavior.
+    }
+  };
+
+  reportClearProgress();
+
   for (const pick of clearedPicks) {
     try {
       const result = await executePickMutation({
@@ -427,6 +445,8 @@ export const saveEntryState = async ({
         operation: "clear",
         selectedTeam: null,
       });
+      acknowledgedClearCount += 1;
+      reportClearProgress(completedPickChanges.at(-1));
     } catch (error) {
       await throwWithPartialPickResult(error);
     }

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { buildSyncedDraft } from "../components/picks/picksAutosaveState";
 import {
+  formatCompactPickLockMessage,
   formatPickLockMessage,
   getEffectiveSeasonStatus,
   isPickWindowLocked,
@@ -83,6 +84,17 @@ test("lock messaging uses the SeasonConfig deadline and describes one global rul
   assert.notEqual(message, otherMessage);
 });
 
+test("compact lock messaging remains dynamic and uses the configured timezone", () => {
+  const message = formatCompactPickLockMessage(picksLockAt);
+
+  assert.match(message, /^Picks lock Aug 2 at /);
+  assert.match(message, /(?:AM|PM)/);
+  assert.notEqual(
+    message,
+    formatCompactPickLockMessage("2026-08-03T12:00:00.000Z"),
+  );
+});
+
 test("the picks UI contains no stale per-game locking copy", async () => {
   const source = await readFile(
     new URL("../components/picks/PicksWorkspace.jsx", import.meta.url),
@@ -90,7 +102,7 @@ test("the picks UI contains no stale per-game locking copy", async () => {
   );
 
   assert.doesNotMatch(source, /per-game locking/i);
-  assert.match(source, /formatPickLockMessage\(picksLockAt\)/);
+  assert.match(source, /formatCompactPickLockMessage\(picksLockAt\)/);
 });
 
 test("saved selections remain visible when the entry enters locked review", () => {

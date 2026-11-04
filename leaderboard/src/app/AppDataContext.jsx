@@ -393,6 +393,7 @@ export const AppDataProvider = ({ children }) => {
       forceGameIds,
       tieBreakerValue,
       userProfileId,
+      onPickProgress,
     }) => {
       const result = await saveEntryState({
         entryId,
@@ -409,6 +410,7 @@ export const AppDataProvider = ({ children }) => {
         currentGameIds: requiredGameIds,
         tieBreakerRequired,
         picksLockAt,
+        onPickProgress,
       });
 
       return result;

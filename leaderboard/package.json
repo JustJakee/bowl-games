@@ -49,7 +49,7 @@
     "reset:test26-r2:apply": "node scripts/test26/seed-test26.mjs reset-apply --season-id test26-r2",
     "season:mark-test": "node scripts/season-mark-test.mjs",
     "test:entry": "tsx --test src/data/canonicalEntry.test.js src/data/entryRepository.test.js",
-    "test:picks": "tsx --test src/app/singlePickSetWorkflow.test.js src/data/picksRepository.test.js src/data/seasonRepository.test.js src/components/picks/entryStartState.test.mjs src/components/picks/pickActions.test.js src/components/picks/picksAutosaveState.test.js src/components/picks/pickSelectionView.test.js src/components/picks/selectedEntryPickLoading.test.js src/components/picks/lockedPicksStatus.test.js src/utils/pickWindow.test.js",
+    "test:picks": "tsx --test src/app/singlePickSetWorkflow.test.js src/data/picksRepository.test.js src/data/seasonRepository.test.js src/components/picks/entryStartState.test.mjs src/components/picks/clearProgress.test.js src/components/picks/pickActions.test.js src/components/picks/PickActionOverlay.test.jsx src/components/picks/randomizeFeedback.test.js src/components/picks/picksAutosaveState.test.js src/components/picks/pickSelectionView.test.js src/components/picks/selectedEntryPickLoading.test.js src/components/picks/lockedPicksStatus.test.js src/utils/pickWindow.test.js",
     "test:leaderboard": "tsx --test src/data/leaderboardRepository.test.js src/data/adminEntriesRepository.test.js src/utils/leaderboardScoring.test.js",
     "test:schedule": "tsx --test src/utils/gamePickSplits.test.js src/data/gamePickSplitsRepository.test.js",
     "test:dashboard": "tsx --test src/utils/dashboardEntryProgress.test.js src/utils/adminGameManagement.test.js src/utils/scoreboardGames.test.js",

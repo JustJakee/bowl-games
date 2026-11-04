@@ -66,3 +66,23 @@ export const formatPickLockMessage = (picksLockAt) => {
 
   return `All picks lock when the first game begins on ${date} at ${time}.`;
 };
+
+export const formatCompactPickLockMessage = (picksLockAt) => {
+  const deadline = parseDeadline(picksLockAt);
+
+  if (!Number.isFinite(deadline)) {
+    return "Picks lock when the first game begins.";
+  }
+
+  const date = new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+  }).format(deadline);
+  const time = new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(deadline);
+
+  return `Picks lock ${date} at ${time}`;
+};

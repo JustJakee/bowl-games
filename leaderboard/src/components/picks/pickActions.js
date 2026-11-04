@@ -14,9 +14,15 @@ export const matchesEditableSelections = ({
 const getValidTeamCodes = (game) =>
   [game?.away?.abbr, game?.home?.abbr].filter(Boolean);
 
+const hasTieBreakerValue = (value) =>
+  value === 0 || Boolean(String(value ?? "").trim());
+
+const RANDOM_TIEBREAKER_MIN = 35;
+const RANDOM_TIEBREAKER_MAX = 85;
+
 export const getFilterCountBadgeColors = (active) => ({
-  backgroundColor: active ? "background.default" : "primary.main",
-  color: active ? "text.primary" : "primary.contrastText",
+  backgroundColor: active ? "background.default" : "divider",
+  color: active ? "text.primary" : "text.secondary",
 });
 
 export const buildEditableGameIdSet = ({
@@ -29,20 +35,29 @@ export const getPickActionsState = ({
   games = [],
   selectionsByGameId = {},
   editableGameIds = new Set(),
+  tieBreakerRequired = false,
+  tieBreakerValue = "",
 } = {}) => {
   const editableGames = games.filter((game) => editableGameIds.has(game?.id));
   const selectedEditableCount = editableGames.filter((game) =>
     Boolean(selectionsByGameId?.[game.id]),
   ).length;
   const incompleteEditableCount = editableGames.length - selectedEditableCount;
+  const canRandomizeTieBreaker =
+    editableGames.length > 0 &&
+    tieBreakerRequired &&
+    !hasTieBreakerValue(tieBreakerValue);
 
   return {
     canClear: selectedEditableCount > 0,
-    canRandomize: incompleteEditableCount > 0,
+    canRandomize: incompleteEditableCount > 0 || canRandomizeTieBreaker,
+    canRandomizeTieBreaker,
     incompleteEditableCount,
     randomizeLabel:
-      incompleteEditableCount === 0
+      incompleteEditableCount === 0 && !canRandomizeTieBreaker
         ? ""
+        : incompleteEditableCount === 0
+          ? "Randomize Tiebreaker"
         : selectedEditableCount === 0
           ? "Randomize All Picks"
           : "Randomize Remaining Picks",
@@ -74,6 +89,43 @@ export const randomizeIncompleteSelections = ({
 
   return nextSelections;
 };
+
+export const randomizeRequiredTieBreaker = ({
+  tieBreakerRequired = false,
+  tieBreakerValue = "",
+  random = Math.random,
+} = {}) => {
+  if (!tieBreakerRequired || hasTieBreakerValue(tieBreakerValue)) {
+    return tieBreakerValue;
+  }
+
+  const roll = Math.min(0.999999, Math.max(0, Number(random()) || 0));
+  const value =
+    RANDOM_TIEBREAKER_MIN +
+    Math.floor(roll * (RANDOM_TIEBREAKER_MAX - RANDOM_TIEBREAKER_MIN + 1));
+  return String(value);
+};
+
+export const randomizePickSet = ({
+  games = [],
+  selectionsByGameId = {},
+  editableGameIds = new Set(),
+  tieBreakerRequired = false,
+  tieBreakerValue = "",
+  random = Math.random,
+} = {}) => ({
+  selectionsByGameId: randomizeIncompleteSelections({
+    games,
+    selectionsByGameId,
+    editableGameIds,
+    random,
+  }),
+  tieBreakerValue: randomizeRequiredTieBreaker({
+    tieBreakerRequired,
+    tieBreakerValue,
+    random,
+  }),
+});
 
 export const clearEditableSelections = ({
   selectionsByGameId = {},

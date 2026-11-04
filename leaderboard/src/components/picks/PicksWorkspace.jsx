@@ -7,15 +7,18 @@ import {
   useRef,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
-import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
 import DeleteSweepRoundedIcon from "@mui/icons-material/DeleteSweepRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
 import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import ShuffleRoundedIcon from "@mui/icons-material/ShuffleRounded";
 import TrackChangesRoundedIcon from "@mui/icons-material/TrackChangesRounded";
 import {
   Alert,
@@ -30,6 +33,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   LinearProgress,
   Snackbar,
   Stack,
@@ -44,10 +48,8 @@ import { useUserProfile } from "../../auth/UserProfileContext.jsx";
 import { TIEBREAKER_BOWL_NAME } from "../../constants/PickMatchupCard";
 import Panel from "../common/Panel";
 import TeamLogo from "../common/TeamLogo";
-import PaymentStatusChip from "../common/PaymentStatusChip";
 import { useScoreboard } from "../../context/NCAAFDataContext.jsx";
-import { PICK_SET_STATUS } from "../../data/picksRepository";
-import { formatPickLockMessage } from "../../utils/pickWindow";
+import { formatCompactPickLockMessage } from "../../utils/pickWindow";
 import { buildPickSelectionView } from "./pickSelectionView";
 import { getSelectedEntryPickLoadRemainingMs } from "./selectedEntryPickLoading";
 import {
@@ -75,13 +77,21 @@ import {
   getFilterCountBadgeColors,
   matchesEditableSelections,
   getPickActionsState,
-  randomizeIncompleteSelections,
+  randomizePickSet,
   toggleGameSelection,
 } from "./pickActions";
+import {
+  getRandomizeFeedback,
+  RANDOMIZE_PHASE,
+  runRandomizeLifecycle,
+} from "./randomizeFeedback";
+import { buildClearProgress } from "./clearProgress";
+import PickActionOverlay from "./PickActionOverlay";
 import LockedPicksView from "./LockedPicksView";
 import EntryStartState from "./EntryStartState";
 
 const STORAGE_KEY_PREFIX = "bobs-bowl-games-picks-drafts";
+const ENABLE_PICK_FILTERS = false;
 
 // STATE — PICKS — LOCAL STORAGE
 // Including player and season prevents partial drafts from crossing accounts or contests.
@@ -270,19 +280,21 @@ const SegmentedButton = ({ active, count, label, onClick }) => (
     onClick={onClick}
     sx={{
       flex: 1,
+      flexBasis: 128,
       minHeight: 46,
       px: 2,
       gap: 1,
       justifyContent: "center",
       color: active ? "primary.contrastText" : "text.primary",
       backgroundColor: active ? "primary.main" : "transparent",
-      borderRight: "1px solid",
-      borderColor: "divider",
-      "&:last-of-type": { borderRight: "none" },
+      border: "1px solid",
+      borderColor: active ? "primary.main" : "divider",
+      borderRadius: 999,
       "&:hover": {
         backgroundColor: active
           ? "primary.main"
           : (theme) => alpha(theme.palette.common.white, 0.04),
+        borderColor: active ? "primary.main" : "text.secondary",
       },
       "&:focus-visible": {
         outline: (theme) => `2px solid ${theme.palette.primary.main}`,
@@ -310,48 +322,73 @@ const SegmentedButton = ({ active, count, label, onClick }) => (
   </ButtonBase>
 );
 
-const SaveStatus = ({ state, message, detail, onRetry }) => {
+const SaveStatus = ({ state, detail, onRetry }) => {
+  const saved = state === "saved";
+  const saving = state === "saving";
+  const title = saved
+    ? "All picks saved"
+    : saving
+      ? "Saving picks..."
+      : "Unable to save picks";
   const icon =
-    state === "error" ? (
-      <ErrorOutlineRoundedIcon fontSize="small" />
-    ) : state === "device" ? (
-      <SaveRoundedIcon fontSize="small" />
+    saved ? (
+      <CheckCircleRoundedIcon />
+    ) : saving ? (
+      <CircularProgress size={22} thickness={5} color="inherit" />
     ) : (
-      <CloudDoneRoundedIcon fontSize="small" />
+      <ErrorOutlineRoundedIcon />
     );
-
-  const color =
-    state === "error"
-      ? "error.main"
-      : state === "device"
-        ? "warning.main"
-        : state === "saving"
-          ? "text.secondary"
-          : "success.main";
+  const color = saved
+    ? "success.main"
+    : saving
+      ? "text.secondary"
+      : "error.main";
 
   return (
-    <Stack spacing={0.75}>
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ color }}>
+    <Stack
+      direction="row"
+      spacing={1.25}
+      alignItems="center"
+      sx={{ minWidth: 0 }}
+    >
+      <Box
+        sx={{
+          color,
+          display: "grid",
+          placeItems: "center",
+          flexShrink: 0,
+        }}
+      >
         {icon}
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>
-          {message}
+      </Box>
+      <Stack spacing={0.15} sx={{ minWidth: 0 }}>
+        <Typography variant="body1" sx={{ color, fontWeight: 800 }}>
+          {title}
         </Typography>
-        {onRetry && (state === "device" || state === "error") ? (
-          <Button
-            size="small"
-            variant="text"
-            startIcon={<ReplayRoundedIcon sx={{ fontSize: 16 }} />}
-            onClick={onRetry}
-            sx={{ minWidth: "auto", px: 1 }}
+        {saved ? (
+          <Typography variant="body2" color="text.secondary">
+            Changes save automatically
+          </Typography>
+        ) : detail ? (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ overflowWrap: "anywhere" }}
           >
-            Retry
-          </Button>
+            {detail}
+          </Typography>
         ) : null}
       </Stack>
-      {detail ? (
-        <Typography variant="caption" color="text.secondary">
-          {detail}
-        </Typography>
+      {onRetry && !saved && !saving ? (
+        <Button
+          size="small"
+          variant="text"
+          startIcon={<ReplayRoundedIcon sx={{ fontSize: 16 }} />}
+          onClick={onRetry}
+          sx={{ minWidth: "auto", px: 1 }}
+        >
+          Retry
+        </Button>
       ) : null}
     </Stack>
   );
@@ -509,6 +546,7 @@ const PicksWorkspace = () => {
     currentEntry,
     hydratedEntryId,
     currentSeasonId,
+    currentSeasonYear,
     defaultContactEmail,
     entriesError,
     entriesLoading,
@@ -534,6 +572,7 @@ const PicksWorkspace = () => {
   const selectedEntryIdRef = useRef("");
   const storageKeyRef = useRef(storageKey);
   const bulkOperationRef = useRef("");
+  const randomizeOperationRef = useRef(false);
   selectedEntryIdRef.current = currentEntry?.id || "";
   storageKeyRef.current = storageKey;
   const [draftsByEntryId, setDraftsByEntryId] = useState({});
@@ -550,6 +589,12 @@ const PicksWorkspace = () => {
   const [entryActionError, setEntryActionError] = useState("");
   const [creatingEntry, setCreatingEntry] = useState(false);
   const [bulkOperation, setBulkOperation] = useState("");
+  const [clearProgress, setClearProgress] = useState(() =>
+    buildClearProgress(),
+  );
+  const [randomizePhase, setRandomizePhase] = useState(
+    RANDOMIZE_PHASE.IDLE,
+  );
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [bulkFeedback, setBulkFeedback] = useState({
     open: false,
@@ -733,6 +778,7 @@ const PicksWorkspace = () => {
     hasTieBreaker,
     incompleteCount,
     isLoadingSelectedEntryPicks,
+    missingRequiredTieBreaker,
     progressPercent,
     selectedCount,
     selectionsByGameId,
@@ -746,15 +792,34 @@ const PicksWorkspace = () => {
   const progressCountLabel = blockSelectedEntryPickUi
     ? "-- / --"
     : `${selectedCount} / ${games.length}`;
-  const progressPercentLabel = blockSelectedEntryPickUi
-    ? "--%"
-    : `${progressPercent}%`;
-  const entryStatusLabel = blockSelectedEntryPickUi ? "--" : entryStatus;
+  const entryStatusLabel = blockSelectedEntryPickUi
+    ? "--"
+    : entryStatus === "COMPLETE"
+      ? "Complete"
+      : entryStatus === "LOCKED"
+        ? "Locked"
+        : "In Progress";
   const pickActionsState = getPickActionsState({
     games,
     selectionsByGameId,
     editableGameIds,
+    tieBreakerRequired,
+    tieBreakerValue,
   });
+  const randomizeFeedback = getRandomizeFeedback({
+    phase: randomizePhase,
+    idleLabel: pickActionsState.randomizeLabel,
+  });
+  const randomizeButtonLabel = randomizeFeedback.isProcessing
+    ? randomizeFeedback.label
+    : pickActionsState.canRandomizeTieBreaker &&
+        pickActionsState.incompleteEditableCount === 0
+      ? "Randomize Tiebreaker"
+    : pickActionsState.selectedEditableCount > 0
+      ? "Randomize Remaining"
+      : "Randomize All";
+  const isBulkProcessing =
+    Boolean(bulkOperation) || randomizeFeedback.isProcessing;
 
   const filteredGames = useMemo(() => {
     if (blockSelectedEntryPickUi) return [];
@@ -972,6 +1037,7 @@ const PicksWorkspace = () => {
   const runBulkSelectionSave = async ({
     operation,
     nextSelectionsByGameId,
+    nextTieBreakerValue,
     successMessage,
   }) => {
     if (
@@ -1008,6 +1074,10 @@ const PicksWorkspace = () => {
         : {
             ...activeDraft,
             selectionsByGameId: nextSelectionsByGameId,
+            tieBreakerValue:
+              nextTieBreakerValue === undefined
+                ? activeDraft.tieBreakerValue
+                : nextTieBreakerValue,
             changedGameIds: [
               ...new Set([
                 ...(activeDraft.changedGameIds || []),
@@ -1043,6 +1113,17 @@ const PicksWorkspace = () => {
       return;
     }
 
+    if (operation === "clear") {
+      setClearProgress(
+        buildClearProgress({
+          completed: 0,
+          total: nextDraft.changedGameIds.filter((gameId) =>
+            editableGameIds.has(gameId),
+          ).length,
+        }),
+      );
+    }
+
     bulkOperationRef.current = operation;
     setBulkOperation(operation);
     setDraftsByEntryId((currentDrafts) => ({
@@ -1066,6 +1147,19 @@ const PicksWorkspace = () => {
         forceGameIds: nextDraft.changedGameIds,
         tieBreakerValue: nextDraft.tieBreakerValue,
         userProfileId: profile?.id,
+        onPickProgress:
+          operation === "clear"
+            ? ({ completed, total }) => {
+                if (
+                  !isMountedRef.current ||
+                  storageKeyRef.current !== requestStorageKey ||
+                  selectedEntryIdRef.current !== entryId
+                ) {
+                  return;
+                }
+                setClearProgress(buildClearProgress({ completed, total }));
+              }
+            : undefined,
       }).catch((error) => ({ status: "failed", error }));
 
       if (
@@ -1159,20 +1253,38 @@ const PicksWorkspace = () => {
   };
 
   const handleRandomizePicks = () => {
-    if (!pickActionsState.canRandomize || bulkOperationRef.current) {
+    if (
+      !pickActionsState.canRandomize ||
+      bulkOperationRef.current ||
+      randomizeOperationRef.current
+    ) {
       return;
     }
 
-    const nextSelectionsByGameId = randomizeIncompleteSelections({
-      games,
-      selectionsByGameId,
-      editableGameIds,
-    });
-
-    void runBulkSelectionSave({
-      operation: "randomize",
-      nextSelectionsByGameId,
-      successMessage: "Randomized picks were saved to your account.",
+    void runRandomizeLifecycle({
+      lockRef: randomizeOperationRef,
+      createSelections: () =>
+        randomizePickSet({
+          games,
+          selectionsByGameId,
+          editableGameIds,
+          tieBreakerRequired,
+          tieBreakerValue,
+        }),
+      persistSelections: (randomizedPickSet) =>
+        runBulkSelectionSave({
+          operation: "randomize",
+          nextSelectionsByGameId: randomizedPickSet.selectionsByGameId,
+          nextTieBreakerValue: randomizedPickSet.tieBreakerValue,
+          successMessage: "Randomized picks were saved to your account.",
+        }),
+      onPhaseChange: (phase) => {
+        if (phase === RANDOMIZE_PHASE.RANDOMIZING) {
+          flushSync(() => setRandomizePhase(phase));
+          return;
+        }
+        setRandomizePhase(phase);
+      },
     });
   };
 
@@ -1307,7 +1419,11 @@ const PicksWorkspace = () => {
   }
 
   return (
-    <Stack spacing={2.5}>
+    <Stack
+      spacing={2.5}
+      aria-busy={randomizeFeedback.isProcessing}
+      sx={{ position: "relative" }}
+    >
       <Box>
         <Typography
           variant="h3"
@@ -1330,273 +1446,319 @@ const PicksWorkspace = () => {
         <Alert severity="error">{entryActionError}</Alert>
       ) : null}
 
-      <Panel elevated sx={{ p: { xs: 2, md: 2.5 } }}>
-        <Stack spacing={2.5}>
+      <Panel elevated sx={{ p: { xs: 2, sm: 2.25, md: 3 } }}>
+        <Stack spacing={{ xs: 2, md: 2.5 }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="flex-start"
+            justifyContent="space-between"
+          >
+            <Typography
+              variant="h4"
+              sx={{
+                minWidth: 0,
+                fontSize: { xs: "1.55rem", sm: "1.8rem", md: "2rem" },
+                lineHeight: 1.15,
+              }}
+            >
+              My {currentSeasonYear} Bowl Picks
+            </Typography>
+            <Chip
+              label={entryStatusLabel}
+              sx={{
+                flexShrink: 0,
+                px: { xs: 0.5, sm: 1 },
+                height: { xs: 32, sm: 36 },
+                bgcolor: blockSelectedEntryPickUi
+                  ? alpha(theme.palette.common.white, 0.08)
+                  : entryStatus === "LOCKED"
+                    ? alpha(theme.palette.error.main, 0.16)
+                    : entryStatus === "COMPLETE"
+                      ? alpha(theme.palette.success.main, 0.16)
+                      : alpha(theme.palette.common.white, 0.1),
+                color: blockSelectedEntryPickUi
+                  ? "text.secondary"
+                  : entryStatus === "LOCKED"
+                    ? "error.main"
+                    : entryStatus === "COMPLETE"
+                      ? "success.main"
+                      : "text.primary",
+                fontSize: { xs: "0.82rem", sm: "0.9rem" },
+                fontWeight: 800,
+              }}
+            />
+          </Stack>
+
+          <Divider />
+
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                md: "minmax(280px, 1.1fr) minmax(280px, 1.5fr) 180px",
-              },
-              gap: { xs: 2, md: 2.25 },
-              alignItems: "start",
+              gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "1fr auto" },
+              gridTemplateAreas: missingRequiredTieBreaker
+                ? {
+                    xs: '"count" "progress" "validation" "save"',
+                    md: '"count save" "progress progress" "validation validation"',
+                  }
+                : {
+                    xs: '"count" "progress" "save"',
+                    md: '"count save" "progress progress"',
+                  },
+              columnGap: { md: 4 },
+              rowGap: { xs: 1.5, md: 1.75 },
+              alignItems: "center",
             }}
           >
-            <Stack spacing={1.25}>
+            <Stack
+              direction="row"
+              spacing={{ xs: 1, sm: 1.5 }}
+              alignItems="baseline"
+              flexWrap="wrap"
+              sx={{ gridArea: "count", minWidth: 0 }}
+            >
+              <Typography
+                variant="h3"
+                sx={{
+                  fontSize: { xs: "2.2rem", sm: "2.55rem", md: "2.75rem" },
+                  lineHeight: 1,
+                  color: blockSelectedEntryPickUi
+                    ? "text.secondary"
+                    : "text.primary",
+                }}
+              >
+                {progressCountLabel}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {missingRequiredTieBreaker
+                  ? "game picks completed"
+                  : "picks completed"}
+              </Typography>
+            </Stack>
+
+            <Box
+              sx={{
+                gridArea: "save",
+                minWidth: 0,
+                width: { xs: "100%", md: "auto" },
+                maxWidth: { md: 420 },
+                justifySelf: { xs: "start", md: "end" },
+              }}
+            >
+              {blockSelectedEntryPickUi ? null : (
+                <SaveStatus
+                  state={visibleSaveState.state}
+                  detail={visibleSaveState.detail}
+                  onRetry={activeDraft?.dirty ? handleRetrySave : undefined}
+                />
+              )}
+            </Box>
+
+            <LinearProgress
+              variant="determinate"
+              value={blockSelectedEntryPickUi ? 0 : progressPercent}
+              aria-label="Pick completion progress"
+              aria-valuetext={
+                blockSelectedEntryPickUi
+                  ? "Loading pick progress"
+                  : missingRequiredTieBreaker
+                    ? `${selectedCount} of ${games.length} game picks completed; tiebreaker required`
+                  : `${selectedCount} of ${games.length} picks completed`
+              }
+              sx={{
+                gridArea: "progress",
+                width: "100%",
+                height: { xs: 10, md: 12 },
+                borderRadius: 999,
+                bgcolor: alpha(theme.palette.common.white, 0.12),
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: 999,
+                  bgcolor: "primary.main",
+                  transition: "none",
+                },
+              }}
+            />
+
+            {missingRequiredTieBreaker ? (
+              <Stack
+                direction="row"
+                spacing={0.75}
+                alignItems="center"
+                role="alert"
+                sx={{ gridArea: "validation", color: "error.main" }}
+              >
+                <ErrorOutlineRoundedIcon sx={{ fontSize: 19 }} />
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  Tiebreaker required — enter total points to complete your
+                  picks.
+                </Typography>
+              </Stack>
+            ) : null}
+          </Box>
+
+          <Divider />
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "auto 1fr" },
+              gridTemplateAreas: { xs: '"actions" "deadline"', md: '"actions deadline"' },
+              gap: { xs: 1.5, md: 2.5 },
+              alignItems: "center",
+            }}
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              useFlexGap
+              flexWrap="wrap"
+              sx={{ gridArea: "actions", minWidth: 0 }}
+            >
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={
+                  randomizeFeedback.isProcessing ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    <ShuffleRoundedIcon />
+                  )
+                }
+                onClick={handleRandomizePicks}
+                disabled={isBulkProcessing || !pickActionsState.canRandomize}
+                aria-busy={randomizeFeedback.isProcessing}
+                sx={{
+                  flex: { xs: "1 1 142px", sm: "0 0 auto" },
+                  minWidth: { sm: 170 },
+                  color: "#0d1b31",
+                  bgcolor: "common.white",
+                  textTransform: "none",
+                  whiteSpace: "nowrap",
+                  "&:hover": { bgcolor: alpha("#ffffff", 0.9) },
+                }}
+              >
+                {randomizeButtonLabel}
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                startIcon={<DeleteSweepRoundedIcon />}
+                onClick={() => {
+                  setClearProgress(
+                    buildClearProgress({
+                      completed: 0,
+                      total: editableGameIds.size,
+                    }),
+                  );
+                  setClearDialogOpen(true);
+                }}
+                disabled={isBulkProcessing || !pickActionsState.canClear}
+                sx={{
+                  flex: { xs: "1 1 112px", sm: "0 0 auto" },
+                  minWidth: { sm: 136 },
+                  color: "error.main",
+                  borderColor: (buttonTheme) =>
+                    alpha(buttonTheme.palette.error.main, 0.65),
+                  textTransform: "none",
+                  whiteSpace: "nowrap",
+                  "&:hover": {
+                    borderColor: "error.main",
+                    bgcolor: (buttonTheme) =>
+                      alpha(buttonTheme.palette.error.main, 0.08),
+                  },
+                }}
+              >
+                Clear All
+              </Button>
+            </Stack>
+
+            {games.length > 0 ? (
               <Stack
                 direction="row"
                 spacing={1}
                 alignItems="center"
-                flexWrap="wrap"
-              >
-                <Typography variant="overline" color="text.secondary">
-                  My Pick Set
-                </Typography>
-                <PaymentStatusChip
-                  paymentStatus={currentEntry?.paymentStatus}
-                />
-              </Stack>
-              {pickActionsState.canRandomize || pickActionsState.canClear ? (
-                <Stack
-                  direction={{
-                    xs: "column",
-                    sm: "row",
-                    md: "column",
-                    xl: "row",
-                  }}
-                  spacing={1}
-                  sx={{ pt: 0.25 }}
-                >
-                  {pickActionsState.canRandomize ? (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={
-                        bulkOperation === "randomize" ? (
-                          <CircularProgress size={16} color="inherit" />
-                        ) : (
-                          <CasinoRoundedIcon />
-                        )
-                      }
-                      onClick={handleRandomizePicks}
-                      disabled={Boolean(bulkOperation)}
-                      sx={{
-                        flex: 1,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {bulkOperation === "randomize"
-                        ? "Randomizing..."
-                        : pickActionsState.randomizeLabel}
-                    </Button>
-                  ) : null}
-                  {pickActionsState.canClear ? (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      startIcon={<DeleteSweepRoundedIcon />}
-                      onClick={() => setClearDialogOpen(true)}
-                      disabled={Boolean(bulkOperation)}
-                      sx={{
-                        flex: 1,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      Clear All Picks
-                    </Button>
-                  ) : null}
-                </Stack>
-              ) : null}
-            </Stack>
-
-            <Stack
-              spacing={1.15}
-              sx={{
-                minWidth: 0,
-                display: blockSelectedEntryPickUi ? "none" : "flex",
-              }}
-            >
-              <Typography variant="overline" color="text.secondary">
-                Picks Progress
-              </Typography>
-              {blockSelectedEntryPickUi ? (
-                <Stack spacing={1}>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontSize: { xs: "2rem", md: "2.25rem" },
-                      color: "text.secondary",
-                    }}
-                  >
-                    {progressCountLabel}
-                  </Typography>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <CircularProgress size={20} thickness={5} />
-                    <Typography variant="body1" color="text.secondary">
-                      Loading picks…
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Box
-                      sx={{
-                        flex: 1,
-                        height: 12,
-                        borderRadius: 999,
-                        bgcolor: alpha(theme.palette.common.white, 0.08),
-                      }}
-                    />
-                    <Typography variant="h6" color="text.secondary">
-                      {progressPercentLabel}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              ) : (
-                <>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="baseline"
-                    flexWrap="wrap"
-                  >
-                    <Typography
-                      variant="h4"
-                      sx={{ fontSize: { xs: "2rem", md: "2.25rem" } }}
-                    >
-                      {selectedCount} / {games.length}
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Picks Complete
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <LinearProgress
-                      variant="determinate"
-                      value={progressPercent}
-                      sx={{
-                        flex: 1,
-                        height: 12,
-                        borderRadius: 999,
-                        bgcolor: alpha(theme.palette.common.white, 0.12),
-                        "& .MuiLinearProgress-bar": {
-                          borderRadius: 999,
-                          bgcolor: "primary.main",
-                          transition: "none",
-                        },
-                      }}
-                    />
-                    <Typography variant="h6">{progressPercentLabel}</Typography>
-                  </Stack>
-                </>
-              )}
-              <Box
-                sx={{ minHeight: 46, display: "flex", alignItems: "center" }}
-              >
-                {blockSelectedEntryPickUi ? null : (
-                  <SaveStatus
-                    state={visibleSaveState.state}
-                    message={visibleSaveState.message}
-                    detail={visibleSaveState.detail}
-                    onRetry={activeDraft?.dirty ? handleRetrySave : undefined}
-                  />
-                )}
-              </Box>
-            </Stack>
-
-            <Stack
-              spacing={1.1}
-              sx={{
-                display: blockSelectedEntryPickUi ? "none" : "flex",
-              }}
-            >
-              <Typography variant="overline" color="text.secondary">
-                Pick Set Status
-              </Typography>
-              <Chip
-                label={entryStatusLabel}
                 sx={{
-                  alignSelf: "flex-start",
-                  px: 1,
-                  height: 34,
-                  bgcolor: blockSelectedEntryPickUi
-                    ? alpha(theme.palette.common.white, 0.08)
-                    : entryStatus === "LOCKED"
-                      ? alpha(theme.palette.error.main, 0.16)
-                      : entryStatus === "COMPLETE"
-                        ? alpha(theme.palette.success.main, 0.16)
-                        : alpha(theme.palette.common.white, 0.08),
-                  color: blockSelectedEntryPickUi
-                    ? "text.secondary"
-                    : entryStatus === "LOCKED"
-                      ? "error.main"
-                      : entryStatus === "COMPLETE"
-                        ? "success.main"
-                        : "text.primary",
-                  fontWeight: 800,
+                  gridArea: "deadline",
+                  minWidth: 0,
+                  justifySelf: { xs: "start", md: "end" },
+                  pl: { md: 2.5 },
+                  py: { xs: 0.25, md: 0.5 },
+                  borderLeft: { md: "1px solid" },
+                  borderColor: { md: "divider" },
+                  color: "text.secondary",
                 }}
-              />
-              {games.length > 0 ? (
-                <Typography variant="body2" color="text.secondary">
-                  {formatPickLockMessage(picksLockAt)}
+              >
+                <LockRoundedIcon sx={{ fontSize: 19, flexShrink: 0 }} />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ overflowWrap: "anywhere" }}
+                >
+                  {formatCompactPickLockMessage(picksLockAt)}
                 </Typography>
-              ) : null}
-            </Stack>
+              </Stack>
+            ) : null}
           </Box>
 
-          <Box
-            sx={{
-              display: blockSelectedEntryPickUi ? "none" : "grid",
-              gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) auto" },
-              gap: 1.5,
-              alignItems: "stretch",
-            }}
-          >
+          {ENABLE_PICK_FILTERS ? (
             <Box
               sx={{
-                display: "flex",
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 2,
-                overflow: "hidden",
+                display: blockSelectedEntryPickUi ? "none" : "grid",
+                gridTemplateColumns: {
+                  xs: "minmax(0, 1fr)",
+                  md: "minmax(0, 1fr) auto",
+                },
+                gap: 1.5,
+                alignItems: "stretch",
               }}
             >
-              <SegmentedButton
-                active={filter === "all"}
-                label={isSmallMobile ? "All" : "All Games"}
-                count={games.length}
-                onClick={() => setFilter("all")}
-              />
-              <SegmentedButton
-                active={filter === "incomplete"}
-                label={isSmallMobile ? "Missing" : "Incomplete"}
-                count={incompleteCount}
-                onClick={() => setFilter("incomplete")}
-              />
-              <SegmentedButton
-                active={filter === "selected"}
-                label={isSmallMobile ? "Picked" : "Selected"}
-                count={selectedCount}
-                onClick={() => setFilter("selected")}
-              />
-            </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 0.75,
+                  bgcolor: "transparent",
+                }}
+              >
+                <SegmentedButton
+                  active={filter === "all"}
+                  label={isSmallMobile ? "All" : "All Games"}
+                  count={games.length}
+                  onClick={() => setFilter("all")}
+                />
+                <SegmentedButton
+                  active={filter === "incomplete"}
+                  label={isSmallMobile ? "Missing" : "Incomplete"}
+                  count={incompleteCount}
+                  onClick={() => setFilter("incomplete")}
+                />
+                <SegmentedButton
+                  active={filter === "selected"}
+                  label={isSmallMobile ? "Picked" : "Selected"}
+                  count={selectedCount}
+                  onClick={() => setFilter("selected")}
+                />
+              </Box>
 
-            <Button
-              variant="outlined"
-              startIcon={<TrackChangesRoundedIcon />}
-              onClick={jumpToIncomplete}
-              disabled={incompleteCount === 0}
-              size="small"
-              sx={{
-                alignSelf: { xs: "stretch", md: "center" },
-                justifySelf: { xs: "stretch", md: "end" },
-                color: "text.secondary",
-                borderColor: alpha(theme.palette.common.white, 0.14),
-              }}
-            >
-              Jump to Incomplete
-            </Button>
-          </Box>
+              <Button
+                variant="outlined"
+                startIcon={<TrackChangesRoundedIcon />}
+                onClick={jumpToIncomplete}
+                disabled={incompleteCount === 0}
+                size="small"
+                sx={{
+                  alignSelf: { xs: "stretch", md: "center" },
+                  justifySelf: { xs: "stretch", md: "end" },
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.common.white, 0.14),
+                  borderRadius: 999,
+                }}
+              >
+                Jump to Incomplete
+              </Button>
+            </Box>
+          ) : null}
         </Stack>
       </Panel>
 
@@ -1680,7 +1842,7 @@ const PicksWorkspace = () => {
                     const gameLocked =
                       picksLocked ||
                       blockSelectedEntryPickUi ||
-                      Boolean(bulkOperation);
+                      isBulkProcessing;
                     const matchupSaveState = getMatchupSaveState({
                       gameId: game.id,
                       draft: activeDraft,
@@ -1952,7 +2114,14 @@ const PicksWorkspace = () => {
                                 type="number"
                                 value={tieBreakerValue ?? ""}
                                 size="small"
-                                disabled={picksLocked || Boolean(bulkOperation)}
+                                required={tieBreakerRequired}
+                                error={missingRequiredTieBreaker}
+                                helperText={
+                                  missingRequiredTieBreaker
+                                    ? "Enter a total-points prediction to complete your picks."
+                                    : undefined
+                                }
+                                disabled={picksLocked || isBulkProcessing}
                                 onChange={(event) =>
                                   handleTieBreakerChange(event.target.value)
                                 }
@@ -1984,30 +2153,85 @@ const PicksWorkspace = () => {
         </Panel>
       ) : null}
 
+      <PickActionOverlay
+        open={randomizeFeedback.isProcessing}
+        statusText={randomizeFeedback.label}
+      />
+
       <Dialog
         open={clearDialogOpen}
         onClose={bulkOperation ? undefined : () => setClearDialogOpen(false)}
         fullWidth
         maxWidth="xs"
         aria-labelledby="clear-picks-dialog-title"
-        aria-describedby="clear-picks-dialog-description"
+        aria-describedby={
+          bulkOperation === "clear"
+            ? "clear-picks-progress-description"
+            : "clear-picks-dialog-description"
+        }
       >
         <DialogTitle id="clear-picks-dialog-title">
-          Clear all picks?
+          {bulkOperation === "clear"
+            ? "Clearing your picks..."
+            : "Clear all picks?"}
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="clear-picks-dialog-description">
-            This will remove all of your currently selected teams for unlocked
-            games. This action cannot be undone.
-          </DialogContentText>
+          {bulkOperation === "clear" ? (
+            <Stack
+              id="clear-picks-progress-description"
+              spacing={1.5}
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              sx={{ pt: 0.5 }}
+            >
+              <Stack spacing={0.75}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  spacing={2}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    {clearProgress.completed} of {clearProgress.total} picks
+                    cleared
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "primary.main", fontWeight: 800 }}
+                  >
+                    {clearProgress.percentage}%
+                  </Typography>
+                </Stack>
+                <LinearProgress
+                  variant="determinate"
+                  value={clearProgress.percentage}
+                  aria-label="Clear picks progress"
+                  aria-valuetext={`${clearProgress.completed} of ${clearProgress.total} picks cleared`}
+                  sx={{
+                    height: 9,
+                    borderRadius: 999,
+                    bgcolor: (theme) =>
+                      alpha(theme.palette.common.white, 0.12),
+                    "& .MuiLinearProgress-bar": {
+                      borderRadius: 999,
+                      bgcolor: "primary.main",
+                    },
+                  }}
+                />
+              </Stack>
+            </Stack>
+          ) : (
+            <DialogContentText id="clear-picks-dialog-description">
+              This will remove all of your currently selected teams for unlocked
+              games. This action cannot be undone.
+            </DialogContentText>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setClearDialogOpen(false)}
-            disabled={Boolean(bulkOperation)}
-          >
-            Cancel
-          </Button>
+          {bulkOperation !== "clear" ? (
+            <Button onClick={() => setClearDialogOpen(false)}>Cancel</Button>
+          ) : null}
           <Button
             color="error"
             variant="contained"

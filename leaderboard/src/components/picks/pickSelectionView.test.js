@@ -57,6 +57,7 @@ test("a loaded entry still reports its own counts and status", () => {
   assert.equal(loadedView.entryStatus, "COMPLETE");
   assert.equal(loadedView.selectedCount, 2);
   assert.equal(loadedView.incompleteCount, 0);
+  assert.equal(loadedView.missingRequiredTieBreaker, false);
   assert.equal(loadedView.progressPercent, 100);
   assert.deepEqual(loadedView.selectionsByGameId, {
     "game-1": "AAA",
@@ -107,18 +108,21 @@ test("48 selected teams can correctly leave the required championship tiebreaker
   const missing = buildPickSelectionView(input);
   assert.equal(missing.selectedCount, 48);
   assert.equal(missing.incompleteCount, 1);
+  assert.equal(missing.missingRequiredTieBreaker, true);
   assert.equal(missing.entryStatus, "DRAFT");
   const complete = buildPickSelectionView({
     ...input,
     activeDraft: { selectionsByGameId, tieBreakerValue: 0 },
   });
   assert.equal(complete.incompleteCount, 0);
+  assert.equal(complete.missingRequiredTieBreaker, false);
   assert.equal(complete.entryStatus, "COMPLETE");
   const optional = buildPickSelectionView({
     ...input,
     tieBreakerRequired: false,
   });
   assert.equal(optional.incompleteCount, 0);
+  assert.equal(optional.missingRequiredTieBreaker, false);
   assert.equal(optional.entryStatus, "COMPLETE");
 });
 

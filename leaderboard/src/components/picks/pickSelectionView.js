@@ -24,6 +24,13 @@ export const buildPickSelectionView = ({
   const selectedCount = games.filter((game) =>
     Boolean(selectionsByGameId?.[game.id]),
   ).length;
+  const tieBreakerGameSelected = games.some(
+    (game) =>
+      game.isTieBreakerGame && Boolean(selectionsByGameId?.[game.id]),
+  );
+  const missingRequiredTieBreaker = Boolean(
+    tieBreakerRequired && tieBreakerGameSelected && !hasTieBreaker,
+  );
   const incompleteCount = games.filter((game) => {
     const hasSelection = Boolean(selectionsByGameId?.[game.id]);
     if (!hasSelection) return true;
@@ -52,6 +59,7 @@ export const buildPickSelectionView = ({
     hasTieBreaker,
     incompleteCount,
     isLoadingSelectedEntryPicks,
+    missingRequiredTieBreaker,
     progressPercent,
     selectedCount,
     selectionsByGameId,

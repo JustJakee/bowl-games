@@ -8,6 +8,8 @@ import {
   getPickActionsState,
   matchesEditableSelections,
   randomizeIncompleteSelections,
+  randomizePickSet,
+  randomizeRequiredTieBreaker,
   toggleGameSelection,
 } from "./pickActions.js";
 
@@ -92,6 +94,27 @@ test("randomize label follows editable pick progress", () => {
     }).canRandomize,
     false,
   );
+  assert.deepEqual(
+    getPickActionsState({
+      games,
+      editableGameIds,
+      selectionsByGameId: {
+        "game-1": "AAA",
+        "game-2": "CCC",
+        "game-3": "EEE",
+      },
+      tieBreakerRequired: true,
+      tieBreakerValue: "",
+    }),
+    {
+      canClear: true,
+      canRandomize: true,
+      canRandomizeTieBreaker: true,
+      incompleteEditableCount: 0,
+      randomizeLabel: "Randomize Tiebreaker",
+      selectedEditableCount: 3,
+    },
+  );
 });
 
 test("randomize fills only editable incomplete games with valid teams", () => {
@@ -128,6 +151,57 @@ test("randomize preserves tiebreaker-like unrelated draft fields by changing onl
   assert.deepEqual(nextSelections, {
     "game-1": "AAA",
     "game-2": "CCC",
+  });
+});
+
+test("randomize generates a missing required tiebreaker without replacing an existing value", () => {
+  assert.equal(
+    randomizeRequiredTieBreaker({
+      tieBreakerRequired: true,
+      tieBreakerValue: "",
+      random: () => 0,
+    }),
+    "35",
+  );
+  assert.equal(
+    randomizeRequiredTieBreaker({
+      tieBreakerRequired: true,
+      tieBreakerValue: "42",
+      random: () => 0.99,
+    }),
+    "42",
+  );
+  assert.equal(
+    randomizeRequiredTieBreaker({
+      tieBreakerRequired: false,
+      tieBreakerValue: "",
+      random: () => 0.99,
+    }),
+    "",
+  );
+});
+
+test("randomize pick set fills remaining games and its required tiebreaker together", () => {
+  const rolls = [0.75, 0.999999];
+  const result = randomizePickSet({
+    games,
+    selectionsByGameId: {
+      "game-1": "AAA",
+      "game-3": "FFF",
+    },
+    editableGameIds: new Set(["game-1", "game-2"]),
+    tieBreakerRequired: true,
+    tieBreakerValue: "",
+    random: () => rolls.shift(),
+  });
+
+  assert.deepEqual(result, {
+    selectionsByGameId: {
+      "game-1": "AAA",
+      "game-2": "DDD",
+      "game-3": "FFF",
+    },
+    tieBreakerValue: "85",
   });
 });
 
@@ -222,7 +296,7 @@ test("filter count badges use contrasting theme tokens in both states", () => {
     color: "text.primary",
   });
   assert.deepEqual(getFilterCountBadgeColors(false), {
-    backgroundColor: "primary.main",
-    color: "primary.contrastText",
+    backgroundColor: "divider",
+    color: "text.secondary",
   });
 });

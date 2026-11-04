@@ -790,7 +790,39 @@ test("a cleared Pick is not cleared repeatedly and is reused when reselected", a
   assert.deepEqual(reloaded.selectionsByGameId, { "game-1": "BBB" });
 });
 
+test("bulk clear progress advances only after each backend acknowledgment", async () => {
+  const progress = [];
+  createHarness({
+    initialPicks: [
+      savedPick("game-1", "AAA"),
+      savedPick("game-2", "CCC"),
+    ],
+    seasonGames: [game, secondGame],
+  });
+
+  await save({
+    currentGameIds: ["game-1", "game-2"],
+    selectionsByGameId: {},
+    forceGameIds: ["game-1", "game-2"],
+    onPickProgress: (event) => progress.push(event),
+  });
+
+  assert.deepEqual(
+    progress.map(({ completed, total, acknowledgedChange }) => [
+      completed,
+      total,
+      acknowledgedChange?.gameId || null,
+    ]),
+    [
+      [0, 2, null],
+      [1, 2, "game-1"],
+      [2, 2, "game-2"],
+    ],
+  );
+});
+
 test("a partial bulk clear keeps successful clears and preserves the failed Pick", async () => {
+  const progress = [];
   const { calls } = createHarness({
     initialPicks: [
       {
@@ -824,6 +856,7 @@ test("a partial bulk clear keeps successful clears and preserves the failed Pick
     save({
       currentGameIds: ["game-1", "game-2"],
       selectionsByGameId: {},
+      onPickProgress: (event) => progress.push(event),
     }),
     (error) => {
       assert.match(error.message, /Second clear failed/);
@@ -851,6 +884,17 @@ test("a partial bulk clear keeps successful clears and preserves the failed Pick
     { id: "pick-entry-id-game-2", selectedTeam: "" },
   ]);
   assert.deepEqual(reloaded.selectionsByGameId, { "game-2": "CCC" });
+  assert.deepEqual(
+    progress.map(({ completed, total, acknowledgedChange }) => [
+      completed,
+      total,
+      acknowledgedChange?.gameId || null,
+    ]),
+    [
+      [0, 2, null],
+      [1, 2, "game-1"],
+    ],
+  );
 });
 
 const clearDraft = (draft, revision = 1) =>
