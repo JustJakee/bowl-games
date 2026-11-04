@@ -2,7 +2,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -51,7 +50,6 @@ import TeamLogo from "../common/TeamLogo";
 import { useScoreboard } from "../../context/NCAAFDataContext.jsx";
 import { formatCompactPickLockMessage } from "../../utils/pickWindow";
 import { buildPickSelectionView } from "./pickSelectionView";
-import { getSelectedEntryPickLoadRemainingMs } from "./selectedEntryPickLoading";
 import {
   buildAutosaveDiagnostic,
   buildAutosaveFailureState,
@@ -89,6 +87,8 @@ import { buildClearProgress } from "./clearProgress";
 import PickActionOverlay from "./PickActionOverlay";
 import LockedPicksView from "./LockedPicksView";
 import EntryStartState from "./EntryStartState";
+import PageLoading from "../common/PageLoading.jsx";
+import { isPicksPageLoading } from "../../utils/pageReadiness.js";
 
 const STORAGE_KEY_PREFIX = "bobs-bowl-games-picks-drafts";
 const ENABLE_PICK_FILTERS = false;
@@ -109,82 +109,6 @@ const readDraftCache = (storageKey) => {
 
 const writeDraftCache = (storageKey, draftsByEntryId) => {
   window.localStorage.setItem(storageKey, JSON.stringify(draftsByEntryId));
-};
-
-const useSelectedEntryPickLoadGate = ({
-  isLoadingSelectedEntryPicks,
-  selectedEntryId,
-}) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const loadingSessionRef = useRef({ entryId: "", startedAt: 0 });
-  const hideTimerRef = useRef(null);
-
-  useLayoutEffect(() => {
-    if (hideTimerRef.current) {
-      window.clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-
-    if (!selectedEntryId) {
-      loadingSessionRef.current = { entryId: "", startedAt: 0 };
-      setIsVisible(false);
-      return undefined;
-    }
-
-    if (isLoadingSelectedEntryPicks) {
-      if (loadingSessionRef.current.entryId !== selectedEntryId) {
-        loadingSessionRef.current = {
-          entryId: selectedEntryId,
-          startedAt: Date.now(),
-        };
-      }
-
-      setIsVisible(true);
-      return undefined;
-    }
-
-    if (loadingSessionRef.current.entryId !== selectedEntryId) {
-      loadingSessionRef.current = { entryId: "", startedAt: 0 };
-      setIsVisible(false);
-      return undefined;
-    }
-
-    const remainingMs = getSelectedEntryPickLoadRemainingMs({
-      startedAt: loadingSessionRef.current.startedAt,
-      now: Date.now(),
-    });
-
-    if (remainingMs === 0) {
-      loadingSessionRef.current = { entryId: "", startedAt: 0 };
-      setIsVisible(false);
-      return undefined;
-    }
-
-    hideTimerRef.current = window.setTimeout(() => {
-      loadingSessionRef.current = { entryId: "", startedAt: 0 };
-      hideTimerRef.current = null;
-      setIsVisible(false);
-    }, remainingMs);
-
-    return () => {
-      if (hideTimerRef.current) {
-        window.clearTimeout(hideTimerRef.current);
-        hideTimerRef.current = null;
-      }
-    };
-  }, [isLoadingSelectedEntryPicks, selectedEntryId]);
-
-  useEffect(
-    () => () => {
-      if (hideTimerRef.current) {
-        window.clearTimeout(hideTimerRef.current);
-        hideTimerRef.current = null;
-      }
-    },
-    [],
-  );
-
-  return isVisible;
 };
 
 const normalizeColor = (value) => {
@@ -577,6 +501,7 @@ const PicksWorkspace = () => {
   storageKeyRef.current = storageKey;
   const [draftsByEntryId, setDraftsByEntryId] = useState({});
   const [loadedDraftStorageKey, setLoadedDraftStorageKey] = useState("");
+  const [reconciledDraftScope, setReconciledDraftScope] = useState("");
   const [filter, setFilter] = useState("all");
   const [saveState, setSaveState] = useState({
     state: "saved",
@@ -741,6 +666,7 @@ const PicksWorkspace = () => {
 
       return nextState;
     });
+    setReconciledDraftScope(`${storageKey}:${currentEntry.id}`);
   }, [
     currentEntry,
     draftsByEntryId,
@@ -777,18 +703,35 @@ const PicksWorkspace = () => {
     entryStatus,
     hasTieBreaker,
     incompleteCount,
-    isLoadingSelectedEntryPicks,
     missingRequiredTieBreaker,
     progressPercent,
     selectedCount,
     selectionsByGameId,
     tieBreakerValue,
   } = pickView;
-  const showSelectedEntryPickLoadingCard = useSelectedEntryPickLoadGate({
-    isLoadingSelectedEntryPicks,
-    selectedEntryId,
+  const draftCacheReady = isDraftCacheReady(
+    loadedDraftStorageKey,
+    storageKey,
+  );
+  const expectedDraftScope = currentEntry
+    ? `${storageKey}:${currentEntry.id}`
+    : "";
+  const picksPageLoading = isPicksPageLoading({
+    activeDraftReady: Boolean(activeDraft),
+    currentEntryId: selectedEntryId,
+    draftCacheReady,
+    draftReconciled: reconciledDraftScope === expectedDraftScope,
+    entriesError,
+    entriesLoading,
+    entriesReady,
+    hydratedEntryId,
+    picksError,
+    picksLocked,
+    scoreboardError: error,
+    scoreboardLoading: loading,
+    seasonId: currentSeasonId,
   });
-  const blockSelectedEntryPickUi = showSelectedEntryPickLoadingCard;
+  const blockSelectedEntryPickUi = picksPageLoading;
   const progressCountLabel = blockSelectedEntryPickUi
     ? "-- / --"
     : `${selectedCount} / ${games.length}`;
@@ -1357,12 +1300,8 @@ const PicksWorkspace = () => {
     setRetryKey((current) => current + 1);
   };
 
-  if (loading || entriesLoading || (!entriesReady && !entriesError)) {
-    return (
-      <Panel elevated>
-        <Typography variant="body1">Loading picks...</Typography>
-      </Panel>
-    );
+  if (picksPageLoading) {
+    return <PageLoading loading message="Loading your picks..." />;
   }
 
   if (entriesError) {
@@ -1387,14 +1326,6 @@ const PicksWorkspace = () => {
   }
 
   if (picksLocked) {
-    if (currentEntry && hydratedEntryId !== currentEntry.id) {
-      return (
-        <Panel elevated>
-          <Typography variant="body1">Loading your locked picks...</Typography>
-        </Panel>
-      );
-    }
-
     return (
       <LockedPicksView
         entry={currentEntry}

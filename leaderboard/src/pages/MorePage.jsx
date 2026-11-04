@@ -24,6 +24,9 @@ import ChangePasswordDialog from "../auth/ChangePasswordDialog.jsx";
 import FavoriteTeamDialog from "../components/account/FavoriteTeamDialog.jsx";
 import TeamAvatar from "../components/account/TeamAvatar.jsx";
 import useFbsTeams from "../hooks/useFbsTeams.js";
+import { useScoreboard } from "../context/NCAAFDataContext.jsx";
+import PageLoading from "../components/common/PageLoading.jsx";
+import { isAccountPageLoading } from "../utils/pageReadiness.js";
 
 const PAYMENT_STATE = Object.freeze({
   PAID: "paid",
@@ -380,7 +383,17 @@ const MorePage = () => {
     error: teamsError,
     retry: retryTeams,
   } = useFbsTeams();
-  const { currentEntry, entriesLoading, entriesReady } = useAppData();
+  const {
+    currentEntry,
+    currentSeasonId,
+    entriesError,
+    entriesLoading,
+    entriesReady,
+  } = useAppData();
+  const {
+    error: scoreboardError,
+    loading: scoreboardLoading,
+  } = useScoreboard();
   const paymentState = resolveAccountPaymentState({
     currentEntry,
     entriesLoading,
@@ -389,6 +402,18 @@ const MorePage = () => {
   const favoriteTeamId = String(profile?.favoriteTeamId || "");
   const favoriteTeam =
     teams.find((team) => team.id === favoriteTeamId) || null;
+  const pageLoading = isAccountPageLoading({
+    entriesError,
+    entriesLoading,
+    entriesReady,
+    scoreboardError,
+    scoreboardLoading,
+    seasonId: currentSeasonId,
+  });
+
+  if (pageLoading) {
+    return <PageLoading loading message="Loading account..." />;
+  }
 
   return (
     <>

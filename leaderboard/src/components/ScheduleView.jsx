@@ -7,6 +7,8 @@ import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import TvRoundedIcon from "@mui/icons-material/TvRounded";
 import TeamLogo from "./common/TeamLogo";
 import { useScoreboard } from "../context/NCAAFDataContext";
+import PageLoading from "./common/PageLoading.jsx";
+import { isGamesPageLoading } from "../utils/pageReadiness.js";
 import { useGamePickSplitViews } from "../hooks/useGamePickSplitViews";
 import { getGamePickActionState } from "../utils/gamePickSplits";
 import {
@@ -388,10 +390,8 @@ const ScheduleView = () => {
     error: pickSplitsError,
   } = useGamePickSplitViews(scoreboardGames);
 
-  if (loading) {
-    return (
-      <div className="schedule-page schedule-page--state">Loading games...</div>
-    );
+  if (isGamesPageLoading({ scoreboardError: error, scoreboardLoading: loading })) {
+    return <PageLoading loading message="Loading games..." />;
   }
 
   if (error) {

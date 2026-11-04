@@ -13,7 +13,7 @@ import { alpha, useTheme } from "@mui/material/styles";
 import Panel from "../common/Panel";
 import SectionHeader from "./SectionHeader";
 
-const LeaderboardCard = ({ rows, currentUsername }) => {
+const LeaderboardCard = ({ rows, currentUsername, error = "", loading = false }) => {
   const theme = useTheme();
   const showRecord = useMediaQuery(theme.breakpoints.up("lg"));
   const hasRows = Array.isArray(rows) && rows.length > 0;
@@ -21,7 +21,15 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
   return (
     <Panel sx={{ width: "100%", height: "100%" }}>
       <SectionHeader title="Leaderboard Snapshot" />
-      {hasRows ? (
+      {loading && !hasRows ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+          Loading leaderboard...
+        </Typography>
+      ) : error && !hasRows ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+          Leaderboard unavailable.
+        </Typography>
+      ) : hasRows ? (
         <TableContainer sx={{ mt: 1.5 }}>
           <Table size="small" aria-label="Leaderboard preview">
             <TableHead>

@@ -1,6 +1,6 @@
 // UI - DASHBOARD - REACT
 import { useEffect, useMemo, useState } from "react";
-import { Box, useMediaQuery } from "@mui/material";
+import { Alert, Box, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppData } from "../app/AppDataContext.jsx";
 import { useScoreboard } from "../context/NCAAFDataContext.jsx";
@@ -15,18 +15,26 @@ import { buildDashboardEntries } from "../utils/dashboardEntryProgress";
 import { dashboardQuickLinks } from "../data/dashboardMockData";
 import { shouldShowSeasonPending } from "../utils/seasonExperience";
 import SeasonPendingPage from "./SeasonPendingPage.jsx";
+import PageLoading from "../components/common/PageLoading.jsx";
+import { isDashboardPageLoading } from "../utils/pageReadiness.js";
 
 const ActiveDashboardPage = () => {
   const { profile } = useUserProfile();
   const {
     currentEntry,
+    currentSeasonId,
     matchups,
     picksLockAt,
     picksLocked,
     tieBreakerRequired,
     savedSelectionsByGameId,
   } = useAppData();
-  const { rows: leaderboardRows } = useSeasonLeaderboard();
+  const {
+    rows: leaderboardRows,
+    error: leaderboardError,
+    ready: leaderboardReady,
+    seasonId: leaderboardSeasonId,
+  } = useSeasonLeaderboard();
   const theme = useTheme();
   const isDesktopDashboard = useMediaQuery(theme.breakpoints.up("lg"));
   const totalPicks = matchups.length;
@@ -48,7 +56,9 @@ const ActiveDashboardPage = () => {
     picksLocked,
     tieBreakerRequired,
   });
-  const dashboardLeaderboard = leaderboardRows
+  const leaderboardIsCurrent =
+    leaderboardReady && leaderboardSeasonId === String(currentSeasonId || "");
+  const dashboardLeaderboard = (leaderboardIsCurrent ? leaderboardRows : [])
     .slice(0, isDesktopDashboard ? 8 : 5)
     .map((row) => ({
       rank: row.rank,
@@ -105,6 +115,8 @@ const ActiveDashboardPage = () => {
         <LeaderboardCard
           rows={dashboardLeaderboard}
           currentUsername={profile?.username}
+          error={leaderboardIsCurrent ? "" : leaderboardError}
+          loading={!leaderboardIsCurrent && !leaderboardError}
         />
       </Box>
       <Box sx={{ gridArea: "upcoming", minWidth: 0 }}>
@@ -115,7 +127,22 @@ const ActiveDashboardPage = () => {
 };
 
 const DashboardPage = () => {
-  const { season, seasonConfig, rawGames } = useScoreboard();
+  const {
+    error: scoreboardError,
+    loading: scoreboardLoading,
+    season,
+    seasonConfig,
+    rawGames,
+  } = useScoreboard();
+  const {
+    currentEntry,
+    entriesError,
+    entriesLoading,
+    entriesReady,
+    hydratedEntryId,
+    picksError,
+    picksLoading,
+  } = useAppData();
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     let timer;
@@ -138,12 +165,36 @@ const DashboardPage = () => {
     refreshAtBoundary();
     return () => window.clearTimeout(timer);
   }, [seasonConfig?.picksOpenAt, seasonConfig?.picksLockAt]);
-  return shouldShowSeasonPending({
+  const showSeasonPending = shouldShowSeasonPending({
     season,
     seasonConfig,
     games: rawGames,
     now,
-  }) ? (
+  });
+  const loading = isDashboardPageLoading({
+    currentEntryId: currentEntry?.id,
+    entriesError,
+    entriesLoading,
+    entriesReady,
+    hydratedEntryId,
+    picksError,
+    picksLoading,
+    scoreboardError,
+    scoreboardLoading,
+    seasonId: season?.id,
+    usesEntryData: !showSeasonPending,
+  });
+
+  if (loading) {
+    return <PageLoading loading message="Loading your dashboard..." />;
+  }
+
+  const scopedDataError = entriesError || (currentEntry ? picksError : "");
+  if (scopedDataError) {
+    return <Alert severity="error">{scopedDataError}</Alert>;
+  }
+
+  return showSeasonPending ? (
     <SeasonPendingPage season={season} seasonConfig={seasonConfig} />
   ) : (
     <ActiveDashboardPage />
