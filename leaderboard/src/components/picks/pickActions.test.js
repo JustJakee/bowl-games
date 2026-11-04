@@ -5,9 +5,46 @@ import {
   clearEditableSelections,
   getFilterCountBadgeColors,
   getPickActionsState,
+  matchesEditableSelections,
   randomizeIncompleteSelections,
   toggleGameSelection,
 } from "./pickActions.js";
+
+test("bulk success requires every editable selection to match the confirmed backend result", () => {
+  const editableGameIds = new Set(["game-1", "game-2"]);
+  assert.equal(
+    matchesEditableSelections({
+      requested: {},
+      confirmed: {},
+      editableGameIds,
+    }),
+    true,
+  );
+  assert.equal(
+    matchesEditableSelections({
+      requested: {},
+      confirmed: { "game-1": "AAA" },
+      editableGameIds,
+    }),
+    false,
+  );
+  assert.equal(
+    matchesEditableSelections({
+      requested: { "game-2": "DDD" },
+      confirmed: {},
+      editableGameIds,
+    }),
+    false,
+  );
+  assert.equal(
+    matchesEditableSelections({
+      requested: { "game-2": "DDD" },
+      confirmed: { "game-2": "DDD", locked: "AAA" },
+      editableGameIds,
+    }),
+    true,
+  );
+});
 
 const games = [
   {

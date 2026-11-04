@@ -64,7 +64,11 @@ export const loadAdminEntries = async ({ seasonId, requiredGameIds = [] }) => {
   ]);
 
   // Keep the administration view aligned with the entries used by the leaderboard.
-  const activeEntries = selectCanonicalEntriesByUser({ entries, picks, seasonId });
+  const activeEntries = selectCanonicalEntriesByUser({
+    entries,
+    picks,
+    seasonId,
+  });
   const validGames = new Set(requiredGameIds);
 
   return activeEntries.map((entry) => {

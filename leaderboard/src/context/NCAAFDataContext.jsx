@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { loadSeasonBundle } from "../data/seasonRepository";
+import { selectPickableGames } from "../utils/scoreboardGames";
 
 const ScoreboardContext = createContext(null);
 
@@ -60,7 +61,6 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
         "Playoff National Championship",
         "FCS Championship",
       ];
-      const PICKS_EXCLUDED_BOWLS = ["FCS Championship"];
 
       const normalizedResponse = (response.games || [])
         .filter((game) => game.bowl.trim())
@@ -70,11 +70,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
         (game) =>
           !SCOREBOARD_EXCLUDED_BOWLS.some((term) => game.bowl.includes(term)),
       );
-      const picksResponse = normalizedResponse.filter(
-        (game) =>
-          game.bowl.trim() &&
-          !PICKS_EXCLUDED_BOWLS.some((term) => game.bowl.includes(term)),
-      );
+      const picksResponse = selectPickableGames(normalizedResponse);
 
       if (!mounted.current) return;
       setSeason(response.season);

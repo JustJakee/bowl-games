@@ -19,10 +19,7 @@ const latestPickActivityByEntryId = (picks = []) =>
   }, {});
 
 export const getCanonicalEntryUserKey = (entry) =>
-  entry?.userProfile?.id ||
-  entry?.userProfileId ||
-  entry?.owner ||
-  "";
+  entry?.userProfile?.id || entry?.userProfileId || entry?.owner || "";
 
 export const compareCanonicalEntryCandidates = (
   left,

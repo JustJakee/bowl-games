@@ -1,5 +1,5 @@
 // API — SCOREBOARD — ESPN
-const USE_MOCK_ESPN_DATA = import.meta.env.VITE_USE_MOCK_ESPN_DATA === "true";
+const USE_MOCK_ESPN_DATA = import.meta.env?.VITE_USE_MOCK_ESPN_DATA === "true";
 
 // Mock mode preserves ESPN's response envelope so live and fixture data share one normalization path.
 

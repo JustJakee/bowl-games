@@ -1,14 +1,14 @@
-// DATA — ENTRIES — AMPLIFY DATA
-// Entry operations recheck ownership client-side while Amplify enforces the authoritative owner rules.
+// Player lists use the owner index; private fields retain server authorization.
+// Writes use guarded operations only.
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import { selectCanonicalEntry } from "./canonicalEntry";
 
 let dataClientOverride = null;
-
+// The UI does not need Entry.owner's separate field resolver. Ownership below
+// is local scope metadata from the authenticated owner's index, never write authority.
 export const ENTRY_SELECTION = [
   "id",
   "seasonId",
-  "owner",
   "userProfileId",
   "entryName",
   "entryNameKey",
@@ -22,54 +22,6 @@ export const ENTRY_SELECTION = [
   "createdAt",
   "updatedAt",
 ];
-
-const getDataClient = () => {
-  return dataClientOverride || configuredDataClient;
-};
-
-export const __setEntryRepositoryDataClientForTests = (dataClient) => {
-  dataClientOverride = dataClient;
-};
-
-export const runSecureEntryMutation = (client, operation, input) =>
-  client.mutations[operation](input, {
-    selectionSet: ENTRY_SELECTION,
-    authMode: "userPool",
-  });
-
-const getFirstGraphQLError = (result) => result?.errors?.[0]?.message || null;
-
-const throwIfGraphQLError = (result, fallbackMessage) => {
-  const errorMessage = getFirstGraphQLError(result);
-
-  if (errorMessage) {
-    throw new Error(errorMessage);
-  }
-
-  if (!result) {
-    throw new Error(fallbackMessage);
-  }
-};
-
-const normalizePlayerEntry = (entry) =>
-  entry
-    ? {
-        ...entry,
-        paymentStatus: entry.paymentStatus || "unpaid",
-      }
-    : entry;
-
-const sortEntries = (entries = []) =>
-  (entries || []).slice().sort((left, right) => {
-    const leftUpdated = new Date(
-      left?.updatedAt || left?.createdAt || 0,
-    ).getTime();
-    const rightUpdated = new Date(
-      right?.updatedAt || right?.createdAt || 0,
-    ).getTime();
-    return rightUpdated - leftUpdated;
-  });
-
 const PICK_ACTIVITY_SELECTION = [
   "id",
   "seasonId",
@@ -77,309 +29,221 @@ const PICK_ACTIVITY_SELECTION = [
   "createdAt",
   "updatedAt",
 ];
+const getDataClient = () => dataClientOverride || configuredDataClient;
+export const __setEntryRepositoryDataClientForTests = (client) => {
+  dataClientOverride = client;
+};
+const ENTRY_MUTATION_ARGUMENTS = {
+  createSeasonEntry: {
+    seasonId: "ID!",
+    contactEmail: "AWSEmail!",
+    userProfileId: "ID",
+  },
+  updateSeasonEntry: {
+    entryId: "ID!",
+    contactEmail: "AWSEmail",
+    tieBreakerValue: "Int",
+    userProfileId: "ID",
+    isDeleted: "Boolean",
+  },
+};
+export const runSecureEntryMutation = async (client, operation, input) => {
+  const args = ENTRY_MUTATION_ARGUMENTS[operation];
+  if (!args) throw new Error("Unsupported guarded entry operation.");
+  // The installed custom-operation generator ignores selectionSet for model
+  // returns. Explicit GraphQL calls the same guarded operation with only the
+  // intended fields, without silently adding owner or relationship selections.
+  const definitions = Object.entries(args)
+    .map(([key, type]) => `$${key}: ${type}`)
+    .join(", ");
+  const argumentsList = Object.keys(args)
+    .map((key) => `${key}: $${key}`)
+    .join(", ");
+  const variables = Object.fromEntries(
+    Object.keys(args)
+      .filter((key) => input[key] !== undefined)
+      .map((key) => [key, input[key]]),
+  );
+  try {
+    const result = await client.graphql({
+      query: `mutation GuardedEntry(${definitions}) { ${operation}(${argumentsList}) { ${ENTRY_SELECTION.join(" ")} } }`,
+      variables,
+      authMode: "userPool",
+    });
+    return { data: result.data?.[operation] ?? null, errors: result.errors };
+  } catch (error) {
+    if (error?.errors?.length)
+      return { data: error.data?.[operation] ?? null, errors: error.errors };
+    throw error;
+  }
+};
 
-const listAllPages = async ({ listPage, input, fallbackMessage }) => {
+const checked = (result, message) => {
+  if (result?.errors?.length) throw new Error(result.errors[0].message);
+  if (!result) throw new Error(message);
+  return result;
+};
+const normalizePlayerEntry = (entry, owner) =>
+  entry
+    ? {
+        ...entry,
+        owner,
+        paymentStatus: entry.paymentStatus || "unpaid",
+      }
+    : null;
+const requireOwner = (owner) => {
+  if (!owner) throw new Error("You must be signed in to access your entry.");
+};
+const listAllPages = async (page, message) => {
   const items = [];
   let nextToken;
-
   do {
-    const result = await listPage({ ...input, limit: 100, nextToken });
-    throwIfGraphQLError(result, fallbackMessage);
-    items.push(...(result.data || []).filter(Boolean));
-    nextToken = result.nextToken || null;
+    const result = checked(await page(nextToken), message);
+    if (!Array.isArray(result.data)) throw new Error(message);
+    items.push(...result.data.filter(Boolean));
+    nextToken = result.nextToken || undefined;
   } while (nextToken);
-
   return items;
 };
 
-export const normalizeEntryName = (entryName) => {
-  const trimmed = String(entryName || "").trim();
-
-  if (trimmed.length < 3 || trimmed.length > 60) {
-    throw new Error("Pick set names must be between 3 and 60 characters.");
-  }
-
-  return trimmed;
-};
-
-export const normalizeEntryNameKey = (entryName) =>
-  normalizeEntryName(entryName).toLowerCase();
-
-export const normalizeEmail = (contactEmail) => {
-  const trimmed = String(contactEmail || "").trim();
-
-  if (!trimmed) {
-    throw new Error(
-      "A contact email is required before entries can be created.",
-    );
-  }
-
-  return trimmed;
-};
-
-const ensureOwnership = (entry, owner) => {
-  if (!entry) {
-    throw new Error("The requested entry was not found.");
-  }
-
-  if (owner && entry.owner && entry.owner !== owner) {
-    throw new Error("You are not authorized to access that entry.");
-  }
+const readOwnedEntries = async ({ owner, seasonId, entryId }) => {
+  requireOwner(owner);
+  const rows = await listAllPages(
+    (nextToken) =>
+      getDataClient().models.Entry.entriesByOwner(
+        { owner, ...(seasonId ? { seasonId: { eq: seasonId } } : {}) },
+        {
+          limit: 100,
+          nextToken,
+          authMode: "userPool",
+          selectionSet: ENTRY_SELECTION,
+          ...(entryId ? { filter: { id: { eq: entryId } } } : {}),
+        },
+      ),
+    "Unable to load your entry.",
+  );
+  return rows
+    .filter(
+      (entry) =>
+        entry.isDeleted !== true &&
+        (!seasonId || entry.seasonId === seasonId) &&
+        (!entryId || entry.id === entryId) &&
+        (!entry.owner || entry.owner === owner),
+    )
+    .map((entry) => normalizePlayerEntry(entry, owner));
 };
 
 export const listEntriesForSeason = async ({ owner, seasonId }) => {
-  if (!owner || !seasonId) {
-    return [];
-  }
-
-  const client = getDataClient();
-  const entries = await listAllPages({
-    listPage: (input) => client.models.Entry.list(input),
-    input: {
-      filter: {
-        owner: { eq: owner },
-        seasonId: { eq: seasonId },
-      },
-      selectionSet: ENTRY_SELECTION,
-      authMode: "userPool",
-    },
-    fallbackMessage: "Unable to load your pick set.",
-  });
-
-  return sortEntries(
-    entries
-      .filter((entry) => entry?.isDeleted !== true)
-      .map(normalizePlayerEntry),
-  );
+  if (!seasonId) throw new Error("The active season is unavailable.");
+  return readOwnedEntries({ owner, seasonId });
 };
-
 export const getCanonicalEntryForUser = async ({ owner, seasonId }) => {
-  if (!owner || !seasonId) return null;
-
-  const client = getDataClient();
+  requireOwner(owner);
+  if (!seasonId) throw new Error("The active season is unavailable.");
   const [entries, picks] = await Promise.all([
     listEntriesForSeason({ owner, seasonId }),
-    listAllPages({
-      listPage: (input) => client.models.Pick.list(input),
-      input: {
-        filter: {
-          owner: { eq: owner },
-          seasonId: { eq: seasonId },
-        },
-        selectionSet: PICK_ACTIVITY_SELECTION,
-        authMode: "userPool",
-      },
-      fallbackMessage: "Unable to determine your latest pick set.",
-    }),
+    listAllPages(
+      (nextToken) =>
+        getDataClient().models.Pick.list({
+          filter: { owner: { eq: owner }, seasonId: { eq: seasonId } },
+          selectionSet: PICK_ACTIVITY_SELECTION,
+          authMode: "userPool",
+          limit: 100,
+          nextToken,
+        }),
+      "Unable to load your entry's pick activity.",
+    ),
   ]);
-
   return selectCanonicalEntry({ entries, picks, owner, seasonId });
 };
-
-export const getEntryById = async ({ entryId, owner }) => {
-  if (!entryId) {
-    return null;
-  }
-
-  const client = getDataClient();
-  const result = await client.models.Entry.get(
-    { id: entryId },
-    {
-      selectionSet: ENTRY_SELECTION,
-      authMode: "userPool",
-    },
+export const getEntryById = async ({ entryId, owner, seasonId }) => {
+  requireOwner(owner);
+  if (!entryId) return null;
+  // Read the base record after creation instead of waiting for a secondary
+  // index to catch up. Protected fields below are authorized by AppSync.
+  const result = checked(
+    await getDataClient().models.Entry.get(
+      { id: entryId },
+      { selectionSet: ENTRY_SELECTION, authMode: "userPool" },
+    ),
+    "Unable to load your entry.",
   );
-
-  throwIfGraphQLError(result, "Unable to load the requested entry.");
-  const entry = normalizePlayerEntry(result.data || null);
-  ensureOwnership(entry, owner);
-
-  if (entry?.isDeleted) {
-    return null;
-  }
-
-  return entry;
+  const entry = result.data;
+  if (
+    !entry ||
+    entry.isDeleted === true ||
+    (entry.owner && entry.owner !== owner) ||
+    (seasonId && entry.seasonId !== seasonId)
+  )
+    throw new Error("The requested entry was not found or is not yours.");
+  return normalizePlayerEntry(entry, owner);
 };
-
-const assertUniqueEntryName = async ({
-  owner,
-  seasonId,
-  entryName,
-  excludeEntryId,
-}) => {
-  const existingEntries = await listEntriesForSeason({ owner, seasonId });
-  const entryNameKey = normalizeEntryNameKey(entryName);
-  const duplicate = existingEntries.find(
-    (entry) =>
-      entry.id !== excludeEntryId && entry.entryNameKey === entryNameKey,
-  );
-
-  if (duplicate) {
+export const normalizeEmail = (email) => {
+  const value = String(email || "").trim();
+  if (!value)
     throw new Error(
-      "You already have an entry with that name for this season.",
+      "A contact email is required before entries can be created.",
     );
-  }
+  return value;
 };
-
+const mutationResult = (result, owner, message) => {
+  checked(result, message);
+  if (!result.data?.id) throw new Error(message);
+  return normalizePlayerEntry(result.data, owner);
+};
 export const createEntry = async ({
   owner,
   seasonId,
   userProfileId,
-  entryName,
   contactEmail,
 }) => {
-  if (!owner) {
-    throw new Error("You must be signed in before creating an entry.");
-  }
-
-  if (!seasonId) {
-    throw new Error("The active season is unavailable.");
-  }
-
-  const normalizedEntryName = normalizeEntryName(entryName);
-  const normalizedEmail = normalizeEmail(contactEmail);
-  await assertUniqueEntryName({
+  requireOwner(owner);
+  if (!seasonId) throw new Error("The active season is unavailable.");
+  return mutationResult(
+    await runSecureEntryMutation(getDataClient(), "createSeasonEntry", {
+      seasonId,
+      contactEmail: normalizeEmail(contactEmail),
+      ...(userProfileId ? { userProfileId } : {}),
+    }),
     owner,
-    seasonId,
-    entryName: normalizedEntryName,
-  });
-
-  const client = getDataClient();
-  const result = await (dataClientOverride
-    ? client.models.Entry.create(
-      {
-      seasonId,
-      owner,
-      userProfileId: userProfileId || undefined,
-      entryName: normalizedEntryName,
-      entryNameKey: normalizedEntryName.toLowerCase(),
-      contactEmail: normalizedEmail,
-      tieBreakerValue: null,
-      isDeleted: false,
-    },
-      {
-      selectionSet: ENTRY_SELECTION,
-      authMode: "userPool",
-      },
-    )
-    : runSecureEntryMutation(client, "createSeasonEntry", {
-      seasonId,
-      entryName: normalizedEntryName,
-      contactEmail: normalizedEmail,
-      userProfileId: userProfileId || undefined,
-    }));
-
-  throwIfGraphQLError(result, "Unable to create your pick set.");
-  return normalizePlayerEntry(result.data);
+    "Unable to create your entry.",
+  );
 };
-
-export const createOrLoadEntry = async (input) => {
-  const existingEntry = await getCanonicalEntryForUser(input);
-  return existingEntry || createEntry(input);
-};
-
+export const createOrLoadEntry = async (input) =>
+  (await getCanonicalEntryForUser(input)) || createEntry(input);
 export const updateEntry = async ({
   entryId,
   owner,
   seasonId,
-  entryName,
   contactEmail,
   tieBreakerValue,
   userProfileId,
+  isDeleted,
 }) => {
-  const existingEntry = await getEntryById({ entryId, owner });
-
-  if (!existingEntry) {
-    throw new Error("The requested entry was not found.");
-  }
-
-  const nextEntryName =
-    entryName === undefined
-      ? existingEntry.entryName
-      : normalizeEntryName(entryName);
-  const nextContactEmail =
-    contactEmail === undefined
-      ? existingEntry.contactEmail
-      : normalizeEmail(contactEmail);
-
-  if (nextEntryName !== existingEntry.entryName) {
-    await assertUniqueEntryName({
-      owner,
-      seasonId: seasonId || existingEntry.seasonId,
-      entryName: nextEntryName,
-      excludeEntryId: existingEntry.id,
-    });
-  }
-
-  // DATA - ENTRIES - MINIMAL MUTATIONS
-  // Field authorization evaluates every supplied key, including null values. Only send fields
-  // that this operation changes so unrelated protected fields are not re-written.
-  const nextValues = { id: existingEntry.id };
-
-  if (userProfileId && userProfileId !== existingEntry.userProfileId) {
-    nextValues.userProfileId = userProfileId;
-  }
-
-  if (nextEntryName !== existingEntry.entryName) {
-    nextValues.entryName = nextEntryName;
-    nextValues.entryNameKey = nextEntryName.toLowerCase();
-  }
-
-  if (nextContactEmail !== existingEntry.contactEmail) {
-    nextValues.contactEmail = nextContactEmail;
-  }
-
+  const entry = await getEntryById({ entryId, owner, seasonId });
+  const input = { entryId: entry.id };
+  if (
+    contactEmail !== undefined &&
+    normalizeEmail(contactEmail) !== entry.contactEmail
+  )
+    input.contactEmail = normalizeEmail(contactEmail);
   if (
     tieBreakerValue !== undefined &&
-    tieBreakerValue !== existingEntry.tieBreakerValue
-  ) {
-    nextValues.tieBreakerValue = tieBreakerValue;
-  }
-
-  if (Object.keys(nextValues).length === 1) {
-    return existingEntry;
-  }
-
-  const client = getDataClient();
-  const result = await (dataClientOverride
-    ? client.models.Entry.update(nextValues, {
-      selectionSet: ENTRY_SELECTION,
-      authMode: "userPool",
-    })
-    : runSecureEntryMutation(client, "updateSeasonEntry", {
-      entryId: existingEntry.id,
-      ...Object.fromEntries(Object.entries(nextValues).filter(([key]) => key !== "id")),
-    }));
-
-  throwIfGraphQLError(result, "Unable to update your pick set.");
-  return normalizePlayerEntry(result.data);
+    tieBreakerValue !== entry.tieBreakerValue
+  )
+    input.tieBreakerValue = tieBreakerValue;
+  if (userProfileId && userProfileId !== entry.userProfileId)
+    input.userProfileId = userProfileId;
+  if (isDeleted === true) input.isDeleted = true;
+  if (Object.keys(input).length === 1) return entry;
+  return mutationResult(
+    await runSecureEntryMutation(getDataClient(), "updateSeasonEntry", input),
+    owner,
+    "Unable to update your entry.",
+  );
 };
-
 export const softDeleteEntry = async ({ entryId, owner, picksLocked }) => {
-  if (picksLocked) {
+  if (picksLocked)
     throw new Error("Entries can no longer be deleted after picks lock.");
-  }
-
-  const existingEntry = await getEntryById({ entryId, owner });
-
-  if (!existingEntry) {
-    throw new Error("The requested entry was not found.");
-  }
-
-  if (existingEntry.isDeleted) {
-    return existingEntry;
-  }
-
-  const client = getDataClient();
-  const result = await (dataClientOverride
-    ? client.models.Entry.update(
-      { id: existingEntry.id, isDeleted: true },
-      { selectionSet: ENTRY_SELECTION, authMode: "userPool" },
-    )
-    : runSecureEntryMutation(client, "updateSeasonEntry", {
-      entryId: existingEntry.id, isDeleted: true,
-    }));
-
-  throwIfGraphQLError(result, "Unable to delete your entry.");
-  return normalizePlayerEntry(result.data);
+  return updateEntry({ entryId, owner, isDeleted: true });
 };

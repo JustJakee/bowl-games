@@ -17,7 +17,6 @@ import {
   createOrLoadEntry,
   getCanonicalEntryForUser,
   getEntryById,
-  updateEntry,
 } from "../data/entryRepository";
 import {
   calculatePickSetStatus,
@@ -71,11 +70,7 @@ const buildMatchups = (scoreboardGames = []) => {
 };
 
 export const AppDataProvider = ({ children }) => {
-  const {
-    allGames: scoreboardGames,
-    season,
-    seasonConfig,
-  } = useScoreboard();
+  const { allGames: scoreboardGames, season, seasonConfig } = useScoreboard();
   const {
     email,
     hasValidTokens,
@@ -89,6 +84,8 @@ export const AppDataProvider = ({ children }) => {
   const [entries, setEntries] = useState([]);
   const [entriesLoading, setEntriesLoading] = useState(false);
   const [entriesError, setEntriesError] = useState("");
+  const [loadedEntriesScope, setLoadedEntriesScope] = useState("");
+  const entriesRequestIdRef = useRef(0);
   const [picksLoading, setPicksLoading] = useState(false);
   const [picksError, setPicksError] = useState("");
   const [activeEntryId, setActiveEntryIdState] = useState("");
@@ -141,16 +138,20 @@ export const AppDataProvider = ({ children }) => {
     setStaleSavedPickIds([]);
   }, []);
 
-  const setActiveEntryId = useCallback(
-    (nextEntryId) => {
-      const normalizedEntryId = nextEntryId || "";
-      activeEntryIdRef.current = normalizedEntryId;
-      setActiveEntryIdState(normalizedEntryId);
-    },
-    [],
-  );
+  const setActiveEntryId = useCallback((nextEntryId) => {
+    const normalizedEntryId = nextEntryId || "";
+    activeEntryIdRef.current = normalizedEntryId;
+    setActiveEntryIdState(normalizedEntryId);
+  }, []);
 
   const loadEntries = useCallback(async () => {
+    const scope = `${owner || "guest"}:${currentSeasonId || "none"}`;
+    if (saveScopeRef.current !== scope) return;
+    const requestId = ++entriesRequestIdRef.current;
+    const isCurrent = () =>
+      entriesRequestIdRef.current === requestId &&
+      saveScopeRef.current === scope;
+    setLoadedEntriesScope("");
     // AUTH — SESSION RESTORATION — COGNITO
     // Player-owned Data queries wait for configuration, usable tokens, and a resolved season and owner.
     if (
@@ -171,6 +172,7 @@ export const AppDataProvider = ({ children }) => {
 
     setEntriesLoading(true);
     setEntriesError("");
+    setActiveEntryId("");
     setHydratedEntryId("");
     setSavedSelectionsByGameId({});
     setCurrentEntryStatus(PICK_SET_STATUS.DRAFT);
@@ -184,20 +186,23 @@ export const AppDataProvider = ({ children }) => {
         owner,
         seasonId: currentSeasonId,
       });
+      if (!isCurrent()) return;
       const nextEntries = canonicalEntry ? [canonicalEntry] : [];
       const canonicalEntryId = canonicalEntry?.id || "";
 
       setEntries(nextEntries);
       activeEntryIdRef.current = canonicalEntryId;
       setActiveEntryIdState(canonicalEntryId);
+      setLoadedEntriesScope(scope);
     } catch (error) {
+      if (!isCurrent()) return;
       setEntries([]);
       setEntriesError(error?.message || "Unable to load your pick set.");
       setActiveEntryId("");
       setHydratedEntryId("");
       resetActiveEntryState();
     } finally {
-      setEntriesLoading(false);
+      if (isCurrent()) setEntriesLoading(false);
     }
   }, [
     authLoading,
@@ -241,8 +246,7 @@ export const AppDataProvider = ({ children }) => {
     // STATE — PICKS — REACT CONTEXT
     // A request ID prevents a slower prior hydration request from overwriting the canonical entry.
     picksRequestIdRef.current = requestId;
-    const isSelectedEntrySwitch =
-      hydratedEntryIdRef.current !== activeEntryId;
+    const isSelectedEntrySwitch = hydratedEntryIdRef.current !== activeEntryId;
     // A same-entry refresh retains hydrated data. Only expose a blocking
     // loading state while changing entries for the first time.
     setPicksLoading(isSelectedEntrySwitch);
@@ -256,7 +260,11 @@ export const AppDataProvider = ({ children }) => {
     }
 
     Promise.all([
-      getEntryById({ entryId: activeEntryId, owner }),
+      getEntryById({
+        entryId: activeEntryId,
+        owner,
+        seasonId: currentSeasonId,
+      }),
       loadEntryPicks({
         entryId: activeEntryId,
         seasonId: currentSeasonId,
@@ -319,19 +327,33 @@ export const AppDataProvider = ({ children }) => {
   ]);
 
   const createSeasonEntry = useCallback(
-    async ({ entryName, userProfileId }) => {
+    async ({ userProfileId } = {}) => {
       if (isAdmin) {
         throw new Error("Admin accounts cannot create entries.");
       }
+      if (
+        entriesLoading ||
+        entriesError ||
+        loadedEntriesScope !== saveScopeRef.current
+      )
+        throw new Error(
+          "Your entry has not loaded successfully. Retry loading before creating an entry.",
+        );
+      if (picksLocked)
+        throw new Error("Entries can no longer be created after picks lock.");
+      const scope = saveScopeRef.current;
 
       return runSingleFlight(createEntryPromiseRef, () =>
         createOrLoadEntry({
           owner,
           seasonId: currentSeasonId,
           userProfileId,
-          entryName,
           contactEmail: email || "",
         }).then((entry) => {
+          if (saveScopeRef.current !== scope)
+            throw new Error(
+              "Your account or season changed. Reload your entry.",
+            );
           setEntries([entry]);
           setActiveEntryId(entry.id);
           resetActiveEntryState();
@@ -339,37 +361,27 @@ export const AppDataProvider = ({ children }) => {
         }),
       );
     },
-    [currentSeasonId, email, isAdmin, owner, resetActiveEntryState, setActiveEntryId],
-  );
-
-  const renameSeasonEntry = useCallback(
-    async ({ entryId, entryName, userProfileId }) => {
-      const updatedEntry = await updateEntry({
-        entryId,
-        owner,
-        seasonId: currentSeasonId,
-        entryName,
-        contactEmail: email || "",
-        userProfileId,
-      });
-
-      setEntries((currentEntries) =>
-        currentEntries.map((entry) =>
-          entry.id === updatedEntry.id ? updatedEntry : entry,
-        ),
-      );
-
-      return updatedEntry;
-    },
-    [currentSeasonId, email, owner],
+    [
+      currentSeasonId,
+      email,
+      entriesError,
+      entriesLoading,
+      isAdmin,
+      loadedEntriesScope,
+      owner,
+      picksLocked,
+      resetActiveEntryState,
+      setActiveEntryId,
+    ],
   );
 
   const persistCurrentPicks = useCallback(
     async ({
       entryId,
       contactEmail,
-      entryName,
       selectionsByGameId,
+      knownSelectionsByGameId,
+      forceGameIds,
       tieBreakerValue,
       userProfileId,
     }) => {
@@ -378,8 +390,10 @@ export const AppDataProvider = ({ children }) => {
         owner,
         seasonId: currentSeasonId,
         userProfileId,
-        entryName,
         contactEmail,
+        knownSelectionsByGameId:
+          knownSelectionsByGameId || savedSelectionsByGameId,
+        forceGameIds,
         tieBreakerValue,
         tieBreakerGameId,
         selectionsByGameId,
@@ -395,6 +409,7 @@ export const AppDataProvider = ({ children }) => {
       owner,
       picksLockAt,
       requiredGameIds,
+      savedSelectionsByGameId,
       tieBreakerGameId,
       tieBreakerRequired,
     ],
@@ -404,9 +419,7 @@ export const AppDataProvider = ({ children }) => {
     ({ entryId, result, scope = saveScopeRef.current }) => {
       const resultEntryId = result?.entry?.id || "";
       const resultBelongsToRequest =
-        entryId &&
-        resultEntryId === entryId &&
-        scope === saveScopeRef.current;
+        entryId && resultEntryId === entryId && scope === saveScopeRef.current;
 
       if (!resultBelongsToRequest) {
         return false;
@@ -545,6 +558,8 @@ export const AppDataProvider = ({ children }) => {
       isAdmin,
       entriesError,
       entriesLoading,
+      entriesReady:
+        loadedEntriesScope === saveScope && !entriesLoading && !entriesError,
       matchups,
       markCurrentPicksRevision,
       nextCurrentPicksRevision,
@@ -554,7 +569,6 @@ export const AppDataProvider = ({ children }) => {
       picksLocked,
       picksLockAt,
       reloadEntries: loadEntries,
-      renameSeasonEntry,
       queueCurrentPicksSave,
       saveCurrentPicks,
       savedSelectionsByGameId,
@@ -572,6 +586,8 @@ export const AppDataProvider = ({ children }) => {
       isAdmin,
       entriesError,
       entriesLoading,
+      loadedEntriesScope,
+      saveScope,
       loadEntries,
       matchups,
       markCurrentPicksRevision,
@@ -581,7 +597,6 @@ export const AppDataProvider = ({ children }) => {
       picksLocked,
       picksLoading,
       picksLockAt,
-      renameSeasonEntry,
       queueCurrentPicksSave,
       saveCurrentPicks,
       savedSelectionsByGameId,

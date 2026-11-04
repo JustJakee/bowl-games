@@ -156,10 +156,7 @@ test("multiple owned entries split across teams are represented", () => {
   assert.equal(view.teamSplits[0].ownedCount, 1);
   assert.equal(view.teamSplits[1].ownedCount, 1);
   assert.deepEqual(
-    view.ownedPicks.map((pick) => [
-      pick.entryName,
-      pick.selectedTeamName,
-    ]),
+    view.ownedPicks.map((pick) => [pick.entryName, pick.selectedTeamName]),
     [
       ["Alpha Entry", "Alpha"],
       ["Beta Entry", "Beta"],

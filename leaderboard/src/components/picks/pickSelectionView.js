@@ -1,4 +1,7 @@
-import { calculatePickSetStatus, PICK_SET_STATUS } from "../../data/picksRepository";
+import {
+  calculatePickSetStatus,
+  PICK_SET_STATUS,
+} from "../../data/picksRepository";
 
 export const buildPickSelectionView = ({
   currentEntry,
@@ -36,11 +39,11 @@ export const buildPickSelectionView = ({
     : picksLocked
       ? "LOCKED"
       : calculatePickSetStatus({
-          requiredGameIds: games.map((game) => game.id),
-          selectionsByGameId,
-          tieBreakerRequired,
-          tieBreakerValue,
-        }) === PICK_SET_STATUS.COMPLETE
+            requiredGameIds: games.map((game) => game.id),
+            selectionsByGameId,
+            tieBreakerRequired,
+            tieBreakerValue,
+          }) === PICK_SET_STATUS.COMPLETE
         ? "COMPLETE"
         : "DRAFT";
 

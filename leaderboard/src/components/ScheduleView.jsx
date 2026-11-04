@@ -1,12 +1,6 @@
 // UI - SCHEDULE - REACT
 import { Link as RouterLink } from "react-router-dom";
-import {
-  Box,
-  Button,
-  Stack,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import ListAltRoundedIcon from "@mui/icons-material/ListAltRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
@@ -15,7 +9,10 @@ import TeamLogo from "./common/TeamLogo";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import { useGamePickSplitViews } from "../hooks/useGamePickSplitViews";
 import { getGamePickActionState } from "../utils/gamePickSplits";
-import { getFinalGameWinner, getGameStatusPresentation } from "../utils/gameStatusPresentation";
+import {
+  getFinalGameWinner,
+  getGameStatusPresentation,
+} from "../utils/gameStatusPresentation";
 import "../styles/schedule-view.css";
 
 const DATE_KEY_FORMATTER = new Intl.DateTimeFormat(undefined, {
@@ -162,7 +159,9 @@ const OwnedEntryPicks = ({ picks }) => {
         <div className="schedule-owned-pick-list">
           {picks.map((pick) => (
             <div key={pick.entryId} className="schedule-owned-pick-row">
-              <span className="schedule-owned-entry-name">{pick.selectedTeamName || pick.selectedTeam}</span>
+              <span className="schedule-owned-entry-name">
+                {pick.selectedTeamName || pick.selectedTeam}
+              </span>
             </div>
           ))}
         </div>
@@ -235,10 +234,15 @@ const TeamRow = ({ game, side, isFinal, winnerTeam }) => {
   const team = game?.[side] || {};
   const teamName = team.displayName || team.abbr || "TBD";
   const isWinner = isFinal && Boolean(winnerTeam) && winnerTeam === team.abbr;
-  const score = team.score === null || team.score === undefined || team.score === "" ? "--" : team.score;
+  const score =
+    team.score === null || team.score === undefined || team.score === ""
+      ? "--"
+      : team.score;
 
   return (
-    <div className={`schedule-team-row${isWinner ? " schedule-team-row--winner" : ""}${isFinal && !isWinner ? " schedule-team-row--loser" : ""}`}>
+    <div
+      className={`schedule-team-row${isWinner ? " schedule-team-row--winner" : ""}${isFinal && !isWinner ? " schedule-team-row--loser" : ""}`}
+    >
       <div className="schedule-team-main">
         <TeamLogo
           src={team.logo}
@@ -247,7 +251,9 @@ const TeamRow = ({ game, side, isFinal, winnerTeam }) => {
           size={34}
         />
         <span className="schedule-team-name">{teamName}</span>
-        {isWinner ? <span className="schedule-team-winner-label">Winner</span> : null}
+        {isWinner ? (
+          <span className="schedule-team-winner-label">Winner</span>
+        ) : null}
       </div>
       {isFinal ? <span className="schedule-team-score">{score}</span> : null}
     </div>
@@ -265,22 +271,27 @@ const ScheduleCard = ({ game, pickSplit, pickLoading, pickError }) => {
   return (
     <article
       className={`schedule-card schedule-card--${statusKind}`}
-      style={isFinal ? {
-        "--final-accent": statusPresentation.accent,
-        "--final-badge-background": statusPresentation.badgeBackground,
-        "--final-badge-border": statusPresentation.badgeBorder,
-        "--final-badge-text": statusPresentation.badgeText,
-        "--final-card-background": statusPresentation.cardBackground,
-        "--final-card-background-end": statusPresentation.cardBackgroundEnd,
-        "--final-metadata-text": statusPresentation.metadataText,
-        "--final-metadata-accent": statusPresentation.metadataAccent,
-        "--final-divider": statusPresentation.divider,
-        "--final-pick-text": statusPresentation.pickText,
-        "--final-pick-border": statusPresentation.pickBorder,
-        "--final-pick-hover": statusPresentation.pickHover,
-        "--final-winner-surface": statusPresentation.winnerSurface,
-        "--final-winner-text": statusPresentation.winnerText,
-      } : undefined}
+      style={
+        isFinal
+          ? {
+              "--final-accent": statusPresentation.accent,
+              "--final-badge-background": statusPresentation.badgeBackground,
+              "--final-badge-border": statusPresentation.badgeBorder,
+              "--final-badge-text": statusPresentation.badgeText,
+              "--final-card-background": statusPresentation.cardBackground,
+              "--final-card-background-end":
+                statusPresentation.cardBackgroundEnd,
+              "--final-metadata-text": statusPresentation.metadataText,
+              "--final-metadata-accent": statusPresentation.metadataAccent,
+              "--final-divider": statusPresentation.divider,
+              "--final-pick-text": statusPresentation.pickText,
+              "--final-pick-border": statusPresentation.pickBorder,
+              "--final-pick-hover": statusPresentation.pickHover,
+              "--final-winner-surface": statusPresentation.winnerSurface,
+              "--final-winner-text": statusPresentation.winnerText,
+            }
+          : undefined
+      }
     >
       <header className="schedule-card-header">
         <div className="schedule-card-title-wrap">
@@ -298,13 +309,25 @@ const ScheduleCard = ({ game, pickSplit, pickLoading, pickError }) => {
       </header>
 
       <div className="schedule-team-list">
-        <TeamRow game={game} side="away" isFinal={isFinal} winnerTeam={winnerTeam} />
-        <TeamRow game={game} side="home" isFinal={isFinal} winnerTeam={winnerTeam} />
+        <TeamRow
+          game={game}
+          side="away"
+          isFinal={isFinal}
+          winnerTeam={winnerTeam}
+        />
+        <TeamRow
+          game={game}
+          side="home"
+          isFinal={isFinal}
+          winnerTeam={winnerTeam}
+        />
       </div>
 
       <footer className="schedule-card-meta">
         <ScheduleNetworkMeta network={network} />
-        <span className={`schedule-card-time schedule-card-time--${statusKind}`}>
+        <span
+          className={`schedule-card-time schedule-card-time--${statusKind}`}
+        >
           {getMetaTime(game)}
         </span>
       </footer>
@@ -319,7 +342,13 @@ const ScheduleCard = ({ game, pickSplit, pickLoading, pickError }) => {
   );
 };
 
-const ScheduleDateSection = ({ group, mobile, pickSplits, pickLoading, pickError }) => {
+const ScheduleDateSection = ({
+  group,
+  mobile,
+  pickSplits,
+  pickLoading,
+  pickError,
+}) => {
   const gameCount = group.games.length;
   const headingId = `schedule-date-${group.key.replace(/[^a-z0-9]/gi, "-")}`;
 
@@ -409,7 +438,9 @@ const ScheduleView = () => {
       </Stack>
 
       {groupedGames.length === 0 ? (
-        <div className="schedule-empty-state">No games scheduled right now.</div>
+        <div className="schedule-empty-state">
+          No games scheduled right now.
+        </div>
       ) : (
         <div className="schedule-sections">
           {groupedGames.map((group) => (

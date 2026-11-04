@@ -8,7 +8,10 @@ import { compileProject } from "../node_modules/@aws-amplify/backend-deployer/li
 import { verifyRegistrationResolverContract } from "./tests/registration-resolver-contract.mjs";
 import { verifySecurePicksResolverContract } from "./tests/secure-picks-resolver-contract.mjs";
 
-const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const projectRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const generatedDir = path.join(projectRoot, ".amplify");
 const outputDir = path.join(projectRoot, "tmp", "gen2-offline-synth");
 
@@ -22,16 +25,30 @@ const checkBackendImports = async (directory) => {
       continue;
     }
     if (!entry.name.endsWith(".ts")) continue;
-    const source = ts.createSourceFile(file, await readFile(file, "utf8"), ts.ScriptTarget.Latest, true);
+    const source = ts.createSourceFile(
+      file,
+      await readFile(file, "utf8"),
+      ts.ScriptTarget.Latest,
+      true,
+    );
     for (const statement of source.statements) {
-      if (!ts.isImportDeclaration(statement) && !ts.isExportDeclaration(statement)) continue;
+      if (
+        !ts.isImportDeclaration(statement) &&
+        !ts.isExportDeclaration(statement)
+      )
+        continue;
       const specifier = statement.moduleSpecifier;
       if (!specifier || !ts.isStringLiteral(specifier)) continue;
       const value = specifier.text;
       if (!/^\.\.?\//.test(value)) continue;
       const stem = value.replace(/\.(?:js|ts)$/, "");
-      if (existsSync(path.resolve(directory, `${stem}.ts`)) && !value.endsWith(".ts")) {
-        throw new Error(`${file}: local TypeScript import '${value}' must use an explicit .ts suffix for Amplify's CI assembly loader.`);
+      if (
+        existsSync(path.resolve(directory, `${stem}.ts`)) &&
+        !value.endsWith(".ts")
+      ) {
+        throw new Error(
+          `${file}: local TypeScript import '${value}' must use an explicit .ts suffix for Amplify's CI assembly loader.`,
+        );
       }
     }
   }
@@ -40,7 +57,9 @@ const checkBackendImports = async (directory) => {
 // These Amplify/CDK internals are pinned by package-lock.json. There is no
 // documented ampx command that synthesizes a Gen 2 backend without deployment.
 if (existsSync(generatedDir) || existsSync(outputDir)) {
-  throw new Error("Offline synthesis requires absent .amplify and tmp/gen2-offline-synth directories; existing files were left untouched.");
+  throw new Error(
+    "Offline synthesis requires absent .amplify and tmp/gen2-offline-synth directories; existing files were left untouched.",
+  );
 }
 
 const previousCwd = process.cwd();
@@ -64,22 +83,44 @@ const removeCreatedDirectory = async (target) => {
 
 try {
   await checkBackendImports(path.join(projectRoot, "amplify"));
-  await tsImport(pathToFileURL(path.join(projectRoot, "amplify", "backend.ts")).toString(), import.meta.url);
+  await tsImport(
+    pathToFileURL(path.join(projectRoot, "amplify", "backend.ts")).toString(),
+    import.meta.url,
+  );
   process.emit("message", "amplifySynth");
 
-  const manifest = JSON.parse(await readFile(path.join(outputDir, "manifest.json"), "utf8"));
-  const generatedEnv = path.join(generatedDir, "generated", "env", "secure-picks.ts");
+  const manifest = JSON.parse(
+    await readFile(path.join(outputDir, "manifest.json"), "utf8"),
+  );
+  const generatedEnv = path.join(
+    generatedDir,
+    "generated",
+    "env",
+    "secure-picks.ts",
+  );
   const envSource = await readFile(generatedEnv, "utf8");
-  const registrationEnv = await readFile(path.join(generatedDir, "generated", "env", "registration-admin.ts"), "utf8");
+  const registrationEnv = await readFile(
+    path.join(generatedDir, "generated", "env", "registration-admin.ts"),
+    "utf8",
+  );
   const outputFiles = await readdir(outputDir);
-  if (!Object.keys(manifest.artifacts || {}).length || !envSource.includes("process.env") || !registrationEnv.includes("AMPLIFY_AUTH_USERPOOL_ID") || outputFiles.length === 0) {
-    throw new Error("Amplify synthesis did not produce the expected assembly and function environment modules.");
+  if (
+    !Object.keys(manifest.artifacts || {}).length ||
+    !envSource.includes("process.env") ||
+    !registrationEnv.includes("AMPLIFY_AUTH_USERPOOL_ID") ||
+    outputFiles.length === 0
+  ) {
+    throw new Error(
+      "Amplify synthesis did not produce the expected assembly and function environment modules.",
+    );
   }
   // Amplify's deployer runs this compiler after synthesis, when generated env types exist.
   compileProject(path.join(projectRoot, "amplify"));
   await verifyRegistrationResolverContract(outputDir, projectRoot);
   await verifySecurePicksResolverContract(outputDir, projectRoot);
-  console.log("Amplify backend synthesized, Lambda bundled, and backend-local TypeScript validated.");
+  console.log(
+    "Amplify backend synthesized, Lambda bundled, and backend-local TypeScript validated.",
+  );
 } finally {
   await removeCreatedDirectory(outputDir);
   await removeCreatedDirectory(generatedDir);

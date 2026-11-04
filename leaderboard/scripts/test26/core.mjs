@@ -148,10 +148,15 @@ export const prepareModelMutation = (model, record, modelDefinition) => {
   return record;
 };
 
-export const stableGameIdForSource = (sourceEventId, seasonId = TEST_SEASON_ID) =>
-  `game-${seasonId}-${String(sourceEventId).trim()}`;
+export const stableGameIdForSource = (
+  sourceEventId,
+  seasonId = TEST_SEASON_ID,
+) => `game-${seasonId}-${String(sourceEventId).trim()}`;
 
-export const sourceEventIdFromStableGameId = (gameId, seasonId = TEST_SEASON_ID) => {
+export const sourceEventIdFromStableGameId = (
+  gameId,
+  seasonId = TEST_SEASON_ID,
+) => {
   const prefix = `game-${seasonId}-`;
   const value = String(gameId || "");
   return value.startsWith(prefix) && value.length > prefix.length
@@ -170,17 +175,23 @@ const valuesMatch = (left, right) => {
 
 const comparableField = (field, value) => {
   if (field === "scoringConfigJson" && typeof value === "string") {
-    try { return JSON.parse(value); } catch { return value; }
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
   }
   return value;
 };
 
 const recordAction = (existing, proposed, fields) => {
   if (!existing) return "create";
-  return fields.every((field) => valuesMatch(
-    comparableField(field, existing[field]),
-    comparableField(field, proposed[field]),
-  ))
+  return fields.every((field) =>
+    valuesMatch(
+      comparableField(field, existing[field]),
+      comparableField(field, proposed[field]),
+    ),
+  )
     ? "skip"
     : "update";
 };
@@ -266,8 +277,13 @@ export const buildSimulation = ({
   if (Number.isNaN(start.getTime()))
     throw new Error("--start-at must be valid ISO-8601.");
   const openHours = toPositiveNumber(picksOpenHours, "--picks-open-hours");
-  if (seasonId === REGRESSION_SEASON_ID && start.getTime() + openHours * 3600000 <= Date.now())
-    throw new Error("The regression season's first kickoff must be in the future.");
+  if (
+    seasonId === REGRESSION_SEASON_ID &&
+    start.getTime() + openHours * 3600000 <= Date.now()
+  )
+    throw new Error(
+      "The regression season's first kickoff must be in the future.",
+    );
   const intervalMinutes = toPositiveNumber(
     gameIntervalMinutes,
     "--game-interval-minutes",
@@ -334,7 +350,10 @@ export const buildSimulation = ({
   const season = {
     id: seasonId,
     year: 2026,
-    name: seasonId === REGRESSION_SEASON_ID ? "2026 Test Season R2" : TEST_SEASON_NAME,
+    name:
+      seasonId === REGRESSION_SEASON_ID
+        ? "2026 Test Season R2"
+        : TEST_SEASON_NAME,
     slug: seasonId,
     status: "open",
     entryFeeCents: 0,
@@ -404,7 +423,10 @@ const duplicateValues = (records, field) => {
 export const buildRecordPlan = ({ simulation, state }) => {
   const conflicts = [];
   const seasonId = simulation.season.id;
-  if (!ALLOWED_SEASON_IDS.includes(seasonId) || simulation.season.slug !== seasonId)
+  if (
+    !ALLOWED_SEASON_IDS.includes(seasonId) ||
+    simulation.season.slug !== seasonId
+  )
     throw new Error("Refusing a plan for an unsupported test season.");
   const seasonById = state.seasonById || null;
   const seasonsBySlug = state.seasonsBySlug || [];
@@ -480,7 +502,9 @@ export const buildRecordPlan = ({ simulation, state }) => {
   const seasonAction = recordAction(
     seasonById,
     simulation.season,
-    seasonId === REGRESSION_SEASON_ID ? [...SEASON_FIELDS, "isTestSeason"] : SEASON_FIELDS,
+    seasonId === REGRESSION_SEASON_ID
+      ? [...SEASON_FIELDS, "isTestSeason"]
+      : SEASON_FIELDS,
   );
   const configAction = recordAction(
     existingConfig,
@@ -570,15 +594,35 @@ export const createDryRunPlan = async ({ gateway, target, simulation, now }) =>
 export const createResetPlan = ({ target, state, now = new Date() }) => {
   const seasonId = REGRESSION_SEASON_ID;
   const conflicts = [];
-  if (state.seasonById && (state.seasonById.id !== seasonId || state.seasonById.slug !== seasonId || state.seasonById.isTestSeason !== true))
+  if (
+    state.seasonById &&
+    (state.seasonById.id !== seasonId ||
+      state.seasonById.slug !== seasonId ||
+      state.seasonById.isTestSeason !== true)
+  )
     conflicts.push("Season identity or test flag does not match test26-r2.");
-  if ((state.seasonsBySlug || []).some((season) => season.id !== seasonId) || (state.seasonsBySlug || []).length > 1)
+  if (
+    (state.seasonsBySlug || []).some((season) => season.id !== seasonId) ||
+    (state.seasonsBySlug || []).length > 1
+  )
     conflicts.push("Season slug lookup is ambiguous.");
   if (Boolean(state.seasonById) !== Boolean((state.seasonsBySlug || []).length))
     conflicts.push("Season ID and slug lookups disagree.");
-  if ((state.seasonConfigs || []).some((config) => config.seasonId !== seasonId) || (state.seasonConfigs || []).length > 1)
+  if (
+    (state.seasonConfigs || []).some(
+      (config) => config.seasonId !== seasonId,
+    ) ||
+    (state.seasonConfigs || []).length > 1
+  )
     conflicts.push("SeasonConfig lookup is ambiguous.");
-  if ((state.games || []).some((game) => game.seasonId !== seasonId || !String(game.id).startsWith(`game-${seasonId}-`) || !String(game.sourceEventId).startsWith(`fixture-${seasonId}-`)))
+  if (
+    (state.games || []).some(
+      (game) =>
+        game.seasonId !== seasonId ||
+        !String(game.id).startsWith(`game-${seasonId}-`) ||
+        !String(game.sourceEventId).startsWith(`fixture-${seasonId}-`),
+    )
+  )
     conflicts.push("A Game is outside the regression fixture namespace.");
   const ids = {
     Pick: (state.picks || []).map((row) => row.id),
@@ -587,9 +631,15 @@ export const createResetPlan = ({ target, state, now = new Date() }) => {
     SeasonConfig: (state.seasonConfigs || []).map((row) => row.id),
     Season: state.seasonById ? [seasonId] : [],
   };
-  if (Object.values(ids).flat().some((id) => !id))
+  if (
+    Object.values(ids)
+      .flat()
+      .some((id) => !id)
+  )
     conflicts.push("A record has no ID.");
-  if (new Set(Object.values(ids).flat()).size !== Object.values(ids).flat().length)
+  if (
+    new Set(Object.values(ids).flat()).size !== Object.values(ids).flat().length
+  )
     conflicts.push("Duplicate IDs make reset unsafe.");
   const body = {
     version: 1,
@@ -603,20 +653,39 @@ export const createResetPlan = ({ target, state, now = new Date() }) => {
     stateHash: hashValue(state),
   };
   const hash = hashValue(body);
-  return { ...body, hash, confirmation: `${target.appSyncApiId}:reset:${hash.slice(0, 12)}` };
+  return {
+    ...body,
+    hash,
+    confirmation: `${target.appSyncApiId}:reset:${hash.slice(0, 12)}`,
+  };
 };
 
-export const applyResetPlan = async ({ gateway, plan, confirmation, currentState, now = new Date() }) => {
-  if (!plan || plan.kind !== "reset-test26-r2" || plan.seasonId !== REGRESSION_SEASON_ID)
+export const applyResetPlan = async ({
+  gateway,
+  plan,
+  confirmation,
+  currentState,
+  now = new Date(),
+}) => {
+  if (
+    !plan ||
+    plan.kind !== "reset-test26-r2" ||
+    plan.seasonId !== REGRESSION_SEASON_ID
+  )
     throw new Error("A test26-r2 reset plan is required.");
   const { hash, confirmation: storedConfirmation, ...body } = plan;
-  if (hashValue(body) !== hash || new Date(plan.expiresAt).getTime() <= now.getTime())
+  if (
+    hashValue(body) !== hash ||
+    new Date(plan.expiresAt).getTime() <= now.getTime()
+  )
     throw new Error("Reset plan is invalid or expired.");
   const expected = `${plan.target.appSyncApiId}:reset:${hash.slice(0, 12)}`;
   if (storedConfirmation !== expected || confirmation !== expected)
     throw new Error("Reset confirmation does not match the dry run.");
   if (plan.conflicts.length || hashValue(currentState) !== plan.stateHash)
-    throw new Error("Reset conflicts or backend state changed; run a new preview.");
+    throw new Error(
+      "Reset conflicts or backend state changed; run a new preview.",
+    );
   const counts = {};
   for (const model of ["Pick", "Entry", "Game", "SeasonConfig", "Season"]) {
     counts[model] = 0;

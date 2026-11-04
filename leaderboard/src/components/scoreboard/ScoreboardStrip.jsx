@@ -25,7 +25,10 @@ const ScoreboardStrip = () => {
   const viewportRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const scoreboardGames = useMemo(() => selectTopScoreboardGames(games), [games]);
+  const scoreboardGames = useMemo(
+    () => selectTopScoreboardGames(games),
+    [games],
+  );
 
   const updateScrollState = useCallback(() => {
     const container = viewportRef.current;

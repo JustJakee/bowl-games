@@ -289,7 +289,14 @@ const ProfileGate = ({ children }) => {
 };
 
 const AuthShell = ({ children }) => {
-  const { isAuthenticated, isConfigured, isLoading, role, email: signedInEmail, signOut } = useAuth();
+  const {
+    isAuthenticated,
+    isConfigured,
+    isLoading,
+    role,
+    email: signedInEmail,
+    signOut,
+  } = useAuth();
   const [authView, setAuthView] = useState("signIn");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -387,30 +394,52 @@ const AuthShell = ({ children }) => {
     resetMessages();
     setEmail(submittedEmail);
     try {
-      const result = await signUp({ username: submittedEmail, password, options: { userAttributes: { email: submittedEmail } } });
+      const result = await signUp({
+        username: submittedEmail,
+        password,
+        options: { userAttributes: { email: submittedEmail } },
+      });
       if (result?.nextStep?.signUpStep === "CONFIRM_SIGN_UP") {
         setAuthView("confirmRegistration");
         setInfo("A verification code was sent to your email.");
       } else if (result?.isSignUpComplete) {
         setAuthView("signIn");
-        setSuccess("Account created. Sign in and wait for administrator approval.");
+        setSuccess(
+          "Account created. Sign in and wait for administrator approval.",
+        );
       } else {
-        setError("Registration needs another verification step. Contact the administrator.");
+        setError(
+          "Registration needs another verification step. Contact the administrator.",
+        );
       }
     } catch (registrationError) {
-      setError(mapAuthErrorMessage(registrationError, "Unable to register. Check your details and try again."));
+      setError(
+        mapAuthErrorMessage(
+          registrationError,
+          "Unable to register. Check your details and try again.",
+        ),
+      );
     }
   };
 
   const handleConfirmRegistration = async (confirmationCode) => {
     resetMessages();
     try {
-      const result = await confirmSignUp({ username: email.trim(), confirmationCode });
-      if (!result?.isSignUpComplete) throw new Error("Registration verification is incomplete.");
+      const result = await confirmSignUp({
+        username: email.trim(),
+        confirmationCode,
+      });
+      if (!result?.isSignUpComplete)
+        throw new Error("Registration verification is incomplete.");
       setAuthView("signIn");
       setSuccess("Email verified. Sign in to check your approval status.");
     } catch (confirmationError) {
-      setError(mapAuthErrorMessage(confirmationError, "Could not verify the code. Try again."));
+      setError(
+        mapAuthErrorMessage(
+          confirmationError,
+          "Could not verify the code. Try again.",
+        ),
+      );
     }
   };
 
@@ -420,7 +449,12 @@ const AuthShell = ({ children }) => {
       await resendSignUpCode({ username: email.trim() });
       setInfo("A new verification code was sent to your email.");
     } catch (resendError) {
-      setError(mapAuthErrorMessage(resendError, "Could not resend the code. Try again later."));
+      setError(
+        mapAuthErrorMessage(
+          resendError,
+          "Could not resend the code. Try again later.",
+        ),
+      );
     }
   };
 
@@ -558,8 +592,29 @@ const AuthShell = ({ children }) => {
           />
         ) : null}
 
-        {authView === "register" ? <RegisterPage error={error} onSubmit={handleRegister} onBack={() => { resetMessages(); setAuthView("signIn"); }} /> : null}
-        {authView === "confirmRegistration" ? <ConfirmRegistrationPage email={email} error={error} info={info} onSubmit={handleConfirmRegistration} onResend={handleResendRegistrationCode} onBack={() => { resetMessages(); setAuthView("signIn"); }} /> : null}
+        {authView === "register" ? (
+          <RegisterPage
+            error={error}
+            onSubmit={handleRegister}
+            onBack={() => {
+              resetMessages();
+              setAuthView("signIn");
+            }}
+          />
+        ) : null}
+        {authView === "confirmRegistration" ? (
+          <ConfirmRegistrationPage
+            email={email}
+            error={error}
+            info={info}
+            onSubmit={handleConfirmRegistration}
+            onResend={handleResendRegistrationCode}
+            onBack={() => {
+              resetMessages();
+              setAuthView("signIn");
+            }}
+          />
+        ) : null}
 
         {authView === "forgotPassword" ? (
           <ResetPasswordForm
@@ -594,25 +649,41 @@ const AuthShell = ({ children }) => {
   }
 
   if (role !== "player" && role !== "admin") {
-    return <GateFrame>
-      <Typography variant="h6">Awaiting administrator approval</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        {signedInEmail || "Your verified account"} is registered. An administrator must approve player access before you can enter the pool.
-      </Typography>
-      <Stack spacing={1.5} sx={{ mt: 3 }}>
-        {error ? <Alert severity="error">{error}</Alert> : null}
-        <Button variant="contained" onClick={async () => {
-          setError("");
-          try {
-            await fetchAuthSession({ forceRefresh: true });
-            window.location.reload();
-          } catch (refreshError) {
-            setError(mapAuthErrorMessage(refreshError, "Unable to refresh approval status. Try signing in again."));
-          }
-        }}>Check approval</Button>
-        <Button variant="outlined" onClick={signOut}>Sign out</Button>
-      </Stack>
-    </GateFrame>;
+    return (
+      <GateFrame>
+        <Typography variant="h6">Awaiting administrator approval</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          {signedInEmail || "Your verified account"} is registered. An
+          administrator must approve player access before you can enter the
+          pool.
+        </Typography>
+        <Stack spacing={1.5} sx={{ mt: 3 }}>
+          {error ? <Alert severity="error">{error}</Alert> : null}
+          <Button
+            variant="contained"
+            onClick={async () => {
+              setError("");
+              try {
+                await fetchAuthSession({ forceRefresh: true });
+                window.location.reload();
+              } catch (refreshError) {
+                setError(
+                  mapAuthErrorMessage(
+                    refreshError,
+                    "Unable to refresh approval status. Try signing in again.",
+                  ),
+                );
+              }
+            }}
+          >
+            Check approval
+          </Button>
+          <Button variant="outlined" onClick={signOut}>
+            Sign out
+          </Button>
+        </Stack>
+      </GateFrame>
+    );
   }
 
   return (

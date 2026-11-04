@@ -13,9 +13,8 @@ export const buildDashboardEntries = ({
   entries.map((entry) => {
     const progress = progressByEntryId[entry.id] || {};
     const selectionsByGameId = progress.selectionsByGameId || {};
-    const completedPicks = Object.values(selectionsByGameId).filter(
-      Boolean,
-    ).length;
+    const completedPicks =
+      Object.values(selectionsByGameId).filter(Boolean).length;
     const pickStatus = calculatePickSetStatus({
       requiredGameIds: progress.requiredGameIds || [],
       selectionsByGameId,

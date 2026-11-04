@@ -79,19 +79,27 @@ const WinnersPodium = ({ season, winners = [], tiebreakerTotal = null }) => {
   return (
     <section className="winners-podium" aria-label="Season winners podium">
       <div className="winners-podium__header">
-        <p className="winners-podium__eyebrow">{season?.name || "Previous season"}</p>
-        <h2 className="winners-podium__title">
-          PREVIOUS SEASON RESULTS
-        </h2>
-        <p className="winners-podium__subtitle">{winners.length ? "CONGRATS TO OUR WINNERS!" : "RESULTS WILL APPEAR WHEN AVAILABLE"}</p>
+        <p className="winners-podium__eyebrow">
+          {season?.name || "Previous season"}
+        </p>
+        <h2 className="winners-podium__title">PREVIOUS SEASON RESULTS</h2>
+        <p className="winners-podium__subtitle">
+          {winners.length
+            ? "CONGRATS TO OUR WINNERS!"
+            : "RESULTS WILL APPEAR WHEN AVAILABLE"}
+        </p>
         <p className="winners-podium__meta">
-          {tiebreakerTotal === null ? "Final tiebreaker total unavailable" : `Tiebreaker total: ${tiebreakerTotal}`}
+          {tiebreakerTotal === null
+            ? "Final tiebreaker total unavailable"
+            : `Tiebreaker total: ${tiebreakerTotal}`}
         </p>
       </div>
 
       <div className="winners-podium__grid-card">
         <div className="winners-podium__grid">
-          {winners.length === 0 ? <p>Previous season results are not available yet.</p> : null}
+          {winners.length === 0 ? (
+            <p>Previous season results are not available yet.</p>
+          ) : null}
           {winners.map((winner) => (
             <div
               key={winner.place}
@@ -105,12 +113,16 @@ const WinnersPodium = ({ season, winners = [], tiebreakerTotal = null }) => {
                 <span className="winners-podium__badge">
                   {winner.picks} picks
                 </span>
-                {winner.tiebreakerMargin !== null ? <span className="winners-podium__badge winners-podium__badge--margin">
-                  Tie Breaker Margin {winner.tiebreakerMargin}
-                </span> : null}
-                {winner.winnings !== undefined ? <span className="winners-podium__badge winners-podium__badge--cash">
-                  {`$${winner.winnings} winnings`}
-                </span> : null}
+                {winner.tiebreakerMargin !== null ? (
+                  <span className="winners-podium__badge winners-podium__badge--margin">
+                    Tie Breaker Margin {winner.tiebreakerMargin}
+                  </span>
+                ) : null}
+                {winner.winnings !== undefined ? (
+                  <span className="winners-podium__badge winners-podium__badge--cash">
+                    {`$${winner.winnings} winnings`}
+                  </span>
+                ) : null}
               </div>
             </div>
           ))}

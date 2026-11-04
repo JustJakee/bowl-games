@@ -80,17 +80,22 @@ export const loadSeasonLeaderboardData = async ({ seasonId }) => {
       },
       fallbackMessage: "Unable to load leaderboard entries.",
     }),
-    client.queries.visibleSeasonPicks(
-      { seasonId },
-      { authMode: "userPool" },
-    ),
+    client.queries.visibleSeasonPicks({ seasonId }, { authMode: "userPool" }),
   ]);
-  throwIfGraphQLError(visibleResult, "Unable to load visible leaderboard picks.");
-  if (!visibleResult.data) throw new Error("Unable to load visible leaderboard picks.");
+  throwIfGraphQLError(
+    visibleResult,
+    "Unable to load visible leaderboard picks.",
+  );
+  if (!visibleResult.data)
+    throw new Error("Unable to load visible leaderboard picks.");
   const picks = (visibleResult.data?.picks || []).filter(Boolean);
   const completedIds = new Set(visibleResult.data?.completeEntryIds || []);
-  const tieBreakers = new Map((visibleResult.data?.tieBreakers || [])
-    .map((item) => [item.entryId, item.value]));
+  const tieBreakers = new Map(
+    (visibleResult.data?.tieBreakers || []).map((item) => [
+      item.entryId,
+      item.value,
+    ]),
+  );
 
   const canonicalEntries = selectCanonicalEntriesByUser({
     entries,
@@ -105,7 +110,9 @@ export const loadSeasonLeaderboardData = async ({ seasonId }) => {
       tieBreakerValue: tieBreakers.get(entry.id) ?? null,
     })),
     picks: picks.filter((pick) => canonicalEntryIds.has(pick.entryId)),
-    completeEntryIds: [...completedIds].filter((id) => canonicalEntryIds.has(id)),
+    completeEntryIds: [...completedIds].filter((id) =>
+      canonicalEntryIds.has(id),
+    ),
     usernamesByOwner: {},
   };
 };

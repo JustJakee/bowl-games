@@ -1,11 +1,5 @@
 // UI — PICKS — REACT
-import {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
 import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
 import DeleteSweepRoundedIcon from "@mui/icons-material/DeleteSweepRounded";
@@ -46,13 +40,9 @@ import TeamLogo from "../common/TeamLogo";
 import PaymentStatusChip from "../common/PaymentStatusChip";
 import { useScoreboard } from "../../context/NCAAFDataContext.jsx";
 import { PICK_SET_STATUS } from "../../data/picksRepository";
-import {
-  formatPickLockMessage,
-} from "../../utils/pickWindow";
+import { formatPickLockMessage } from "../../utils/pickWindow";
 import { buildPickSelectionView } from "./pickSelectionView";
-import {
-  getSelectedEntryPickLoadRemainingMs,
-} from "./selectedEntryPickLoading";
+import { getSelectedEntryPickLoadRemainingMs } from "./selectedEntryPickLoading";
 import {
   buildAutosaveDiagnostic,
   buildAutosaveFailureState,
@@ -63,19 +53,23 @@ import {
   isDraftSyncedWithBackend,
 } from "./picksAutosaveState";
 import {
+  formatPicksDateKey,
   formatPicksDateLabel,
   formatPicksMetaLabel,
+  formatPicksTimeLabel,
   getTeamIdentity,
 } from "../../utils/picksGameUtils";
 import {
   buildEditableGameIdSet,
   clearEditableSelections,
   getFilterCountBadgeColors,
+  matchesEditableSelections,
   getPickActionsState,
   randomizeIncompleteSelections,
   toggleGameSelection,
 } from "./pickActions";
 import LockedPicksView from "./LockedPicksView";
+import EntryStartState from "./EntryStartState";
 
 const STORAGE_KEY_PREFIX = "bobs-bowl-games-picks-drafts";
 
@@ -96,9 +90,6 @@ const readDraftCache = (storageKey) => {
 const writeDraftCache = (storageKey, draftsByEntryId) => {
   window.localStorage.setItem(storageKey, JSON.stringify(draftsByEntryId));
 };
-
-const buildDefaultPickSetName = (username) =>
-  username ? `${username}'s Pick Set` : "My Pick Set";
 
 const useSelectedEntryPickLoadGate = ({
   isLoadingSelectedEntryPicks,
@@ -204,7 +195,11 @@ const buildPicksGames = (games = []) =>
         startDate: game?.startDate || "",
         startDateLabel: formatPicksDateLabel(game?.startDate),
         startTime,
-        startTimeText: game?.startTimeText || game?.statusText || "Time TBD",
+        startTimeText:
+          formatPicksTimeLabel(game?.startDate) ||
+          game?.startTimeText ||
+          game?.statusText ||
+          "Time TBD",
         statusText: game?.statusText || "",
         state: game?.state || "pre",
         isFinal: Boolean(game?.isFinal),
@@ -245,7 +240,7 @@ const buildGroups = (games = []) => {
   const grouped = new Map();
 
   games.forEach((game) => {
-    const key = game?.startDate?.slice(0, 10) || game.startDateLabel;
+    const key = formatPicksDateKey(game?.startDate) || game.startDateLabel;
     if (!grouped.has(key)) {
       grouped.set(key, {
         key,
@@ -498,7 +493,7 @@ const PicksWorkspace = () => {
   const { email, role } = useAuth();
   const isAdmin = role === "admin";
   const { profile } = useUserProfile();
-  const { allGames, loading, error } = useScoreboard();
+  const { allGames, loading, error, reload } = useScoreboard();
   const {
     createSeasonEntry,
     currentEntry,
@@ -507,6 +502,8 @@ const PicksWorkspace = () => {
     defaultContactEmail,
     entriesError,
     entriesLoading,
+    entriesReady,
+    reloadEntries,
     markCurrentPicksRevision,
     nextCurrentPicksRevision,
     picksLoading,
@@ -542,7 +539,6 @@ const PicksWorkspace = () => {
   const [retryKey, setRetryKey] = useState(0);
   const [entryActionError, setEntryActionError] = useState("");
   const [creatingEntry, setCreatingEntry] = useState(false);
-  const [newPickSetName, setNewPickSetName] = useState("");
   const [bulkOperation, setBulkOperation] = useState("");
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [bulkFeedback, setBulkFeedback] = useState({
@@ -588,8 +584,7 @@ const PicksWorkspace = () => {
     } catch (storageError) {
       console.error("Pick draft device persistence failed.", {
         name: storageError?.name || "Error",
-        message:
-          storageError?.message || "Local storage rejected the draft.",
+        message: storageError?.message || "Local storage rejected the draft.",
       });
       setDraftStorageError(
         "This browser could not persist the latest draft. Keep this tab open and retry after freeing device storage.",
@@ -667,10 +662,10 @@ const PicksWorkspace = () => {
               detail: "",
             }
         : {
-              state: "saved",
-              message: "Saved to account",
-              detail: "",
-            };
+            state: "saved",
+            message: "Saved to account",
+            detail: "",
+          };
 
       if (
         currentState.state === nextState.state &&
@@ -789,9 +784,9 @@ const PicksWorkspace = () => {
       const outcome = await queueCurrentPicksSave({
         entryId,
         revision,
-        entryName: activeDraft.entryName,
         contactEmail: defaultContactEmail || email || "",
         selectionsByGameId: activeDraft.selectionsByGameId || {},
+        forceGameIds: activeDraft.changedGameIds || [],
         tieBreakerValue: activeDraft.tieBreakerValue,
         userProfileId: profile?.id,
       });
@@ -803,10 +798,7 @@ const PicksWorkspace = () => {
         return;
       }
 
-      if (
-        outcome.status === "saved" &&
-        outcome.result?.entry?.id === entryId
-      ) {
+      if (outcome.status === "saved" && outcome.result?.entry?.id === entryId) {
         setDraftsByEntryId((currentDrafts) => {
           const latestDraft = currentDrafts[entryId];
 
@@ -858,11 +850,7 @@ const PicksWorkspace = () => {
   ]);
 
   const updateActiveDraft = (updater) => {
-    if (
-      !currentEntry ||
-      blockSelectedEntryPickUi ||
-      bulkOperationRef.current
-    ) {
+    if (!currentEntry || blockSelectedEntryPickUi || bulkOperationRef.current) {
       return;
     }
 
@@ -904,16 +892,13 @@ const PicksWorkspace = () => {
   };
 
   const handleTeamPick = (gameId, teamCode) => {
-    if (
-      picksLocked ||
-      blockSelectedEntryPickUi ||
-      bulkOperationRef.current
-    ) {
+    if (picksLocked || blockSelectedEntryPickUi || bulkOperationRef.current) {
       return;
     }
 
     updateActiveDraft((draft) => ({
       ...draft,
+      changedGameIds: [...new Set([...(draft.changedGameIds || []), gameId])],
       selectionsByGameId: toggleGameSelection({
         gameId,
         selectedTeam: teamCode,
@@ -924,11 +909,7 @@ const PicksWorkspace = () => {
   };
 
   const handleTieBreakerChange = (value) => {
-    if (
-      picksLocked ||
-      blockSelectedEntryPickUi ||
-      bulkOperationRef.current
-    ) {
+    if (picksLocked || blockSelectedEntryPickUi || bulkOperationRef.current) {
       return;
     }
 
@@ -967,6 +948,16 @@ const PicksWorkspace = () => {
     const nextDraft = {
       ...activeDraft,
       selectionsByGameId: nextSelectionsByGameId,
+      changedGameIds: [
+        ...new Set([
+          ...(activeDraft.changedGameIds || []),
+          ...[...editableGameIds].filter(
+            (gameId) =>
+              (activeDraft.selectionsByGameId?.[gameId] || "") !==
+              (nextSelectionsByGameId?.[gameId] || ""),
+          ),
+        ]),
+      ],
       revision,
       dirty: true,
     };
@@ -979,7 +970,8 @@ const PicksWorkspace = () => {
     }));
     setSaveState({
       state: "saving",
-      message: operation === "clear" ? "Clearing picks..." : "Randomizing picks...",
+      message:
+        operation === "clear" ? "Clearing picks..." : "Randomizing picks...",
       detail: "",
     });
 
@@ -987,9 +979,10 @@ const PicksWorkspace = () => {
       const outcome = await queueCurrentPicksSave({
         entryId,
         revision,
-        entryName: nextDraft.entryName,
         contactEmail: defaultContactEmail || email || "",
         selectionsByGameId: nextDraft.selectionsByGameId,
+        knownSelectionsByGameId: activeDraft.selectionsByGameId,
+        forceGameIds: nextDraft.changedGameIds,
         tieBreakerValue: nextDraft.tieBreakerValue,
         userProfileId: profile?.id,
       });
@@ -1003,7 +996,12 @@ const PicksWorkspace = () => {
 
       if (
         outcome.status === "saved" &&
-        outcome.result?.entry?.id === entryId
+        outcome.result?.entry?.id === entryId &&
+        matchesEditableSelections({
+          requested: nextDraft.selectionsByGameId,
+          confirmed: outcome.result.selectionsByGameId,
+          editableGameIds,
+        })
       ) {
         setDraftsByEntryId((currentDrafts) => {
           const latestDraft = currentDrafts[entryId];
@@ -1028,7 +1026,9 @@ const PicksWorkspace = () => {
 
       const operationError =
         outcome.error ||
-        new Error("The operation was replaced before it could finish.");
+        new Error(
+          "The backend did not confirm every requested selection. Reload or retry.",
+        );
       const partialResult = operationError.partialResult;
 
       if (partialResult?.entry?.id === entryId) {
@@ -1048,7 +1048,7 @@ const PicksWorkspace = () => {
           state: "error",
           message: "Partially saved",
           detail:
-            "Saved changes were kept. Failed and unattempted changes were rolled back.",
+            "Confirmed changes were kept. Reload to check the remaining selections, then retry.",
         });
       } else {
         setSaveState(buildAutosaveFailureState(operationError));
@@ -1057,7 +1057,7 @@ const PicksWorkspace = () => {
         open: true,
         severity: "error",
         message: partialResult
-          ? "Some changes could not be saved. Saved changes were kept; failed changes were rolled back."
+          ? "Some changes were not confirmed. Confirmed changes were kept; reload or retry the remaining selections."
           : "Changes could not be saved to your account. They remain saved on this device for Retry.",
       });
     } finally {
@@ -1105,19 +1105,17 @@ const PicksWorkspace = () => {
   };
 
   const handleCreatePickSet = async () => {
-    if (creatingEntry) return;
+    if (creatingEntry || !entriesReady || entriesError || picksLocked) return;
 
     setCreatingEntry(true);
     setEntryActionError("");
 
     try {
       await createSeasonEntry({
-        entryName:
-          newPickSetName.trim() || buildDefaultPickSetName(profile?.username),
         userProfileId: profile?.id,
       });
     } catch (error) {
-      setEntryActionError(error?.message || "Unable to create your pick set.");
+      setEntryActionError(error?.message || "Unable to create your entry.");
     } finally {
       setCreatingEntry(false);
     }
@@ -1150,10 +1148,7 @@ const PicksWorkspace = () => {
     setRetryKey((current) => current + 1);
   };
 
-  if (
-    loading ||
-    entriesLoading
-  ) {
+  if (loading || entriesLoading || (!entriesReady && !entriesError)) {
     return (
       <Panel elevated>
         <Typography variant="body1">Loading picks...</Typography>
@@ -1161,12 +1156,23 @@ const PicksWorkspace = () => {
     );
   }
 
-  if (error || entriesError || picksError) {
+  if (entriesError) {
+    return <EntryStartState error={entriesError} onRetry={reloadEntries} />;
+  }
+
+  if (error || picksError) {
     return (
       <Stack spacing={2}>
         {error ? <Alert severity="error">{error}</Alert> : null}
-        {entriesError ? <Alert severity="error">{entriesError}</Alert> : null}
         {picksError ? <Alert severity="error">{picksError}</Alert> : null}
+        <Button
+          onClick={() => {
+            void reloadEntries();
+            if (error) void reload();
+          }}
+        >
+          Retry loading picks
+        </Button>
       </Stack>
     );
   }
@@ -1192,44 +1198,14 @@ const PicksWorkspace = () => {
 
   if (!currentEntry) {
     return (
-      <Stack spacing={2.5}>
-        <Box>
-          <Typography variant="h3" sx={{ fontSize: { xs: "2rem", md: "2.25rem" } }}>
-            My Picks
-          </Typography>
-        </Box>
-        {entryActionError ? <Alert severity="error">{entryActionError}</Alert> : null}
-        <Panel elevated>
-          <Stack spacing={2}>
-            <Typography variant="h5">Create Your Pick Set</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Create your one pick set for this season, then start choosing winners.
-            </Typography>
-            {isAdmin ? (
-              <Alert severity="info">
-                Admin accounts cannot create player pick sets.
-              </Alert>
-            ) : (
-              <>
-                <TextField
-                  label="Pick Set Name"
-                  value={newPickSetName}
-                  placeholder={buildDefaultPickSetName(profile?.username)}
-                  onChange={(event) => setNewPickSetName(event.target.value)}
-                  inputProps={{ maxLength: 60 }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={handleCreatePickSet}
-                  disabled={creatingEntry || !currentSeasonId}
-                >
-                  {creatingEntry ? "Creating..." : "Create Your Pick Set"}
-                </Button>
-              </>
-            )}
-          </Stack>
-        </Panel>
-      </Stack>
+      <EntryStartState
+        ready={entriesReady}
+        isAdmin={isAdmin}
+        creating={creatingEntry}
+        createError={entryActionError}
+        gameCount={games.length}
+        onStart={handleCreatePickSet}
+      />
     );
   }
 
@@ -1271,30 +1247,27 @@ const PicksWorkspace = () => {
             }}
           >
             <Stack spacing={1.25}>
-              <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                flexWrap="wrap"
+              >
                 <Typography variant="overline" color="text.secondary">
                   My Pick Set
                 </Typography>
-                <PaymentStatusChip paymentStatus={currentEntry?.paymentStatus} />
+                <PaymentStatusChip
+                  paymentStatus={currentEntry?.paymentStatus}
+                />
               </Stack>
-              <TextField
-                label="Pick Set Name"
-                value={activeDraft?.entryName || ""}
-                size="small"
-                onChange={(event) =>
-                  updateActiveDraft({
-                    entryName: event.target.value,
-                  })
-                }
-                disabled={
-                  !currentEntry ||
-                  blockSelectedEntryPickUi ||
-                  Boolean(bulkOperation)
-                }
-              />
               {pickActionsState.canRandomize || pickActionsState.canClear ? (
                 <Stack
-                  direction={{ xs: "column", sm: "row", md: "column", xl: "row" }}
+                  direction={{
+                    xs: "column",
+                    sm: "row",
+                    md: "column",
+                    xl: "row",
+                  }}
                   spacing={1}
                   sx={{ pt: 0.25 }}
                 >
@@ -1420,7 +1393,9 @@ const PicksWorkspace = () => {
                   </Stack>
                 </>
               )}
-              <Box sx={{ minHeight: 46, display: "flex", alignItems: "center" }}>
+              <Box
+                sx={{ minHeight: 46, display: "flex", alignItems: "center" }}
+              >
                 {blockSelectedEntryPickUi ? null : (
                   <SaveStatus
                     state={visibleSaveState.state}
@@ -1447,22 +1422,20 @@ const PicksWorkspace = () => {
                   alignSelf: "flex-start",
                   px: 1,
                   height: 34,
-                  bgcolor:
-                    blockSelectedEntryPickUi
-                      ? alpha(theme.palette.common.white, 0.08)
-                      : entryStatus === "LOCKED"
-                        ? alpha(theme.palette.error.main, 0.16)
-                        : entryStatus === "COMPLETE"
-                          ? alpha(theme.palette.success.main, 0.16)
-                          : alpha(theme.palette.common.white, 0.08),
-                  color:
-                    blockSelectedEntryPickUi
-                      ? "text.secondary"
-                      : entryStatus === "LOCKED"
-                        ? "error.main"
-                        : entryStatus === "COMPLETE"
-                          ? "success.main"
-                          : "text.primary",
+                  bgcolor: blockSelectedEntryPickUi
+                    ? alpha(theme.palette.common.white, 0.08)
+                    : entryStatus === "LOCKED"
+                      ? alpha(theme.palette.error.main, 0.16)
+                      : entryStatus === "COMPLETE"
+                        ? alpha(theme.palette.success.main, 0.16)
+                        : alpha(theme.palette.common.white, 0.08),
+                  color: blockSelectedEntryPickUi
+                    ? "text.secondary"
+                    : entryStatus === "LOCKED"
+                      ? "error.main"
+                      : entryStatus === "COMPLETE"
+                        ? "success.main"
+                        : "text.primary",
                   fontWeight: 800,
                 }}
               />
@@ -1539,69 +1512,70 @@ const PicksWorkspace = () => {
             </Typography>
           </Stack>
         </Panel>
-      ) : filteredGroups.map((group) => (
-            <Box
-              key={group.key}
+      ) : (
+        filteredGroups.map((group) => (
+          <Box
+            key={group.key}
+            sx={{
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              overflow: "hidden",
+              backgroundColor: alpha(theme.palette.background.paper, 0.58),
+            }}
+          >
+            <ButtonBase
+              onClick={() =>
+                setExpandedGroups((current) => ({
+                  ...current,
+                  [group.key]: !current[group.key],
+                }))
+              }
               sx={{
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 2,
-                overflow: "hidden",
-                backgroundColor: alpha(theme.palette.background.paper, 0.58),
+                width: "100%",
+                px: { xs: 1.5, md: 2 },
+                py: { xs: 1.45, md: 1.35 },
+                justifyContent: "space-between",
+                color: "text.primary",
+                backgroundColor: alpha(theme.palette.common.white, 0.035),
+                "&:focus-visible": {
+                  outline: `2px solid ${theme.palette.primary.main}`,
+                  outlineOffset: -2,
+                },
               }}
             >
-              <ButtonBase
-                onClick={() =>
-                  setExpandedGroups((current) => ({
-                    ...current,
-                    [group.key]: !current[group.key],
-                  }))
-                }
+              <Stack direction="row" spacing={1.25} alignItems="center">
+                <Typography
+                  variant="h6"
+                  sx={{ fontSize: { xs: "1.05rem", md: "1.1rem" } }}
+                >
+                  {group.label}
+                </Typography>
+                <Chip
+                  label={`${group.games.length} game${group.games.length === 1 ? "" : "s"}`}
+                  size="small"
+                  sx={{
+                    bgcolor: alpha(theme.palette.common.white, 0.08),
+                    color: "text.secondary",
+                    fontWeight: 700,
+                  }}
+                />
+              </Stack>
+              {expandedGroups[group.key] ? (
+                <ExpandLessRoundedIcon />
+              ) : (
+                <ExpandMoreRoundedIcon />
+              )}
+            </ButtonBase>
+
+            <Collapse in={expandedGroups[group.key]}>
+              <Box
                 sx={{
-                  width: "100%",
-                  px: { xs: 1.5, md: 2 },
-                  py: { xs: 1.45, md: 1.35 },
-                  justifyContent: "space-between",
-                  color: "text.primary",
-                  backgroundColor: alpha(theme.palette.common.white, 0.035),
-                  "&:focus-visible": {
-                    outline: `2px solid ${theme.palette.primary.main}`,
-                    outlineOffset: -2,
-                  },
+                  p: { xs: "20px 16px 24px", sm: 2.5, md: 2 },
                 }}
               >
-                <Stack direction="row" spacing={1.25} alignItems="center">
-                  <Typography
-                    variant="h6"
-                    sx={{ fontSize: { xs: "1.05rem", md: "1.1rem" } }}
-                  >
-                    {group.label}
-                  </Typography>
-                  <Chip
-                    label={`${group.games.length} game${group.games.length === 1 ? "" : "s"}`}
-                    size="small"
-                    sx={{
-                      bgcolor: alpha(theme.palette.common.white, 0.08),
-                      color: "text.secondary",
-                      fontWeight: 700,
-                    }}
-                  />
-                </Stack>
-                {expandedGroups[group.key] ? (
-                  <ExpandLessRoundedIcon />
-                ) : (
-                  <ExpandMoreRoundedIcon />
-                )}
-              </ButtonBase>
-
-              <Collapse in={expandedGroups[group.key]}>
-                <Box
-                  sx={{
-                    p: { xs: "20px 16px 24px", sm: 2.5, md: 2 },
-                  }}
-                >
-                  <Stack spacing={{ xs: 3, sm: 2.5, md: 2 }}>
-                    {group.games.map((game) => {
+                <Stack spacing={{ xs: 3, sm: 2.5, md: 2 }}>
+                  {group.games.map((game) => {
                     const selection = selectionsByGameId?.[game.id] || "";
                     const persistedSelection =
                       savedSelectionsByGameId?.[game.id] || "";
@@ -1896,12 +1870,13 @@ const PicksWorkspace = () => {
                         </Stack>
                       </Box>
                     );
-                    })}
-                  </Stack>
-                </Box>
-              </Collapse>
-            </Box>
-          ))}
+                  })}
+                </Stack>
+              </Box>
+            </Collapse>
+          </Box>
+        ))
+      )}
 
       {!blockSelectedEntryPickUi && filteredGroups.length === 0 ? (
         <Panel elevated>
@@ -1913,11 +1888,7 @@ const PicksWorkspace = () => {
 
       <Dialog
         open={clearDialogOpen}
-        onClose={
-          bulkOperation
-            ? undefined
-            : () => setClearDialogOpen(false)
-        }
+        onClose={bulkOperation ? undefined : () => setClearDialogOpen(false)}
         fullWidth
         maxWidth="xs"
         aria-labelledby="clear-picks-dialog-title"

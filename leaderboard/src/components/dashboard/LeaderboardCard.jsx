@@ -28,7 +28,6 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
               <TableRow>
                 <TableCell>Rank</TableCell>
                 <TableCell>Username</TableCell>
-                <TableCell>Picks</TableCell>
                 <TableCell align="right">Points</TableCell>
                 {showRecord ? (
                   <TableCell align="right">Record</TableCell>
@@ -43,7 +42,7 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
 
                 return (
                   <TableRow
-                    key={`${row.rank}-${row.entryName}`}
+                    key={`${row.rank}-${row.username}`}
                     sx={{
                       backgroundColor: isCurrentUser
                         ? alpha(theme.palette.primary.main, 0.12)
@@ -57,15 +56,6 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
                     <TableCell sx={{ width: 64 }}>{row.rank}</TableCell>
                     <TableCell>
                       <Box sx={{ fontWeight: 700 }}>{row.username}</Box>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ fontSize: { md: "0.82rem", lg: "0.9rem" } }}
-                      >
-                        {row.entryName}
-                      </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ width: 80 }}>
                       {row.points}
@@ -94,7 +84,8 @@ const LeaderboardCard = ({ rows, currentUsername }) => {
             color="text.secondary"
             sx={{ mt: 0.75, fontSize: "0.875rem", lineHeight: 1.4 }}
           >
-            Leaderboard standings will appear after players complete their picks.
+            Leaderboard standings will appear after players complete their
+            picks.
           </Typography>
         </Box>
       )}

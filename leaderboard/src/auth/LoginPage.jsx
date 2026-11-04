@@ -118,7 +118,8 @@ const LoginPage = ({
         color="text.secondary"
         sx={{ display: "block", textAlign: "center", mt: 3.5 }}
       >
-        New accounts can register here and await administrator approval after email verification.
+        New accounts can register here and await administrator approval after
+        email verification.
       </Typography>
     </AuthFormLayout>
   );

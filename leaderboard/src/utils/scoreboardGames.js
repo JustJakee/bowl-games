@@ -1,13 +1,16 @@
 // SCOREBOARD — PRESENTATION
 // The top scoreboard prioritizes games that need attention while retaining
 // completed results for quick reference.
+export const selectPickableGames = (games = []) =>
+  (games || []).filter(
+    (game) => game?.bowl?.trim() && !game.bowl.includes("FCS Championship"),
+  );
+
 export const isLiveScoreboardGame = (game) =>
-  game?.status === "in_progress" ||
-  (!game?.status && game?.state === "in");
+  game?.status === "in_progress" || (!game?.status && game?.state === "in");
 
 export const isUpcomingScoreboardGame = (game) =>
-  game?.status === "scheduled" ||
-  (!game?.status && game?.state === "pre");
+  game?.status === "scheduled" || (!game?.status && game?.state === "pre");
 
 export const isFinalScoreboardGame = (game) =>
   game?.status

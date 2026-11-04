@@ -29,10 +29,16 @@ const AppRouter = () => {
           <Route path="/schedule/:gameId" element={<GameDetailPage />} />
           <Route path="/rules" element={<RulesPage />} />
           <Route path="/more" element={<MorePage />} />
-          <Route path="/admin" element={<Navigate to="/admin/entries" replace />} />
+          <Route
+            path="/admin"
+            element={<Navigate to="/admin/entries" replace />}
+          />
           <Route path="/admin/entries" element={<AdminEntriesPage />} />
           <Route path="/admin/games" element={<AdminGamesPage />} />
-          <Route path="/admin/registrations" element={<AdminRegistrationsPage />} />
+          <Route
+            path="/admin/registrations"
+            element={<AdminRegistrationsPage />}
+          />
           <Route path="/admin/account" element={<MorePage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>

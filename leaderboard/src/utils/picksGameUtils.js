@@ -1,4 +1,21 @@
 // UTIL — PICKS — GAME DISPLAY
+const picksDateFormatter = (options) =>
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    ...options,
+  });
+
+export const formatPicksDateKey = (value) => {
+  const date = new Date(value || "");
+  if (Number.isNaN(date.getTime())) return "";
+  const parts = Object.fromEntries(
+    picksDateFormatter({ year: "numeric", month: "2-digit", day: "2-digit" })
+      .formatToParts(date)
+      .map(({ type, value: part }) => [type, part]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
+
 export const formatPicksDateLabel = (value) => {
   if (!value) {
     return "Date TBD";
@@ -9,10 +26,20 @@ export const formatPicksDateLabel = (value) => {
     return "Date TBD";
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return picksDateFormatter({
     month: "long",
     day: "numeric",
     year: "numeric",
+  }).format(date);
+};
+
+export const formatPicksTimeLabel = (value) => {
+  const date = new Date(value || "");
+  if (Number.isNaN(date.getTime())) return "";
+  return picksDateFormatter({
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
   }).format(date);
 };
 

@@ -19,6 +19,8 @@ export const auth = defineAuth({
   // Email confirmation alone never adds a group. Only the admin operation can
   // grant player membership to a verified account.
   access: (allow) => [
-    allow.resource(registrationAdmin).to(["listUsers", "getUser", "listGroupsForUser", "addUserToGroup"]),
+    allow
+      .resource(registrationAdmin)
+      .to(["listUsers", "getUser", "listGroupsForUser", "addUserToGroup"]),
   ],
 });

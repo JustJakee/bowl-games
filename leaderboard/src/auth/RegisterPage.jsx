@@ -24,17 +24,51 @@ export default function RegisterPage({ error, onBack, onSubmit }) {
     }
   };
 
-  return <AuthFormLayout
-    title="Create your account"
-    description="Verify your email, then wait for an administrator to approve player access."
-    error={fieldError || error}
-  >
-    <Stack component="form" spacing={2} onSubmit={submit}>
-      <TextField label="Email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required fullWidth />
-      <TextField label="Password" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} required fullWidth />
-      <TextField label="Confirm password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required fullWidth />
-      <Button type="submit" variant="contained" disabled={submitting}>{submitting ? <CircularProgress size={22} color="inherit" /> : "CREATE ACCOUNT"}</Button>
-      <Button type="button" onClick={onBack}>Back to sign in</Button>
-    </Stack>
-  </AuthFormLayout>;
+  return (
+    <AuthFormLayout
+      title="Create your account"
+      description="Verify your email, then wait for an administrator to approve player access."
+      error={fieldError || error}
+    >
+      <Stack component="form" spacing={2} onSubmit={submit}>
+        <TextField
+          label="Email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+          fullWidth
+        />
+        <TextField
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+          fullWidth
+        />
+        <TextField
+          label="Confirm password"
+          type="password"
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          required
+          fullWidth
+        />
+        <Button type="submit" variant="contained" disabled={submitting}>
+          {submitting ? (
+            <CircularProgress size={22} color="inherit" />
+          ) : (
+            "CREATE ACCOUNT"
+          )}
+        </Button>
+        <Button type="button" onClick={onBack}>
+          Back to sign in
+        </Button>
+      </Stack>
+    </AuthFormLayout>
+  );
 }

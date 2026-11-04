@@ -2,6 +2,15 @@ const copySelections = (selectionsByGameId = {}) => ({
   ...(selectionsByGameId || {}),
 });
 
+export const matchesEditableSelections = ({
+  requested = {},
+  confirmed = {},
+  editableGameIds = new Set(),
+}) =>
+  [...editableGameIds].every(
+    (gameId) => (requested[gameId] || "") === (confirmed[gameId] || ""),
+  );
+
 const getValidTeamCodes = (game) =>
   [game?.away?.abbr, game?.home?.abbr].filter(Boolean);
 
@@ -14,25 +23,18 @@ export const buildEditableGameIdSet = ({
   games = [],
   picksLocked = false,
 } = {}) =>
-  new Set(
-    picksLocked
-      ? []
-      : games.map((game) => game?.id).filter(Boolean),
-  );
+  new Set(picksLocked ? [] : games.map((game) => game?.id).filter(Boolean));
 
 export const getPickActionsState = ({
   games = [],
   selectionsByGameId = {},
   editableGameIds = new Set(),
 } = {}) => {
-  const editableGames = games.filter((game) =>
-    editableGameIds.has(game?.id),
-  );
+  const editableGames = games.filter((game) => editableGameIds.has(game?.id));
   const selectedEditableCount = editableGames.filter((game) =>
     Boolean(selectionsByGameId?.[game.id]),
   ).length;
-  const incompleteEditableCount =
-    editableGames.length - selectedEditableCount;
+  const incompleteEditableCount = editableGames.length - selectedEditableCount;
 
   return {
     canClear: selectedEditableCount > 0,
@@ -57,10 +59,7 @@ export const randomizeIncompleteSelections = ({
   const nextSelections = copySelections(selectionsByGameId);
 
   games.forEach((game) => {
-    if (
-      !editableGameIds.has(game?.id) ||
-      nextSelections[game.id]
-    ) {
+    if (!editableGameIds.has(game?.id) || nextSelections[game.id]) {
       return;
     }
 

@@ -17,12 +17,33 @@ const game = (overrides = {}) => ({
 });
 
 test("locked pick statuses use actual game state and winner data", () => {
-  assert.equal(getPickDisplayStatus(game({ state: "post", isFinal: true, winnerTeam: "AWY" }), "AWY"), "correct");
-  assert.equal(getPickDisplayStatus(game({ state: "post", isFinal: true, winnerTeam: "AWY" }), "HME"), "incorrect");
+  assert.equal(
+    getPickDisplayStatus(
+      game({ state: "post", isFinal: true, winnerTeam: "AWY" }),
+      "AWY",
+    ),
+    "correct",
+  );
+  assert.equal(
+    getPickDisplayStatus(
+      game({ state: "post", isFinal: true, winnerTeam: "AWY" }),
+      "HME",
+    ),
+    "incorrect",
+  );
   assert.equal(getPickDisplayStatus(game({ state: "in" }), "AWY"), "live");
   assert.equal(getPickDisplayStatus(game(), "AWY"), "upcoming");
-  assert.equal(getPickDisplayStatus(game({ state: "post", statusText: "Canceled" }), "AWY"), "canceled");
-  assert.equal(getPickDisplayStatus(game({ statusText: "Postponed" }), "AWY"), "postponed");
+  assert.equal(
+    getPickDisplayStatus(
+      game({ state: "post", statusText: "Canceled" }),
+      "AWY",
+    ),
+    "canceled",
+  );
+  assert.equal(
+    getPickDisplayStatus(game({ statusText: "Postponed" }), "AWY"),
+    "postponed",
+  );
 });
 
 test("summary counts and grouped filters share the same derived items", () => {
@@ -34,16 +55,32 @@ test("summary counts and grouped filters share the same derived items", () => {
   ];
   const items = buildLockedPickItems({
     games,
-    selectionsByGameId: Object.fromEntries(games.map((item) => [item.id, "AWY"])),
+    selectionsByGameId: Object.fromEntries(
+      games.map((item) => [item.id, "AWY"]),
+    ),
   });
   assert.deepEqual(getPickStatusCounts(items), {
-    correct: 1, incorrect: 1, live: 1, upcoming: 1, canceled: 0, postponed: 0,
+    correct: 1,
+    incorrect: 1,
+    live: 1,
+    upcoming: 1,
+    canceled: 0,
+    postponed: 0,
   });
-  assert.deepEqual(groupLockedPickItems(items, "all").map((section) => section.status), ["live", "correct", "incorrect", "upcoming"]);
-  assert.deepEqual(groupLockedPickItems(items, "incorrect")[0].items.map((item) => item.id), ["incorrect"]);
+  assert.deepEqual(
+    groupLockedPickItems(items, "all").map((section) => section.status),
+    ["live", "correct", "incorrect", "upcoming"],
+  );
+  assert.deepEqual(
+    groupLockedPickItems(items, "incorrect")[0].items.map((item) => item.id),
+    ["incorrect"],
+  );
 });
 
 test("missing selections and logos do not create invalid pick rows", () => {
-  const items = buildLockedPickItems({ games: [game({ away: { abbr: "AWY" } })], selectionsByGameId: {} });
+  const items = buildLockedPickItems({
+    games: [game({ away: { abbr: "AWY" } })],
+    selectionsByGameId: {},
+  });
   assert.deepEqual(items, []);
 });

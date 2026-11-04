@@ -81,12 +81,14 @@ export const scoreEntries = ({
 
   return (entries || [])
     .filter((entry) =>
-      serverCompleteIds ? serverCompleteIds.has(entry.id) : hasSubmittedPickSet({
-        entry,
-        entryPicks: picksByEntryId[entry.id] || [],
-        requiredGameIds,
-        tieBreakerRequired,
-      }),
+      serverCompleteIds
+        ? serverCompleteIds.has(entry.id)
+        : hasSubmittedPickSet({
+            entry,
+            entryPicks: picksByEntryId[entry.id] || [],
+            requiredGameIds,
+            tieBreakerRequired,
+          }),
     )
     .map((entry) => {
       const entryPicks = picksByEntryId[entry.id] || [];
@@ -107,7 +109,6 @@ export const scoreEntries = ({
         username:
           entry?.userProfile?.username ||
           usernamesByOwner[entry.owner] ||
-          entry.entryName ||
           "Player",
         points: correctPicks,
         record: `${correctPicks}-${Math.max(finalGameIds.length - correctPicks, 0)}`,

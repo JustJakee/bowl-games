@@ -2,14 +2,28 @@
 import { dataClient } from "../auth/amplifyConfig";
 import { mapStoredGamesToDisplayGames } from "../utils/formatGameData";
 
+let dataClientOverride = null;
+export const __setSeasonRepositoryDataClientForTests = (client) => {
+  dataClientOverride = client;
+};
+const getDataClient = () => dataClientOverride || dataClient;
+
 export const ACTIVE_SEASON_SLUG =
-  import.meta.env.VITE_ACTIVE_SEASON_SLUG || "test26";
+  import.meta.env?.VITE_ACTIVE_SEASON_SLUG || "test26";
 
 // SEED — TEST26 — AMPLIFY DATA
 // Development expects this stable ID in the backend selected by the active amplify_outputs.json.
 export const TEST_SEASON_ID = "test26";
 
-const SEASON_SELECTION = ["id", "year", "name", "slug", "status", "isActive", "isTestSeason"];
+const SEASON_SELECTION = [
+  "id",
+  "year",
+  "name",
+  "slug",
+  "status",
+  "isActive",
+  "isTestSeason",
+];
 
 const SEASON_CONFIG_SELECTION = [
   "id",
@@ -77,18 +91,29 @@ export const listRawSeasonGames = async ({ seasonId }) => {
     return [];
   }
 
-  const client = dataClient;
-  const result = await client.models.Game.list({
-    filter: {
-      seasonId: { eq: seasonId },
-    },
-    selectionSet: GAME_SELECTION,
-    authMode: "userPool",
-  });
+  const client = getDataClient();
+  const games = [];
+  let nextToken;
+  do {
+    const result = await client.models.Game.gamesBySeason(
+      { seasonId },
+      {
+        limit: 100,
+        nextToken,
+        selectionSet: GAME_SELECTION,
+        authMode: "userPool",
+      },
+    );
+    throwIfGraphQLError(result, "Unable to load season games.");
+    if (!Array.isArray(result.data))
+      throw new Error("Unable to load season games.");
+    games.push(
+      ...result.data.filter((game) => game && game.seasonId === seasonId),
+    );
+    nextToken = result.nextToken || undefined;
+  } while (nextToken);
 
-  throwIfGraphQLError(result, "Unable to load season games.");
-
-  return (result.data || [])
+  return games
     .filter(Boolean)
     .slice()
     .sort((left, right) => {

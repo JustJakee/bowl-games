@@ -65,9 +65,7 @@ const buildRepositoryError = ({
   diagnostics = {},
 }) => {
   const error = new Error(
-    getFirstGraphQLError(result) ||
-      cause?.message ||
-      fallbackMessage,
+    getFirstGraphQLError(result) || cause?.message || fallbackMessage,
     cause ? { cause } : undefined,
   );
   error.name = diagnostics.correlationId
@@ -80,11 +78,7 @@ const buildRepositoryError = ({
   return error;
 };
 
-const throwIfGraphQLError = (
-  result,
-  fallbackMessage,
-  diagnostics = {},
-) => {
+const throwIfGraphQLError = (result, fallbackMessage, diagnostics = {}) => {
   const errorMessage = getFirstGraphQLError(result);
 
   if (errorMessage) {
@@ -122,10 +116,25 @@ const executePickMutation = async ({
   }
 
   throwIfGraphQLError(result, fallbackMessage, diagnostics);
+  if (
+    !result.data?.id ||
+    result.data.entryId !== diagnostics.entryId ||
+    result.data.gameId !== diagnostics.gameId ||
+    result.data.selectedTeam !== (diagnostics.selectedTeam ?? "")
+  ) {
+    throw buildRepositoryError({
+      result,
+      fallbackMessage: `${fallbackMessage} The backend did not confirm the selection.`,
+      diagnostics,
+    });
+  }
   return result;
 };
 
-export const runSecurePickMutation = (client, { entryId, gameId, selectedTeam }) =>
+export const runSecurePickMutation = (
+  client,
+  { entryId, gameId, selectedTeam },
+) =>
   client.mutations.saveSeasonPick(
     { entryId, gameId, selectedTeam },
     { authMode: "userPool" },
@@ -229,8 +238,12 @@ export const loadEntryPicks = async ({
     );
 
     throwIfGraphQLError(result, "Unable to load your saved picks.");
+    if (!Array.isArray(result.data))
+      throw new Error(
+        "Unable to load your saved picks: invalid backend response.",
+      );
     picks.push(
-      ...(result.data || []).filter(
+      ...result.data.filter(
         (pick) =>
           pick && pick.entryId === entryId && pick.seasonId === seasonId,
       ),
@@ -263,7 +276,6 @@ const validateSelection = ({ game, selectedTeam }) => {
   if (!allowedTeams.includes(selectedTeam)) {
     throw new Error("The selected team does not belong to that game.");
   }
-
 };
 
 const validateTieBreaker = ({ tieBreakerValue, tieBreakerGame }) => {
@@ -285,11 +297,12 @@ export const saveEntryState = async ({
   owner,
   seasonId,
   userProfileId,
-  entryName,
   contactEmail,
   tieBreakerValue,
   tieBreakerGameId,
   selectionsByGameId = {},
+  knownSelectionsByGameId = {},
+  forceGameIds = [],
   currentGameIds = [],
   tieBreakerRequired = false,
   picksLockAt,
@@ -300,7 +313,7 @@ export const saveEntryState = async ({
   // The entire entry closes at SeasonConfig.picksLockAt, before any player mutation is attempted.
   assertPickWindowOpen(picksLockAt, now);
 
-  const entry = await readEntryById({ entryId, owner });
+  const entry = await readEntryById({ entryId, owner, seasonId });
 
   if (!entry) {
     throw new Error("The requested entry was not found.");
@@ -326,17 +339,29 @@ export const saveEntryState = async ({
     {},
   );
 
+  const forcedGameIdSet = new Set(forceGameIds.filter(Boolean));
   const changedSelections = Object.entries(nextSelections).filter(
     ([gameId, selectedTeam]) =>
+      forcedGameIdSet.has(gameId) ||
       savedPicks.selectionsByGameId?.[gameId] !== selectedTeam,
   );
   const currentGameIdSet = new Set(currentGameIds.filter(Boolean));
-  const clearedPicks = savedPicks.picks.filter(
-    (pick) =>
-      currentGameIdSet.has(pick.gameId) &&
-      Boolean(savedPicks.selectionsByGameId[pick.gameId]) &&
-      !nextSelections[pick.gameId],
-  );
+  const previouslySelectedIds = new Set([
+    ...Object.keys(savedPicks.selectionsByGameId),
+    ...Object.keys(knownSelectionsByGameId).filter((id) =>
+      Boolean(knownSelectionsByGameId[id]),
+    ),
+    ...forcedGameIdSet,
+  ]);
+  const clearedPicks = [...previouslySelectedIds]
+    .filter((gameId) => currentGameIdSet.has(gameId) && !nextSelections[gameId])
+    .map(
+      (gameId) =>
+        savedPicks.picksByGameId[gameId] || {
+          id: buildPickId(entry.id, gameId),
+          gameId,
+        },
+    );
 
   for (const [gameId, selectedTeam] of changedSelections) {
     const game = gamesById.get(gameId);
@@ -362,34 +387,35 @@ export const saveEntryState = async ({
   const client = getDataClient();
   const correlationId = createCorrelationId();
   const completedPickChanges = [];
+  const confirmedPicksByGameId = new Map(
+    savedPicks.picks.map((pick) => [pick.gameId, pick]),
+  );
+  const confirmedPicks = () => {
+    const picks = [...confirmedPicksByGameId.values()];
+    return {
+      picks,
+      picksByGameId: Object.fromEntries(
+        picks.map((pick) => [pick.gameId, pick]),
+      ),
+      selectionsByGameId: buildSelectionMap(picks),
+      stalePicks: savedPicks.stalePicks,
+    };
+  };
   const throwWithPartialPickResult = async (error) => {
     error.completedPickChanges = completedPickChanges.slice();
 
     if (completedPickChanges.length > 0) {
-      try {
-        const refreshedPicks = await loadEntryPicks({
-          entryId: entry.id,
-          seasonId,
-          currentGameIds,
-        });
-        error.partialResult = {
-          entry,
-          ...refreshedPicks,
-          status: calculatePickSetStatus({
-            requiredGameIds: currentGameIds,
-            selectionsByGameId: refreshedPicks.selectionsByGameId,
-            tieBreakerRequired,
-            tieBreakerValue: entry.tieBreakerValue,
-          }),
-        };
-      } catch (partialReadError) {
-        error.partialReadError = {
-          name: partialReadError?.name || "Error",
-          message:
-            partialReadError?.message ||
-            "Unable to reconcile partially saved picks.",
-        };
-      }
+      const refreshedPicks = confirmedPicks();
+      error.partialResult = {
+        entry,
+        ...refreshedPicks,
+        status: calculatePickSetStatus({
+          requiredGameIds: currentGameIds,
+          selectionsByGameId: refreshedPicks.selectionsByGameId,
+          tieBreakerRequired,
+          tieBreakerValue: entry.tieBreakerValue,
+        }),
+      };
     }
 
     throw error;
@@ -397,8 +423,13 @@ export const saveEntryState = async ({
 
   for (const pick of clearedPicks) {
     try {
-      await executePickMutation({
-        execute: () => persistPickSelection(client, { entryId: entry.id, gameId: pick.gameId, selectedTeam: "" }),
+      const result = await executePickMutation({
+        execute: () =>
+          persistPickSelection(client, {
+            entryId: entry.id,
+            gameId: pick.gameId,
+            selectedTeam: "",
+          }),
         fallbackMessage: "Unable to clear a saved pick.",
         diagnostics: {
           correlationId,
@@ -409,6 +440,7 @@ export const saveEntryState = async ({
           selectedTeam: null,
         },
       });
+      confirmedPicksByGameId.set(pick.gameId, result.data);
       completedPickChanges.push({
         gameId: pick.gameId,
         operation: "clear",
@@ -424,8 +456,13 @@ export const saveEntryState = async ({
 
     if (existingPick) {
       try {
-        await executePickMutation({
-          execute: () => persistPickSelection(client, { entryId: entry.id, gameId, selectedTeam }),
+        const result = await executePickMutation({
+          execute: () =>
+            persistPickSelection(client, {
+              entryId: entry.id,
+              gameId,
+              selectedTeam,
+            }),
           fallbackMessage: "Unable to update a saved pick.",
           diagnostics: {
             correlationId,
@@ -436,6 +473,7 @@ export const saveEntryState = async ({
             selectedTeam,
           },
         });
+        confirmedPicksByGameId.set(gameId, result.data);
         completedPickChanges.push({
           gameId,
           operation: "update",
@@ -449,8 +487,13 @@ export const saveEntryState = async ({
 
     const pickId = buildPickId(entry.id, gameId);
     try {
-      await executePickMutation({
-        execute: () => persistPickSelection(client, { entryId: entry.id, gameId, selectedTeam }),
+      const result = await executePickMutation({
+        execute: () =>
+          persistPickSelection(client, {
+            entryId: entry.id,
+            gameId,
+            selectedTeam,
+          }),
         fallbackMessage: "Unable to save a pick.",
         diagnostics: {
           correlationId,
@@ -461,6 +504,7 @@ export const saveEntryState = async ({
           selectedTeam,
         },
       });
+      confirmedPicksByGameId.set(gameId, result.data);
       completedPickChanges.push({
         gameId,
         operation: "create",
@@ -471,8 +515,6 @@ export const saveEntryState = async ({
     }
   }
 
-  const normalizedEntryName =
-    entryName === undefined ? entry.entryName : String(entryName).trim();
   const normalizedContactEmail =
     contactEmail === undefined
       ? entry.contactEmail
@@ -482,10 +524,6 @@ export const saveEntryState = async ({
     owner,
     seasonId,
   };
-
-  if (normalizedEntryName !== entry.entryName) {
-    entryUpdate.entryName = normalizedEntryName;
-  }
 
   if (normalizedContactEmail !== entry.contactEmail) {
     entryUpdate.contactEmail = normalizedContactEmail;
@@ -508,11 +546,9 @@ export const saveEntryState = async ({
     }
   }
 
-  const refreshedPicks = await loadEntryPicks({
-    entryId: entry.id,
-    seasonId,
-    currentGameIds,
-  });
+  // Mutation responses confirm these values. An immediate read from the
+  // entry/game index can lag and must not restore an older selection.
+  const refreshedPicks = confirmedPicks();
 
   return {
     correlationId,

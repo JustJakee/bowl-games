@@ -13,7 +13,11 @@ export const isPickWindowLocked = (picksLockAt, now = Date.now()) => {
 
 // The stored lifecycle remains operator-controlled; readers derive the effective
 // in-season state at the same global deadline used by pick controls.
-export const getEffectiveSeasonStatus = ({ seasonStatus, picksLockAt, now = Date.now() } = {}) => {
+export const getEffectiveSeasonStatus = ({
+  seasonStatus,
+  picksLockAt,
+  now = Date.now(),
+} = {}) => {
   const status = String(seasonStatus || "").toLowerCase();
   return status === "open" && isPickWindowLocked(picksLockAt, now)
     ? "locked"

@@ -35,7 +35,8 @@ const PickCompletion = ({ row, showPicksLabel = false }) => {
   return (
     <Stack spacing={0.4} alignItems="flex-start">
       <Typography variant="body2">
-        {row.completedPicks} / {row.totalPicks}{showPicksLabel ? " picks" : ""}
+        {row.completedPicks} / {row.totalPicks}
+        {showPicksLabel ? " picks" : ""}
       </Typography>
       <Chip
         size="small"
@@ -64,7 +65,11 @@ const AdminEntriesPage = () => {
   // The scoreboard replaces its game array while polling. IDs are the actual
   // input to entry completion, so this prevents identical polls from refetching.
   const requiredGameIds = useMemo(
-    () => (allGames || []).map((game) => game.id).filter(Boolean).sort(),
+    () =>
+      (allGames || [])
+        .map((game) => game.id)
+        .filter(Boolean)
+        .sort(),
     [allGames],
   );
   const requiredGameIdsKey = requiredGameIds.join("|");
@@ -156,9 +161,7 @@ const AdminEntriesPage = () => {
       });
       setRows((current) =>
         current.map((item) =>
-          item.id === row.id
-            ? { ...item, paymentStatus: nextStatus }
-            : item,
+          item.id === row.id ? { ...item, paymentStatus: nextStatus } : item,
         ),
       );
       setToast(
@@ -186,7 +189,9 @@ const AdminEntriesPage = () => {
   return (
     <Stack spacing={{ xs: 1.75, md: 2.5 }}>
       <Box>
-        <Typography variant="h3" sx={{ mb: 0.25 }}>Entries</Typography>
+        <Typography variant="h3" sx={{ mb: 0.25 }}>
+          Entries
+        </Typography>
         <Typography variant="body2" color="text.secondary">
           Manage active player pick sets and payment status.
         </Typography>
@@ -204,7 +209,10 @@ const AdminEntriesPage = () => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", md: "auto auto 1fr" },
+              gridTemplateColumns: {
+                xs: "repeat(2, minmax(0, 1fr))",
+                md: "auto auto 1fr",
+              },
               gap: 1,
             }}
           >
@@ -226,11 +234,18 @@ const AdminEntriesPage = () => {
             >
               <MenuItem value="all">All picks</MenuItem>
               <MenuItem value="complete">Complete</MenuItem>
-              {!picksLocked ? <MenuItem value="incomplete">Incomplete</MenuItem> : null}
+              {!picksLocked ? (
+                <MenuItem value="incomplete">Incomplete</MenuItem>
+              ) : null}
             </Select>
             <Box sx={{ display: { xs: "none", md: "block" } }} />
           </Box>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            spacing={1}
+          >
             <Typography variant="body2" color="text.secondary">
               {visibleRows.length} of {eligibleRows.length} active entries
             </Typography>
@@ -269,20 +284,31 @@ const AdminEntriesPage = () => {
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.25 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: "block", mb: 0.25 }}
+                  >
                     Pick Set
                   </Typography>
-                  <Typography variant="body1" fontWeight={700} sx={{ overflowWrap: "anywhere" }}>
+                  <Typography
+                    variant="body1"
+                    fontWeight={700}
+                    sx={{ overflowWrap: "anywhere" }}
+                  >
                     {row.entryName || "Unnamed pick set"}
                   </Typography>
                 </Box>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-end" spacing={2}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="flex-end"
+                  spacing={2}
+                >
                   <Box>
                     <PickCompletion row={row} showPicksLabel />
                   </Box>
-                  <Box sx={{ flexShrink: 0 }}>
-                    {paymentButton(row)}
-                  </Box>
+                  <Box sx={{ flexShrink: 0 }}>{paymentButton(row)}</Box>
                 </Stack>
               </Stack>
             </Panel>
@@ -313,7 +339,9 @@ const AdminEntriesPage = () => {
                   <TableCell>{row.playerName}</TableCell>
                   <TableCell>{row.playerEmail}</TableCell>
                   <TableCell>{row.entryName}</TableCell>
-                  <TableCell><PickCompletion row={row} /></TableCell>
+                  <TableCell>
+                    <PickCompletion row={row} />
+                  </TableCell>
                   <TableCell>{paymentButton(row)}</TableCell>
                 </TableRow>
               ))}

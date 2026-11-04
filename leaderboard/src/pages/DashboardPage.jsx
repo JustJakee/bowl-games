@@ -122,18 +122,32 @@ const DashboardPage = () => {
     const refreshAtBoundary = () => {
       const current = Date.now();
       setNow(current);
-      const nextBoundary = [seasonConfig?.picksOpenAt, seasonConfig?.picksLockAt]
+      const nextBoundary = [
+        seasonConfig?.picksOpenAt,
+        seasonConfig?.picksLockAt,
+      ]
         .map((value) => Date.parse(value || ""))
         .filter((value) => Number.isFinite(value) && value > current)
         .sort((left, right) => left - right)[0];
-      if (nextBoundary) timer = window.setTimeout(refreshAtBoundary, Math.min(nextBoundary - current + 1, 2_147_483_647));
+      if (nextBoundary)
+        timer = window.setTimeout(
+          refreshAtBoundary,
+          Math.min(nextBoundary - current + 1, 2_147_483_647),
+        );
     };
     refreshAtBoundary();
     return () => window.clearTimeout(timer);
   }, [seasonConfig?.picksOpenAt, seasonConfig?.picksLockAt]);
-  return shouldShowSeasonPending({ season, seasonConfig, games: rawGames, now })
-    ? <SeasonPendingPage season={season} seasonConfig={seasonConfig} />
-    : <ActiveDashboardPage />;
+  return shouldShowSeasonPending({
+    season,
+    seasonConfig,
+    games: rawGames,
+    now,
+  }) ? (
+    <SeasonPendingPage season={season} seasonConfig={seasonConfig} />
+  ) : (
+    <ActiveDashboardPage />
+  );
 };
 
 export default DashboardPage;

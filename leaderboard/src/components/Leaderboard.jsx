@@ -32,7 +32,10 @@ const Leaderboard = ({ entries, loading = false, isLive = false }) => {
   return (
     <div className="leaderboard-content">
       {isLive ? <LeaderboardPodium entries={topThree} /> : null}
-      <section className="leaderboard-standings" aria-label="Leaderboard standings">
+      <section
+        className="leaderboard-standings"
+        aria-label="Leaderboard standings"
+      >
         <LeaderboardTable
           entries={remainingEntries}
           showFourthPrize={isLive}

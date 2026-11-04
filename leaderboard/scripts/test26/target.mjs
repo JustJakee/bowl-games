@@ -12,7 +12,7 @@ export const TEST26_TARGET = Object.freeze({
   userPoolClientId: "26l1s0co0v20megsngrh561rie",
   identityPoolId: "us-east-2:e81417e5-6a70-4e85-af55-cf94905ab6df",
   modelIntrospectionHash:
-    "88f6adf84f8bbccba8b609af42898afb3c217a645d07b89278057b938e773da6",
+    "9d51ea647aff8608f0f360dd1aa3216d33f22a3c5e3d11f862d9b8b9ceb1eb75",
 });
 
 export const DEFAULT_AWS_PROFILE = "bobs-bowl-games";

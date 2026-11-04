@@ -33,9 +33,15 @@ const AdminLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { role, signOut, email } = useAuth();
   const { season, seasonConfig, loading } = useScoreboard();
-  const picksLocked = usePickWindowLocked(seasonConfig?.picksLockAt, season?.status);
+  const picksLocked = usePickWindowLocked(
+    seasonConfig?.picksLockAt,
+    season?.status,
+  );
   const effectiveSeasonStatus = picksLocked
-    ? getEffectiveSeasonStatus({ seasonStatus: season?.status, picksLockAt: seasonConfig?.picksLockAt })
+    ? getEffectiveSeasonStatus({
+        seasonStatus: season?.status,
+        picksLockAt: seasonConfig?.picksLockAt,
+      })
     : season?.status;
   const isAdmin = role === "admin";
 
@@ -46,7 +52,11 @@ const AdminLayout = () => {
 
   const testSeason = isAdminGameManagementEnabled(season);
   const items = [
-    { to: "/admin/registrations", label: "Approvals", icon: <HowToRegRoundedIcon /> },
+    {
+      to: "/admin/registrations",
+      label: "Approvals",
+      icon: <HowToRegRoundedIcon />,
+    },
     { to: "/admin/entries", label: "Entries", icon: <ListAltRoundedIcon /> },
     ...(testSeason
       ? [
@@ -64,7 +74,9 @@ const AdminLayout = () => {
       <Typography variant="overline" color="text.secondary">
         Season
       </Typography>
-      <Typography sx={{ fontWeight: 800 }}>{season?.name || "No selected season"}</Typography>
+      <Typography sx={{ fontWeight: 800 }}>
+        {season?.name || "No selected season"}
+      </Typography>
       {testSeason ? (
         <Typography variant="caption" color="primary.main">
           Test Season
@@ -99,10 +111,7 @@ const AdminLayout = () => {
           borderColor: "divider",
         }}
       >
-        <Toolbar
-          disableGutters
-          sx={{ minHeight: 76, px: 2, py: 1.25 }}
-        >
+        <Toolbar disableGutters sx={{ minHeight: 76, px: 2, py: 1.25 }}>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography
               sx={{ fontSize: "1.0625rem", fontWeight: 900, lineHeight: 1.2 }}
@@ -111,7 +120,12 @@ const AdminLayout = () => {
             </Typography>
             <Typography
               color="primary.main"
-              sx={{ mt: 0.25, fontSize: "0.8125rem", fontWeight: 700, lineHeight: 1.2 }}
+              sx={{
+                mt: 0.25,
+                fontSize: "0.8125rem",
+                fontWeight: 700,
+                lineHeight: 1.2,
+              }}
             >
               Admin
             </Typography>
@@ -179,12 +193,20 @@ const AdminLayout = () => {
         <ButtonBase
           component={NavLink}
           to="/admin/account"
-          sx={{ justifyContent: "flex-start", gap: 1, py: 1, "&.active": { color: "primary.main" } }}
+          sx={{
+            justifyContent: "flex-start",
+            gap: 1,
+            py: 1,
+            "&.active": { color: "primary.main" },
+          }}
         >
           <PersonOutlineRoundedIcon fontSize="small" />
           <Typography>Account</Typography>
         </ButtonBase>
-        <ButtonBase onClick={signOut} sx={{ justifyContent: "flex-start", gap: 1, py: 1 }}>
+        <ButtonBase
+          onClick={signOut}
+          sx={{ justifyContent: "flex-start", gap: 1, py: 1 }}
+        >
           <LogoutRoundedIcon fontSize="small" />
           <Typography>Sign Out</Typography>
         </ButtonBase>
@@ -213,7 +235,11 @@ const AdminLayout = () => {
             <Typography variant="subtitle1" sx={{ fontWeight: 900 }}>
               Admin Menu
             </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ overflowWrap: "anywhere" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ overflowWrap: "anywhere" }}
+            >
               {email}
             </Typography>
           </Box>
@@ -227,7 +253,13 @@ const AdminLayout = () => {
                 onClick={() => setMenuOpen(false)}
                 sx={{ borderRadius: 2 }}
               >
-                <Box sx={{ display: "inline-flex", mr: 1.5, color: "primary.main" }}>
+                <Box
+                  sx={{
+                    display: "inline-flex",
+                    mr: 1.5,
+                    color: "primary.main",
+                  }}
+                >
                   {item.icon}
                 </Box>
                 <ListItemText primary={item.label} />

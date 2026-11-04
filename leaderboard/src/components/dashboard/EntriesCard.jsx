@@ -50,9 +50,15 @@ const EntriesCard = ({ entry, deadline }) => {
         <Stack direction="row" justifyContent="space-between" spacing={1.25}>
           <Typography
             variant="subtitle1"
-            sx={{ minWidth: 0, fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+            sx={{
+              minWidth: 0,
+              fontWeight: 800,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
           >
-            {entry.name || "My Pick Set"}
+            Your Entry
           </Typography>
           <Chip
             size="small"
@@ -62,8 +68,14 @@ const EntriesCard = ({ entry, deadline }) => {
           />
         </Stack>
 
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75} alignItems={{ xs: "flex-start", sm: "center" }}>
-          <Box sx={{ position: "relative", display: "inline-flex", flexShrink: 0 }}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1.75}
+          alignItems={{ xs: "flex-start", sm: "center" }}
+        >
+          <Box
+            sx={{ position: "relative", display: "inline-flex", flexShrink: 0 }}
+          >
             <CircularProgress
               variant="determinate"
               value={100}
@@ -80,7 +92,14 @@ const EntriesCard = ({ entry, deadline }) => {
               aria-label={`${progress}% of picks complete`}
               sx={{ position: "absolute", left: 0 }}
             />
-            <Box sx={{ inset: 0, position: "absolute", display: "grid", placeItems: "center" }}>
+            <Box
+              sx={{
+                inset: 0,
+                position: "absolute",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
               <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
                 {progress}%
               </Typography>
@@ -90,7 +109,11 @@ const EntriesCard = ({ entry, deadline }) => {
             <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
               {entry.completedPicks} / {entry.totalPicks}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 700 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontWeight: 700 }}
+            >
               Picks Complete
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -102,12 +125,15 @@ const EntriesCard = ({ entry, deadline }) => {
         <Divider />
 
         <Box>
-            <Typography variant="overline" color="text.secondary">
-              Pick Deadline
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 0.3, fontWeight: 700, lineHeight: 1.35 }}>
-              {formatDeadline(deadline)}
-            </Typography>
+          <Typography variant="overline" color="text.secondary">
+            Pick Deadline
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ mt: 0.3, fontWeight: 700, lineHeight: 1.35 }}
+          >
+            {formatDeadline(deadline)}
+          </Typography>
         </Box>
       </Stack>
     </Panel>

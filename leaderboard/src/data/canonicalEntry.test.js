@@ -119,7 +119,9 @@ test("canonical collection contains one entry per user", () => {
   ];
 
   assert.deepEqual(
-    selectCanonicalEntriesByUser({ entries }).map(({ id }) => id).sort(),
+    selectCanonicalEntriesByUser({ entries })
+      .map(({ id }) => id)
+      .sort(),
     ["a-new", "b"],
   );
 });
@@ -137,7 +139,9 @@ test("username alone is not used to merge different players", () => {
   ];
 
   assert.deepEqual(
-    selectCanonicalEntriesByUser({ entries }).map(({ id }) => id).sort(),
+    selectCanonicalEntriesByUser({ entries })
+      .map(({ id }) => id)
+      .sort(),
     ["one", "two"],
   );
 });

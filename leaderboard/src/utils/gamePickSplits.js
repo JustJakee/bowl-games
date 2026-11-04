@@ -132,23 +132,26 @@ export const buildGamePickSplitView = ({
     });
     return accumulator;
   }, {});
-  const revealedEntriesByTeam = validRevealedPicks.reduce((accumulator, pick) => {
-    const teamKey = normalizeTeamKey(pick.selectedTeam);
-    const entry = entriesById.get(pick.entryId);
+  const revealedEntriesByTeam = validRevealedPicks.reduce(
+    (accumulator, pick) => {
+      const teamKey = normalizeTeamKey(pick.selectedTeam);
+      const entry = entriesById.get(pick.entryId);
 
-    if (!accumulator[teamKey]) {
-      accumulator[teamKey] = [];
-    }
+      if (!accumulator[teamKey]) {
+        accumulator[teamKey] = [];
+      }
 
-    accumulator[teamKey].push({
-      entryId: pick.entryId,
-      entryName: entry?.entryName || "Unnamed Pick Set",
-      playerName: getPlayerName(entry),
-      selectedTeam: teamKey,
-      isOwned: ownedEntryIdSet.has(pick.entryId),
-    });
-    return accumulator;
-  }, {});
+      accumulator[teamKey].push({
+        entryId: pick.entryId,
+        entryName: entry?.entryName || "Unnamed Pick Set",
+        playerName: getPlayerName(entry),
+        selectedTeam: teamKey,
+        isOwned: ownedEntryIdSet.has(pick.entryId),
+      });
+      return accumulator;
+    },
+    {},
+  );
 
   const teamSplits = teams.map((team) => {
     const revealedEntries = (revealedEntriesByTeam[team.key] || []).sort(
@@ -157,9 +160,10 @@ export const buildGamePickSplitView = ({
     const count = revealedEntries.length;
     const percentage =
       revealedTotal > 0 ? Math.round((count / revealedTotal) * 100) : 0;
-    const ownedEntries = (locked
-      ? revealedEntries.filter((entryPick) => entryPick.isOwned)
-      : ownedPicksByTeam[team.key] || []
+    const ownedEntries = (
+      locked
+        ? revealedEntries.filter((entryPick) => entryPick.isOwned)
+        : ownedPicksByTeam[team.key] || []
     ).sort(sortEntryPicks);
 
     return {
@@ -184,20 +188,22 @@ export const buildGamePickSplitView = ({
     totalRevealedPicks: revealedTotal,
     unsubmittedCount,
     teamSplits,
-    ownedPicks: validOwnedPicks.map((pick) => {
-      const entry = entriesById.get(pick.entryId);
-      const teamKey = normalizeTeamKey(pick.selectedTeam);
-      const team = teamsByKey.get(teamKey);
-      return {
-        entryId: pick.entryId,
-        entryName: entry?.entryName || "Unnamed Pick Set",
-        playerName: getPlayerName(entry),
-        selectedTeam: teamKey,
-        selectedTeamName: team?.name || teamKey,
-        selectedTeamLogo: team?.logo || "",
-        isOwned: true,
-      };
-    }).sort(sortEntryPicks),
+    ownedPicks: validOwnedPicks
+      .map((pick) => {
+        const entry = entriesById.get(pick.entryId);
+        const teamKey = normalizeTeamKey(pick.selectedTeam);
+        const team = teamsByKey.get(teamKey);
+        return {
+          entryId: pick.entryId,
+          entryName: entry?.entryName || "Unnamed Pick Set",
+          playerName: getPlayerName(entry),
+          selectedTeam: teamKey,
+          selectedTeamName: team?.name || teamKey,
+          selectedTeamLogo: team?.logo || "",
+          isOwned: true,
+        };
+      })
+      .sort(sortEntryPicks),
     hasInvalidRevealedPicks:
       locked &&
       uniqueValidGamePicks({

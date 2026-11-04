@@ -9,7 +9,8 @@ import { generateClient } from "aws-amplify/data";
 import { configureAmplifyForNode } from "./test26/auth-session.mjs";
 import { ISOLATED_OUTPUTS_PATH } from "./test26/target.mjs";
 
-const usage = "npm run season:mark-test -- --season-id <id> --value true|false --confirm mark-test:<id>:<value>";
+const usage =
+  "npm run season:mark-test -- --season-id <id> --value true|false --confirm mark-test:<id>:<value>";
 
 const parseArgs = (argv) => {
   const args = {};
@@ -17,13 +18,15 @@ const parseArgs = (argv) => {
     const key = argv[index];
     if (!key.startsWith("--")) throw new Error(`Unexpected argument: ${key}`);
     const value = argv[index + 1];
-    if (!value || value.startsWith("--")) throw new Error(`Missing value for ${key}.`);
+    if (!value || value.startsWith("--"))
+      throw new Error(`Missing value for ${key}.`);
     args[key.slice(2)] = value;
     index += 1;
   }
   if (!args["season-id"]) throw new Error(`A season ID is required.\n${usage}`);
   const normalizedValue = args.value ?? "true";
-  if (!["true", "false"].includes(normalizedValue)) throw new Error("--value must be true or false.");
+  if (!["true", "false"].includes(normalizedValue))
+    throw new Error("--value must be true or false.");
   args.value = normalizedValue === "true";
   const expectedConfirmation = `mark-test:${args["season-id"]}:${args.value}`;
   if (args.confirm !== expectedConfirmation) {
@@ -42,14 +45,20 @@ const authenticateAdmin = async (outputs) => {
   const username = process.env.TEST26_ADMIN_EMAIL;
   const password = process.env.TEST26_ADMIN_PASSWORD;
   if (!username || !password) {
-    throw new Error("Set TEST26_ADMIN_EMAIL and TEST26_ADMIN_PASSWORD for an admin account.");
+    throw new Error(
+      "Set TEST26_ADMIN_EMAIL and TEST26_ADMIN_PASSWORD for an admin account.",
+    );
   }
   configureAmplifyForNode({ amplify: Amplify, outputs });
   const result = await signIn({ username, password });
-  if (!result.isSignedIn) throw new Error(`Admin sign-in requires ${result.nextStep?.signInStep || "another step"}.`);
+  if (!result.isSignedIn)
+    throw new Error(
+      `Admin sign-in requires ${result.nextStep?.signInStep || "another step"}.`,
+    );
   const session = await fetchAuthSession();
   const groups = session.tokens?.accessToken?.payload?.["cognito:groups"] || [];
-  if (!groups.includes("admin")) throw new Error("The authenticated account is not in the admin group.");
+  if (!groups.includes("admin"))
+    throw new Error("The authenticated account is not in the admin group.");
   return generateClient();
 };
 
@@ -57,9 +66,12 @@ const main = async () => {
   const args = parseArgs(process.argv.slice(2));
   const outputsPath = path.resolve(ISOLATED_OUTPUTS_PATH);
   const outputs = JSON.parse(await readFile(outputsPath, "utf8"));
-  const seasonFields = outputs?.data?.model_introspection?.models?.Season?.fields || {};
+  const seasonFields =
+    outputs?.data?.model_introspection?.models?.Season?.fields || {};
   if (!Object.hasOwn(seasonFields, "isTestSeason")) {
-    throw new Error(`The deployed outputs do not include Season.isTestSeason. Deploy the schema and regenerate ${ISOLATED_OUTPUTS_PATH} first.`);
+    throw new Error(
+      `The deployed outputs do not include Season.isTestSeason. Deploy the schema and regenerate ${ISOLATED_OUTPUTS_PATH} first.`,
+    );
   }
 
   let client;
@@ -68,15 +80,20 @@ const main = async () => {
     const season = throwForErrors(
       await client.models.Season.get(
         { id: args["season-id"] },
-        { selectionSet: ["id", "name", "status", "isTestSeason"], authMode: "userPool" },
+        {
+          selectionSet: ["id", "name", "status", "isTestSeason"],
+          authMode: "userPool",
+        },
       ),
       "The target season was not found.",
     );
-    const configResult = await client.models.SeasonConfig.seasonConfigBySeasonId(
-      { seasonId: season.id },
-      { limit: 1, selectionSet: ["picksLockAt"], authMode: "userPool" },
-    );
-    if (configResult?.errors?.[0]?.message) throw new Error(configResult.errors[0].message);
+    const configResult =
+      await client.models.SeasonConfig.seasonConfigBySeasonId(
+        { seasonId: season.id },
+        { limit: 1, selectionSet: ["picksLockAt"], authMode: "userPool" },
+      );
+    if (configResult?.errors?.[0]?.message)
+      throw new Error(configResult.errors[0].message);
     const picksLockAt = configResult?.data?.[0]?.picksLockAt || "unavailable";
     console.log("Target season before update:", {
       id: season.id,
@@ -89,30 +106,41 @@ const main = async () => {
     const updated = throwForErrors(
       await client.models.Season.update(
         { id: season.id, isTestSeason: args.value },
-        { selectionSet: ["id", "name", "status", "isTestSeason"], authMode: "userPool" },
+        {
+          selectionSet: ["id", "name", "status", "isTestSeason"],
+          authMode: "userPool",
+        },
       ),
       "Unable to update the test-season flag.",
     );
     const verified = throwForErrors(
       await client.models.Season.get(
         { id: season.id },
-        { selectionSet: ["id", "name", "status", "isTestSeason"], authMode: "userPool" },
+        {
+          selectionSet: ["id", "name", "status", "isTestSeason"],
+          authMode: "userPool",
+        },
       ),
       "Unable to verify the updated season.",
     );
-    const verifiedConfigResult = await client.models.SeasonConfig.seasonConfigBySeasonId(
-      { seasonId: season.id },
-      { limit: 1, selectionSet: ["picksLockAt"], authMode: "userPool" },
-    );
-    if (verifiedConfigResult?.errors?.[0]?.message) throw new Error(verifiedConfigResult.errors[0].message);
-    const verifiedPicksLockAt = verifiedConfigResult?.data?.[0]?.picksLockAt || "unavailable";
+    const verifiedConfigResult =
+      await client.models.SeasonConfig.seasonConfigBySeasonId(
+        { seasonId: season.id },
+        { limit: 1, selectionSet: ["picksLockAt"], authMode: "userPool" },
+      );
+    if (verifiedConfigResult?.errors?.[0]?.message)
+      throw new Error(verifiedConfigResult.errors[0].message);
+    const verifiedPicksLockAt =
+      verifiedConfigResult?.data?.[0]?.picksLockAt || "unavailable";
     if (
       verified.isTestSeason !== args.value ||
       updated.status !== season.status ||
       verified.status !== season.status ||
       verifiedPicksLockAt !== picksLockAt
     ) {
-      throw new Error("Verification failed: the test flag or season status did not match the expected result.");
+      throw new Error(
+        "Verification failed: the test flag or season status did not match the expected result.",
+      );
     }
     console.log("Verified update:", {
       id: verified.id,

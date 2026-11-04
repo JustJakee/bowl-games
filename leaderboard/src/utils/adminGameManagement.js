@@ -11,14 +11,21 @@ export const ADMIN_GAME_STATUSES = [
   "canceled",
 ];
 
-export const formatAdminGameStatus = (status) => ({
-  scheduled: "Scheduled",
-  in_progress: "Live",
-  final: "Final",
-  canceled: "Canceled",
-}[status] || "Scheduled");
+export const formatAdminGameStatus = (status) =>
+  ({
+    scheduled: "Scheduled",
+    in_progress: "Live",
+    final: "Final",
+    canceled: "Canceled",
+  })[status] || "Scheduled";
 
-export const getGameWinner = ({ status, teamAScore, teamBScore, teamAAbbr, teamBAbbr }) => {
+export const getGameWinner = ({
+  status,
+  teamAScore,
+  teamBScore,
+  teamAAbbr,
+  teamBAbbr,
+}) => {
   if (status !== "final") return "";
   if (Number(teamAScore) > Number(teamBScore)) return teamAAbbr || "";
   if (Number(teamBScore) > Number(teamAScore)) return teamBAbbr || "";
@@ -31,7 +38,16 @@ export const validateGameDraft = (draft) => {
   if (draft.status !== "final") return "";
 
   const scores = [draft.teamAScore, draft.teamBScore];
-  if (scores.some((score) => score === "" || score === null || score === undefined || !Number.isInteger(Number(score)) || Number(score) < 0)) {
+  if (
+    scores.some(
+      (score) =>
+        score === "" ||
+        score === null ||
+        score === undefined ||
+        !Number.isInteger(Number(score)) ||
+        Number(score) < 0,
+    )
+  ) {
     return "Final games require valid non-negative scores.";
   }
   if (Number(draft.teamAScore) === Number(draft.teamBScore)) {
@@ -42,7 +58,10 @@ export const validateGameDraft = (draft) => {
 
 export const toGameUpdateInput = (draft) => {
   const winnerTeam = getGameWinner(draft);
-  const score = (value) => (value === "" || value === null || value === undefined ? null : Number(value));
+  const score = (value) =>
+    value === "" || value === null || value === undefined
+      ? null
+      : Number(value);
   return {
     id: draft.id,
     bowlName: draft.bowlName.trim(),
@@ -53,7 +72,10 @@ export const toGameUpdateInput = (draft) => {
     status: draft.status,
     teamAScore: score(draft.teamAScore),
     teamBScore: score(draft.teamBScore),
-    statusDetail: draft.status === "in_progress" ? draft.statusDetail?.trim() || null : null,
+    statusDetail:
+      draft.status === "in_progress"
+        ? draft.statusDetail?.trim() || null
+        : null,
     winnerTeam,
   };
 };

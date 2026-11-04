@@ -191,10 +191,7 @@ test("draft persistence waits until the requested storage scope is loaded", () =
     isDraftCacheReady("owner-a:season-1", "owner-b:season-1"),
     false,
   );
-  assert.equal(
-    isDraftCacheReady("owner-a:season-1", "owner-a:season-1"),
-    true,
-  );
+  assert.equal(isDraftCacheReady("owner-a:season-1", "owner-a:season-1"), true);
 });
 
 test("autosave serializes one entry and coalesces intermediate revisions", async () => {
@@ -323,36 +320,11 @@ test("revision allocation stays monotonic after a remount or cleared draft cache
     save: async () => ({}),
   });
 
-  coordinator.markLatest(
-    "entry-a",
-    12,
-    "owner-a:season-1",
-  );
+  coordinator.markLatest("entry-a", 12, "owner-a:season-1");
 
-  assert.equal(
-    coordinator.nextRevision(
-      "entry-a",
-      0,
-      "owner-a:season-1",
-    ),
-    13,
-  );
-  assert.equal(
-    coordinator.nextRevision(
-      "entry-a",
-      2,
-      "owner-a:season-1",
-    ),
-    14,
-  );
-  assert.equal(
-    coordinator.nextRevision(
-      "entry-a",
-      0,
-      "owner-b:season-1",
-    ),
-    1,
-  );
+  assert.equal(coordinator.nextRevision("entry-a", 0, "owner-a:season-1"), 13);
+  assert.equal(coordinator.nextRevision("entry-a", 2, "owner-a:season-1"), 14);
+  assert.equal(coordinator.nextRevision("entry-a", 0, "owner-b:season-1"), 1);
 });
 
 test("a newly marked revision prevents an older response from reporting success", async () => {

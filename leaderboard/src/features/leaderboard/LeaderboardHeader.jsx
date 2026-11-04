@@ -24,7 +24,10 @@ const LeaderboardHeader = ({ isLive, picksLocked, seasonYear }) => (
         ) : null}
       </div>
     </div>
-    <div className="leaderboard-season-pill" aria-label={`Season ${seasonYear || "2026"}`}>
+    <div
+      className="leaderboard-season-pill"
+      aria-label={`Season ${seasonYear || "2026"}`}
+    >
       <CalendarMonthRoundedIcon aria-hidden="true" />
       <span>Season {seasonYear || "2026"}</span>
     </div>

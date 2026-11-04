@@ -26,7 +26,16 @@ import {
 import { configureAmplifyForNode } from "./auth-session.mjs";
 
 const MODEL_FIELDS = {
-  Season: ["id", "year", "name", "slug", "status", "entryFeeCents", "isActive", "isTestSeason"],
+  Season: [
+    "id",
+    "year",
+    "name",
+    "slug",
+    "status",
+    "entryFeeCents",
+    "isActive",
+    "isTestSeason",
+  ],
   SeasonConfig: [
     "id",
     "seasonId",
@@ -300,9 +309,13 @@ const createGateway = (client, modelIntrospection, seasonId) => {
       throwForErrors(result, `Update ${model}`);
     },
     async delete(model, id) {
-      const result = await client.models[model].delete({ id }, { authMode: "userPool" });
+      const result = await client.models[model].delete(
+        { id },
+        { authMode: "userPool" },
+      );
       throwForErrors(result, `Delete ${model} ${id}`);
-      if (!result.data) throw new Error(`Delete ${model} ${id}: no confirmed record.`);
+      if (!result.data)
+        throw new Error(`Delete ${model} ${id}: no confirmed record.`);
     },
   };
 };
@@ -371,7 +384,9 @@ const printReport = (plan) => {
 
 const main = async () => {
   const args = parseArgs(process.argv.slice(2));
-  if (!["dry-run", "apply", "reset-dry-run", "reset-apply"].includes(args.mode)) {
+  if (
+    !["dry-run", "apply", "reset-dry-run", "reset-apply"].includes(args.mode)
+  ) {
     throw new Error("Use dry-run, apply, reset-dry-run, or reset-apply mode.");
   }
   const seasonId = args["season-id"] || "test26";
@@ -388,7 +403,9 @@ const main = async () => {
   const outputsPath = path.resolve(ISOLATED_OUTPUTS_PATH);
   const defaultPlanPath = args.mode.startsWith("reset-")
     ? "tmp/test26-r2-reset-plan.json"
-    : seasonId === "test26" ? PLAN_PATH : `tmp/${seasonId}-seed-plan.json`;
+    : seasonId === "test26"
+      ? PLAN_PATH
+      : `tmp/${seasonId}-seed-plan.json`;
   const planPath = path.resolve(args.plan || defaultPlanPath);
   const { outputs, modelIntrospection } = await loadAndVerifyTarget({
     profile,
@@ -402,11 +419,20 @@ const main = async () => {
       const state = await gateway.readState();
       const plan = createResetPlan({ target: TEST26_TARGET, state });
       console.log("Reset preview for test26-r2 on verified staging target:");
-      console.table({ target: TEST26_TARGET.appSyncApiId, branch: TEST26_TARGET.branch, ...Object.fromEntries(Object.entries(plan.ids).map(([model, ids]) => [model, ids.length])) });
-      if (plan.conflicts.length) throw new Error(`Reset conflicts: ${plan.conflicts.join("; ")}`);
+      console.table({
+        target: TEST26_TARGET.appSyncApiId,
+        branch: TEST26_TARGET.branch,
+        ...Object.fromEntries(
+          Object.entries(plan.ids).map(([model, ids]) => [model, ids.length]),
+        ),
+      });
+      if (plan.conflicts.length)
+        throw new Error(`Reset conflicts: ${plan.conflicts.join("; ")}`);
       await mkdir(path.dirname(planPath), { recursive: true });
       await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
-      console.log(`Plan: ${planPath}\nReset confirmation: ${plan.confirmation}`);
+      console.log(
+        `Plan: ${planPath}\nReset confirmation: ${plan.confirmation}`,
+      );
       return;
     }
     if (args.mode === "dry-run") {
@@ -448,13 +474,23 @@ const main = async () => {
     verifyTarget({ expected: TEST26_TARGET, actual: plan.target });
     if (args.mode === "reset-apply") {
       if (args["destructive-confirmation"] !== "delete:test26-r2")
-        throw new Error("Reset requires --destructive-confirmation delete:test26-r2.");
+        throw new Error(
+          "Reset requires --destructive-confirmation delete:test26-r2.",
+        );
       const currentState = await gateway.readState();
-      const result = await applyResetPlan({ gateway, plan, confirmation: args.confirmation, currentState });
+      const result = await applyResetPlan({
+        gateway,
+        plan,
+        confirmation: args.confirmation,
+        currentState,
+      });
       console.log("Reset complete:", result);
       return;
     }
-    if (plan.records.season.proposed.id !== seasonId || plan.records.season.proposed.slug !== seasonId)
+    if (
+      plan.records.season.proposed.id !== seasonId ||
+      plan.records.season.proposed.slug !== seasonId
+    )
       throw new Error("Dry-run plan season does not match --season-id.");
     validatePlanArtifact({ plan, confirmation: args.confirmation });
     const currentState = await gateway.readState();

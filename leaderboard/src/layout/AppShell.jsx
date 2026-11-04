@@ -39,7 +39,8 @@ const AppShell = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const username = profile?.username || "Player";
-  const hideScoreboard = pathname === "/schedule" || pathname.startsWith("/schedule/");
+  const hideScoreboard =
+    pathname === "/schedule" || pathname.startsWith("/schedule/");
 
   return (
     <Box
@@ -119,11 +120,7 @@ const AppShell = () => {
         }}
       >
         <Stack spacing={2} sx={{ p: 2.5, height: "100%" }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={2}
-          >
+          <Stack direction="row" alignItems="center" spacing={2}>
             <Avatar
               sx={{
                 width: 42,
@@ -157,7 +154,13 @@ const AppShell = () => {
                 sx={{ borderRadius: 2 }}
               >
                 {link.icon ? (
-                  <Box sx={{ display: "inline-flex", mr: 1.5, color: "primary.main" }}>
+                  <Box
+                    sx={{
+                      display: "inline-flex",
+                      mr: 1.5,
+                      color: "primary.main",
+                    }}
+                  >
                     {link.icon}
                   </Box>
                 ) : null}

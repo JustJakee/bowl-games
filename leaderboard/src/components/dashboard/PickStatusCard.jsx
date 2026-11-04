@@ -26,8 +26,8 @@ const PickStatusCard = ({ data }) => {
               color="text.secondary"
               sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}
             >
-              Create your pick set and save at least one winner to track your bowl
-              picks here.
+              Create your pick set and save at least one winner to track your
+              bowl picks here.
             </Typography>
           </Stack>
           <Divider />

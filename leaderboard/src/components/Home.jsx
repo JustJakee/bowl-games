@@ -15,8 +15,8 @@ const Home = ({ onNavigate, isLocked, gamesStarted }) => {
           <h1>Bob's Bowl Game Pick 'em</h1>
           <p className="home-lede">
             Friendly bragging rights, live scores, and every pick lined up in
-            one place. Build your pick set, track the leaderboard, and follow the
-            action as each bowl kicks off.
+            one place. Build your pick set, track the leaderboard, and follow
+            the action as each bowl kicks off.
           </p>
 
           <div className="home-pills" aria-label="Highlights">

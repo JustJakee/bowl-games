@@ -4,7 +4,9 @@ import { getPrizeForRank } from "./leaderboardPrizes";
 
 const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
   <div className="leaderboard-table-wrap">
-    <table className={`leaderboard-table${isLive ? "" : " leaderboard-table--prelive"}`}>
+    <table
+      className={`leaderboard-table${isLive ? "" : " leaderboard-table--prelive"}`}
+    >
       <thead>
         <tr>
           <th>Rank</th>
@@ -20,7 +22,8 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
       </thead>
       <tbody>
         {entries.map((entry) => {
-          const prize = showFourthPrize && entry.rank === 4 ? getPrizeForRank(4) : null;
+          const prize =
+            showFourthPrize && entry.rank === 4 ? getPrizeForRank(4) : null;
           const hasRecord = Number.isFinite(entry.incorrectPicks);
 
           return (
@@ -30,7 +33,9 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
                 <LeaderboardIdentity entry={entry} showEntryName={false} />
               </td>
               <td>
-                <span className="leaderboard-table-entry">{entry.entryName}</span>
+                <span className="leaderboard-table-entry">
+                  {entry.entryName}
+                </span>
               </td>
               {isLive ? (
                 <>
@@ -41,7 +46,9 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
                     </div>
                   </td>
                   <td>
-                    {hasRecord ? `${entry.correctPicks}-${entry.incorrectPicks}` : "-"}
+                    {hasRecord
+                      ? `${entry.correctPicks}-${entry.incorrectPicks}`
+                      : "-"}
                   </td>
                 </>
               ) : null}

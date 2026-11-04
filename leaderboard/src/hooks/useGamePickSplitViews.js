@@ -13,7 +13,11 @@ export const useGamePickSplitViews = (games = []) => {
   const [error, setError] = useState("");
   const requestIdRef = useRef(0);
   const gameIdsKey = useMemo(
-    () => games.map((game) => game?.id).filter(Boolean).join("|"),
+    () =>
+      games
+        .map((game) => game?.id)
+        .filter(Boolean)
+        .join("|"),
     [games],
   );
 

@@ -15,7 +15,8 @@ const LeaderboardMobileList = ({ entries, showFourthPrize, isLive }) => (
       {isLive ? <span>Correct Picks</span> : null}
     </div>
     {entries.map((entry) => {
-      const prize = showFourthPrize && entry.rank === 4 ? getPrizeForRank(4) : null;
+      const prize =
+        showFourthPrize && entry.rank === 4 ? getPrizeForRank(4) : null;
 
       return (
         <article className="leaderboard-mobile-row" key={entry.id}>

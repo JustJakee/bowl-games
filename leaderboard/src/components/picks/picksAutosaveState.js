@@ -16,27 +16,27 @@ const areSelectionMapsEqual = (left = {}, right = {}) => {
 
   return (
     leftEntries.length === rightKeys.length &&
-    leftEntries.every(([gameId, selectedTeam]) => right?.[gameId] === selectedTeam)
+    leftEntries.every(
+      ([gameId, selectedTeam]) => right?.[gameId] === selectedTeam,
+    )
   );
 };
 
 export const isDraftSyncedWithBackend = (draft, backendDraft) =>
   Boolean(
     draft &&
-      !draft.dirty &&
-      draft.entryName === backendDraft?.entryName &&
-      String(draft.tieBreakerValue ?? "") ===
-        String(backendDraft?.tieBreakerValue ?? "") &&
-      areSelectionMapsEqual(
-        draft.selectionsByGameId,
-        backendDraft?.selectionsByGameId,
-      ),
+    !draft.dirty &&
+    draft.entryName === backendDraft?.entryName &&
+    String(draft.tieBreakerValue ?? "") ===
+      String(backendDraft?.tieBreakerValue ?? "") &&
+    areSelectionMapsEqual(
+      draft.selectionsByGameId,
+      backendDraft?.selectionsByGameId,
+    ),
   );
 
 export const isDraftCacheReady = (loadedStorageKey, currentStorageKey) =>
-  Boolean(
-    currentStorageKey && loadedStorageKey === currentStorageKey,
-  );
+  Boolean(currentStorageKey && loadedStorageKey === currentStorageKey);
 
 export const buildSyncedDraft = (result, revision = 0) => ({
   entryName: result.entry.entryName,
@@ -57,8 +57,7 @@ export const buildAutosaveSuccessState = () => ({
 });
 
 export const buildAutosaveFailureState = (error) => {
-  const message =
-    error?.message || "Backend save failed. Retry is required.";
+  const message = error?.message || "Backend save failed. Retry is required.";
   const reference = error?.correlationId
     ? ` Reference: ${error.correlationId}.`
     : "";
@@ -84,9 +83,7 @@ export const buildAutosaveDiagnostic = ({
   pickId: error?.pickId || null,
   selectedTeam: error?.selectedTeam || null,
   operation: error?.operation || null,
-  graphQLErrors: Array.isArray(error?.graphQLErrors)
-    ? error.graphQLErrors
-    : [],
+  graphQLErrors: Array.isArray(error?.graphQLErrors) ? error.graphQLErrors : [],
   returnedData: error?.returnedData ?? null,
   thrownError: {
     name: error?.name || "Error",
@@ -105,12 +102,12 @@ export const shouldApplyPickSaveResult = ({
 }) =>
   Boolean(
     activeEntryId &&
-      requestedEntryId &&
-      resultEntryId &&
-      activeEntryId === requestedEntryId &&
-      requestedEntryId === resultEntryId &&
-      Boolean(requestScope) &&
-      requestScope === currentScope,
+    requestedEntryId &&
+    resultEntryId &&
+    activeEntryId === requestedEntryId &&
+    requestedEntryId === resultEntryId &&
+    Boolean(requestScope) &&
+    requestScope === currentScope,
   );
 
 export const createPerEntryAutosaveCoordinator = ({
@@ -175,11 +172,7 @@ export const createPerEntryAutosaveCoordinator = ({
     return true;
   };
 
-  const nextRevision = (
-    entryId,
-    minimumRevision = 0,
-    scope = "",
-  ) => {
+  const nextRevision = (entryId, minimumRevision = 0, scope = "") => {
     if (!entryId) {
       return null;
     }
@@ -189,8 +182,7 @@ export const createPerEntryAutosaveCoordinator = ({
         ? minimumRevision
         : 0;
     const state = getEntryState(entryId, scope);
-    const revision =
-      Math.max(state.latestRevision, normalizedMinimum) + 1;
+    const revision = Math.max(state.latestRevision, normalizedMinimum) + 1;
     markLatest(entryId, revision, scope);
     return revision;
   };
@@ -277,10 +269,7 @@ export const createPerEntryAutosaveCoordinator = ({
 
         // A revision may be marked as latest before its debounce timer queues
         // the request. Never start an older pending snapshot in that window.
-        if (
-          nextRequest &&
-          nextRequest.revision === state.latestRevision
-        ) {
+        if (nextRequest && nextRequest.revision === state.latestRevision) {
           runRequest(state, nextRequest);
         }
       }

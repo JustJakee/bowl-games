@@ -40,6 +40,8 @@ const createHarness = ({
   currentEntry = entry,
   createResult,
   entryUpdateResult,
+  hiddenIndexGameIds = [],
+  staleIndexPicks = null,
   pickPageSize = 100,
   seasonGames = [game],
   updateResult,
@@ -59,9 +61,10 @@ const createHarness = ({
           const offset = options.nextToken
             ? Number(String(options.nextToken).replace("offset-", ""))
             : 0;
-          const matchingPicks = picks.filter(
+          const matchingPicks = (staleIndexPicks || picks).filter(
             (pick) =>
               pick.entryId === input.entryId &&
+              !hiddenIndexGameIds.includes(pick.gameId) &&
               (!options.filter?.seasonId?.eq ||
                 pick.seasonId === options.filter.seasonId.eq),
           );
@@ -71,9 +74,7 @@ const createHarness = ({
           return {
             data: page.map((pick) => ({ ...pick })),
             nextToken:
-              nextOffset < matchingPicks.length
-                ? `offset-${nextOffset}`
-                : null,
+              nextOffset < matchingPicks.length ? `offset-${nextOffset}` : null,
           };
         },
         create: async (payload) => {
@@ -120,17 +121,19 @@ const createHarness = ({
   __setPicksRepositoryDependenciesForTests({
     dataClient,
     savePick: ({ entryId, gameId, selectedTeam }) => {
-      const existing = picks.find((pick) => pick.entryId === entryId && pick.gameId === gameId);
+      const existing = picks.find(
+        (pick) => pick.entryId === entryId && pick.gameId === gameId,
+      );
       return existing
         ? dataClient.models.Pick.update({ id: existing.id, selectedTeam })
         : dataClient.models.Pick.create({
-          id: `pick-${entryId}-${gameId}`,
-          seasonId: currentEntry.seasonId,
-          entryId,
-          gameId,
-          owner: currentEntry.owner,
-          selectedTeam,
-        });
+            id: `pick-${entryId}-${gameId}`,
+            seasonId: currentEntry.seasonId,
+            entryId,
+            gameId,
+            owner: currentEntry.owner,
+            selectedTeam,
+          });
     },
     getEntryById: async () => currentEntry,
     listRawSeasonGames: async () => seasonGames,
@@ -158,11 +161,34 @@ const createHarness = ({
 test("production pick writes use only the authenticated guarded mutation", async () => {
   const calls = [];
   const client = {
-    models: { Pick: { create: () => { throw new Error("raw create called"); }, update: () => { throw new Error("raw update called"); } } },
-    mutations: { saveSeasonPick: async (...args) => { calls.push(args); return { data: { id: "p1" } }; } },
+    models: {
+      Pick: {
+        create: () => {
+          throw new Error("raw create called");
+        },
+        update: () => {
+          throw new Error("raw update called");
+        },
+      },
+    },
+    mutations: {
+      saveSeasonPick: async (...args) => {
+        calls.push(args);
+        return { data: { id: "p1" } };
+      },
+    },
   };
-  await runSecurePickMutation(client, { entryId: "e1", gameId: "g1", selectedTeam: "AAA" });
-  assert.deepEqual(calls, [[{ entryId: "e1", gameId: "g1", selectedTeam: "AAA" }, { authMode: "userPool" }]]);
+  await runSecurePickMutation(client, {
+    entryId: "e1",
+    gameId: "g1",
+    selectedTeam: "AAA",
+  });
+  assert.deepEqual(calls, [
+    [
+      { entryId: "e1", gameId: "g1", selectedTeam: "AAA" },
+      { authMode: "userPool" },
+    ],
+  ]);
 });
 
 const save = (overrides = {}) =>
@@ -232,6 +258,27 @@ test("changing a winner sends only the Pick id and selectedTeam", async () => {
   assert.equal(Object.hasOwn(calls.update[0], "tieBreakerValue"), false);
   assert.deepEqual(calls.entryUpdate, []);
   assert.equal(result.selectionsByGameId["game-1"], "BBB");
+});
+
+test("a rapid A to B to A sequence writes the latest edit despite a stale A index result", async () => {
+  const savedA = {
+    id: "pick-entry-id-game-1",
+    seasonId: "test26",
+    entryId: "entry-id",
+    gameId: "game-1",
+    owner: "user-sub",
+    selectedTeam: "AAA",
+  };
+  const { calls } = createHarness({
+    initialPicks: [{ ...savedA, selectedTeam: "BBB" }],
+    staleIndexPicks: [savedA],
+  });
+  const result = await save({
+    selectionsByGameId: { "game-1": "AAA" },
+    forceGameIds: ["game-1"],
+  });
+  assert.deepEqual(calls.update, [{ id: savedA.id, selectedTeam: "AAA" }]);
+  assert.equal(result.selectionsByGameId["game-1"], "AAA");
 });
 
 test("unchecking a winner clears only that Pick and remains incomplete after reload", async () => {
@@ -317,6 +364,68 @@ test("a failed Pick clear remains selected and reports clear diagnostics", async
     { id: "pick-entry-id-game-1", selectedTeam: "" },
   ]);
   assert.deepEqual(reloaded.selectionsByGameId, { "game-1": "AAA" });
+});
+
+test("a mutation with no confirmed record cannot report a successful clear", async () => {
+  createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+    ],
+    updateResult: { data: null },
+  });
+  await assert.rejects(
+    save({ selectionsByGameId: {} }),
+    /backend did not confirm/,
+  );
+});
+
+test("a stale index read cannot restore a pick after confirmed clear", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+    ],
+  });
+  const result = await save({ selectionsByGameId: {} });
+  assert.deepEqual(result.selectionsByGameId, {});
+  assert.equal(calls.pickByEntryAndGame.length, 1);
+});
+
+test("bulk clear sends a known selected game even when the index omits it", async () => {
+  const { calls } = createHarness({
+    initialPicks: [
+      {
+        id: "pick-entry-id-game-1",
+        seasonId: "test26",
+        entryId: "entry-id",
+        gameId: "game-1",
+        owner: "user-sub",
+        selectedTeam: "AAA",
+      },
+    ],
+    hiddenIndexGameIds: ["game-1"],
+  });
+  const result = await save({
+    selectionsByGameId: {},
+    knownSelectionsByGameId: { "game-1": "AAA" },
+  });
+  assert.deepEqual(calls.update, [
+    { id: "pick-entry-id-game-1", selectedTeam: "" },
+  ]);
+  assert.deepEqual(result.selectionsByGameId, {});
 });
 
 test("a cleared Pick is not cleared repeatedly and is reused when reselected", async () => {
@@ -460,16 +569,23 @@ test("a partial multi-pick save reports and reloads its successful mutations", a
 
 test("an Entry update failure reconciles picks already saved in the same request", async () => {
   const { calls } = createHarness({
-    entryUpdateResult: () => { throw new Error("Entry update failed."); },
+    entryUpdateResult: () => {
+      throw new Error("Entry update failed.");
+    },
   });
   await assert.rejects(
-    save({ selectionsByGameId: { "game-1": "AAA" }, entryName: "Renamed entry" }),
+    save({
+      selectionsByGameId: { "game-1": "AAA" },
+      contactEmail: "updated@example.com",
+    }),
     (error) => {
       assert.match(error.message, /Entry update failed/);
       assert.deepEqual(error.completedPickChanges, [
         { gameId: "game-1", operation: "create", selectedTeam: "AAA" },
       ]);
-      assert.deepEqual(error.partialResult.selectionsByGameId, { "game-1": "AAA" });
+      assert.deepEqual(error.partialResult.selectionsByGameId, {
+        "game-1": "AAA",
+      });
       return true;
     },
   );
@@ -573,7 +689,10 @@ test("changing and restoring one pick preserves unrelated persisted picks", asyn
     "game-1": "BBB",
     "game-2": "CCC",
   });
-  assert.deepEqual(changedReload.selectionsByGameId, changed.selectionsByGameId);
+  assert.deepEqual(
+    changedReload.selectionsByGameId,
+    changed.selectionsByGameId,
+  );
   assert.deepEqual(restored.selectionsByGameId, {
     "game-1": "AAA",
     "game-2": "CCC",
@@ -753,6 +872,22 @@ test("loading after refresh restores a successfully persisted partial pick", asy
   assert.equal(result.picks[0].id, "pick-entry-id-game-1");
 });
 
+test("a null pick page fails instead of erasing saved selections", async () => {
+  __setPicksRepositoryDependenciesForTests({
+    dataClient: {
+      models: {
+        Pick: {
+          pickByEntryAndGame: async () => ({ data: null }),
+        },
+      },
+    },
+  });
+  await assert.rejects(
+    loadEntryPicks({ entryId: "entry-id", seasonId: "test26" }),
+    /invalid backend response/,
+  );
+});
+
 test("loading an entry exhausts a 31 plus 17 page split", async () => {
   const initialPicks = Array.from({ length: 48 }, (_, index) => ({
     id: `pick-entry-id-game-${index + 1}`,
@@ -837,5 +972,5 @@ test("an existing Pick on a later page is updated instead of created", async () 
     { id: "pick-entry-id-game-1", selectedTeam: "BBB" },
   ]);
   assert.equal(result.selectionsByGameId["game-1"], "BBB");
-  assert.equal(calls.pickByEntryAndGame.length, 4);
+  assert.equal(calls.pickByEntryAndGame.length, 2);
 });

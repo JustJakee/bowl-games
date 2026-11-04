@@ -41,7 +41,12 @@ const SeasonStatusPanel = ({
           Season Status
         </Typography>
         <Stack spacing={1}>
-          <Stack direction="row" spacing={1.25} alignItems="center" flexWrap="wrap">
+          <Stack
+            direction="row"
+            spacing={1.25}
+            alignItems="center"
+            flexWrap="wrap"
+          >
             <LockOutlinedIcon sx={{ color: "primary.main" }} />
             <Typography
               variant="overline"
@@ -50,7 +55,9 @@ const SeasonStatusPanel = ({
             >
               {picksLocked ? "Picks Locked" : "Picks Lock"}
             </Typography>
-            {hasEntry ? <PaymentStatusChip paymentStatus={paymentStatus} /> : null}
+            {hasEntry ? (
+              <PaymentStatusChip paymentStatus={paymentStatus} />
+            ) : null}
           </Stack>
           {!picksLocked ? (
             <Typography
@@ -62,11 +69,19 @@ const SeasonStatusPanel = ({
           ) : null}
           {picksLocked ? (
             <Stack spacing={0.45}>
-              <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.4 }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 700, lineHeight: 1.4 }}
+              >
                 Your picks are locked for the season.
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}>
-                Follow the schedule, live scores, and leaderboard throughout the bowl season.
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: "0.875rem", lineHeight: 1.4 }}
+              >
+                Follow the schedule, live scores, and leaderboard throughout the
+                bowl season.
               </Typography>
             </Stack>
           ) : (
@@ -117,17 +132,6 @@ const SeasonStatusPanel = ({
             );
           })}
         </Stack>
-        <Box sx={{ pt: 0.5 }}>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ fontSize: "0.875rem", lineHeight: 1.45 }}
-          >
-            {picksLocked
-              ? ""
-              : "Make sure your pick set is finished before the global pick deadline. Leaderboard and games stay live throughout the season."}
-          </Typography>
-        </Box>
       </Stack>
     </Panel>
   );

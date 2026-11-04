@@ -12,7 +12,11 @@ export const getPickDisplayStatus = (game, selectedTeam) => {
     if (!winner) {
       const awayScore = Number(game?.away?.score);
       const homeScore = Number(game?.home?.score);
-      if (Number.isFinite(awayScore) && Number.isFinite(homeScore) && awayScore !== homeScore) {
+      if (
+        Number.isFinite(awayScore) &&
+        Number.isFinite(homeScore) &&
+        awayScore !== homeScore
+      ) {
         winner = awayScore > homeScore ? game?.away?.abbr : game?.home?.abbr;
       }
     }
@@ -48,13 +52,28 @@ export const buildLockedPickItems = ({ games = [], selectionsByGameId = {} }) =>
 export const getPickStatusCounts = (items = []) =>
   items.reduce(
     (counts, item) => ({ ...counts, [item.status]: counts[item.status] + 1 }),
-    { correct: 0, incorrect: 0, live: 0, upcoming: 0, canceled: 0, postponed: 0 },
+    {
+      correct: 0,
+      incorrect: 0,
+      live: 0,
+      upcoming: 0,
+      canceled: 0,
+      postponed: 0,
+    },
   );
 
-const sectionOrder = ["live", "correct", "incorrect", "upcoming", "canceled", "postponed"];
+const sectionOrder = [
+  "live",
+  "correct",
+  "incorrect",
+  "upcoming",
+  "canceled",
+  "postponed",
+];
 
 export const groupLockedPickItems = (items = [], activeFilter = "all") => {
-  const eligibleStatuses = activeFilter === "all" ? sectionOrder : [activeFilter];
+  const eligibleStatuses =
+    activeFilter === "all" ? sectionOrder : [activeFilter];
   return eligibleStatuses
     .map((status) => ({
       status,
@@ -62,9 +81,17 @@ export const groupLockedPickItems = (items = [], activeFilter = "all") => {
         .filter((item) => item.status === status)
         .slice()
         .sort((left, right) => {
-          const leftTime = timestamp(left.game?.startDate, status === "upcoming" ? Number.MAX_SAFE_INTEGER : 0);
-          const rightTime = timestamp(right.game?.startDate, status === "upcoming" ? Number.MAX_SAFE_INTEGER : 0);
-          return status === "upcoming" || status === "live" ? leftTime - rightTime : rightTime - leftTime;
+          const leftTime = timestamp(
+            left.game?.startDate,
+            status === "upcoming" ? Number.MAX_SAFE_INTEGER : 0,
+          );
+          const rightTime = timestamp(
+            right.game?.startDate,
+            status === "upcoming" ? Number.MAX_SAFE_INTEGER : 0,
+          );
+          return status === "upcoming" || status === "live"
+            ? leftTime - rightTime
+            : rightTime - leftTime;
         }),
     }))
     .filter((section) => section.items.length || activeFilter !== "all");

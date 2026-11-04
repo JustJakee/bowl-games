@@ -3,8 +3,14 @@ import { Box, Chip, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import TeamLogo from "../common/TeamLogo";
 import Panel from "../common/Panel";
-import { isFinalScoreboardGame, isLiveScoreboardGame } from "../../utils/scoreboardGames";
-import { getFinalGameWinner, getGameStatusPresentation } from "../../utils/gameStatusPresentation";
+import {
+  isFinalScoreboardGame,
+  isLiveScoreboardGame,
+} from "../../utils/scoreboardGames";
+import {
+  getFinalGameWinner,
+  getGameStatusPresentation,
+} from "../../utils/gameStatusPresentation";
 
 const TeamRow = ({ team, score, showScore, isWinner, isFinal, winnerText }) => {
   return (
@@ -13,12 +19,16 @@ const TeamRow = ({ team, score, showScore, isWinner, isFinal, winnerText }) => {
       justifyContent="space-between"
       alignItems="center"
       spacing={1}
-      sx={isWinner ? {
-        px: 0.5,
-        py: 0.2,
-        borderRadius: 0.75,
-        backgroundColor: "rgba(245, 248, 255, 0.09)",
-      } : undefined}
+      sx={
+        isWinner
+          ? {
+              px: 0.5,
+              py: 0.2,
+              borderRadius: 0.75,
+              backgroundColor: "rgba(245, 248, 255, 0.09)",
+            }
+          : undefined
+      }
     >
       <Stack
         direction="row"
@@ -46,7 +56,14 @@ const TeamRow = ({ team, score, showScore, isWinner, isFinal, winnerText }) => {
       </Stack>
       {showScore ? (
         <Stack direction="row" spacing={0.55} alignItems="center">
-          <Typography variant="body2" sx={{ color: isWinner ? winnerText : "text.primary", fontWeight: isWinner ? 900 : 800, fontSize: isWinner ? "1.12rem" : "1rem" }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: isWinner ? winnerText : "text.primary",
+              fontWeight: isWinner ? 900 : 800,
+              fontSize: isWinner ? "1.12rem" : "1rem",
+            }}
+          >
             {score}
           </Typography>
         </Stack>
@@ -62,7 +79,10 @@ const ScoreboardGameCard = ({ game }) => {
   const finalPresentation = getGameStatusPresentation("final");
   const winnerTeam = isFinal ? getFinalGameWinner(game) : "";
   const showScores = isLive || isFinal;
-  const score = (team) => team?.score === null || team?.score === undefined || team.score === "" ? "--" : team.score;
+  const score = (team) =>
+    team?.score === null || team?.score === undefined || team.score === ""
+      ? "--"
+      : team.score;
 
   return (
     <Panel
@@ -85,7 +105,13 @@ const ScoreboardGameCard = ({ game }) => {
               size="small"
               label="LIVE"
               color="primary"
-              sx={{ height: 21, mb: 0.65, mr: 0.75, fontSize: "0.68rem", letterSpacing: ".08em" }}
+              sx={{
+                height: 21,
+                mb: 0.65,
+                mr: 0.75,
+                fontSize: "0.68rem",
+                letterSpacing: ".08em",
+              }}
             />
           ) : null}
           {isFinal ? (
@@ -114,7 +140,7 @@ const ScoreboardGameCard = ({ game }) => {
               ? game.statusText || "Live"
               : isFinal
                 ? game.statusText || "Final"
-              : `${game.startDateText || "Date TBD"} ${game.startTimeText || "TBD"}`}
+                : `${game.startDateText || "Date TBD"} ${game.startTimeText || "TBD"}`}
           </Typography>
           <Typography
             variant="subtitle2"

@@ -16,9 +16,11 @@ export const loadAdminGames = async ({ seasonId }) => {
     authMode: "userPool",
   });
   if (result.errors?.[0]) throw new Error(result.errors[0].message);
-  return (result.data || []).filter(Boolean).sort((a, b) =>
-    String(a.kickoffAt || "").localeCompare(String(b.kickoffAt || "")),
-  );
+  return (result.data || [])
+    .filter(Boolean)
+    .sort((a, b) =>
+      String(a.kickoffAt || "").localeCompare(String(b.kickoffAt || "")),
+    );
 };
 
 export const updateAdminGame = async (input) => {

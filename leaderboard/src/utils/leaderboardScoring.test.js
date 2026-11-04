@@ -131,7 +131,7 @@ test("leaderboard uses the public profile username without requiring an entry ow
     rows.map((row) => [row.entryId, row.username]),
     [
       ["entry-public-profile", "Public Player"],
-      ["entry-name-fallback", "Entry Name Player"],
+      ["entry-name-fallback", "Player"],
     ],
   );
 });

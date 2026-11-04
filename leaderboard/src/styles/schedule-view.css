@@ -121,7 +121,11 @@
   border-color: var(--final-accent, #687684);
   border-left: 4px solid var(--final-accent, #687684);
   background:
-    linear-gradient(155deg, var(--final-card-background, #303941), var(--final-card-background-end, #20272e)),
+    linear-gradient(
+      155deg,
+      var(--final-card-background, #303941),
+      var(--final-card-background-end, #20272e)
+    ),
     #20272e;
   box-shadow:
     inset 0 1px 0 rgba(244, 247, 250, 0.06),

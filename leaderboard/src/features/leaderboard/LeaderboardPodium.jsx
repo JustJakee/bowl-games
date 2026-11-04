@@ -35,12 +35,17 @@ const PodiumEntryCard = ({ entry }) => {
 
 const LeaderboardPodium = ({ entries }) => {
   const entriesByRank = new Map(entries.map((entry) => [entry.rank, entry]));
-  const orderedEntries = PODIUM_ORDER.map((rank) => entriesByRank.get(rank)).filter(Boolean);
+  const orderedEntries = PODIUM_ORDER.map((rank) =>
+    entriesByRank.get(rank),
+  ).filter(Boolean);
 
   if (orderedEntries.length === 0) return null;
 
   return (
-    <section className="leaderboard-podium" aria-label="Top three leaderboard entries">
+    <section
+      className="leaderboard-podium"
+      aria-label="Top three leaderboard entries"
+    >
       {orderedEntries.map((entry) => (
         <PodiumEntryCard key={entry.id} entry={entry} />
       ))}

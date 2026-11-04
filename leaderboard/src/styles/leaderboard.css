@@ -11,9 +11,21 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 12%, rgba(255, 203, 5, 0.12), transparent 20rem),
-    radial-gradient(circle at 20% 34%, rgba(117, 156, 205, 0.1), transparent 18rem),
-    radial-gradient(circle at 82% 36%, rgba(205, 127, 50, 0.1), transparent 18rem);
+    radial-gradient(
+      circle at 50% 12%,
+      rgba(255, 203, 5, 0.12),
+      transparent 20rem
+    ),
+    radial-gradient(
+      circle at 20% 34%,
+      rgba(117, 156, 205, 0.1),
+      transparent 18rem
+    ),
+    radial-gradient(
+      circle at 82% 36%,
+      rgba(205, 127, 50, 0.1),
+      transparent 18rem
+    );
   opacity: 0.75;
   z-index: -1;
 }
@@ -125,7 +137,11 @@
   border-radius: 0.75rem 0.75rem 0 0;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 44%),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.025) 0 1px,
+      transparent 1px 7px
+    ),
     rgba(2, 15, 31, 0.82);
   box-shadow:
     0 22px 52px rgba(0, 0, 0, 0.26),
@@ -162,7 +178,11 @@
   border-radius: 50%;
   color: #061325;
   background:
-    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.8), transparent 28%),
+    radial-gradient(
+      circle at 35% 30%,
+      rgba(255, 255, 255, 0.8),
+      transparent 28%
+    ),
     var(--podium-accent);
   box-shadow: 0 0 22px var(--podium-accent-soft);
   font-family: "Roboto Condensed", system-ui, sans-serif;
@@ -227,10 +247,14 @@
   width: calc(100% + 2.5rem);
   margin-top: auto;
   padding: 0.75rem 1rem;
-  border-top: 1px solid color-mix(in srgb, var(--podium-accent) 46%, transparent);
+  border-top: 1px solid
+    color-mix(in srgb, var(--podium-accent) 46%, transparent);
   color: var(--color-text);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--podium-accent) 48%, transparent), rgba(255, 255, 255, 0.05));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--podium-accent) 48%, transparent),
+    rgba(255, 255, 255, 0.05)
+  );
 }
 
 .podium-prize > span:last-child {
@@ -535,7 +559,9 @@
     text-align: right;
   }
 
-  .leaderboard-mobile-list--prelive .leaderboard-mobile-list-header span:last-child,
+  .leaderboard-mobile-list--prelive
+    .leaderboard-mobile-list-header
+    span:last-child,
   .leaderboard-mobile-list--prelive .leaderboard-mobile-rank {
     text-align: left;
   }
@@ -730,7 +756,6 @@
   .leaderboard-mobile-list--prelive .leaderboard-mobile-row {
     grid-template-columns: 2.75rem minmax(0, 1fr);
   }
-
 }
 
 @media (max-width: 360px) {

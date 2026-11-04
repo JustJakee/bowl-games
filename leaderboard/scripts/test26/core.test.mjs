@@ -81,8 +81,16 @@ test("all 54 stable game IDs are deterministic and kickoffs are strictly ordered
 
 test("r2 reuses fixture metadata with isolated IDs and a future global lock", () => {
   const regressionStart = new Date(Date.now() + 3600000).toISOString();
-  const first = buildSimulation({ events: mock.events, startAt: regressionStart, seasonId: "test26-r2" });
-  const second = buildSimulation({ events: mock.events, startAt: regressionStart, seasonId: "test26-r2" });
+  const first = buildSimulation({
+    events: mock.events,
+    startAt: regressionStart,
+    seasonId: "test26-r2",
+  });
+  const second = buildSimulation({
+    events: mock.events,
+    startAt: regressionStart,
+    seasonId: "test26-r2",
+  });
   assert.deepEqual(first, second);
   assert.equal(first.season.isTestSeason, true);
   assert.equal(first.seasonConfig.seasonId, "test26-r2");
@@ -91,25 +99,61 @@ test("r2 reuses fixture metadata with isolated IDs and a future global lock", ()
   assert.equal(first.games[0].sourceEventId, "fixture-test26-r2-01");
   assert.equal(first.games[0].id, "game-test26-r2-fixture-test26-r2-01");
   assert.equal(first.games[0].teamALogo, simulation().games[0].teamALogo);
-  assert.equal(first.games[0].teamBDisplayName, simulation().games[0].teamBDisplayName);
+  assert.equal(
+    first.games[0].teamBDisplayName,
+    simulation().games[0].teamBDisplayName,
+  );
   assert.equal(first.seasonConfig.picksLockAt, first.games[0].kickoffAt);
   assert.equal(new Set(first.games.map((game) => game.sourceEventId)).size, 54);
-  assert.ok(first.games.every((game) => game.sourceEventId.startsWith("fixture-test26-r2-")));
+  assert.ok(
+    first.games.every((game) =>
+      game.sourceEventId.startsWith("fixture-test26-r2-"),
+    ),
+  );
   const plan = buildRecordPlan({ simulation: first, state: emptyState() });
   assert.equal(plan.counts.intendedMutations, 56);
-  assert.equal(buildRecordPlan({
-    simulation: first,
-    state: { ...emptyState(), seasonById: first.season, seasonsBySlug: [first.season], seasonConfigs: [{ ...first.seasonConfig, scoringConfigJson: JSON.parse(first.seasonConfig.scoringConfigJson) }], games: first.games },
-  }).counts.intendedMutations, 0);
+  assert.equal(
+    buildRecordPlan({
+      simulation: first,
+      state: {
+        ...emptyState(),
+        seasonById: first.season,
+        seasonsBySlug: [first.season],
+        seasonConfigs: [
+          {
+            ...first.seasonConfig,
+            scoringConfigJson: JSON.parse(first.seasonConfig.scoringConfigJson),
+          },
+        ],
+        games: first.games,
+      },
+    }).counts.intendedMutations,
+    0,
+  );
 });
 
 test("r2 refuses expired kickoff and unsupported season IDs", () => {
-  assert.throws(() => buildSimulation({ events: mock.events, startAt: "2026-01-01T00:00:00Z", seasonId: "test26-r2" }), /future/);
-  assert.throws(() => buildSimulation({ events: mock.events, startAt, seasonId: "2026" }), /unsupported test season/);
+  assert.throws(
+    () =>
+      buildSimulation({
+        events: mock.events,
+        startAt: "2026-01-01T00:00:00Z",
+        seasonId: "test26-r2",
+      }),
+    /future/,
+  );
+  assert.throws(
+    () => buildSimulation({ events: mock.events, startAt, seasonId: "2026" }),
+    /unsupported test season/,
+  );
 });
 
 test("r2 reset preview isolates IDs and deletes children before their parents", async () => {
-  const proposed = buildSimulation({ events: mock.events, startAt: new Date(Date.now() + 3600000).toISOString(), seasonId: "test26-r2" });
+  const proposed = buildSimulation({
+    events: mock.events,
+    startAt: new Date(Date.now() + 3600000).toISOString(),
+    seasonId: "test26-r2",
+  });
   const state = {
     seasonById: proposed.season,
     seasonsBySlug: [proposed.season],
@@ -120,21 +164,54 @@ test("r2 reset preview isolates IDs and deletes children before their parents", 
   };
   const plan = createResetPlan({ target: TEST26_TARGET, state });
   const deleted = [];
-  const gateway = { delete: async (model, id) => deleted.push(`${model}:${id}`) };
+  const gateway = {
+    delete: async (model, id) => deleted.push(`${model}:${id}`),
+  };
   assert.equal(plan.conflicts.length, 0);
   assert.deepEqual(plan.ids.Season, ["test26-r2"]);
-  await assert.rejects(applyResetPlan({ gateway, plan, confirmation: "wrong", currentState: state }), /confirmation/);
-  await assert.rejects(applyResetPlan({ gateway, plan, confirmation: plan.confirmation, currentState: { ...state, picks: [] } }), /state changed/);
+  await assert.rejects(
+    applyResetPlan({
+      gateway,
+      plan,
+      confirmation: "wrong",
+      currentState: state,
+    }),
+    /confirmation/,
+  );
+  await assert.rejects(
+    applyResetPlan({
+      gateway,
+      plan,
+      confirmation: plan.confirmation,
+      currentState: { ...state, picks: [] },
+    }),
+    /state changed/,
+  );
   assert.deepEqual(deleted, []);
-  const counts = await applyResetPlan({ gateway, plan, confirmation: plan.confirmation, currentState: state });
-  assert.deepEqual(counts, { Pick: 1, Entry: 1, Game: 54, SeasonConfig: 1, Season: 1 });
+  const counts = await applyResetPlan({
+    gateway,
+    plan,
+    confirmation: plan.confirmation,
+    currentState: state,
+  });
+  assert.deepEqual(counts, {
+    Pick: 1,
+    Entry: 1,
+    Game: 54,
+    SeasonConfig: 1,
+    Season: 1,
+  });
   assert.equal(deleted[0], "Pick:r2-pick");
   assert.equal(deleted[1], "Entry:r2-entry");
   assert.equal(deleted.at(-1), "Season:test26-r2");
 });
 
 test("r2 reset refuses a mismatched season or fixture identity", () => {
-  const state = { ...emptyState(), seasonById: { id: "test26", slug: "test26", isTestSeason: true }, games: [{ id: "game-test26-1", seasonId: "test26", sourceEventId: "1" }] };
+  const state = {
+    ...emptyState(),
+    seasonById: { id: "test26", slug: "test26", isTestSeason: true },
+    games: [{ id: "game-test26-1", seasonId: "test26", sourceEventId: "1" }],
+  };
   const plan = createResetPlan({ target: TEST26_TARGET, state });
   assert.ok(plan.conflicts.length >= 2);
 });

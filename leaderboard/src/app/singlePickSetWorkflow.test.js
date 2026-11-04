@@ -8,7 +8,11 @@ const readSource = (relativePath) =>
 test("Picks page has one creation path and no entry selector or URL selection", () => {
   const source = readSource("../components/picks/PicksWorkspace.jsx");
 
-  assert.match(source, /Create Your Pick Set/);
+  assert.match(source, /EntryStartState/);
+  assert.doesNotMatch(
+    source,
+    /Pick Set Name|newPickSetName|buildDefaultPickSetName/,
+  );
   assert.doesNotMatch(source, /useSearchParams/);
   assert.doesNotMatch(source, /<Select/);
   assert.doesNotMatch(source, /New Entry/);

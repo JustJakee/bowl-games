@@ -32,9 +32,15 @@ export const getFinalGameWinner = (game) => {
 
   const awayScore = Number(game?.away?.score);
   const homeScore = Number(game?.home?.score);
-  if (!Number.isFinite(awayScore) || !Number.isFinite(homeScore) || awayScore === homeScore) {
+  if (
+    !Number.isFinite(awayScore) ||
+    !Number.isFinite(homeScore) ||
+    awayScore === homeScore
+  ) {
     return "";
   }
 
-  return awayScore > homeScore ? game?.away?.abbr || "" : game?.home?.abbr || "";
+  return awayScore > homeScore
+    ? game?.away?.abbr || ""
+    : game?.home?.abbr || "";
 };
