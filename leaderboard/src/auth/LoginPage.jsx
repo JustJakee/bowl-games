@@ -12,6 +12,41 @@ import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import AuthFormLayout from "./AuthFormLayout";
 
+/**
+ * Builds the `slotProps.input` config for a password field with a
+ * show/hide toggle button.
+ *
+ * @param {boolean} visible - Whether the password text is currently shown.
+ * @param {Function} onToggle - Callback that flips the visibility state.
+ * @returns {{ endAdornment: JSX.Element }} Props to pass as `slotProps.input`.
+ */
+const passwordToggleInput = (visible, onToggle) => ({
+  endAdornment: (
+    <InputAdornment position="end">
+      <IconButton
+        aria-label={visible ? "Hide password" : "Show password"}
+        onClick={onToggle}
+        edge="end"
+      >
+        {visible ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+      </IconButton>
+    </InputAdornment>
+  ),
+});
+
+/**
+ * Sign-in form with email and password fields, a password visibility
+ * toggle, and links to the forgot-password and registration flows.
+ *
+ * @param {Object} props
+ * @param {string} [props.defaultEmail] - Initial value for the email field.
+ * @param {string} [props.error] - Error message supplied by the parent.
+ * @param {string} [props.success] - Success message supplied by the parent.
+ * @param {Function} props.onForgotPassword - Called with the trimmed email when the user requests a reset.
+ * @param {Function} props.onRegister - Called when the user chooses to create an account.
+ * @param {Function} props.onSubmit - Async handler receiving `{ email, password }`.
+ * @returns {JSX.Element} The sign-in page.
+ */
 const LoginPage = ({
   defaultEmail = "",
   error = "",
@@ -26,6 +61,12 @@ const LoginPage = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
+  /**
+   * Validates that both fields are filled in, then submits the credentials.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} event - The form submit event.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
     setFieldError("");
@@ -37,14 +78,13 @@ const LoginPage = ({
 
     setIsSubmitting(true);
     try {
-      await onSubmit({
-        email: email.trim(),
-        password,
-      });
+      await onSubmit({ email: email.trim(), password });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const toggleShowPassword = () => setShowPassword((current) => !current);
 
   return (
     <AuthFormLayout
@@ -71,23 +111,7 @@ const LoginPage = ({
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  onClick={() => setShowPassword((current) => !current)}
-                  edge="end"
-                >
-                  {showPassword ? (
-                    <VisibilityOffRoundedIcon />
-                  ) : (
-                    <VisibilityRoundedIcon />
-                  )}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
+          slotProps={{ input: passwordToggleInput(showPassword, toggleShowPassword) }}
         />
         <Button
           type="submit"
