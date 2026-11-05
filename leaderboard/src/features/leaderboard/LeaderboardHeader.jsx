@@ -9,13 +9,15 @@ const LeaderboardHeader = ({ isLive, picksLocked, seasonYear }) => (
         {isLive ? (
           <p>Live standings for the {seasonYear || "2026"} Bowl Season.</p>
         ) : null}
-        <span
-          className={`leaderboard-status-chip ${
-            isLive ? "leaderboard-status-chip--live" : ""
-          }`}
-        >
-          {isLive ? "LIVE" : picksLocked ? "PICKS LOCKED" : "PICKS OPEN"}
-        </span>
+        {isLive || picksLocked ? (
+          <span
+            className={`leaderboard-status-chip ${
+              isLive ? "leaderboard-status-chip--live" : ""
+            }`}
+          >
+            {isLive ? "LIVE" : "PICKS LOCKED"}
+          </span>
+        ) : null}
         {picksLocked ? (
           <span className="leaderboard-lock-copy">
             <LockOutlinedIcon aria-hidden="true" />

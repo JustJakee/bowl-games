@@ -128,7 +128,7 @@ test("own-entry reads restore local scope without selecting the protected owner 
   const own = await getEntryById({ entryId: entry.id, ...input });
   assert.equal(own.id, entry.id);
   assert.equal(own.owner, "player-one");
-  assert.equal(own.paymentStatus, "unpaid");
+  assert.equal(own.paymentStatus, null);
   assert.deepEqual(calls.gets[0].key, { id: entry.id });
   assert.ok(
     calls.gets.every((call) => !call.options.selectionSet.includes("owner")),

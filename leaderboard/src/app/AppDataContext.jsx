@@ -13,6 +13,7 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { TIEBREAKER_BOWL_NAME } from "../constants/PickMatchupCard";
 import { useScoreboard } from "../context/NCAAFDataContext";
 import { usePickWindowLocked } from "../hooks/usePickWindowLocked";
+import { getEffectivePickLockAt } from "../utils/pickWindow";
 import {
   createOrLoadEntry,
   getCanonicalEntryForUser,
@@ -70,7 +71,7 @@ const buildMatchups = (scoreboardGames = []) => {
 };
 
 export const AppDataProvider = ({ children }) => {
-  const { allGames: scoreboardGames, season, seasonConfig } = useScoreboard();
+  const { allGames: scoreboardGames, rawGames, season, seasonConfig } = useScoreboard();
   const {
     email,
     hasValidTokens,
@@ -107,8 +108,9 @@ export const AppDataProvider = ({ children }) => {
   const owner = user?.userId || null;
   const currentSeasonId = season?.id || null;
   const currentSeasonYear = season?.year || null;
-  const picksLockAt = seasonConfig?.picksLockAt || null;
-  const picksLocked = usePickWindowLocked(picksLockAt, season?.status);
+  const picksLockAt = getEffectivePickLockAt(seasonConfig?.picksLockAt, rawGames);
+  const picksLockedByTime = usePickWindowLocked(picksLockAt, season?.status);
+  const picksLocked = !picksLockAt || picksLockedByTime;
   const saveScope = `${owner || "guest"}:${currentSeasonId || "none"}`;
   saveScopeRef.current = saveScope;
   const matchups = useMemo(

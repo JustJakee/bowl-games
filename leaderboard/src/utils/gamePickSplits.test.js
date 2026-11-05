@@ -18,6 +18,7 @@ const game = {
   },
   state: "pre",
 };
+const firstSeasonKickoff = Date.parse("2026-12-20T18:00:00Z");
 
 const entries = [
   { id: "entry-a", entryName: "Alpha Entry", isDeleted: false },
@@ -40,6 +41,7 @@ test("other entries' selections are hidden before kickoff", () => {
     ],
     ownedPicks: [],
     currentEntryIds: ["entry-a"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T17:00:00Z").getTime(),
   });
 
@@ -59,6 +61,7 @@ test("current user's own entry selection remains visible before kickoff", () => 
     submittedPicks: [{ entryId: "entry-a", gameId: "game-1" }],
     ownedPicks: [{ entryId: "entry-a", gameId: "game-1", selectedTeam: "AAA" }],
     currentEntryIds: ["entry-a"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T17:00:00Z").getTime(),
   });
 
@@ -82,6 +85,7 @@ test("all valid picks reveal after lock and percentages calculate correctly", ()
       { entryId: "entry-c", gameId: "game-1", selectedTeam: "BBB" },
     ],
     currentEntryIds: ["entry-a"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T18:01:00Z").getTime(),
   });
 
@@ -100,6 +104,7 @@ test("zero-pick game does not divide by zero", () => {
     submittedPicks: [],
     revealedPicks: [],
     currentEntryIds: ["entry-a"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T18:01:00Z").getTime(),
   });
 
@@ -123,6 +128,7 @@ test("deleted entries and unsubmitted entries are excluded from groups", () => {
       { entryId: "entry-deleted", gameId: "game-1", selectedTeam: "BBB" },
     ],
     currentEntryIds: ["entry-a"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T18:01:00Z").getTime(),
   });
 
@@ -150,6 +156,7 @@ test("multiple owned entries split across teams are represented", () => {
       { entryId: "entry-b", gameId: "game-1", selectedTeam: "BBB" },
     ],
     currentEntryIds: ["entry-a", "entry-b"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T18:01:00Z").getTime(),
   });
 
@@ -177,6 +184,7 @@ test("owned entries selecting the same team remain separate rows", () => {
       { entryId: "entry-a", gameId: "game-1", selectedTeam: "AAA" },
     ],
     currentEntryIds: ["entry-a", "entry-b"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T17:00:00Z").getTime(),
   });
 
@@ -196,6 +204,7 @@ test("invalid selected teams are excluded after lock", () => {
       { entryId: "entry-a", gameId: "game-1", selectedTeam: "CCC" },
     ],
     currentEntryIds: ["entry-a"],
+    firstSeasonKickoff,
     now: new Date("2026-12-20T18:01:00Z").getTime(),
   });
 
@@ -206,7 +215,7 @@ test("invalid selected teams are excluded after lock", () => {
 test("scheduled game action is disabled with the long-form label", () => {
   assert.deepEqual(getGamePickActionState({ isLocked: false }), {
     enabled: false,
-    label: "View Game Picks (Available After Kick-Off)",
+    label: "View Game Picks (Available After First Kick-Off)",
   });
 });
 
@@ -215,4 +224,22 @@ test("live and final game actions are enabled with the route label", () => {
     enabled: true,
     label: "View Game Picks",
   });
+});
+
+test("a future game's picks reveal exactly at the first season kickoff", () => {
+  const futureGame = { ...game, startDate: "2026-12-25T18:00:00Z" };
+  const options = {
+    game: futureGame,
+    entries,
+    firstSeasonKickoff,
+    revealedPicks: [{ entryId: "entry-b", gameId: "game-1", selectedTeam: "BBB" }],
+  };
+  const before = buildGamePickSplitView({ ...options, now: firstSeasonKickoff - 1 });
+  const at = buildGamePickSplitView({ ...options, now: firstSeasonKickoff });
+  assert.equal(before.isLocked, false);
+  assert.equal(before.totalRevealedPicks, 0);
+  assert.equal(at.isLocked, true);
+  assert.equal(at.totalRevealedPicks, 1);
+  assert.equal(at.teamSplits[1].percentage, 100);
+  assert.equal(buildGamePickSplitView({ ...options, firstSeasonKickoff: null, now: firstSeasonKickoff + 1 }).isLocked, false);
 });

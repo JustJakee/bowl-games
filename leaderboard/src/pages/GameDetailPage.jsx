@@ -227,7 +227,7 @@ const AllPicksPanel = ({ pickSplit, onShowMore }) => {
       <section className="game-detail-panel game-detail-all-picks">
         <h2>All Picks</h2>
         <p className="game-detail-lock-message">
-          Everyone else's picks unlock at kickoff.
+          Everyone else's picks unlock at the first season kickoff.
         </p>
       </section>
     );
@@ -256,7 +256,7 @@ const AllPicksPanel = ({ pickSplit, onShowMore }) => {
 
 const GameDetailPage = () => {
   const { gameId } = useParams();
-  const { games, loading, error } = useScoreboard();
+  const { allGames: games, loading, error } = useScoreboard();
   const game = games.find((candidate) => candidate.id === gameId) || null;
   const { viewsByGameId, error: picksError } = useGamePickSplitViews(
     game ? [game] : [],

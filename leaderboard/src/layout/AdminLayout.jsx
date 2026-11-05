@@ -235,13 +235,6 @@ const AdminLayout = () => {
             <Typography variant="subtitle1" sx={{ fontWeight: 900 }}>
               Admin Menu
             </Typography>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ overflowWrap: "anywhere" }}
-            >
-              {email}
-            </Typography>
           </Box>
           <Divider />
           <List disablePadding>

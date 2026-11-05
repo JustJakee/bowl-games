@@ -6,10 +6,12 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
-import { Box, ButtonBase, Divider, Stack, Typography } from "@mui/material";
+import { Box, ButtonBase, Chip, Divider, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import BuilderCredit from "../components/common/BuilderCredit";
+import { useAppData } from "../app/AppDataContext.jsx";
+import { shouldShowAccountPaymentNotification } from "../utils/dashboardVisibility.js";
 
 export const DESKTOP_SIDEBAR_WIDTH = {
   lg: "220px",
@@ -83,7 +85,7 @@ const navButtonSx = {
   },
 };
 
-const SidebarNavButton = ({ icon, label, to }) => {
+export const SidebarNavButton = ({ icon, label, to, notification }) => {
   return (
     <ButtonBase component={NavLink} to={to} sx={navButtonSx}>
       <Box
@@ -104,11 +106,33 @@ const SidebarNavButton = ({ icon, label, to }) => {
       >
         {label}
       </Typography>
+      {notification ? (
+        <Chip
+          size="small"
+          label="1"
+          aria-label="1 account notification"
+          sx={{
+            ml: "auto",
+            height: 20,
+            minWidth: 20,
+            bgcolor: "error.main",
+            color: "error.contrastText",
+            fontWeight: 800,
+            "& .MuiChip-label": { px: 0.5 },
+          }}
+        />
+      ) : null}
     </ButtonBase>
   );
 };
 
 const DesktopSidebar = ({ signOut }) => {
+  const { currentEntry, entriesLoading, entriesReady } = useAppData();
+  const paymentDue = shouldShowAccountPaymentNotification({
+    currentEntry,
+    entriesLoading,
+    entriesReady,
+  });
   return (
     <Box
       component="aside"
@@ -157,7 +181,7 @@ const DesktopSidebar = ({ signOut }) => {
 
       <Stack component="nav" aria-label="Account" sx={{ py: 1.5 }}>
         {secondaryNavItems.map((item) => (
-          <SidebarNavButton key={item.to} {...item} />
+          <SidebarNavButton key={item.to} {...item} notification={paymentDue} />
         ))}
         <ButtonBase onClick={signOut} sx={navButtonSx}>
           <Box

@@ -64,6 +64,20 @@ test("server rule accepts immediately before, rejects at and after global deadli
     assert.throws(() => assertCanSavePick({ ...input, now }), /locked/);
 });
 
+test("future-game writes stop at the first season kickoff", () => {
+  assert.equal(assertCanSavePick({ ...input, game: championship, selectedTeam: "CCC", now: deadline - 1 }).owner, "owner-a");
+  assert.throws(() => assertCanSavePick({ ...input, game: championship, selectedTeam: "CCC", now: deadline }), /locked/);
+});
+
+test("missing or timezone-free kickoff data cannot reveal other players' picks", () => {
+  const entries = [entry, { ...entry, id: "e2", owner: "owner-b" }];
+  const picks = [{ id: "other", seasonId: season.id, entryId: "e2", gameId: "g1", selectedTeam: "BBB" }];
+  for (const kickoffAt of [null, "2026-11-01T13:00:00", "invalid"]) {
+    const result = buildVisibleSeasonPicks({ entries, picks, games: [{ ...game, kickoffAt }], config, identity: { sub: "owner-a" }, now: deadline + 1 });
+    assert.deepEqual(result.picks, []);
+  }
+});
+
 test("earliest kickoff can only tighten the configured deadline", () => {
   const early = { ...game, kickoffAt: new Date(deadline - 1000).toISOString() };
   assert.equal(
@@ -144,7 +158,7 @@ test("one active entry is enforced while deleted generations remain preserved", 
   );
 });
 
-test("visibility keeps other selections and tiebreakers private until their game starts", () => {
+test("visibility keeps other selections private until first kickoff, including future games", () => {
   const entries = [
     entry,
     { ...entry, id: "e2", owner: "owner-b", tieBreakerValue: 50 },
@@ -212,7 +226,7 @@ test("visibility keeps other selections and tiebreakers private until their game
   });
   assert.deepEqual(
     first.picks.map((pick) => pick.id),
-    ["p1", "p2"],
+    ["p1", "p2", "p3"],
   );
   const after = buildVisibleSeasonPicks({
     entries,

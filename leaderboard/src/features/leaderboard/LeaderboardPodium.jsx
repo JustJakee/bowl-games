@@ -1,5 +1,6 @@
 import LeaderboardPrizeTag from "./LeaderboardPrizeTag";
 import { getPrizeForRank } from "./leaderboardPrizes";
+import { displayLeaderboardUsername } from "./leaderboardViewModel";
 
 const PODIUM_ORDER = [2, 1, 3];
 
@@ -18,8 +19,7 @@ const PodiumEntryCard = ({ entry }) => {
         <span>{entry.rank}</span>
       </div>
       <div className="podium-copy">
-        <h2>{entry.username}</h2>
-        <p>{entry.entryName}</p>
+        <h2>{displayLeaderboardUsername(entry.username)}</h2>
       </div>
       <div className="podium-score">
         <strong>{entry.correctPicks}</strong>

@@ -33,6 +33,7 @@ import {
   formatAdminGameStatus,
   getGameWinner,
   isAdminGameManagementEnabled,
+  mergeAdminGame,
   toGameUpdateInput,
   validateGameDraft,
 } from "../utils/adminGameManagement";
@@ -83,7 +84,7 @@ const sameDraft = (left, right) =>
 
 const AdminGamesPage = () => {
   const { role } = useAuth();
-  const { season } = useScoreboard();
+  const { season, reload: reloadScoreboard } = useScoreboard();
   const narrow = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -96,28 +97,43 @@ const AdminGamesPage = () => {
   const [discardOpen, setDiscardOpen] = useState(false);
   const [toast, setToast] = useState("");
   const loadedSeasonId = useRef("");
+  const loadRequestId = useRef(0);
+  const activeSeasonId = useRef(season?.id);
+  activeSeasonId.current = season?.id;
 
   const canManageGames =
     role === "admin" && isAdminGameManagementEnabled(season);
   const load = async () => {
-    if (!season?.id || !canManageGames) return;
-    const initial = loadedSeasonId.current !== season.id;
-    if (initial) setLoading(true);
+    if (!season?.id || !canManageGames || season.id !== activeSeasonId.current)
+      return null;
+    const seasonId = season.id;
+    const requestId = ++loadRequestId.current;
+    setLoading(true);
     setError("");
     try {
-      const rows = await loadAdminGames({ seasonId: season.id });
+      const rows = await loadAdminGames({ seasonId });
+      if (requestId !== loadRequestId.current || seasonId !== activeSeasonId.current)
+        return null;
       setGames(rows);
-      loadedSeasonId.current = season.id;
+      loadedSeasonId.current = seasonId;
+      return rows;
     } catch (loadError) {
-      setError(loadError.message || "Unable to load games.");
+      if (requestId === loadRequestId.current && seasonId === activeSeasonId.current)
+        setError(loadError.message || "Unable to load games.");
+      return null;
     } finally {
-      if (initial) setLoading(false);
+      if (requestId === loadRequestId.current && seasonId === activeSeasonId.current)
+        setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (season?.id !== loadedSeasonId.current) setGames([]);
     void load();
-  }, [season?.id, canManageGames]); // selected-season changes are the only fetch trigger
+    return () => {
+      loadRequestId.current += 1;
+    };
+  }, [season?.id, canManageGames]);
 
   const visibleGames = useMemo(
     () =>
@@ -166,12 +182,29 @@ const AdminGamesPage = () => {
           kickoffAt: fromLocalInput(draft.kickoffAt),
         }),
       );
-      setGames((current) =>
-        current.map((game) => (game.id === updated.id ? updated : game)),
-      );
-      setToast(`${updated.bowlName} updated.`);
+      if (season.id !== activeSeasonId.current) return;
+      setGames((current) => mergeAdminGame(current, updated));
       setDraft(null);
       setOriginalDraft(null);
+      void reloadScoreboard();
+      const rows = await load();
+      const persisted = rows?.find((game) => game.id === updated.id);
+      const savedAt = Date.parse(updated.updatedAt);
+      const readAt = Date.parse(persisted?.updatedAt);
+      const readIsOlder =
+        !persisted ||
+        (Number.isFinite(savedAt) &&
+          (!Number.isFinite(readAt) || readAt < savedAt));
+      if (readIsOlder) {
+        setGames((current) => mergeAdminGame(current, updated));
+      }
+      setToast(
+        !rows
+          ? `${updated.bowlName} updated. Game list refresh failed; try Refresh games.`
+          : readIsOlder
+            ? `${updated.bowlName} updated. Game list is catching up; try Refresh games.`
+            : `${updated.bowlName} updated. Game list refreshed.`,
+      );
     } catch (saveError) {
       setToast(
         saveError.message ||
@@ -230,6 +263,14 @@ const AdminGamesPage = () => {
               </MenuItem>
             ))}
           </Select>
+          <Button
+            variant="outlined"
+            onClick={() => void load()}
+            disabled={loading || saving}
+            sx={{ whiteSpace: "nowrap" }}
+          >
+            {loading ? "Refreshing…" : "Refresh games"}
+          </Button>
         </Stack>
       </Panel>
       {error ? (

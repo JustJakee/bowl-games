@@ -20,14 +20,8 @@ export const getGameTeams = (game) => [
   },
 ];
 
-export const isGamePickLocked = (game, now = Date.now()) => {
-  if (game?.state === "in" || game?.state === "post" || game?.isFinal) {
-    return true;
-  }
-
-  const kickoff = game?.startDate ? new Date(game.startDate).getTime() : NaN;
-  return Number.isFinite(kickoff) && kickoff <= now;
-};
+export const isGamePickLocked = (firstSeasonKickoff, now = Date.now()) =>
+  Number.isFinite(firstSeasonKickoff) && now >= firstSeasonKickoff;
 
 export const getGamePickActionState = (pickSplit) => {
   const enabled = Boolean(pickSplit?.isLocked);
@@ -36,7 +30,7 @@ export const getGamePickActionState = (pickSplit) => {
     enabled,
     label: enabled
       ? "View Game Picks"
-      : "View Game Picks (Available After Kick-Off)",
+      : "View Game Picks (Available After First Kick-Off)",
   };
 };
 
@@ -83,6 +77,7 @@ export const buildGamePickSplitView = ({
   revealedPicks = [],
   ownedPicks = [],
   currentEntryIds = [],
+  firstSeasonKickoff = null,
   now = Date.now(),
 }) => {
   const activeEntries = (entries || []).filter((entry) => !entry?.isDeleted);
@@ -92,7 +87,7 @@ export const buildGamePickSplitView = ({
   const teams = getGameTeams(game);
   const teamKeySet = new Set(teams.map((team) => team.key).filter(Boolean));
   const teamsByKey = new Map(teams.map((team) => [team.key, team]));
-  const locked = isGamePickLocked(game, now);
+  const locked = isGamePickLocked(firstSeasonKickoff, now);
   const validSubmittedPicks = uniqueValidGamePicks({
     picks: submittedPicks,
     gameId: game?.id,

@@ -11,7 +11,6 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
         <tr>
           <th>Rank</th>
           <th>Username</th>
-          <th>Picks</th>
           {isLive ? (
             <>
               <th>Correct Picks</th>
@@ -30,12 +29,7 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
             <tr key={entry.id}>
               <td className="leaderboard-rank-cell">{entry.rank}</td>
               <td>
-                <LeaderboardIdentity entry={entry} showEntryName={false} />
-              </td>
-              <td>
-                <span className="leaderboard-table-entry">
-                  {entry.entryName}
-                </span>
+                <LeaderboardIdentity entry={entry} />
               </td>
               {isLive ? (
                 <>

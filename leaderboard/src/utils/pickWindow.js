@@ -1,9 +1,18 @@
+import { getFirstKickoffTime } from "./dashboardVisibility";
+
 const parseDeadline = (picksLockAt) => {
   if (!picksLockAt) {
     return Number.NaN;
   }
 
   return new Date(picksLockAt).getTime();
+};
+
+export const getEffectivePickLockAt = (picksLockAt, games = []) => {
+  const configured = getFirstKickoffTime([{ kickoffAt: picksLockAt }]);
+  const firstKickoff = getFirstKickoffTime(games);
+  if (configured === null || firstKickoff === null) return null;
+  return new Date(Math.min(configured, firstKickoff)).toISOString();
 };
 
 export const isPickWindowLocked = (picksLockAt, now = Date.now()) => {

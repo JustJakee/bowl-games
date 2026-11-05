@@ -94,10 +94,40 @@ export const loadAdminEntries = async ({ seasonId, requiredGameIds = [] }) => {
 };
 
 export const updateAdminEntryPayment = async ({ entryId, paymentStatus }) => {
-  const result = await getDataClient().models.Entry.update(
-    { id: entryId, paymentStatus },
-    { selectionSet: ENTRY_FIELDS, authMode: "userPool" },
+  const client = getDataClient();
+  const selectionSet = ["id", "paymentStatus"];
+  let result;
+  try {
+    result = await client.models.Entry.update(
+      { id: entryId, paymentStatus },
+      { selectionSet, authMode: "userPool" },
+    );
+  } catch (error) {
+    result = { errors: [error] };
+  }
+  if (
+    !result?.errors?.length &&
+    result?.data?.id === entryId &&
+    result.data.paymentStatus === paymentStatus
+  ) return result.data;
+
+  // A relationship field can fail after the write. Resolve an ambiguous
+  // response against the stored record before reporting the mutation as failed.
+  try {
+    const persisted = await client.models.Entry.get(
+      { id: entryId },
+      { selectionSet, authMode: "userPool" },
+    );
+    if (
+      !persisted.errors?.length &&
+      persisted.data?.id === entryId &&
+      persisted.data.paymentStatus === paymentStatus
+    ) return persisted.data;
+  } catch {
+    // The result is still unconfirmed; retain the original failure below.
+  }
+  const reason = result?.errors?.[0]?.message;
+  throw new Error(
+    `The payment update could not be confirmed. Refresh to check its status.${reason ? ` ${reason}` : ""}`,
   );
-  if (result.errors?.[0]) throw new Error(result.errors[0].message);
-  return result.data;
 };

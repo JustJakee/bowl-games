@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { loadSeasonBundle } from "../data/seasonRepository";
 import { selectPickableGames } from "../utils/scoreboardGames";
+import { createLatestLoadGuard } from "./latestLoad";
 
 const ScoreboardContext = createContext(null);
 
@@ -30,6 +31,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
   const mounted = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
   const firstLoad = useRef(true);
+  const loadGuard = useRef(createLatestLoadGuard());
   const canLoadData =
     !authLoading && isConfigured && isAuthenticated && hasValidTokens;
 
@@ -38,6 +40,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       return;
     }
 
+    const requestId = loadGuard.current.start();
     const initial = firstLoad.current;
     if (initial) setLoading(true);
     else setRefreshing(true);
@@ -72,17 +75,17 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       );
       const picksResponse = selectPickableGames(normalizedResponse);
 
-      if (!mounted.current) return;
+      if (!mounted.current || !loadGuard.current.isCurrent(requestId)) return;
       setSeason(response.season);
       setSeasonConfig(response.seasonConfig);
       setRawGames(response.rawGames || []);
       setData(filteredResponse);
       setAllGames(picksResponse);
     } catch (err) {
-      if (!mounted.current) return;
+      if (!mounted.current || !loadGuard.current.isCurrent(requestId)) return;
       setError(err?.message ?? "Failed to fetch scoreboard");
     } finally {
-      if (!mounted.current) return;
+      if (!mounted.current || !loadGuard.current.isCurrent(requestId)) return;
       if (initial) setLoading(false);
       setRefreshing(false);
       firstLoad.current = false;
@@ -93,6 +96,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
     mounted.current = true;
 
     if (!canLoadData) {
+      loadGuard.current.invalidate();
       setData(null);
       setAllGames(null);
       setSeason(null);
@@ -105,6 +109,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
 
       return () => {
         mounted.current = false;
+        loadGuard.current.invalidate();
       };
     }
 
@@ -112,6 +117,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
     const id = setInterval(load, pollMs);
     return () => {
       mounted.current = false;
+      loadGuard.current.invalidate();
       clearInterval(id);
     };
   }, [authLoading, canLoadData, pollMs]);

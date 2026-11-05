@@ -13,25 +13,30 @@ export const buildDashboardEntries = ({
   entries.map((entry) => {
     const progress = progressByEntryId[entry.id] || {};
     const selectionsByGameId = progress.selectionsByGameId || {};
-    const completedPicks =
-      Object.values(selectionsByGameId).filter(Boolean).length;
+    const requiredGameIds = progress.requiredGameIds || [];
+    const completedPicks = requiredGameIds.filter((gameId) =>
+      Boolean(selectionsByGameId[gameId]),
+    ).length;
     const pickStatus = calculatePickSetStatus({
-      requiredGameIds: progress.requiredGameIds || [],
+      requiredGameIds,
       selectionsByGameId,
       tieBreakerRequired,
       tieBreakerValue: entry.tieBreakerValue,
     });
+    const needsTieBreaker =
+      tieBreakerRequired &&
+      (!Number.isSafeInteger(entry.tieBreakerValue) ||
+        entry.tieBreakerValue < 0);
+    const isComplete =
+      pickStatus === PICK_SET_STATUS.COMPLETE && !needsTieBreaker;
 
     return {
       id: entry.id,
       name: entry.entryName,
       completedPicks,
       totalPicks,
-      isComplete: pickStatus === PICK_SET_STATUS.COMPLETE,
-      status: picksLocked
-        ? "Locked"
-        : pickStatus === PICK_SET_STATUS.COMPLETE
-          ? "Complete"
-          : "In Progress",
+      isComplete,
+      needsTieBreaker,
+      status: picksLocked ? "Locked" : isComplete ? "Complete" : "In Progress",
     };
   });

@@ -26,7 +26,7 @@ import {
 } from "../data/adminEntriesRepository";
 import PaymentStatusChip from "../components/common/PaymentStatusChip";
 import Panel from "../components/common/Panel";
-import { isSeasonPickLocked } from "../utils/pickWindow";
+import { getEffectivePickLockAt, isSeasonPickLocked } from "../utils/pickWindow";
 
 const paid = (value) => String(value || "").toUpperCase() === "PAID";
 
@@ -48,7 +48,7 @@ const PickCompletion = ({ row, showPicksLabel = false }) => {
 };
 
 const AdminEntriesPage = () => {
-  const { season, seasonConfig, allGames } = useScoreboard();
+  const { season, seasonConfig, allGames, rawGames } = useScoreboard();
   const isNarrow = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,9 +73,10 @@ const AdminEntriesPage = () => {
     [allGames],
   );
   const requiredGameIdsKey = requiredGameIds.join("|");
-  const picksLocked = isSeasonPickLocked({
+  const effectivePickLockAt = getEffectivePickLockAt(seasonConfig?.picksLockAt, rawGames);
+  const picksLocked = !effectivePickLockAt || isSeasonPickLocked({
     seasonStatus: season?.status,
-    picksLockAt: seasonConfig?.picksLockAt,
+    picksLockAt: effectivePickLockAt,
   });
   const effectiveCompletion =
     picksLocked && completion === "incomplete" ? "all" : completion;
@@ -155,13 +156,13 @@ const AdminEntriesPage = () => {
     setSaving(row.id);
 
     try {
-      await updateAdminEntryPayment({
+      const updated = await updateAdminEntryPayment({
         entryId: row.id,
         paymentStatus: nextStatus,
       });
       setRows((current) =>
         current.map((item) =>
-          item.id === row.id ? { ...item, paymentStatus: nextStatus } : item,
+          item.id === row.id ? { ...item, paymentStatus: updated.paymentStatus } : item,
         ),
       );
       setToast(
@@ -169,8 +170,11 @@ const AdminEntriesPage = () => {
           nextStatus === "paid" ? "Paid" : "Payment Due"
         }.`,
       );
-    } catch {
-      setToast("Unable to update payment status. No changes were saved.");
+    } catch (saveError) {
+      setToast(
+        saveError.message ||
+          "Unable to confirm payment status. Refresh to check the saved value.",
+      );
     } finally {
       setSaving("");
     }

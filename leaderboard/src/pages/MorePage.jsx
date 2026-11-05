@@ -27,6 +27,7 @@ import useFbsTeams from "../hooks/useFbsTeams.js";
 import { useScoreboard } from "../context/NCAAFDataContext.jsx";
 import PageLoading from "../components/common/PageLoading.jsx";
 import { isAccountPageLoading } from "../utils/pageReadiness.js";
+import { getDashboardPaymentState } from "../utils/dashboardVisibility.js";
 
 const PAYMENT_STATE = Object.freeze({
   PAID: "paid",
@@ -42,9 +43,10 @@ export const resolveAccountPaymentState = ({
 }) => {
   if (entriesLoading) return PAYMENT_STATE.LOADING;
   if (!entriesReady || !currentEntry) return PAYMENT_STATE.UNAVAILABLE;
-  return String(currentEntry.paymentStatus || "").toUpperCase() === "PAID"
-    ? PAYMENT_STATE.PAID
-    : PAYMENT_STATE.UNPAID;
+  const status = getDashboardPaymentState(currentEntry);
+  return [PAYMENT_STATE.PAID, PAYMENT_STATE.UNPAID].includes(status)
+    ? status
+    : PAYMENT_STATE.UNAVAILABLE;
 };
 
 const paymentPresentation = {

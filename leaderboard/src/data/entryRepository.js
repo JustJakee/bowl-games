@@ -88,7 +88,6 @@ const normalizePlayerEntry = (entry, owner) =>
     ? {
         ...entry,
         owner,
-        paymentStatus: entry.paymentStatus || "unpaid",
       }
     : null;
 const requireOwner = (owner) => {

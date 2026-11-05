@@ -70,6 +70,7 @@ export const loadGamePickSplitViews = async ({
   games = [],
   currentEntries = [],
   owner,
+  firstSeasonKickoff = null,
   now = Date.now(),
 }) => {
   if (!seasonId || games.length === 0) {
@@ -123,6 +124,7 @@ export const loadGamePickSplitViews = async ({
         currentEntryIds.includes(pick.entryId),
       ),
       currentEntryIds,
+      firstSeasonKickoff,
       now,
     });
     return accumulator;

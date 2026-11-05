@@ -34,7 +34,7 @@ const drawerLinks = [
 const AppShell = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
-  const { signOut, email } = useAuth();
+  const { signOut } = useAuth();
   const { profile } = useUserProfile();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
@@ -100,12 +100,7 @@ const AppShell = () => {
         </Box>
       </Box>
 
-      {!isDesktop ? (
-        <MobileBottomNavigation
-          menuOpen={menuOpen}
-          onOpenMore={() => setMenuOpen(true)}
-        />
-      ) : null}
+      {!isDesktop ? <MobileBottomNavigation /> : null}
 
       <Drawer
         anchor="right"
@@ -134,13 +129,6 @@ const AppShell = () => {
             </Avatar>
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="h6">{username}</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ wordBreak: "break-word" }}
-              >
-                {email || "Authenticated user"}
-              </Typography>
             </Box>
           </Stack>
           <Divider />

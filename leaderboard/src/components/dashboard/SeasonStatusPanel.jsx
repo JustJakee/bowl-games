@@ -3,10 +3,9 @@ import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded
 import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import Panel from "../common/Panel";
-import PaymentStatusChip from "../common/PaymentStatusChip";
 import useCountdown from "../../hooks/useCountdown";
 import { formatDeadline } from "../../utils/countdown";
 
@@ -20,8 +19,7 @@ const SeasonStatusPanel = ({
   deadline,
   links,
   picksLocked = false,
-  paymentStatus,
-  hasEntry = false,
+  paymentState = "none",
 }) => {
   const countdown = useCountdown(deadline);
 
@@ -55,8 +53,15 @@ const SeasonStatusPanel = ({
             >
               {picksLocked ? "Picks Locked" : "Picks Lock"}
             </Typography>
-            {hasEntry ? (
-              <PaymentStatusChip paymentStatus={paymentStatus} />
+            {paymentState === "paid" ? (
+              <Chip size="small" color="success" label="Paid" />
+            ) : paymentState === "waived" || paymentState === "refunded" ? (
+              <Chip
+                size="small"
+                label={paymentState === "waived" ? "Waived" : "Refunded"}
+              />
+            ) : paymentState === "unavailable" ? (
+              <Chip size="small" label="Payment status unavailable" />
             ) : null}
           </Stack>
           {!picksLocked ? (

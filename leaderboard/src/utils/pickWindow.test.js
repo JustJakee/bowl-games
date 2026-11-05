@@ -5,12 +5,26 @@ import { buildSyncedDraft } from "../components/picks/picksAutosaveState";
 import {
   formatCompactPickLockMessage,
   formatPickLockMessage,
+  getEffectivePickLockAt,
   getEffectiveSeasonStatus,
   isPickWindowLocked,
   isSeasonPickLocked,
 } from "./pickWindow";
 
 const picksLockAt = "2026-08-02T12:00:00.000Z";
+
+test("client pick deadline matches the earlier server kickoff boundary", () => {
+  const games = [
+    { kickoffAt: "2026-08-02T11:00:00.000Z" },
+    { kickoffAt: "2026-08-03T12:00:00.000Z" },
+  ];
+  const effective = getEffectivePickLockAt(picksLockAt, games);
+  assert.equal(effective, "2026-08-02T11:00:00.000Z");
+  assert.equal(isPickWindowLocked(effective, Date.parse(effective) - 1), false);
+  assert.equal(isPickWindowLocked(effective, Date.parse(effective)), true);
+  assert.equal(getEffectivePickLockAt(picksLockAt, [{ kickoffAt: "invalid" }]), null);
+  assert.equal(getEffectivePickLockAt("2026-08-02T12:00:00", games), null);
+});
 
 test("effective season status turns open into locked at the global deadline", () => {
   const deadline = Date.parse(picksLockAt);

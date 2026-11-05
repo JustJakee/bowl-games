@@ -16,17 +16,15 @@ export const buildAutomaticEntryName = (profile, season) => {
 };
 
 const timestamp = (value) => {
+  if (typeof value !== "string" || !/(?:Z|[+-]\d{2}:\d{2})$/i.test(value))
+    return NaN;
   const parsed = Date.parse(value || "");
   return Number.isFinite(parsed) ? parsed : NaN;
 };
 
 export const getEffectivePickDeadline = ({ config, games }) => {
   const configured = timestamp(config?.picksLockAt);
-  const firstKickoff = Math.min(
-    ...(games || [])
-      .map((game) => timestamp(game.kickoffAt))
-      .filter(Number.isFinite),
-  );
+  const firstKickoff = getFirstSeasonKickoff(games);
   if (!Number.isFinite(configured) || !Number.isFinite(firstKickoff))
     throw new Error("The season pick deadline is unavailable.");
   return Math.min(configured, firstKickoff);
@@ -117,6 +115,13 @@ export const pickableGames = (games = []) =>
 
 export const hasGameStarted = (game, now) => timestamp(game?.kickoffAt) <= now;
 
+export const getFirstSeasonKickoff = (games = []) => {
+  const kickoffs = games
+    .map((game) => timestamp(game?.kickoffAt))
+    .filter(Number.isFinite);
+  return kickoffs.length ? Math.min(...kickoffs) : NaN;
+};
+
 export const buildVisibleSeasonPicks = ({
   entries = [],
   picks = [],
@@ -127,6 +132,8 @@ export const buildVisibleSeasonPicks = ({
 }) => {
   const owner = identity?.sub;
   if (!owner) throw new Error("A signed-in player is required.");
+  const firstKickoff = getFirstSeasonKickoff(games);
+  const seasonStarted = Number.isFinite(firstKickoff) && now >= firstKickoff;
   const gameById = new Map(games.map((game) => [game.id, game]));
   const requiredIds = pickableGames(games).map((game) => game.id);
   const picksByEntry = new Map();
@@ -180,8 +187,7 @@ export const buildVisibleSeasonPicks = ({
         return (
           game &&
           activeEntryIds.has(pick.entryId) &&
-          (entryOwnerById.get(pick.entryId) === owner ||
-            hasGameStarted(game, now))
+          (entryOwnerById.get(pick.entryId) === owner || seasonStarted)
         );
       })
       .map(

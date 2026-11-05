@@ -198,10 +198,7 @@
 }
 
 .podium-copy h2,
-.podium-copy p,
-.leaderboard-username,
-.leaderboard-entry-name,
-.leaderboard-table-entry {
+.leaderboard-username {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -212,12 +209,6 @@
   color: var(--color-text);
   font-size: clamp(1.25rem, 2vw, 1.7rem);
   line-height: 1.08;
-}
-
-.podium-copy p {
-  margin: 0.35rem 0 0;
-  color: var(--color-muted);
-  font-size: 0.92rem;
 }
 
 .podium-score {
@@ -338,13 +329,13 @@
 
 .leaderboard-table--prelive th:nth-child(2),
 .leaderboard-table--prelive td:nth-child(2) {
-  width: 36%;
+  width: auto;
 }
 
+.leaderboard-table th:nth-child(3),
+.leaderboard-table td:nth-child(3),
 .leaderboard-table th:nth-child(4),
-.leaderboard-table td:nth-child(4),
-.leaderboard-table th:nth-child(5),
-.leaderboard-table td:nth-child(5) {
+.leaderboard-table td:nth-child(4) {
   width: 12rem;
 }
 
@@ -369,13 +360,6 @@
 .leaderboard-username {
   color: var(--color-text);
   font-weight: 850;
-}
-
-.leaderboard-entry-name,
-.leaderboard-table-entry {
-  display: block;
-  min-width: 0;
-  color: var(--color-muted);
 }
 
 .leaderboard-score-cell {
@@ -487,10 +471,6 @@
 
   .podium-copy h2 {
     font-size: clamp(0.92rem, 3.8vw, 1.25rem);
-  }
-
-  .podium-copy p {
-    font-size: 0.72rem;
   }
 
   .podium-score {
@@ -685,11 +665,6 @@
     font-size: 1.3rem;
   }
 
-  .podium-copy p {
-    margin-top: 0.25rem;
-    font-size: 0.72rem;
-  }
-
   .podium-score {
     margin: 0.55rem 0 0.55rem;
   }
@@ -772,7 +747,6 @@
     font-size: 0.88rem;
   }
 
-  .podium-copy p,
   .podium-score span,
   .podium-prize > span:last-child {
     font-size: 0.58rem;

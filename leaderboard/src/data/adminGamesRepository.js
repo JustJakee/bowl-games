@@ -1,5 +1,6 @@
 import { dataClient as configuredDataClient } from "../auth/amplifyConfig";
 import { GAME_SELECTION } from "./seasonRepository";
+import { isPickableBowlName } from "../utils/scoreboardGames";
 
 let dataClientOverride = null;
 const getDataClient = () => dataClientOverride || configuredDataClient;
@@ -10,14 +11,26 @@ export const __setAdminGamesDataClientForTests = (dataClient) => {
 
 export const loadAdminGames = async ({ seasonId }) => {
   if (!seasonId) return [];
-  const result = await getDataClient().models.Game.list({
-    filter: { seasonId: { eq: seasonId } },
-    selectionSet: GAME_SELECTION,
-    authMode: "userPool",
-  });
-  if (result.errors?.[0]) throw new Error(result.errors[0].message);
-  return (result.data || [])
-    .filter(Boolean)
+  const games = [];
+  let nextToken;
+  do {
+    const result = await getDataClient().models.Game.gamesBySeason(
+      { seasonId },
+      {
+        limit: 100,
+        nextToken,
+        selectionSet: GAME_SELECTION,
+        authMode: "userPool",
+      },
+    );
+    if (result?.errors?.[0]) throw new Error(result.errors[0].message);
+    if (!Array.isArray(result?.data))
+      throw new Error("Unable to load admin games.");
+    games.push(...result.data.filter((game) => game?.seasonId === seasonId));
+    nextToken = result.nextToken || undefined;
+  } while (nextToken);
+  return games
+    .filter((game) => isPickableBowlName(game.bowlName))
     .sort((a, b) =>
       String(a.kickoffAt || "").localeCompare(String(b.kickoffAt || "")),
     );

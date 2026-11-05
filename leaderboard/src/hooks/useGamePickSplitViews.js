@@ -3,9 +3,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppData } from "../app/AppDataContext.jsx";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { loadGamePickSplitViews } from "../data/gamePickSplitsRepository";
+import { useScoreboard } from "../context/NCAAFDataContext.jsx";
+import { getFirstKickoffTime } from "../utils/dashboardVisibility";
 
 export const useGamePickSplitViews = (games = []) => {
   const { currentSeasonId, currentEntry } = useAppData();
+  const { rawGames } = useScoreboard();
+  const firstSeasonKickoff = getFirstKickoffTime(rawGames);
+  const [now, setNow] = useState(Date.now());
   const { user } = useAuth();
   const owner = user?.userId || "";
   const [viewsByGameId, setViewsByGameId] = useState({});
@@ -20,6 +25,16 @@ export const useGamePickSplitViews = (games = []) => {
         .join("|"),
     [games],
   );
+
+  useEffect(() => {
+    setNow(Date.now());
+    if (!Number.isFinite(firstSeasonKickoff) || firstSeasonKickoff <= Date.now()) return;
+    const timer = window.setTimeout(
+      () => setNow(Date.now()),
+      firstSeasonKickoff - Date.now() + 1,
+    );
+    return () => window.clearTimeout(timer);
+  }, [firstSeasonKickoff]);
 
   useEffect(() => {
     if (!currentSeasonId || games.length === 0) {
@@ -39,6 +54,8 @@ export const useGamePickSplitViews = (games = []) => {
       games,
       currentEntries: currentEntry ? [currentEntry] : [],
       owner,
+      firstSeasonKickoff,
+      now,
     })
       .then((nextViews) => {
         if (requestIdRef.current === requestId) {
@@ -55,7 +72,7 @@ export const useGamePickSplitViews = (games = []) => {
           setLoading(false);
         }
       });
-  }, [currentEntry, currentSeasonId, gameIdsKey, games, owner]);
+  }, [currentEntry, currentSeasonId, firstSeasonKickoff, gameIdsKey, games, now, owner]);
 
   return {
     viewsByGameId,

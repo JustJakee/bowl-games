@@ -1,3 +1,8 @@
+export const displayLeaderboardUsername = (username) => {
+  const value = typeof username === "string" ? username.trim() : "";
+  return value && !value.includes("@") ? value : "Player";
+};
+
 export const toLeaderboardEntries = (rows = []) =>
   rows.map((row, index) => {
     const correctPicks = Number(row.correctPicks ?? row.points ?? 0);
@@ -5,11 +10,10 @@ export const toLeaderboardEntries = (rows = []) =>
     const incorrectPicks = Number(row.incorrectPicks ?? recordParts[1]);
 
     return {
-      id: row.id || row.entryId || `${row.username}-${row.entryName}-${index}`,
+      id: row.id || row.entryId || `leaderboard-row-${index}`,
       rank: Number(row.rank || index + 1),
       previousRank: row.previousRank,
-      username: row.username || "Player",
-      entryName: row.entryName || "Entry",
+      username: displayLeaderboardUsername(row.username),
       correctPicks,
       incorrectPicks: Number.isFinite(incorrectPicks)
         ? incorrectPicks

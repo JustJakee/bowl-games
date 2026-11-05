@@ -2,7 +2,7 @@ import { Button, Chip, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import Panel from "../common/Panel";
 
-const DashboardHero = ({ username, picksLocked }) => {
+const DashboardHero = ({ username, picksLocked, showLeaderboard }) => {
   return (
     <Panel
       elevated
@@ -61,14 +61,16 @@ const DashboardHero = ({ username, picksLocked }) => {
             >
               Go to My Picks
             </Button>
-            <Button
-              component={RouterLink}
-              to="/leaderboard"
-              variant="outlined"
-              sx={{ minHeight: 42, px: 2.5 }}
-            >
-              View Full Leaderboard
-            </Button>
+            {showLeaderboard ? (
+              <Button
+                component={RouterLink}
+                to="/leaderboard"
+                variant="outlined"
+                sx={{ minHeight: 42, px: 2.5 }}
+              >
+                View Full Leaderboard
+              </Button>
+            ) : null}
           </Stack>
         </Stack>
       </Stack>

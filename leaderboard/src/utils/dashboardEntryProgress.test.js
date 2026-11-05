@@ -63,3 +63,55 @@ test("locked dashboard entries report locked status without changing progress", 
   assert.equal(dashboardEntries[0].completedPicks, 1);
   assert.equal(dashboardEntries[0].status, "Locked");
 });
+
+test("game progress stays separate from overall completion and ignores stale games", () => {
+  const selectionsByGameId = {
+    "game-1": "AAA",
+    "game-2": "BBB",
+    "old-game": "CCC",
+  };
+  const dashboardEntries = buildDashboardEntries({
+    entries: [
+      { id: "complete", tieBreakerValue: 0 },
+      { id: "missing-tie", tieBreakerValue: null },
+      { id: "invalid-tie", tieBreakerValue: -1 },
+    ],
+    totalPicks: 2,
+    tieBreakerRequired: true,
+    progressByEntryId: Object.fromEntries(
+      ["complete", "missing-tie", "invalid-tie"].map((id) => [
+        id,
+        { requiredGameIds, selectionsByGameId },
+      ]),
+    ),
+  });
+
+  assert.deepEqual(
+    dashboardEntries.map(({ completedPicks, isComplete, needsTieBreaker }) => [
+      completedPicks,
+      isComplete,
+      needsTieBreaker,
+    ]),
+    [
+      [2, true, false],
+      [2, false, true],
+      [2, false, true],
+    ],
+  );
+});
+
+test("missing a required pick never completes a pick set", () => {
+  const [missingPick] = buildDashboardEntries({
+    entries: [{ id: "entry-a", tieBreakerValue: 42 }],
+    totalPicks: 2,
+    tieBreakerRequired: true,
+    progressByEntryId: {
+      "entry-a": {
+        requiredGameIds,
+        selectionsByGameId: { "game-1": "AAA" },
+      },
+    },
+  });
+  assert.equal(missingPick.completedPicks, 1);
+  assert.equal(missingPick.isComplete, false);
+});

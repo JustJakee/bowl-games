@@ -11,6 +11,44 @@ import Panel from "../common/Panel";
 import SectionHeader from "./SectionHeader";
 import { formatDeadline } from "../../utils/countdown";
 
+const PickSetHeading = ({ isComplete }) => (
+  <>
+    <Box sx={{ display: { xs: "none", sm: "block" } }}>
+      <SectionHeader title="My Pick Set" />
+    </Box>
+    <Stack
+      direction="row"
+      alignItems="center"
+      flexWrap="wrap"
+      gap={0.75}
+      sx={{ display: { xs: "flex", sm: "none" } }}
+    >
+      <Typography variant="h6" sx={{ color: "primary.main", fontWeight: 800 }}>
+        My Pick Set
+      </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: isComplete ? "success.main" : "warning.main",
+          fontWeight: 800,
+          px: 0.75,
+          py: 0.25,
+          borderRadius: 1,
+          backgroundColor: (theme) =>
+            alpha(
+              isComplete
+                ? theme.palette.success.main
+                : theme.palette.warning.main,
+              0.12,
+            ),
+        }}
+      >
+        — {isComplete ? "Complete" : "Incomplete"}
+      </Typography>
+    </Stack>
+  </>
+);
+
 const EntriesCard = ({ entry, deadline }) => {
   const theme = useTheme();
 
@@ -18,7 +56,7 @@ const EntriesCard = ({ entry, deadline }) => {
     return (
       <Panel sx={{ height: "100%" }}>
         <Stack spacing={1.5}>
-          <SectionHeader title="My Pick Set" />
+          <PickSetHeading isComplete={false} />
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             No pick set yet
           </Typography>
@@ -40,14 +78,21 @@ const EntriesCard = ({ entry, deadline }) => {
     ? "All picks are in. You're ready for the season."
     : entry.totalPicks === 0
       ? "Pick progress will appear once games are available."
-      : `${remainingPicks} pick${remainingPicks === 1 ? "" : "s"} remaining before the deadline.`;
+      : remainingPicks === 0 && entry.needsTieBreaker
+        ? "Add your tiebreaker to complete your pick set."
+        : `${remainingPicks} pick${remainingPicks === 1 ? "" : "s"} remaining before the deadline.`;
 
   return (
     <Panel sx={{ height: "100%" }}>
       <Stack spacing={1.75}>
-        <SectionHeader title="My Pick Set" />
+        <PickSetHeading isComplete={isComplete} />
 
-        <Stack direction="row" justifyContent="space-between" spacing={1.25}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          spacing={1.25}
+          sx={{ display: { xs: "none", sm: "flex" } }}
+        >
           <Typography
             variant="subtitle1"
             sx={{
@@ -58,7 +103,7 @@ const EntriesCard = ({ entry, deadline }) => {
               whiteSpace: "nowrap",
             }}
           >
-            Your Entry
+            {entry.name || "Your Entry"}
           </Typography>
           <Chip
             size="small"
@@ -67,6 +112,13 @@ const EntriesCard = ({ entry, deadline }) => {
             sx={{ flexShrink: 0, fontWeight: 800 }}
           />
         </Stack>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ display: { xs: "block", sm: "none" }, fontWeight: 800 }}
+        >
+          {entry.name || "Your Entry"}
+        </Typography>
 
         <Stack
           direction={{ xs: "column", sm: "row" }}

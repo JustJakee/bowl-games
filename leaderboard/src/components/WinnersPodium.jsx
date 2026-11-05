@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { displayLeaderboardUsername } from "../features/leaderboard/leaderboardViewModel";
 import "../styles/winners-podium.css";
 
 const PLACE_LABELS = {
@@ -108,7 +109,9 @@ const WinnersPodium = ({ season, winners = [], tiebreakerTotal = null }) => {
               <div className="winners-podium__place">
                 {PLACE_LABELS[winner.place]}
               </div>
-              <div className="winners-podium__name">{winner.name}</div>
+              <div className="winners-podium__name">
+                {displayLeaderboardUsername(winner.name)}
+              </div>
               <div className="winners-podium__badges">
                 <span className="winners-podium__badge">
                   {winner.picks} picks

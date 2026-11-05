@@ -380,7 +380,7 @@ const ScheduleDateSection = ({
 };
 
 const ScheduleView = () => {
-  const { games: scoreboardGames, loading, error } = useScoreboard();
+  const { allGames: scoreboardGames, loading, error } = useScoreboard();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const groupedGames = groupGamesByDate(scoreboardGames);
@@ -421,8 +421,7 @@ const ScheduleView = () => {
             2026-27 Bowl Games
           </Typography>
           <Typography className="schedule-page-subtitle">
-            Comprehensive list of all upcoming NCAA bowl games, live scores, TV
-            listings, and kickoff times.
+            Bowl games eligible for picks, live scores, TV listings, and kickoff times.
           </Typography>
         </Box>
         <Button

@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   __setAdminEntriesDataClientForTests,
   loadAdminEntries,
+  updateAdminEntryPayment,
 } from "./adminEntriesRepository.js";
 
 test("admin entries uses the leaderboard's canonical entry for each player", async () => {
@@ -79,4 +80,41 @@ test("admin entries uses the leaderboard's canonical entry for each player", asy
   } finally {
     __setAdminEntriesDataClientForTests(null);
   }
+});
+
+test("payment update confirms only the intended entry and returns its saved status", async () => {
+  const calls = [];
+  __setAdminEntriesDataClientForTests({ models: { Entry: {
+    update: async (input, options) => { calls.push({ input, options }); return { data: { id: input.id, paymentStatus: input.paymentStatus } }; },
+    get: async () => { throw new Error("A confirmed mutation needs no second read."); },
+  } } });
+  try {
+    assert.deepEqual(await updateAdminEntryPayment({ entryId: "entry-one", paymentStatus: "paid" }), { id: "entry-one", paymentStatus: "paid" });
+    assert.deepEqual(calls[0].input, { id: "entry-one", paymentStatus: "paid" });
+    assert.deepEqual(calls[0].options.selectionSet, ["id", "paymentStatus"]);
+  } finally { __setAdminEntriesDataClientForTests(null); }
+});
+
+test("ambiguous payment response is reconciled with persisted status", async () => {
+  __setAdminEntriesDataClientForTests({ models: { Entry: {
+    update: async () => ({ errors: [{ message: "Related profile failed" }] }),
+    get: async () => ({ data: { id: "entry-one", paymentStatus: "unpaid" } }),
+  } } });
+  try {
+    assert.deepEqual(await updateAdminEntryPayment({ entryId: "entry-one", paymentStatus: "unpaid" }), { id: "entry-one", paymentStatus: "unpaid" });
+  } finally { __setAdminEntriesDataClientForTests(null); }
+});
+
+test("failed payment write and failed reconciliation are never reported as saved", async () => {
+  for (const get of [
+    async () => ({ data: { id: "entry-one", paymentStatus: "unpaid" } }),
+    async () => { throw new Error("Refresh failed"); },
+  ]) {
+    __setAdminEntriesDataClientForTests({ models: { Entry: {
+      update: async () => ({ errors: [{ message: "Write rejected" }] }),
+      get,
+    } } });
+    await assert.rejects(updateAdminEntryPayment({ entryId: "entry-one", paymentStatus: "paid" }), /Write rejected/);
+  }
+  __setAdminEntriesDataClientForTests(null);
 });

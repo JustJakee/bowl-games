@@ -11,14 +11,21 @@ import EntriesCard from "../components/dashboard/EntriesCard";
 import LeaderboardCard from "../components/dashboard/LeaderboardCard";
 import UpcomingBowlsCard from "../components/dashboard/UpcomingBowlsCard";
 import SeasonStatusPanel from "../components/dashboard/SeasonStatusPanel";
+import PaymentDueBanner from "../components/dashboard/PaymentDueBanner";
 import { buildDashboardEntries } from "../utils/dashboardEntryProgress";
+import {
+  canShowDashboardLeaderboard,
+  getDashboardPaymentState,
+  getFirstKickoffTime,
+} from "../utils/dashboardVisibility.js";
 import { dashboardQuickLinks } from "../data/dashboardMockData";
 import { shouldShowSeasonPending } from "../utils/seasonExperience";
 import SeasonPendingPage from "./SeasonPendingPage.jsx";
 import PageLoading from "../components/common/PageLoading.jsx";
 import { isDashboardPageLoading } from "../utils/pageReadiness.js";
+import { displayLeaderboardUsername } from "../features/leaderboard/leaderboardViewModel";
 
-const ActiveDashboardPage = () => {
+const ActiveDashboardPage = ({ showLeaderboard }) => {
   const { profile } = useUserProfile();
   const {
     currentEntry,
@@ -37,6 +44,7 @@ const ActiveDashboardPage = () => {
   } = useSeasonLeaderboard();
   const theme = useTheme();
   const isDesktopDashboard = useMediaQuery(theme.breakpoints.up("lg"));
+  const paymentState = getDashboardPaymentState(currentEntry);
   const totalPicks = matchups.length;
   const requiredGameIds = useMemo(
     () => matchups.map((matchup) => matchup.id).filter(Boolean),
@@ -62,67 +70,79 @@ const ActiveDashboardPage = () => {
     .slice(0, isDesktopDashboard ? 8 : 5)
     .map((row) => ({
       rank: row.rank,
-      username: row.username,
-      entryName: row.entryName,
+      username: displayLeaderboardUsername(row.username),
       points: row.points,
       record: row.record,
     }));
+  const mobileAreas = [
+    '"hero"',
+    ...(!picksLocked ? ['"pickSet"'] : []),
+    '"seasonStatus"',
+    '"upcoming"',
+    ...(showLeaderboard ? ['"leaderboard"'] : []),
+  ].join(" ");
+  const desktopAreas = [
+    ...(picksLocked
+      ? ['"hero seasonStatus"']
+      : ['"hero pickSet"', '"seasonStatus pickSet"']),
+    '"upcoming upcoming"',
+    ...(showLeaderboard ? ['"leaderboard leaderboard"'] : []),
+  ].join(" ");
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "1fr",
-          lg: "minmax(0, 2fr) minmax(280px, 1fr)",
-        },
-        gridTemplateAreas: {
-          xs: picksLocked
-            ? `"hero" "seasonStatus" "leaderboard" "upcoming"`
-            : `"hero" "pickSet" "seasonStatus" "leaderboard" "upcoming"`,
-          lg: picksLocked
-            ? `"hero seasonStatus" "leaderboard leaderboard" "upcoming upcoming"`
-            : `"hero pickSet" "leaderboard seasonStatus" "upcoming upcoming"`,
-        },
-        gap: { xs: 2.5, lg: 2 },
-        alignItems: { xs: "start", lg: "stretch" },
-      }}
-    >
-      <Box sx={{ gridArea: "hero", minWidth: 0 }}>
-        <DashboardHero
-          username={profile?.username || "Player"}
-          picksLocked={picksLocked}
-        />
-      </Box>
-      {!picksLocked ? (
-        <Box sx={{ gridArea: "pickSet", minWidth: 0 }}>
-          <EntriesCard
-            entry={dashboardEntries[0] || null}
-            deadline={picksLockAt}
+    <>
+      <PaymentDueBanner paymentState={paymentState} />
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            lg: "minmax(0, 2fr) minmax(280px, 1fr)",
+          },
+          gridTemplateAreas: { xs: mobileAreas, lg: desktopAreas },
+          mt: paymentState === "unpaid" ? { xs: 2.5, lg: 2 } : 0,
+          gap: { xs: 2.5, lg: 2 },
+          alignItems: { xs: "start", lg: "stretch" },
+        }}
+      >
+        <Box sx={{ gridArea: "hero", minWidth: 0 }}>
+          <DashboardHero
+            username={profile?.username || "Player"}
+            picksLocked={picksLocked}
+            showLeaderboard={showLeaderboard}
           />
         </Box>
-      ) : null}
-      <Box sx={{ gridArea: "seasonStatus", minWidth: 0 }}>
-        <SeasonStatusPanel
-          deadline={picksLockAt}
-          links={dashboardQuickLinks}
-          picksLocked={picksLocked}
-          paymentStatus={currentEntry?.paymentStatus}
-          hasEntry={Boolean(currentEntry)}
-        />
+        {!picksLocked ? (
+          <Box sx={{ gridArea: "pickSet", minWidth: 0 }}>
+            <EntriesCard
+              entry={dashboardEntries[0] || null}
+              deadline={picksLockAt}
+            />
+          </Box>
+        ) : null}
+        <Box sx={{ gridArea: "seasonStatus", minWidth: 0 }}>
+          <SeasonStatusPanel
+            deadline={picksLockAt}
+            links={dashboardQuickLinks}
+            picksLocked={picksLocked}
+            paymentState={paymentState}
+          />
+        </Box>
+        <Box sx={{ gridArea: "upcoming", minWidth: 0 }}>
+          <UpcomingBowlsCard />
+        </Box>
+        {showLeaderboard ? (
+          <Box sx={{ gridArea: "leaderboard", minWidth: 0 }}>
+            <LeaderboardCard
+              rows={dashboardLeaderboard}
+              currentUsername={profile?.username}
+              error={leaderboardIsCurrent ? "" : leaderboardError}
+              loading={!leaderboardIsCurrent && !leaderboardError}
+            />
+          </Box>
+        ) : null}
       </Box>
-      <Box sx={{ gridArea: "leaderboard", minWidth: 0 }}>
-        <LeaderboardCard
-          rows={dashboardLeaderboard}
-          currentUsername={profile?.username}
-          error={leaderboardIsCurrent ? "" : leaderboardError}
-          loading={!leaderboardIsCurrent && !leaderboardError}
-        />
-      </Box>
-      <Box sx={{ gridArea: "upcoming", minWidth: 0 }}>
-        <UpcomingBowlsCard />
-      </Box>
-    </Box>
+    </>
   );
 };
 
@@ -143,6 +163,7 @@ const DashboardPage = () => {
     picksError,
     picksLoading,
   } = useAppData();
+  const firstKickoffTime = getFirstKickoffTime(rawGames);
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     let timer;
@@ -152,8 +173,11 @@ const DashboardPage = () => {
       const nextBoundary = [
         seasonConfig?.picksOpenAt,
         seasonConfig?.picksLockAt,
+        firstKickoffTime,
       ]
-        .map((value) => Date.parse(value || ""))
+        .map((value) =>
+          typeof value === "number" ? value : Date.parse(value || ""),
+        )
         .filter((value) => Number.isFinite(value) && value > current)
         .sort((left, right) => left - right)[0];
       if (nextBoundary)
@@ -164,7 +188,7 @@ const DashboardPage = () => {
     };
     refreshAtBoundary();
     return () => window.clearTimeout(timer);
-  }, [seasonConfig?.picksOpenAt, seasonConfig?.picksLockAt]);
+  }, [seasonConfig?.picksOpenAt, seasonConfig?.picksLockAt, firstKickoffTime]);
   const showSeasonPending = shouldShowSeasonPending({
     season,
     seasonConfig,
@@ -197,7 +221,9 @@ const DashboardPage = () => {
   return showSeasonPending ? (
     <SeasonPendingPage season={season} seasonConfig={seasonConfig} />
   ) : (
-    <ActiveDashboardPage />
+    <ActiveDashboardPage
+      showLeaderboard={canShowDashboardLeaderboard(firstKickoffTime, now)}
+    />
   );
 };
 

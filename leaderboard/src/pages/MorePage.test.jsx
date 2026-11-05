@@ -97,6 +97,14 @@ test("payment state resolves only after the scoped entry is ready", () => {
     }),
     "unpaid",
   );
+  assert.equal(
+    resolveAccountPaymentState({
+      currentEntry: { paymentStatus: null },
+      entriesLoading: false,
+      entriesReady: true,
+    }),
+    "unavailable",
+  );
 });
 
 test("account layout is responsive and exposes no payment editing controls", () => {

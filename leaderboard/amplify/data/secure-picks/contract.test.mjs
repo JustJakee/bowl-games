@@ -744,7 +744,7 @@ test("a primary-key create conflict rechecks stored ownership and retries as an 
   );
 });
 
-test("visibleSeasonPicks dispatch preserves pre-kickoff privacy and reveals each game/tiebreaker at kickoff", async () => {
+test("visibleSeasonPicks dispatch preserves pre-kickoff privacy and reveals all games at first kickoff", async () => {
   picks = entries.flatMap((entry) =>
     games.map((game) => ({
       id: `pick-${entry.id}-${game.id}`,
@@ -769,7 +769,7 @@ test("visibleSeasonPicks dispatch preserves pre-kickoff privacy and reveals each
     { gameId: "championship", count: 2 },
   ]);
   now = start + 3600000;
-  assert.equal((await handler(event("visibleSeasonPicks"))).picks.length, 3);
+  assert.equal((await handler(event("visibleSeasonPicks"))).picks.length, 4);
   now = start + 7200000;
   const after = await handler(event("visibleSeasonPicks"));
   assert.equal(after.picks.length, 4);

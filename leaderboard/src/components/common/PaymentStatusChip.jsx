@@ -2,16 +2,19 @@
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import { Chip } from "@mui/material";
+import { getDashboardPaymentState } from "../../utils/dashboardVisibility";
 
 const PaymentStatusChip = ({ paymentStatus, sx, ...props }) => {
-  const paid = String(paymentStatus || "").toUpperCase() === "PAID";
+  const status = getDashboardPaymentState({ paymentStatus });
+  const paid = status === "paid";
+  const unpaid = status === "unpaid";
 
   return (
     <Chip
       size="small"
-      icon={paid ? <CheckCircleRoundedIcon /> : <PaymentsOutlinedIcon />}
-      label={paid ? "Paid" : "Payment Due"}
-      color={paid ? "success" : "warning"}
+      icon={paid ? <CheckCircleRoundedIcon /> : unpaid ? <PaymentsOutlinedIcon /> : undefined}
+      label={paid ? "Paid" : unpaid ? "Payment Due" : "Payment unavailable"}
+      color={paid ? "success" : unpaid ? "warning" : "default"}
       sx={{ fontWeight: 800, ...sx }}
       {...props}
     />

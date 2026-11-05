@@ -3,16 +3,26 @@ import test from "node:test";
 import {
   getGameWinner,
   isAdminGameManagementEnabled,
+  mergeAdminGame,
   toGameUpdateInput,
   validateGameDraft,
 } from "./adminGameManagement";
 import { isSeasonPickLocked } from "./pickWindow";
+import { formatStoredGame } from "./formatGameData";
+import { scoreEntries } from "./leaderboardScoring";
 
 test("test-season tooling requires an explicit true flag", () => {
   assert.equal(isAdminGameManagementEnabled(undefined), false);
   assert.equal(isAdminGameManagementEnabled({}), false);
   assert.equal(isAdminGameManagementEnabled({ isTestSeason: false }), false);
   assert.equal(isAdminGameManagementEnabled({ isTestSeason: true }), true);
+});
+
+test("a confirmed update remains visible when the game index is catching up", () => {
+  const rows = [{ id: "later", kickoffAt: "2026-11-05T02:20:00Z" }];
+  const saved = { id: "saved", kickoffAt: "2026-11-05T02:10:00Z", status: "final" };
+  assert.deepEqual(mergeAdminGame(rows, saved).map((game) => game.id), ["saved", "later"]);
+  assert.equal(mergeAdminGame([...rows, { ...saved, status: "scheduled" }], saved)[0].status, "final");
 });
 
 test("test-season gating and pick locking remain independent", () => {
@@ -105,4 +115,33 @@ test("update input clears winner and live detail for non-final games", () => {
   assert.equal(input.winnerTeam, "");
   assert.equal(input.statusDetail, null);
   assert.equal(input.teamAScore, null);
+});
+
+test("a saved test-season game flows through Games and existing leaderboard scoring", () => {
+  const stored = {
+    id: "game-one",
+    seasonId: "test26-r2",
+    bowlName: "Test Bowl",
+    kickoffAt: "2026-12-20T18:00:00Z",
+    status: "scheduled",
+    teamA: "Alpha",
+    teamAAbbr: "AAA",
+    teamB: "Beta",
+    teamBAbbr: "BBB",
+  };
+  const live = { ...stored, ...toGameUpdateInput({ ...stored, status: "in_progress", teamAScore: 14, teamBScore: 10 }) };
+  assert.equal(formatStoredGame(live).state, "in");
+  assert.equal(formatStoredGame(live).away.score, "14");
+  const final = { ...live, ...toGameUpdateInput({ ...live, status: "final", teamAScore: 31, teamBScore: 28 }) };
+  const display = formatStoredGame(final);
+  assert.equal(display.isFinal, true);
+  assert.equal(display.winnerTeam, "AAA");
+  assert.equal(display.away.score, "31");
+  const rows = scoreEntries({
+    games: [display],
+    entries: [{ id: "entry-one", entryName: "One" }],
+    picks: [{ entryId: "entry-one", gameId: "game-one", selectedTeam: "AAA" }],
+    completeEntryIds: ["entry-one"],
+  });
+  assert.equal(rows[0].points, 1);
 });

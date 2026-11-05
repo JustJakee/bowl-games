@@ -2,7 +2,7 @@
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
-import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
 import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
 import { matchPath, useLocation, useNavigate } from "react-router-dom";
@@ -16,20 +16,15 @@ const navItems = [
     label: "Leaderboard",
     icon: <EmojiEventsRoundedIcon />,
   },
-  { value: "__more__", label: "More", icon: <MoreHorizRoundedIcon /> },
+  { value: "/more", label: "Account", icon: <PersonOutlineRoundedIcon /> },
 ];
 
-const MobileBottomNavigation = ({ menuOpen = false, onOpenMore }) => {
+const MobileBottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentValue =
-    (menuOpen
-      ? "__more__"
-      : navItems.find(
-          (item) =>
-            item.value.startsWith("/") &&
-            matchPath({ path: item.value }, location.pathname),
-        )?.value) || "/dashboard";
+    navItems.find((item) => matchPath({ path: item.value }, location.pathname))
+      ?.value || "/dashboard";
 
   return (
     <Paper
@@ -50,11 +45,6 @@ const MobileBottomNavigation = ({ menuOpen = false, onOpenMore }) => {
         showLabels
         value={currentValue}
         onChange={(_event, nextValue) => {
-          if (nextValue === "__more__") {
-            onOpenMore?.();
-            return;
-          }
-
           navigate(nextValue);
         }}
         sx={{

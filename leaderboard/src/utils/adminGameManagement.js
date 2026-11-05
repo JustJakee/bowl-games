@@ -79,3 +79,8 @@ export const toGameUpdateInput = (draft) => {
     winnerTeam,
   };
 };
+
+export const mergeAdminGame = (games, updated) =>
+  [...games.filter((game) => game.id !== updated.id), updated].sort((a, b) =>
+    String(a.kickoffAt || "").localeCompare(String(b.kickoffAt || "")),
+  );
