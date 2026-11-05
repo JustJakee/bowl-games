@@ -84,7 +84,10 @@ test("cancel resets pending selection from the persisted team on reopen", () => 
     "utf8",
   );
 
-  assert.match(source, /teams\.find\(\(team\) => team\.id === String\(savedTeamId/);
+  assert.match(
+    source,
+    /teams\.find\(\(team\) => team\.id === String\(savedTeamId/,
+  );
   assert.match(source, /if \(!open\) return/);
   assert.match(source, /onClose\(\)/);
 });

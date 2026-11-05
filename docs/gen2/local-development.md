@@ -127,14 +127,14 @@ staging backend; it is not an isolated offline database.
 
 ## Setup problems encountered
 
-| Symptom | Resolution |
-| --- | --- |
-| `npm: command not found` | Install Node/npm and reopen Terminal; verify `node -v` and `npm -v` |
-| Global npm `EACCES` under `/usr/local/lib/node_modules` | Use a user-owned npm prefix; see below |
-| `aws: command not found` | Install AWS CLI v2 separately and reopen Terminal |
-| `vite: command not found` despite node_modules existing | Run `npm ci` in `leaderboard`; dependencies were incomplete |
-| Missing outputs | Generate staging outputs before compiling the app |
-| `listen EPERM` in a restricted agent session | Start `npm start` directly in local Terminal, or grant port access |
+| Symptom                                                 | Resolution                                                          |
+| ------------------------------------------------------- | ------------------------------------------------------------------- |
+| `npm: command not found`                                | Install Node/npm and reopen Terminal; verify `node -v` and `npm -v` |
+| Global npm `EACCES` under `/usr/local/lib/node_modules` | Use a user-owned npm prefix; see below                              |
+| `aws: command not found`                                | Install AWS CLI v2 separately and reopen Terminal                   |
+| `vite: command not found` despite node_modules existing | Run `npm ci` in `leaderboard`; dependencies were incomplete         |
+| Missing outputs                                         | Generate staging outputs before compiling the app                   |
+| `listen EPERM` in a restricted agent session            | Start `npm start` directly in local Terminal, or grant port access  |
 
 The user-owned global prefix fix used during setup was:
 

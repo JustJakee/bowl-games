@@ -75,8 +75,7 @@ export const useSeasonLeaderboard = () => {
             ? {
                 ...current,
                 loading: false,
-                error:
-                  error?.message || "Unable to load the leaderboard.",
+                error: error?.message || "Unable to load the leaderboard.",
               }
             : current,
         );

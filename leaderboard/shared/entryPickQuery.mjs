@@ -56,8 +56,7 @@ export const readEntryPickPages = async (
           !pick.gameId ||
           typeof pick.selectedTeam !== "string",
       ) ||
-      (connection.nextToken != null &&
-        typeof connection.nextToken !== "string")
+      (connection.nextToken != null && typeof connection.nextToken !== "string")
     )
       throw new Error(`${label}: invalid backend response (pick list).`);
     if (

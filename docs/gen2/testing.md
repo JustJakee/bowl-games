@@ -8,17 +8,17 @@ Run commands from `leaderboard`. `npm test` chains the focused suites below;
 the current application has real tests despite the older frontend README's
 previous placeholder description.
 
-| Script | Main coverage |
-| --- | --- |
-| `test:entry` | Entry repository, validation, canonical selection |
-| `test:picks` | Single-entry workflow, persistence, partial failures, autosave ordering, loading, deselection, lock state |
-| `test:leaderboard` | Leaderboard/admin entry loading and scoring |
-| `test:schedule` | Game pick splits and guarded read projections |
-| `test:dashboard` | Entry progress, scoreboard games, admin game validation |
-| `test:seed:test26` | Fixture generation and guarded seed behavior |
-| `test:secure-picks` | Server deadlines, ownership, entry limits, visibility |
-| `test:registration` | Verified-registration and approval rules |
-| `test:season-experience` | Lifecycle presentation, previous-season choice, legacy history |
+| Script                   | Main coverage                                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `test:entry`             | Entry repository, validation, canonical selection                                                         |
+| `test:picks`             | Single-entry workflow, persistence, partial failures, autosave ordering, loading, deselection, lock state |
+| `test:leaderboard`       | Leaderboard/admin entry loading and scoring                                                               |
+| `test:schedule`          | Game pick splits and guarded read projections                                                             |
+| `test:dashboard`         | Entry progress, scoreboard games, admin game validation                                                   |
+| `test:seed:test26`       | Fixture generation and guarded seed behavior                                                              |
+| `test:secure-picks`      | Server deadlines, ownership, entry limits, visibility                                                     |
+| `test:registration`      | Verified-registration and approval rules                                                                  |
+| `test:season-experience` | Lifecycle presentation, previous-season choice, legacy history                                            |
 
 Backend rule/seed tests use Node's test runner; frontend-oriented suites use
 `tsx --test`. Check `package.json` for the current exact file lists.

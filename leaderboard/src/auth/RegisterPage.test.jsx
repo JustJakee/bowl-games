@@ -60,7 +60,10 @@ test("password requirements keep the form spacing below the password field", () 
   );
 
   assert.doesNotMatch(source, /mt:\s*"-8px !important"/);
-  assert.match(source, /<PasswordRequirementsChecklist password=\{password\} \/>/);
+  assert.match(
+    source,
+    /<PasswordRequirementsChecklist password=\{password\} \/>/,
+  );
 });
 
 test("registration preserves independent toggles, mismatch feedback, and submit contract", () => {
@@ -75,8 +78,14 @@ test("registration preserves independent toggles, mismatch feedback, and submit 
 
   assert.match(registerSource, /showPassword, setShowPassword/);
   assert.match(registerSource, /showConfirmPassword, setShowConfirmPassword/);
-  assert.match(registerSource, /confirmTouched && password !== confirmPassword/);
-  assert.match(registerSource, /await onSubmit\(\{ email: email\.trim\(\)\.toLowerCase\(\), password \}\)/);
+  assert.match(
+    registerSource,
+    /confirmTouched && password !== confirmPassword/,
+  );
+  assert.match(
+    registerSource,
+    /await onSubmit\(\{ email: email\.trim\(\)\.toLowerCase\(\), password \}\)/,
+  );
   assert.doesNotMatch(shellSource, /Username key:/);
   assert.doesNotMatch(shellSource, /<Chip/);
 });

@@ -13,7 +13,12 @@ import { alpha, useTheme } from "@mui/material/styles";
 import Panel from "../common/Panel";
 import SectionHeader from "./SectionHeader";
 
-const LeaderboardCard = ({ rows, currentUsername, error = "", loading = false }) => {
+const LeaderboardCard = ({
+  rows,
+  currentUsername,
+  error = "",
+  loading = false,
+}) => {
   const theme = useTheme();
   const showRecord = useMediaQuery(theme.breakpoints.up("lg"));
   const hasRows = Array.isArray(rows) && rows.length > 0;

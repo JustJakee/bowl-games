@@ -7,10 +7,7 @@ import PickActionOverlay from "./PickActionOverlay.jsx";
 test("pick action overlay is absent when the action is idle", () => {
   assert.equal(
     renderToStaticMarkup(
-      <PickActionOverlay
-        open={false}
-        statusText="Randomizing picks..."
-      />,
+      <PickActionOverlay open={false} statusText="Randomizing picks..." />,
     ),
     "",
   );
@@ -18,16 +15,10 @@ test("pick action overlay is absent when the action is idle", () => {
 
 test("pick action overlay announces randomizing and saving states", () => {
   const randomizing = renderToStaticMarkup(
-    <PickActionOverlay
-      open
-      statusText="Randomizing picks..."
-    />,
+    <PickActionOverlay open statusText="Randomizing picks..." />,
   );
   const saving = renderToStaticMarkup(
-    <PickActionOverlay
-      open
-      statusText="Saving picks..."
-    />,
+    <PickActionOverlay open statusText="Saving picks..." />,
   );
 
   assert.match(randomizing, /data-testid="pick-action-overlay"/);

@@ -133,6 +133,9 @@ test("dialog preserves independent visibility, lifecycle, and responsive safegua
   assert.match(source, /disabled=\{!validation\.valid \|\| submitting\}/);
   assert.match(source, /fullScreen=\{fullScreen\}/);
   assert.match(source, /maxWidth: \{ sm: 500 \}/);
-  assert.match(source, /resetForm\(\);\s+onClose\(\);\s+onSuccess\(SUCCESS_MESSAGE\)/);
+  assert.match(
+    source,
+    /resetForm\(\);\s+onClose\(\);\s+onSuccess\(SUCCESS_MESSAGE\)/,
+  );
   assert.doesNotMatch(source, /console\.|localStorage|sessionStorage/);
 });

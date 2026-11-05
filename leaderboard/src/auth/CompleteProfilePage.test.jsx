@@ -44,7 +44,10 @@ test("selected favorite team displays its full name, logo, and change action", (
   assert.match(markup, /Alabama Crimson Tide/);
   assert.match(markup, /Alabama Crimson Tide logo/);
   assert.match(markup, /Change Team/);
-  assert.doesNotMatch(markup, /change your favorite team later in Account Settings/);
+  assert.doesNotMatch(
+    markup,
+    /change your favorite team later in Account Settings/,
+  );
   assert.doesNotMatch(markup, /No team selected/);
 });
 

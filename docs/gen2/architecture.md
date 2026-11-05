@@ -11,17 +11,17 @@ administrator tools, and server-enforced write and visibility rules.
 The app root remains `leaderboard/`. The repository-root `package.json` is not
 the frontend package. Run application commands from `leaderboard`.
 
-| Concern | Current source |
-| --- | --- |
-| Backend composition | [amplify/backend.ts](../../leaderboard/amplify/backend.ts) |
-| Cognito definition | [auth/resource.ts](../../leaderboard/amplify/auth/resource.ts) |
-| Data schema and custom operations | [data/resource.ts](../../leaderboard/amplify/data/resource.ts) |
-| Player write/privacy service | [secure-picks/handler.js](../../leaderboard/amplify/data/secure-picks/handler.js) |
-| Registration approval service | [registration-admin/handler.js](../../leaderboard/amplify/data/registration-admin/handler.js) |
-| Shared browser configuration | [auth/amplifyConfig.js](../../leaderboard/src/auth/amplifyConfig.js) |
-| Provider composition | [main.jsx](../../leaderboard/src/main.jsx) |
-| Page routing | [AppRouter.jsx](../../leaderboard/src/app/AppRouter.jsx) |
-| Hosting build | [amplify.yml](../../amplify.yml) |
+| Concern                           | Current source                                                                                |
+| --------------------------------- | --------------------------------------------------------------------------------------------- |
+| Backend composition               | [amplify/backend.ts](../../leaderboard/amplify/backend.ts)                                    |
+| Cognito definition                | [auth/resource.ts](../../leaderboard/amplify/auth/resource.ts)                                |
+| Data schema and custom operations | [data/resource.ts](../../leaderboard/amplify/data/resource.ts)                                |
+| Player write/privacy service      | [secure-picks/handler.js](../../leaderboard/amplify/data/secure-picks/handler.js)             |
+| Registration approval service     | [registration-admin/handler.js](../../leaderboard/amplify/data/registration-admin/handler.js) |
+| Shared browser configuration      | [auth/amplifyConfig.js](../../leaderboard/src/auth/amplifyConfig.js)                          |
+| Provider composition              | [main.jsx](../../leaderboard/src/main.jsx)                                                    |
+| Page routing                      | [AppRouter.jsx](../../leaderboard/src/app/AppRouter.jsx)                                      |
+| Hosting build                     | [amplify.yml](../../amplify.yml)                                                              |
 
 ## Runtime flow
 

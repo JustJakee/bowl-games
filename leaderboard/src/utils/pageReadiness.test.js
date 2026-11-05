@@ -248,10 +248,7 @@ test("Picks resolves legitimate missing entries, locked picks, and load errors",
     { entriesError: "Entry unavailable", entriesReady: false },
     { picksError: "Picks unavailable", hydratedEntryId: "" },
   ]) {
-    assert.equal(
-      isPicksPageLoading({ ...readyPicksScope, ...failure }),
-      false,
-    );
+    assert.equal(isPicksPageLoading({ ...readyPicksScope, ...failure }), false);
   }
 });
 

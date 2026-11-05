@@ -258,9 +258,7 @@ const validateTieBreaker = ({ tieBreakerValue, tieBreakerGame }) => {
   }
 
   if (!tieBreakerGame) {
-    throw new Error(
-      "The tiebreaker game could not be found for this season.",
-    );
+    throw new Error("The tiebreaker game could not be found for this season.");
   }
 
   return normalizedTieBreakerValue;

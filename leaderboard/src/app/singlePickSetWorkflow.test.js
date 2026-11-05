@@ -96,7 +96,10 @@ test("Pick Set header uses live status, responsive controls, and a disabled filt
   assert.match(source, /Tiebreaker required — enter total points/);
   assert.match(source, /error=\{missingRequiredTieBreaker\}/);
   assert.match(source, /randomizePickSet/);
-  assert.match(source, /nextTieBreakerValue: randomizedPickSet\.tieBreakerValue/);
+  assert.match(
+    source,
+    /nextTieBreakerValue: randomizedPickSet\.tieBreakerValue/,
+  );
   assert.match(source, /ShuffleRoundedIcon/);
   assert.match(source, /formatCompactPickLockMessage\(picksLockAt\)/);
   assert.match(source, /const ENABLE_PICK_FILTERS = false/);

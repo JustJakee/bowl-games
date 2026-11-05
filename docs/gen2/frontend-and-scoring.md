@@ -20,22 +20,22 @@ an accessible new-tab label.
 
 ## Routes
 
-| Route | Behavior |
-| --- | --- |
-| `/` | Redirect to dashboard |
-| `/dashboard` | Season-aware player overview |
-| `/picks` | Canonical pick set, draft editing or locked results |
-| `/entries` | Redirect to picks; older entry page remains in source |
-| `/schedule` | Game schedule and pick splits |
-| `/schedule/:gameId` | Individual matchup/results view |
-| `/leaderboard` | Season standings and podium |
-| `/rules` | Contest rules |
-| `/more` | Additional/account navigation |
-| `/admin` | Redirect to admin entries |
-| `/admin/entries` | Player completion and payment management |
-| `/admin/games` | Test-season game management |
-| `/admin/registrations` | Registration approval |
-| `/admin/account` | Account view via MorePage |
+| Route                  | Behavior                                              |
+| ---------------------- | ----------------------------------------------------- |
+| `/`                    | Redirect to dashboard                                 |
+| `/dashboard`           | Season-aware player overview                          |
+| `/picks`               | Canonical pick set, draft editing or locked results   |
+| `/entries`             | Redirect to picks; older entry page remains in source |
+| `/schedule`            | Game schedule and pick splits                         |
+| `/schedule/:gameId`    | Individual matchup/results view                       |
+| `/leaderboard`         | Season standings and podium                           |
+| `/rules`               | Contest rules                                         |
+| `/more`                | Additional/account navigation                         |
+| `/admin`               | Redirect to admin entries                             |
+| `/admin/entries`       | Player completion and payment management              |
+| `/admin/games`         | Test-season game management                           |
+| `/admin/registrations` | Registration approval                                 |
+| `/admin/account`       | Account view via MorePage                             |
 
 The auth shell gates the application. `AuthenticatedApp` redirects admins away
 from player routes to admin entries; the admin layout handles its own role

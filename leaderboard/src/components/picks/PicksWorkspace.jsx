@@ -1,11 +1,5 @@
 // UI — PICKS — REACT
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
@@ -254,14 +248,13 @@ const SaveStatus = ({ state, detail, onRetry }) => {
     : saving
       ? "Saving picks..."
       : "Unable to save picks";
-  const icon =
-    saved ? (
-      <CheckCircleRoundedIcon />
-    ) : saving ? (
-      <CircularProgress size={22} thickness={5} color="inherit" />
-    ) : (
-      <ErrorOutlineRoundedIcon />
-    );
+  const icon = saved ? (
+    <CheckCircleRoundedIcon />
+  ) : saving ? (
+    <CircularProgress size={22} thickness={5} color="inherit" />
+  ) : (
+    <ErrorOutlineRoundedIcon />
+  );
   const color = saved
     ? "success.main"
     : saving
@@ -517,9 +510,7 @@ const PicksWorkspace = () => {
   const [clearProgress, setClearProgress] = useState(() =>
     buildClearProgress(),
   );
-  const [randomizePhase, setRandomizePhase] = useState(
-    RANDOMIZE_PHASE.IDLE,
-  );
+  const [randomizePhase, setRandomizePhase] = useState(RANDOMIZE_PHASE.IDLE);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [bulkFeedback, setBulkFeedback] = useState({
     open: false,
@@ -709,10 +700,7 @@ const PicksWorkspace = () => {
     selectionsByGameId,
     tieBreakerValue,
   } = pickView;
-  const draftCacheReady = isDraftCacheReady(
-    loadedDraftStorageKey,
-    storageKey,
-  );
+  const draftCacheReady = isDraftCacheReady(loadedDraftStorageKey, storageKey);
   const expectedDraftScope = currentEntry
     ? `${storageKey}:${currentEntry.id}`
     : "";
@@ -758,9 +746,9 @@ const PicksWorkspace = () => {
     : pickActionsState.canRandomizeTieBreaker &&
         pickActionsState.incompleteEditableCount === 0
       ? "Randomize Tiebreaker"
-    : pickActionsState.selectedEditableCount > 0
-      ? "Randomize Remaining"
-      : "Randomize All";
+      : pickActionsState.selectedEditableCount > 0
+        ? "Randomize Remaining"
+        : "Randomize All";
   const isBulkProcessing =
     Boolean(bulkOperation) || randomizeFeedback.isProcessing;
 
@@ -870,10 +858,7 @@ const PicksWorkspace = () => {
         );
 
         if (activeDraft.clearAll) {
-          const failedDraft = buildFailedClearDraft(
-            activeDraft,
-            outcome.error,
-          );
+          const failedDraft = buildFailedClearDraft(activeDraft, outcome.error);
           setDraftsByEntryId((currentDrafts) =>
             getDraftRevision(currentDrafts[entryId]) === revision
               ? { ...currentDrafts, [entryId]: failedDraft }
@@ -1494,7 +1479,7 @@ const PicksWorkspace = () => {
                   ? "Loading pick progress"
                   : missingRequiredTieBreaker
                     ? `${selectedCount} of ${games.length} game picks completed; tiebreaker required`
-                  : `${selectedCount} of ${games.length} picks completed`
+                    : `${selectedCount} of ${games.length} picks completed`
               }
               sx={{
                 gridArea: "progress",
@@ -1533,7 +1518,10 @@ const PicksWorkspace = () => {
             sx={{
               display: "grid",
               gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "auto 1fr" },
-              gridTemplateAreas: { xs: '"actions" "deadline"', md: '"actions deadline"' },
+              gridTemplateAreas: {
+                xs: '"actions" "deadline"',
+                md: '"actions deadline"',
+              },
               gap: { xs: 1.5, md: 2.5 },
               alignItems: "center",
             }}
@@ -2142,8 +2130,7 @@ const PicksWorkspace = () => {
                   sx={{
                     height: 9,
                     borderRadius: 999,
-                    bgcolor: (theme) =>
-                      alpha(theme.palette.common.white, 0.12),
+                    bgcolor: (theme) => alpha(theme.palette.common.white, 0.12),
                     "& .MuiLinearProgress-bar": {
                       borderRadius: 999,
                       bgcolor: "primary.main",

@@ -133,9 +133,7 @@ export const buildClearFailureState = (error) => {
   const failure = buildAutosaveFailureState(error);
   return {
     ...failure,
-    ...(error?.partial
-      ? { state: "error", message: "Partially cleared" }
-      : {}),
+    ...(error?.partial ? { state: "error", message: "Partially cleared" } : {}),
     detail: `${failure.detail} Clear All is incomplete. Your clear request is kept on this device; use Retry to finish.`,
   };
 };

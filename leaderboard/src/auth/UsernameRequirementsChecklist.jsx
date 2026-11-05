@@ -50,9 +50,7 @@ const UsernameRequirementsChecklist = ({ username = "" }) => {
             )}
             <Typography
               variant="caption"
-              color={
-                requirement.satisfied ? "text.primary" : "text.secondary"
-              }
+              color={requirement.satisfied ? "text.primary" : "text.secondary"}
               sx={{ lineHeight: 1.3 }}
             >
               {requirement.label}

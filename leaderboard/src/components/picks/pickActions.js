@@ -58,9 +58,9 @@ export const getPickActionsState = ({
         ? ""
         : incompleteEditableCount === 0
           ? "Randomize Tiebreaker"
-        : selectedEditableCount === 0
-          ? "Randomize All Picks"
-          : "Randomize Remaining Picks",
+          : selectedEditableCount === 0
+            ? "Randomize All Picks"
+            : "Randomize Remaining Picks",
     selectedEditableCount,
   };
 };

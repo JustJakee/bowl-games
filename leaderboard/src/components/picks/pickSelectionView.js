@@ -25,8 +25,7 @@ export const buildPickSelectionView = ({
     Boolean(selectionsByGameId?.[game.id]),
   ).length;
   const tieBreakerGameSelected = games.some(
-    (game) =>
-      game.isTieBreakerGame && Boolean(selectionsByGameId?.[game.id]),
+    (game) => game.isTieBreakerGame && Boolean(selectionsByGameId?.[game.id]),
   );
   const missingRequiredTieBreaker = Boolean(
     tieBreakerRequired && tieBreakerGameSelected && !hasTieBreaker,

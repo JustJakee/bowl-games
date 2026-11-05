@@ -54,9 +54,7 @@ const PasswordRequirementsChecklist = ({ password = "", sx }) => {
             )}
             <Typography
               variant="caption"
-              color={
-                requirement.satisfied ? "text.primary" : "text.secondary"
-              }
+              color={requirement.satisfied ? "text.primary" : "text.secondary"}
               sx={{ lineHeight: 1.35 }}
             >
               {requirement.label}

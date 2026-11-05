@@ -173,18 +173,25 @@ test("the persisted ID wins when a mutation response omits the optional field", 
 
 test("username requirements and submission validation share the existing rules", () => {
   assert.deepEqual(
-    evaluateUsernameRequirements("Bowl-Fan_26").map(
-      ({ id, satisfied }) => [id, satisfied],
-    ),
+    evaluateUsernameRequirements("Bowl-Fan_26").map(({ id, satisfied }) => [
+      id,
+      satisfied,
+    ]),
     [
       ["no-spaces", true],
       ["length", true],
       ["allowed-characters", true],
     ],
   );
-  assert.equal(validateUsername("ab"), "Username must be between 3 and 20 characters.");
+  assert.equal(
+    validateUsername("ab"),
+    "Username must be between 3 and 20 characters.",
+  );
   assert.equal(validateUsername("Bowl Fan"), "Username cannot contain spaces.");
-  assert.equal(validateUsername("Bowl.Fan"), "Use only letters, numbers, underscores, and hyphens.");
+  assert.equal(
+    validateUsername("Bowl.Fan"),
+    "Use only letters, numbers, underscores, and hyphens.",
+  );
   assert.equal(validateUsername("Bowl-Fan_26"), null);
 });
 

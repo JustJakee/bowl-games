@@ -38,8 +38,7 @@ export const validateChangePassword = ({
       Boolean(newPassword) &&
       currentPassword === newPassword,
     confirmRequired: !confirmPassword,
-    mismatch:
-      Boolean(confirmPassword) && newPassword !== confirmPassword,
+    mismatch: Boolean(confirmPassword) && newPassword !== confirmPassword,
   };
 
   return {

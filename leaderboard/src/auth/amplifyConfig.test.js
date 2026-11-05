@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const projectOutputsUrl = new URL("../../amplify_outputs.json", import.meta.url);
+const projectOutputsUrl = new URL(
+  "../../amplify_outputs.json",
+  import.meta.url,
+);
 const publicOutputsUrl = new URL(
   "../../public/amplify_outputs.json",
   import.meta.url,
@@ -30,7 +33,10 @@ test("the runtime and public Amplify outputs stay synchronized", () => {
   );
 
   assert.equal(publicOutputs, projectOutputs);
-  assert.match(configSource, /import outputs from "\.\.\/\.\.\/amplify_outputs\.json"/);
+  assert.match(
+    configSource,
+    /import outputs from "\.\.\/\.\.\/amplify_outputs\.json"/,
+  );
   assert.ok(
     configSource.indexOf("Amplify.configure(outputs)") <
       configSource.indexOf("generateClient()"),

@@ -3,10 +3,7 @@ const isEntryScopePending = ({
   entriesLoading,
   entriesReady,
   seasonId,
-}) =>
-  Boolean(seasonId) &&
-  !entriesError &&
-  (entriesLoading || !entriesReady);
+}) => Boolean(seasonId) && !entriesError && (entriesLoading || !entriesReady);
 
 export const isDashboardPageLoading = ({
   currentEntryId,
@@ -37,8 +34,8 @@ export const isDashboardPageLoading = ({
 
   return Boolean(
     currentEntryId &&
-      !picksError &&
-      (picksLoading || hydratedEntryId !== currentEntryId),
+    !picksError &&
+    (picksLoading || hydratedEntryId !== currentEntryId),
   );
 };
 

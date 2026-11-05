@@ -83,9 +83,7 @@ const createHarness = ({
           return {
             data: page.map((pick) => ({ ...pick })),
             nextToken:
-              nextOffset < matchingPicks.length
-                ? `offset-${nextOffset}`
-                : null,
+              nextOffset < matchingPicks.length ? `offset-${nextOffset}` : null,
           };
         },
         create: async (payload) => {
@@ -793,10 +791,7 @@ test("a cleared Pick is not cleared repeatedly and is reused when reselected", a
 test("bulk clear progress advances only after each backend acknowledgment", async () => {
   const progress = [];
   createHarness({
-    initialPicks: [
-      savedPick("game-1", "AAA"),
-      savedPick("game-2", "CCC"),
-    ],
+    initialPicks: [savedPick("game-1", "AAA"), savedPick("game-2", "CCC")],
     seasonGames: [game, secondGame],
   });
 

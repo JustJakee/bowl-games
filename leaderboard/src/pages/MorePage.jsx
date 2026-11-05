@@ -155,11 +155,7 @@ const PaymentStatusPanel = ({ paymentState }) => {
           >
             {presentation.title}
           </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mt: 0.25 }}
-          >
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
             {presentation.message}
           </Typography>
         </Box>
@@ -275,11 +271,7 @@ export const AccountSettingsView = ({
           >
             Account Settings
           </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ mt: 0.5 }}
-          >
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
             Manage your player account
           </Typography>
         </Box>
@@ -390,18 +382,15 @@ const MorePage = () => {
     entriesLoading,
     entriesReady,
   } = useAppData();
-  const {
-    error: scoreboardError,
-    loading: scoreboardLoading,
-  } = useScoreboard();
+  const { error: scoreboardError, loading: scoreboardLoading } =
+    useScoreboard();
   const paymentState = resolveAccountPaymentState({
     currentEntry,
     entriesLoading,
     entriesReady,
   });
   const favoriteTeamId = String(profile?.favoriteTeamId || "");
-  const favoriteTeam =
-    teams.find((team) => team.id === favoriteTeamId) || null;
+  const favoriteTeam = teams.find((team) => team.id === favoriteTeamId) || null;
   const pageLoading = isAccountPageLoading({
     entriesError,
     entriesLoading,

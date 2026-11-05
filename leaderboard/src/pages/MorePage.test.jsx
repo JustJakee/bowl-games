@@ -110,7 +110,10 @@ test("account layout is responsive and exposes no payment editing controls", () 
   assert.match(source, /sm: "repeat\(2, minmax\(0, 1fr\)\)"/);
   assert.match(source, /lg: "repeat\(3, minmax\(0, 1fr\)\)"/);
   assert.match(source, /overflowWrap: "anywhere"/);
-  assert.doesNotMatch(source, /updateAdminEntryPayment|TextField|Switch|Checkbox/);
+  assert.doesNotMatch(
+    source,
+    /updateAdminEntryPayment|TextField|Switch|Checkbox/,
+  );
 });
 
 test("security action controls the change password dialog", () => {
@@ -119,11 +122,17 @@ test("security action controls the change password dialog", () => {
     "utf8",
   );
 
-  assert.match(source, /onChangePassword=\{\(\) => setChangePasswordOpen\(true\)\}/);
+  assert.match(
+    source,
+    /onChangePassword=\{\(\) => setChangePasswordOpen\(true\)\}/,
+  );
   assert.match(source, /<ChangePasswordDialog/);
   assert.match(source, /open=\{changePasswordOpen\}/);
   assert.match(source, /onClose=\{\(\) => setChangePasswordOpen\(false\)\}/);
-  assert.doesNotMatch(source, /title="Security"[\s\S]*?badge=\{<Chip label="Coming Soon"/);
+  assert.doesNotMatch(
+    source,
+    /title="Security"[\s\S]*?badge=\{<Chip label="Coming Soon"/,
+  );
 });
 
 test("saved favorite team appears in both account cards", () => {
@@ -192,7 +201,10 @@ test("favorite team action opens the picker without changing other account logic
     "utf8",
   );
 
-  assert.match(source, /onChooseFavoriteTeam=\{\(\) => setFavoriteTeamOpen\(true\)\}/);
+  assert.match(
+    source,
+    /onChooseFavoriteTeam=\{\(\) => setFavoriteTeamOpen\(true\)\}/,
+  );
   assert.match(source, /<FavoriteTeamDialog/);
   assert.match(source, /onSave=\{updateFavoriteTeam\}/);
   assert.match(source, /savedTeamId=\{favoriteTeamId\}/);

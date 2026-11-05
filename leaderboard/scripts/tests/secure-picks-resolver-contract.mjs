@@ -171,9 +171,7 @@ export const verifySecurePicksResolverContract = async (
     if (inline?.["Fn::Join"]) {
       const [separator, parts] = inline["Fn::Join"];
       return parts
-        .map((part) =>
-          typeof part === "string" ? part : JSON.stringify(part),
-        )
+        .map((part) => (typeof part === "string" ? part : JSON.stringify(part)))
         .join(separator);
     }
     const location = JSON.stringify(
@@ -210,9 +208,7 @@ export const verifySecurePicksResolverContract = async (
     const request = requestTemplate(dataFunction.Properties);
     assert(request.includes(`"operation": "${operation}"`));
     assert(
-      request.includes(
-        `"id": {\n      "attributeExists": ${attributeExists}`,
-      ),
+      request.includes(`"id": {\n      "attributeExists": ${attributeExists}`),
       `${fieldName} must keep its generated primary-key existence condition`,
     );
   }
@@ -309,9 +305,7 @@ export const verifySecurePicksResolverContract = async (
     assert(resolver, `Missing ${name} resolver`);
     const dispatch = requestTemplate(resolver.Properties);
     assert(dispatch.includes(`$ctx.stash.put("fieldName", "${name}")`));
-    assert(
-      dispatch.includes(`$ctx.stash.put("typeName", "${expected.type}")`),
-    );
+    assert(dispatch.includes(`$ctx.stash.put("typeName", "${expected.type}")`));
     const invoke = resources.find(
       (resource) =>
         resource.Type === "AWS::AppSync::FunctionConfiguration" &&
@@ -353,10 +347,7 @@ export const verifySecurePicksResolverContract = async (
       payload,
       /"arguments"\s*:\s*\$util\.toJson\(\$ctx\.arguments\)/,
     );
-    assert.match(
-      payload,
-      /"identity"\s*:\s*\$util\.toJson\(\$ctx\.identity\)/,
-    );
+    assert.match(payload, /"identity"\s*:\s*\$util\.toJson\(\$ctx\.identity\)/);
     assert.doesNotMatch(payload, /"(?:info|action)"\s*:/);
     payloads[name] = payload;
     console.log(

@@ -22,14 +22,14 @@ or `archived`. No scheduler automatically persists a new status at kickoff.
 
 [seasonExperience.js](../../leaderboard/src/utils/seasonExperience.js) derives:
 
-| Presentation | Trigger |
-| --- | --- |
-| Unavailable | Missing season/config or invalid opening/lock interval |
-| Pending | Draft, or open before configured opening time |
-| Picks Open | Open and before configured lock time |
-| Final | Complete/archived, or all games final/canceled after earlier branches |
-| In Progress | A game is in progress or final after earlier branches |
-| Locked | Remaining valid states |
+| Presentation | Trigger                                                               |
+| ------------ | --------------------------------------------------------------------- |
+| Unavailable  | Missing season/config or invalid opening/lock interval                |
+| Pending      | Draft, or open before configured opening time                         |
+| Picks Open   | Open and before configured lock time                                  |
+| Final        | Complete/archived, or all games final/canceled after earlier branches |
+| In Progress  | A game is in progress or final after earlier branches                 |
+| Locked       | Remaining valid states                                                |
 
 The ordering in that helper matters: its open-window branch runs before game
 completion checks. It uses configured lock time. The secure-picks service uses

@@ -102,13 +102,13 @@ A local `amplify_outputs.json` file alone does not prove which Amplify Hosting b
 
 The simulation uses stable identifiers so repeated dry runs can detect existing records instead of creating duplicates.
 
-| Record | Identifier |
-|---|---|
-| Season ID | `test26` |
-| Season slug | `test26` |
-| Season name | `2026 Test Season` |
-| SeasonConfig intended ID | `season-config-test26` |
-| Game ID format | `game-test26-{sourceEventId}` |
+| Record                   | Identifier                    |
+| ------------------------ | ----------------------------- |
+| Season ID                | `test26`                      |
+| Season slug              | `test26`                      |
+| Season name              | `2026 Test Season`            |
+| SeasonConfig intended ID | `season-config-test26`        |
+| Game ID format           | `game-test26-{sourceEventId}` |
 
 The mock dataset currently contains 54 events with unique source event IDs.
 
@@ -323,16 +323,16 @@ Apply mode must reject:
 
 If `test26` does not already exist, the expected candidate records are:
 
-| Model | Expected count |
-|---|---:|
-| Season | 1 |
-| SeasonConfig | 1 |
-| Game | 54 |
-| Entry | 0 |
-| Pick | 0 |
-| UserProfile | 0 |
-| Payment record | 0 |
-| Total seeded records | 56 |
+| Model                | Expected count |
+| -------------------- | -------------: |
+| Season               |              1 |
+| SeasonConfig         |              1 |
+| Game                 |             54 |
+| Entry                |              0 |
+| Pick                 |              0 |
+| UserProfile          |              0 |
+| Payment record       |              0 |
+| Total seeded records |             56 |
 
 Actual create, update, and skip totals depend on what already exists in the verified staging backend.
 

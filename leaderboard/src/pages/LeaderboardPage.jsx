@@ -39,7 +39,8 @@ const LeaderboardPage = () => {
   }
 
   const criticalError = scoreboardError || error;
-  const showCurrentRows = ready && leaderboardSeasonId === String(season?.id || "");
+  const showCurrentRows =
+    ready && leaderboardSeasonId === String(season?.id || "");
 
   return (
     <Stack className="leaderboard-page" spacing={2}>

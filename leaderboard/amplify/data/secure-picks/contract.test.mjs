@@ -214,10 +214,7 @@ beforeEach(() => {
         errors: result.errors,
       };
     }
-    assert.match(
-      query,
-      /updatePick\(input: \$input, condition: \$condition\)/,
-    );
+    assert.match(query, /updatePick\(input: \$input, condition: \$condition\)/);
     conditionalClears.push(variables);
     const pick = picks.find((row) => row.id === variables.input.id);
     if (
@@ -319,8 +316,7 @@ beforeEach(() => {
       pickByEntryAndGame: read("Pick.entryIndex", ({ entryId, gameId }) =>
         picks.filter(
           (pick) =>
-            pick.entryId === entryId &&
-            (!gameId || pick.gameId === gameId.eq),
+            pick.entryId === entryId && (!gameId || pick.gameId === gameId.eq),
         ),
       ),
       picksBySeason: read("Pick.seasonIndex", () => picks),

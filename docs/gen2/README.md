@@ -7,20 +7,20 @@ validation or that production has migrated.
 
 ## Start here
 
-| Topic | Notes |
-| --- | --- |
-| Architecture, migration boundaries, source map | [Architecture](architecture.md) |
-| Models, indexes, authorization | [Data and authorization](data-and-authorization.md) |
-| Sign-up, approval, sessions, profiles | [Authentication and registration](authentication-and-registration.md) |
-| Single entry, persistence, autosave, server guards | [Entries and picks](entries-and-picks.md) |
-| Season lifecycle, deadlines, previous results | [Seasons and history](seasons-and-history.md) |
-| Routes, responsive layouts, dashboard, schedule, standings | [Frontend and scoring](frontend-and-scoring.md) |
-| Payments, test-season game management, approvals | [Admin workflows](admin-workflows.md) |
-| Laptop setup, AWS configuration, local startup | [Local development](local-development.md) |
-| Hosting, generated outputs, build fixes, preflight | [Deployment](deployment.md) |
-| Automated checks, staging simulation, evidence limits | [Testing](testing.md) |
-| Migration milestones and commit references | [Change history](change-history.md) |
-| Remaining work and known implementation limits | [Future development](future-development.md) |
+| Topic                                                      | Notes                                                                 |
+| ---------------------------------------------------------- | --------------------------------------------------------------------- |
+| Architecture, migration boundaries, source map             | [Architecture](architecture.md)                                       |
+| Models, indexes, authorization                             | [Data and authorization](data-and-authorization.md)                   |
+| Sign-up, approval, sessions, profiles                      | [Authentication and registration](authentication-and-registration.md) |
+| Single entry, persistence, autosave, server guards         | [Entries and picks](entries-and-picks.md)                             |
+| Season lifecycle, deadlines, previous results              | [Seasons and history](seasons-and-history.md)                         |
+| Routes, responsive layouts, dashboard, schedule, standings | [Frontend and scoring](frontend-and-scoring.md)                       |
+| Payments, test-season game management, approvals           | [Admin workflows](admin-workflows.md)                                 |
+| Laptop setup, AWS configuration, local startup             | [Local development](local-development.md)                             |
+| Hosting, generated outputs, build fixes, preflight         | [Deployment](deployment.md)                                           |
+| Automated checks, staging simulation, evidence limits      | [Testing](testing.md)                                                 |
+| Migration milestones and commit references                 | [Change history](change-history.md)                                   |
+| Remaining work and known implementation limits             | [Future development](future-development.md)                           |
 
 ## Status at this snapshot
 

@@ -111,7 +111,9 @@ const LoginPage = ({
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          slotProps={{ input: passwordToggleInput(showPassword, toggleShowPassword) }}
+          slotProps={{
+            input: passwordToggleInput(showPassword, toggleShowPassword),
+          }}
         />
         <Button
           type="submit"

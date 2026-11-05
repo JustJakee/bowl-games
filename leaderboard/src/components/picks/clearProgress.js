@@ -4,9 +4,7 @@ export const buildClearProgress = ({ completed = 0, total = 0 } = {}) => {
     safeTotal,
     Math.max(0, Math.trunc(Number(completed) || 0)),
   );
-  const rawPercentage = safeTotal
-    ? (safeCompleted / safeTotal) * 100
-    : 0;
+  const rawPercentage = safeTotal ? (safeCompleted / safeTotal) * 100 : 0;
   const percentage =
     safeTotal > 0 && safeCompleted === safeTotal
       ? 100

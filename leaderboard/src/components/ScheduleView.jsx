@@ -390,7 +390,9 @@ const ScheduleView = () => {
     error: pickSplitsError,
   } = useGamePickSplitViews(scoreboardGames);
 
-  if (isGamesPageLoading({ scoreboardError: error, scoreboardLoading: loading })) {
+  if (
+    isGamesPageLoading({ scoreboardError: error, scoreboardLoading: loading })
+  ) {
     return <PageLoading loading message="Loading games..." />;
   }
 

@@ -60,6 +60,7 @@ namespace remain unchanged. Do not run a seed or reset against the old backend.
    no conflicts, all kickoff times in the future, and the exact staging target.
    The first kickoff equals `picksLockAt`. Repeating the same dry run after an
    unchanged apply should report zero intended mutations.
+
 5. **Stop for explicit approval before this command.** Use only the confirmation
    printed by the immediately preceding dry run; it expires after 15 minutes:
 
@@ -127,12 +128,12 @@ and [group membership](https://docs.aws.amazon.com/cognito/latest/developerguide
 The app excludes fixture games 2, 4, 5, 17, 18, and 51 from picks. Its 48 required
 games have 24 odd and 24 even game numbers. The patterns above therefore yield:
 
-| Rank | Entry | Correct | Incorrect pickable games | Tiebreaker distance from 42 |
-| --- | --- | ---: | ---: | ---: |
-| 1 | Player 2 | 48 | 0 | 0 |
-| 2 | Player 1 | 24 | 24 | 0 |
-| 3 | Player 4 | 24 | 24 | 8 |
-| 4 | Player 5 | 0 | 48 | 18 |
+| Rank | Entry    | Correct | Incorrect pickable games | Tiebreaker distance from 42 |
+| ---- | -------- | ------: | -----------------------: | --------------------------: |
+| 1    | Player 2 |      48 |                        0 |                           0 |
+| 2    | Player 1 |      24 |                       24 |                           0 |
+| 3    | Player 4 |      24 |                       24 |                           8 |
+| 4    | Player 5 |       0 |                       48 |                          18 |
 
 Player 3 is incomplete and should be excluded. Prize values currently configured in
 `leaderboardPrizes.js` are $500, $300, $150, and $100 for ranks 1–4; no payment
@@ -175,27 +176,27 @@ as a reset shortcut.
 Fill **Actual**, **Result**, and **Issue/action** while testing. Use PASS, FAIL, or
 BLOCKED; retain screenshots, GraphQL responses, and record IDs in the evidence log.
 
-| Scenario | Steps | Expected | Actual | Result | Issue/action |
-| --- | --- | --- | --- | --- | --- |
-| Staging target | Inspect dry-run target | Exact allowlisted account/app/branch/API/pool |  |  |  |
-| Fixture creation | Apply approved plan, reload | 54 scheduled future games; 48 pickable |  |  |  |
-| Logos and metadata | Inspect first/middle/last games | Both teams and logos render cleanly |  |  |  |
-| First pick | Select empty game, query Pick | One saved Pick with correct owner/game |  |  |  |
-| Change/unselect | Switch then clear, query Pick | Exactly one changed record, accurate counter |  |  |  |
-| Rapid changes | Alternate sides rapidly, reload | Last settled selection persisted |  |  |  |
-| Bulk actions | Randomize, fill remaining, clear, reselect | Existing picks preserved where specified |  |  |  |
-| Failed request | Simulate failed mutation, retry | Error shown; backend and UI reconcile |  |  |  |
-| One entry per player | Five accounts create entries; try duplicate create | Five independent IDs; duplicate denied |  |  |  |
-| Session restore | Refresh, sign out/in, second browser | Same persisted selections, no loss |  |  |  |
-| Pre-kickoff privacy | Query with another player's token | Other picks inaccessible |  |  |  |
-| Owner auth | Read/update another entry and pick | Mutations denied; private fields hidden |  |  |  |
-| Pick/Entry binding | Save a Pick for another player's entry ID | API rejects mismatched owner and entry |  |  |  |
-| Global lock UI | Pass first kickoff, reload and stale tab | All pick controls locked, picks visible |  |  |  |
-| Global lock API | Direct guarded and generated mutations after deadline | Guarded write rejected; generated player write denied |  |  |  |
-| Season lifecycle | Read Season at first kickoff | Effective state locked; stored status may remain open |  |  |  |
-| Game lifecycle | Admin Scheduled > Live > Final | Status and score persist; winner inferred |  |  |  |
-| Canceled game | Cancel then restore test game | Canceled behavior and restored schedule correct |  |  |  |
-| Scrolling scoreboard | Inspect live/upcoming/final cards | Ordered, muted FINAL, clear winner |  |  |  |
-| Incremental scores | Finalize games 1 and 2 | Standings update after each |  |  |  |
-| Final standings | Complete all games, compare table | 48/24/24/0 correct, ranks and prizes above |  |  |  |
-| Desktop/mobile | Inspect all six listed pages | No clipping, overflow, or illegible leaderboard |  |  |  |
+| Scenario             | Steps                                                 | Expected                                              | Actual | Result | Issue/action |
+| -------------------- | ----------------------------------------------------- | ----------------------------------------------------- | ------ | ------ | ------------ |
+| Staging target       | Inspect dry-run target                                | Exact allowlisted account/app/branch/API/pool         |        |        |              |
+| Fixture creation     | Apply approved plan, reload                           | 54 scheduled future games; 48 pickable                |        |        |              |
+| Logos and metadata   | Inspect first/middle/last games                       | Both teams and logos render cleanly                   |        |        |              |
+| First pick           | Select empty game, query Pick                         | One saved Pick with correct owner/game                |        |        |              |
+| Change/unselect      | Switch then clear, query Pick                         | Exactly one changed record, accurate counter          |        |        |              |
+| Rapid changes        | Alternate sides rapidly, reload                       | Last settled selection persisted                      |        |        |              |
+| Bulk actions         | Randomize, fill remaining, clear, reselect            | Existing picks preserved where specified              |        |        |              |
+| Failed request       | Simulate failed mutation, retry                       | Error shown; backend and UI reconcile                 |        |        |              |
+| One entry per player | Five accounts create entries; try duplicate create    | Five independent IDs; duplicate denied                |        |        |              |
+| Session restore      | Refresh, sign out/in, second browser                  | Same persisted selections, no loss                    |        |        |              |
+| Pre-kickoff privacy  | Query with another player's token                     | Other picks inaccessible                              |        |        |              |
+| Owner auth           | Read/update another entry and pick                    | Mutations denied; private fields hidden               |        |        |              |
+| Pick/Entry binding   | Save a Pick for another player's entry ID             | API rejects mismatched owner and entry                |        |        |              |
+| Global lock UI       | Pass first kickoff, reload and stale tab              | All pick controls locked, picks visible               |        |        |              |
+| Global lock API      | Direct guarded and generated mutations after deadline | Guarded write rejected; generated player write denied |        |        |              |
+| Season lifecycle     | Read Season at first kickoff                          | Effective state locked; stored status may remain open |        |        |              |
+| Game lifecycle       | Admin Scheduled > Live > Final                        | Status and score persist; winner inferred             |        |        |              |
+| Canceled game        | Cancel then restore test game                         | Canceled behavior and restored schedule correct       |        |        |              |
+| Scrolling scoreboard | Inspect live/upcoming/final cards                     | Ordered, muted FINAL, clear winner                    |        |        |              |
+| Incremental scores   | Finalize games 1 and 2                                | Standings update after each                           |        |        |              |
+| Final standings      | Complete all games, compare table                     | 48/24/24/0 correct, ranks and prizes above            |        |        |              |
+| Desktop/mobile       | Inspect all six listed pages                          | No clipping, overflow, or illegible leaderboard       |        |        |              |

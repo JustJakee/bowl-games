@@ -6,12 +6,12 @@ The secure-picks handler had the same dispatch defect as registration:
 Amplify's generated Lambda payload carries top-level `fieldName`, but the
 handler read `event.info.fieldName`. All four custom operations were affected:
 
-| Operation | Type | Arguments |
-| --- | --- | --- |
-| `createSeasonEntry` | Mutation | seasonId, entryName, contactEmail, optional userProfileId |
-| `updateSeasonEntry` | Mutation | entryId and optional editable entry fields |
-| `saveSeasonPick` | Mutation | entryId, gameId, selectedTeam |
-| `visibleSeasonPicks` | Query | seasonId |
+| Operation            | Type     | Arguments                                                 |
+| -------------------- | -------- | --------------------------------------------------------- |
+| `createSeasonEntry`  | Mutation | seasonId, entryName, contactEmail, optional userProfileId |
+| `updateSeasonEntry`  | Mutation | entryId and optional editable entry fields                |
+| `saveSeasonPick`     | Mutation | entryId, gameId, selectedTeam                             |
+| `visibleSeasonPicks` | Query    | seasonId                                                  |
 
 Only the four dispatch lookups and an explanatory comment change in production
 secure-picks code. The pending registration fix remains intact. No schema,

@@ -133,12 +133,7 @@ const CompleteProfilePage = ({ email, error, onSaveProfile, onSignOut }) => {
   return (
     <>
       <Typography variant="h6">Complete Your Player Profile</Typography>
-      <Stack
-        component="form"
-        spacing={2}
-        onSubmit={submit}
-        sx={{ mt: 2 }}
-      >
+      <Stack component="form" spacing={2} onSubmit={submit} sx={{ mt: 2 }}>
         <Typography variant="body2" color="text.secondary">
           Signed in as {email}
         </Typography>

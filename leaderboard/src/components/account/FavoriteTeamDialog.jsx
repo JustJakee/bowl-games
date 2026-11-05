@@ -19,7 +19,9 @@ import { useTheme } from "@mui/material/styles";
 import TeamAvatar from "./TeamAvatar.jsx";
 
 export const filterFavoriteTeams = (teams, query) => {
-  const normalizedQuery = String(query || "").trim().toLowerCase();
+  const normalizedQuery = String(query || "")
+    .trim()
+    .toLowerCase();
   if (!normalizedQuery) return teams;
 
   return teams.filter((team) =>

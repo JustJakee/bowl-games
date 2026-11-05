@@ -7,12 +7,12 @@
 The checked-in [amplify.yml](../../amplify.yml) declares a monorepo application
 with `appRoot: leaderboard`.
 
-| Phase | Commands / artifact |
-| --- | --- |
-| Backend | `npm ci`, then `npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID` |
-| Frontend | `npm ci`, then `npm run build` |
-| Publish | `dist/**/*` |
-| Cache | `node_modules/**/*` |
+| Phase    | Commands / artifact                                                                 |
+| -------- | ----------------------------------------------------------------------------------- |
+| Backend  | `npm ci`, then `npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID` |
+| Frontend | `npm ci`, then `npm run build`                                                      |
+| Publish  | `dist/**/*`                                                                         |
+| Cache    | `node_modules/**/*`                                                                 |
 
 `pipeline-deploy` is a real infrastructure deployment command. Local setup uses
 `generate outputs` instead. No seed/reset command belongs in the hosting build.
