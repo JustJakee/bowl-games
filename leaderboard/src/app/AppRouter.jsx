@@ -8,6 +8,7 @@ import EntriesPage from "../pages/EntriesPage.jsx";
 import GameDetailPage from "../pages/GameDetailPage.jsx";
 import SchedulePage from "../pages/SchedulePage.jsx";
 import RulesPage from "../pages/RulesPage.jsx";
+import InstallPage from "../pages/InstallPage.jsx";
 import MorePage from "../pages/MorePage.jsx";
 import AdminEntriesPage from "../pages/AdminEntriesPage.jsx";
 import AdminGamesPage from "../pages/AdminGamesPage.jsx";
@@ -28,6 +29,7 @@ const AppRouter = () => {
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/schedule/:gameId" element={<GameDetailPage />} />
           <Route path="/rules" element={<RulesPage />} />
+          <Route path="/install" element={<InstallPage />} />
           <Route path="/more" element={<MorePage />} />
           <Route
             path="/admin"

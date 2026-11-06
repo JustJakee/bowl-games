@@ -11,6 +11,10 @@ import { ScoreboardProvider } from "./context/NCAAFDataContext";
 import { AuthProvider } from "./auth/AuthContext";
 import { AppDataProvider } from "./app/AppDataContext.jsx";
 import theme from "./theme/theme";
+import { InstallProvider } from "./pwa/InstallContext.jsx";
+import { registerServiceWorker } from "./pwa/registerServiceWorker.js";
+
+registerServiceWorker();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -18,13 +22,15 @@ root.render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <AuthProvider>
-          <ScoreboardProvider>
-            <AppDataProvider>
-              <App />
-            </AppDataProvider>
-          </ScoreboardProvider>
-        </AuthProvider>
+        <InstallProvider>
+          <AuthProvider>
+            <ScoreboardProvider>
+              <AppDataProvider>
+                <App />
+              </AppDataProvider>
+            </ScoreboardProvider>
+          </AuthProvider>
+        </InstallProvider>
       </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>,

@@ -49,8 +49,20 @@ test("hamburger menus keep navigation and sign-out without showing email", () =>
     player,
     /<MobileHeader onOpenMenu=\{\(\) => setMenuOpen\(true\)\} \/>/,
   );
+  const mainDestinations = ["/dashboard", "/leaderboard", "/picks", "/schedule"];
+  for (const destination of mainDestinations) {
+    assert.match(player, new RegExp(`to: "${destination}"`));
+  }
   assert.match(player, /to: "\/rules"/);
+  assert.match(player, /to: "\/install"/);
   assert.match(player, /to: "\/more"/);
+  for (const destination of mainDestinations) {
+    assert.ok(
+      player.indexOf(`to: "${destination}"`) < player.indexOf('to: "/rules"'),
+    );
+  }
+  assert.ok(player.indexOf('to: "/rules"') < player.indexOf('to: "/install"'));
+  assert.ok(player.indexOf('to: "/install"') < player.indexOf('to: "/more"'));
   assert.match(player, /onClick=\{signOut\}/);
   assert.doesNotMatch(player.slice(player.indexOf("<Drawer")), /\{email\}/);
   const adminDrawer = admin.slice(admin.indexOf("<Drawer"));
@@ -58,4 +70,16 @@ test("hamburger menus keep navigation and sign-out without showing email", () =>
   assert.match(adminDrawer, /onClick=\{signOut\}/);
   assert.doesNotMatch(adminDrawer, /\{email\}/);
   assert.match(admin.slice(0, admin.indexOf("<Drawer")), /\{email\}/);
+});
+
+test("mobile header is fixed above the player page with space reserved for it", () => {
+  const player = readSource("./AppShell.jsx");
+  const admin = readSource("./AdminLayout.jsx");
+  assert.match(player, /position: "fixed",\s*top: 0,\s*left: 0,\s*right: 0/);
+  assert.match(player, /height: MOBILE_HEADER_HEIGHT/);
+  assert.match(player, /aria-hidden="true" sx=\{\{ height: MOBILE_HEADER_HEIGHT \}\}/);
+  assert.match(player, /zIndex: \(theme\) => theme\.zIndex\.appBar/);
+  assert.match(player, /<MobileHeader onOpenMenu=/);
+  assert.match(admin, /<AppBar\s+position="fixed"/);
+  assert.match(admin, /aria-hidden="true" sx=\{\{ display: \{ xs: "block", md: "none" \}, height: 76 \}\}/);
 });

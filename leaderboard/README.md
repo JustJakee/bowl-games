@@ -30,7 +30,20 @@ Alias for the Vite dev server.
 
 ### `npm run build`
 
-Builds the app for production into `dist/`.
+Builds the app for production into `dist/` and generates `dist/sw.js`.
+The service worker caches public app files for a reliable launch and shows
+`offline.html` when a navigation fails without a connection. It does not cache
+Amplify, ESPN, or account data. Players can open **Install App** below Rules in
+the desktop sidebar or mobile drawer; browsers that support an install prompt
+show a button there, and other browsers show manual installation steps.
+
+The app icons are generated from `public/branding/bobs-bowl-games-icon.png`.
+After replacing that source image, run this from the `leaderboard` directory
+on Windows and commit the generated PNG and ICO files:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-brand-icons.ps1
+```
 
 ### `npm run preview`
 

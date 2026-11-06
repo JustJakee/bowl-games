@@ -14,8 +14,14 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { useAuth } from "../auth/AuthContext.jsx";
@@ -27,9 +33,15 @@ import MobileBottomNavigation from "./MobileBottomNavigation";
 import BuilderCredit from "../components/common/BuilderCredit";
 
 const drawerLinks = [
+  { to: "/dashboard", label: "Dashboard", icon: <DashboardRoundedIcon /> },
+  { to: "/leaderboard", label: "Leaderboard", icon: <EmojiEventsRoundedIcon /> },
+  { to: "/picks", label: "Picks", icon: <SportsFootballRoundedIcon /> },
+  { to: "/schedule", label: "Games", icon: <CalendarMonthRoundedIcon /> },
   { to: "/rules", label: "Rules", icon: <MenuBookRoundedIcon /> },
-  { to: "/more", label: "Account" },
+  { to: "/install", label: "Install App", icon: <DownloadRoundedIcon /> },
+  { to: "/more", label: "Account", icon: <PersonOutlineRoundedIcon /> },
 ];
+const MOBILE_HEADER_HEIGHT = 65;
 
 const AppShell = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -60,7 +72,7 @@ const AppShell = () => {
 
       <Box
         sx={{
-          minHeight: "100vh",
+          minHeight: { xs: "calc(100vh + 92px)", lg: "100vh" },
           ml: isDesktop ? DESKTOP_SIDEBAR_WIDTH : 0,
           width: isDesktop
             ? {
@@ -73,15 +85,30 @@ const AppShell = () => {
         {!isDesktop ? (
           <Box
             sx={{
-              width: "100%",
-              maxWidth: "1600px",
-              marginInline: "auto",
-              px: { xs: 2, sm: 3, md: 3 },
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MOBILE_HEADER_HEIGHT,
+              zIndex: (theme) => theme.zIndex.appBar,
+              bgcolor: "#12325b",
+              borderBottom: "1px solid",
+              borderColor: "divider",
             }}
           >
-            <MobileHeader onOpenMenu={() => setMenuOpen(true)} />
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: "1600px",
+                marginInline: "auto",
+                px: { xs: 2, sm: 3, md: 3 },
+              }}
+            >
+              <MobileHeader onOpenMenu={() => setMenuOpen(true)} />
+            </Box>
           </Box>
         ) : null}
+        {!isDesktop ? <Box aria-hidden="true" sx={{ height: MOBILE_HEADER_HEIGHT }} /> : null}
 
         <Box
           sx={{
@@ -114,7 +141,7 @@ const AppShell = () => {
           },
         }}
       >
-        <Stack spacing={2} sx={{ p: 2.5, height: "100%" }}>
+        <Stack spacing={2} sx={{ p: 2.5, minHeight: "100%" }}>
           <Stack direction="row" alignItems="center" spacing={2}>
             <Avatar
               sx={{

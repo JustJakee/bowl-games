@@ -1,5 +1,4 @@
-import { Button, Stack, Typography } from "@mui/material";
-import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 
@@ -13,7 +12,12 @@ const DesktopHeader = ({ username, signOut }) => {
       sx={{ py: { md: 2.25, lg: 2.5 } }}
     >
       <Stack direction="row" spacing={1} alignItems="center">
-        <StarsRoundedIcon sx={{ color: "primary.main" }} />
+        <Box
+          component="img"
+          src="/branding/icon-192.png"
+          alt=""
+          sx={{ width: 28, height: 28, flexShrink: 0 }}
+        />
         <Typography
           variant="h5"
           sx={{
@@ -25,7 +29,6 @@ const DesktopHeader = ({ username, signOut }) => {
         >
           Bob's Bowl Games
         </Typography>
-        <StarsRoundedIcon sx={{ color: "primary.main" }} />
       </Stack>
       <Stack direction="row" spacing={1.25} alignItems="center">
         <PersonOutlineRoundedIcon

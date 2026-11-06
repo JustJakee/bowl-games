@@ -10,7 +10,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import StarsRoundedIcon from "@mui/icons-material/StarsRounded";
 import { alpha } from "@mui/material/styles";
 import {
   confirmResetPassword,
@@ -108,7 +107,12 @@ const GateFrame = ({ children }) => {
       >
         <Stack spacing={3}>
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <StarsRoundedIcon sx={{ color: "primary.main" }} />
+            <Box
+              component="img"
+              src="/branding/icon-192.png"
+              alt=""
+              sx={{ width: 32, height: 32, flexShrink: 0 }}
+            />
             <Typography
               variant="h5"
               sx={{

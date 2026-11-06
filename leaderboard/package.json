@@ -36,7 +36,7 @@
     "prebuild": "node scripts/sync-amplify-outputs.js",
     "dev": "vite",
     "start": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-service-worker.mjs",
     "preview": "vite preview",
     "amplify:typecheck": "tsc --project tsconfig.amplify.json --noEmit",
     "preflight:gen2": "node scripts/preflight-gen2.mjs",

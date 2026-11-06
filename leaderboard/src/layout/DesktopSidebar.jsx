@@ -1,6 +1,7 @@
 // UI — NAVIGATION — REACT
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
@@ -43,6 +44,11 @@ const primaryNavItems = [
     to: "/rules",
     label: "Rules",
     icon: <MenuBookRoundedIcon fontSize="small" />,
+  },
+  {
+    to: "/install",
+    label: "Install App",
+    icon: <DownloadRoundedIcon fontSize="small" />,
   },
 ];
 
@@ -152,13 +158,21 @@ const DesktopSidebar = ({ signOut }) => {
       }}
     >
       <Stack sx={{ px: 2.5, pt: 3, pb: 2 }}>
-        <Typography
-          variant="overline"
-          color="primary.main"
-          sx={{ letterSpacing: "0.18em", lineHeight: 1.1 }}
-        >
-          BOB&apos;S
-        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Box
+            component="img"
+            src="/branding/icon-192.png"
+            alt=""
+            sx={{ width: 28, height: 28, flexShrink: 0 }}
+          />
+          <Typography
+            variant="overline"
+            color="primary.main"
+            sx={{ letterSpacing: "0.18em", lineHeight: 1.1 }}
+          >
+            BOB&apos;S
+          </Typography>
+        </Stack>
         <Typography
           variant="h5"
           sx={{ lineHeight: 0.98, textTransform: "uppercase" }}

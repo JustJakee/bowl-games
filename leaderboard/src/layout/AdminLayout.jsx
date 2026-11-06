@@ -101,17 +101,25 @@ const AdminLayout = () => {
       }}
     >
       <AppBar
-        position="sticky"
+        position="fixed"
         elevation={0}
         sx={{
           display: { xs: "flex", md: "none" },
-          gridColumn: "1 / -1",
+          top: 0,
+          left: 0,
+          right: 0,
           bgcolor: "background.default",
           borderBottom: "1px solid",
           borderColor: "divider",
         }}
       >
         <Toolbar disableGutters sx={{ minHeight: 76, px: 2, py: 1.25 }}>
+          <Box
+            component="img"
+            src="/branding/icon-192.png"
+            alt=""
+            sx={{ width: 32, height: 32, mr: 1.25, flexShrink: 0 }}
+          />
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography
               sx={{ fontSize: "1.0625rem", fontWeight: 900, lineHeight: 1.2 }}
@@ -140,6 +148,7 @@ const AdminLayout = () => {
           </IconButton>
         </Toolbar>
       </AppBar>
+      <Box aria-hidden="true" sx={{ display: { xs: "block", md: "none" }, height: 76 }} />
 
       <Stack
         component="aside"
@@ -152,9 +161,17 @@ const AdminLayout = () => {
         }}
       >
         <Box>
-          <Typography variant="overline" color="primary.main">
-            BOB&apos;S
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Box
+              component="img"
+              src="/branding/icon-192.png"
+              alt=""
+              sx={{ width: 28, height: 28, flexShrink: 0 }}
+            />
+            <Typography variant="overline" color="primary.main">
+              BOB&apos;S
+            </Typography>
+          </Stack>
           <Typography variant="h5">BOWL GAMES</Typography>
           <Typography variant="overline" color="text.secondary">
             Admin
