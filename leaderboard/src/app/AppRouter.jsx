@@ -13,6 +13,7 @@ import MorePage from "../pages/MorePage.jsx";
 import AdminEntriesPage from "../pages/AdminEntriesPage.jsx";
 import AdminGamesPage from "../pages/AdminGamesPage.jsx";
 import AdminRegistrationsPage from "../pages/AdminRegistrationsPage.jsx";
+import AdminPayoutsPage from "../pages/AdminPayoutsPage.jsx";
 import ScrollToTop from "../layout/ScrollToTop.jsx";
 
 const AppRouter = () => {
@@ -37,6 +38,7 @@ const AppRouter = () => {
           />
           <Route path="/admin/entries" element={<AdminEntriesPage />} />
           <Route path="/admin/games" element={<AdminGamesPage />} />
+          <Route path="/admin/payouts" element={<AdminPayoutsPage />} />
           <Route
             path="/admin/registrations"
             element={<AdminRegistrationsPage />}

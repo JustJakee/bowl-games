@@ -10,8 +10,8 @@ const rankLabel = {
   3: "Third place",
 };
 
-const PodiumEntryCard = ({ entry }) => {
-  const prize = getPrizeForRank(entry.rank);
+const PodiumEntryCard = ({ entry, payoutsByPosition }) => {
+  const prize = getPrizeForRank(payoutsByPosition, entry.rank);
 
   return (
     <article className={`podium-entry podium-entry--rank-${entry.rank}`}>
@@ -25,15 +25,15 @@ const PodiumEntryCard = ({ entry }) => {
         <strong>{entry.correctPicks}</strong>
         <span>Correct Picks</span>
       </div>
-      <div className="podium-prize">
-        <LeaderboardPrizeTag amount={prize} />
-        <span>Winnings</span>
-      </div>
+      {prize !== null ? <div className="podium-prize">
+        <LeaderboardPrizeTag amountCents={prize} />
+        <span>Current payout</span>
+      </div> : null}
     </article>
   );
 };
 
-const LeaderboardPodium = ({ entries }) => {
+const LeaderboardPodium = ({ entries, payoutsByPosition = {} }) => {
   const entriesByRank = new Map(entries.map((entry) => [entry.rank, entry]));
   const orderedEntries = PODIUM_ORDER.map((rank) =>
     entriesByRank.get(rank),
@@ -47,7 +47,7 @@ const LeaderboardPodium = ({ entries }) => {
       aria-label="Top three leaderboard entries"
     >
       {orderedEntries.map((entry) => (
-        <PodiumEntryCard key={entry.id} entry={entry} />
+        <PodiumEntryCard key={entry.id} entry={entry} payoutsByPosition={payoutsByPosition} />
       ))}
     </section>
   );

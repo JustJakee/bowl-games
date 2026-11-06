@@ -2,7 +2,7 @@ import LeaderboardIdentity from "./LeaderboardIdentity";
 import LeaderboardPrizeTag from "./LeaderboardPrizeTag";
 import { getPrizeForRank } from "./leaderboardPrizes";
 
-const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
+const LeaderboardTable = ({ entries, payoutsByPosition = {}, isLive }) => (
   <div className="leaderboard-table-wrap">
     <table
       className={`leaderboard-table${isLive ? "" : " leaderboard-table--prelive"}`}
@@ -21,8 +21,7 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
       </thead>
       <tbody>
         {entries.map((entry) => {
-          const prize =
-            showFourthPrize && entry.rank === 4 ? getPrizeForRank(4) : null;
+          const prize = getPrizeForRank(payoutsByPosition, entry.rank);
           const hasRecord = Number.isFinite(entry.incorrectPicks);
 
           return (
@@ -36,7 +35,7 @@ const LeaderboardTable = ({ entries, showFourthPrize, isLive }) => (
                   <td>
                     <div className="leaderboard-score-cell">
                       <strong>{entry.correctPicks}</strong>
-                      <LeaderboardPrizeTag amount={prize} compact />
+                      <LeaderboardPrizeTag amountCents={prize} compact />
                     </div>
                   </td>
                   <td>

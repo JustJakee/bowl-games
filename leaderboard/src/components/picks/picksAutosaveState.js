@@ -98,6 +98,12 @@ export const buildSyncedDraft = (result, revision = 0) => ({
   dirty: false,
 });
 
+export const requireManualSaveRetry = (draft) => ({
+  ...draft,
+  dirty: true,
+  requiresManualRetry: true,
+});
+
 export const buildAutosaveSuccessState = () => ({
   state: "saved",
   message: "Saved to account",
@@ -118,7 +124,7 @@ export const buildAutosaveFailureState = (error) => {
 };
 
 export const buildFailedClearDraft = (draft, error) => ({
-  ...draft,
+  ...requireManualSaveRetry(draft),
   // Keep the user's empty selections and explicit game IDs, including the
   // games not reached before a failure. A partial result is not a synced draft.
   dirty: true,

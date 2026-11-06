@@ -13,6 +13,7 @@ import {
   getCurrentUserProfile,
   updateCurrentUserFavoriteTeam,
 } from "./userProfile";
+import { isConnectivityFailure } from "../pwa/networkError.js";
 
 const UserProfileContext = createContext(null);
 
@@ -56,7 +57,9 @@ export const UserProfileProvider = ({ children }) => {
     profile: null,
     error: "",
   });
+  const [retryKey, setRetryKey] = useState(0);
   const profileRequestIdRef = useRef(0);
+  const retryProfile = useCallback(() => setRetryKey((current) => current + 1), []);
 
   const owner = user?.userId || null;
 
@@ -103,13 +106,21 @@ export const UserProfileProvider = ({ children }) => {
         });
       } catch (error) {
         if (!active || requestId !== profileRequestIdRef.current) return;
-        setState({
-          status: "error",
-          profile: null,
-          error:
-            error?.message ||
-            "Unable to load your profile right now. Please try again.",
-        });
+        setState((current) =>
+          isConnectivityFailure(error) && profileBelongsToOwner(current.profile, owner)
+            ? {
+                ...current,
+                status: "stale",
+                error: error?.message || "Unable to refresh your profile.",
+              }
+            : {
+                status: "error",
+                profile: null,
+                error:
+                  error?.message ||
+                  "Unable to load your profile right now. Please try again.",
+              },
+        );
       }
     };
 
@@ -118,7 +129,13 @@ export const UserProfileProvider = ({ children }) => {
     return () => {
       active = false;
     };
-  }, [hasValidTokens, isAuthenticated, isConfigured, isLoading, owner]);
+  }, [hasValidTokens, isAuthenticated, isConfigured, isLoading, owner, retryKey]);
+
+  useEffect(() => {
+    if (state.status !== "error" && state.status !== "stale") return;
+    window.addEventListener("online", retryProfile);
+    return () => window.removeEventListener("online", retryProfile);
+  }, [retryProfile, state.status]);
 
   const updateFavoriteTeam = useCallback(
     async (favoriteTeamId) => {
@@ -165,10 +182,22 @@ export const UserProfileProvider = ({ children }) => {
     [owner],
   );
 
-  const value = useMemo(
-    () => ({ ...state, adoptCreatedProfile, updateFavoriteTeam }),
-    [adoptCreatedProfile, state, updateFavoriteTeam],
-  );
+  const value = useMemo(() => {
+    const currentProfile = profileBelongsToOwner(state.profile, owner)
+      ? state.profile
+      : null;
+    const status = !currentProfile && ["ready", "refreshing", "stale"].includes(state.status)
+      ? "loading"
+      : state.status;
+    return {
+      ...state,
+      status,
+      profile: currentProfile,
+      adoptCreatedProfile,
+      retryProfile,
+      updateFavoriteTeam,
+    };
+  }, [adoptCreatedProfile, owner, retryProfile, state, updateFavoriteTeam]);
 
   return (
     <UserProfileContext.Provider value={value}>

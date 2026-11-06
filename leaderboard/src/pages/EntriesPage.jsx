@@ -21,6 +21,7 @@ const EntriesPage = () => {
     currentEntry,
     currentEntryStatus,
     entriesError,
+    entriesErrorIsConnectivity,
     entriesLoading,
     isAdmin,
     matchups,
@@ -54,9 +55,9 @@ const EntriesPage = () => {
       <Typography variant="h3" sx={{ fontSize: { xs: "2rem", md: "2.25rem" } }}>
         My Pick Set
       </Typography>
-      {entriesError ? <Alert severity="error">{entriesError}</Alert> : null}
+      {entriesError ? <Alert severity={entriesErrorIsConnectivity ? "warning" : "error"}>{entriesErrorIsConnectivity ? "Your pick set is unavailable while disconnected." : entriesError}</Alert> : null}
 
-      {!currentEntry ? (
+      {!currentEntry && !entriesError ? (
         <Panel elevated>
           <Stack spacing={1.5}>
             <Typography variant="h5">No pick set yet</Typography>
@@ -72,7 +73,7 @@ const EntriesPage = () => {
             ) : null}
           </Stack>
         </Panel>
-      ) : (
+      ) : currentEntry ? (
         <Panel elevated>
           <Stack spacing={2}>
             <Stack
@@ -112,7 +113,7 @@ const EntriesPage = () => {
             </Button>
           </Stack>
         </Panel>
-      )}
+      ) : null}
     </Stack>
   );
 };

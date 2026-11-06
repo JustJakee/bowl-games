@@ -14,6 +14,7 @@ import {
   getMatchupSaveState,
   buildFailedClearDraft,
   buildClearFailureState,
+  requireManualSaveRetry,
 } from "./picksAutosaveState";
 
 const createDeferred = () => {
@@ -63,6 +64,10 @@ test("a successful backend save replaces the pending draft with synchronized dat
 });
 
 test("a failed backend save remains visibly device-only instead of reporting success", () => {
+  const failedDraft = requireManualSaveRetry({ revision: 3, selectionsByGameId: { game1: "AAA" } });
+  assert.equal(failedDraft.dirty, true);
+  assert.equal(failedDraft.requiresManualRetry, true);
+  assert.deepEqual(failedDraft.selectionsByGameId, { game1: "AAA" });
   assert.deepEqual(buildAutosaveFailureState(new Error("Save rejected.")), {
     state: "device",
     message: "Saved to device",

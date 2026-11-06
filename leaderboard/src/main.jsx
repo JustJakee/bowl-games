@@ -13,6 +13,8 @@ import { AppDataProvider } from "./app/AppDataContext.jsx";
 import theme from "./theme/theme";
 import { InstallProvider } from "./pwa/InstallContext.jsx";
 import { registerServiceWorker } from "./pwa/registerServiceWorker.js";
+import AppErrorBoundary from "./components/common/AppErrorBoundary.jsx";
+import { LeaderboardProvider } from "./hooks/useSeasonLeaderboard.js";
 
 registerServiceWorker();
 
@@ -21,17 +23,21 @@ root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
-        <InstallProvider>
-          <AuthProvider>
-            <ScoreboardProvider>
-              <AppDataProvider>
-                <App />
-              </AppDataProvider>
-            </ScoreboardProvider>
-          </AuthProvider>
-        </InstallProvider>
-      </BrowserRouter>
+      <AppErrorBoundary>
+        <BrowserRouter>
+          <InstallProvider>
+            <AuthProvider>
+              <ScoreboardProvider>
+                <AppDataProvider>
+                  <LeaderboardProvider>
+                    <App />
+                  </LeaderboardProvider>
+                </AppDataProvider>
+              </ScoreboardProvider>
+            </AuthProvider>
+          </InstallProvider>
+        </BrowserRouter>
+      </AppErrorBoundary>
     </ThemeProvider>
   </React.StrictMode>,
 );

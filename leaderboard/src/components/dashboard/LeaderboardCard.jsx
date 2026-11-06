@@ -1,5 +1,7 @@
 import {
+  Alert,
   Box,
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -18,6 +20,8 @@ const LeaderboardCard = ({
   currentUsername,
   error = "",
   loading = false,
+  unavailable = false,
+  onRetry,
 }) => {
   const theme = useTheme();
   const showRecord = useMediaQuery(theme.breakpoints.up("lg"));
@@ -26,11 +30,22 @@ const LeaderboardCard = ({
   return (
     <Panel sx={{ width: "100%", height: "100%" }}>
       <SectionHeader title="Leaderboard Snapshot" />
+      {error ? (
+        <Alert
+          severity="warning"
+          sx={{ mt: 1.5 }}
+          action={onRetry ? <Button color="inherit" size="small" onClick={onRetry}>Retry</Button> : null}
+        >
+          {hasRows
+            ? "Leaderboard updates are unavailable. Shown results may be out of date."
+            : "Leaderboard is unavailable. Retry when connected."}
+        </Alert>
+      ) : null}
       {loading && !hasRows ? (
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
           Loading leaderboard...
         </Typography>
-      ) : error && !hasRows ? (
+      ) : (error || unavailable) && !hasRows ? (
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
           Leaderboard unavailable.
         </Typography>

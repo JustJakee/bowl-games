@@ -6,7 +6,7 @@ import LeaderboardTable from "../features/leaderboard/LeaderboardTable";
 import { sortLeaderboardEntries } from "../features/leaderboard/leaderboardViewModel";
 import "../styles/leaderboard.css";
 
-const Leaderboard = ({ entries, loading = false, isLive = false }) => {
+const Leaderboard = ({ entries, loading = false, isLive = false, payoutsByPosition = {} }) => {
   const sortedEntries = sortLeaderboardEntries(entries);
   const topThree = isLive ? sortedEntries.slice(0, 3) : [];
   const remainingEntries = isLive ? sortedEntries.slice(3) : sortedEntries;
@@ -31,24 +31,24 @@ const Leaderboard = ({ entries, loading = false, isLive = false }) => {
 
   return (
     <div className="leaderboard-content">
-      {isLive ? <LeaderboardPodium entries={topThree} /> : null}
+      {isLive ? <LeaderboardPodium entries={topThree} payoutsByPosition={payoutsByPosition} /> : null}
       <section
         className="leaderboard-standings"
         aria-label="Leaderboard standings"
       >
         <LeaderboardTable
           entries={remainingEntries}
-          showFourthPrize={isLive}
+          payoutsByPosition={payoutsByPosition}
           isLive={isLive}
         />
         <LeaderboardMobileList
           entries={remainingEntries}
-          showFourthPrize={isLive}
+          payoutsByPosition={payoutsByPosition}
           isLive={isLive}
         />
-        {isLive ? (
+        {isLive && Object.keys(payoutsByPosition).length > 0 ? (
           <p className="leaderboard-prize-note">
-            Winnings reflect the current prize payout structure for this season.
+            Current payouts may change as confirmed paid entries change.
           </p>
         ) : null}
       </section>

@@ -1,6 +1,6 @@
 // UI - SCHEDULE - REACT
 import { Link as RouterLink } from "react-router-dom";
-import { Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
+import { Alert, Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import ListAltRoundedIcon from "@mui/icons-material/ListAltRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
@@ -380,7 +380,7 @@ const ScheduleDateSection = ({
 };
 
 const ScheduleView = () => {
-  const { allGames: scoreboardGames, loading, error } = useScoreboard();
+  const { allGames: scoreboardGames, season, loading, error, errorIsConnectivity, connectionStatus, reload } = useScoreboard();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const groupedGames = groupGamesByDate(scoreboardGames);
@@ -388,6 +388,7 @@ const ScheduleView = () => {
     viewsByGameId: pickSplits,
     loading: pickSplitsLoading,
     error: pickSplitsError,
+    errorIsConnectivity: pickSplitsErrorIsConnectivity,
   } = useGamePickSplitViews(scoreboardGames);
 
   if (
@@ -396,19 +397,23 @@ const ScheduleView = () => {
     return <PageLoading loading message="Loading games..." />;
   }
 
-  if (error) {
+  if (error && !season) {
     return (
       <div
         className="schedule-page schedule-page--state schedule-page--error"
         role="alert"
       >
-        {error}
+        {errorIsConnectivity ? "Games are unavailable while disconnected." : error}
+        <Button onClick={reload} variant="outlined" sx={{ ml: 2 }}>
+          Retry
+        </Button>
       </div>
     );
   }
 
   return (
     <Box className="schedule-page">
+      {error && !errorIsConnectivity && connectionStatus === "ready" ? <Alert severity="warning" sx={{ mb: 2 }}>Games could not be refreshed. Displayed information may be outdated.</Alert> : null}
       <Stack
         className="schedule-page-header"
         direction={{ xs: "column", sm: "row" }}
@@ -451,7 +456,7 @@ const ScheduleView = () => {
               mobile={isMobile}
               pickSplits={pickSplits}
               pickLoading={pickSplitsLoading}
-              pickError={pickSplitsError}
+              pickError={pickSplitsErrorIsConnectivity && connectionStatus !== "ready" ? "" : pickSplitsError}
             />
           ))}
         </div>

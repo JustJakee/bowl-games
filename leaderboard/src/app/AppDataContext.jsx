@@ -30,6 +30,9 @@ import {
   shouldApplyPickSaveResult,
 } from "../components/picks/picksAutosaveState";
 import { runSingleFlight } from "../data/canonicalEntry";
+import { isConnectivityFailure } from "../pwa/networkError.js";
+import { useOfflineStatus } from "../pwa/useOfflineStatus.js";
+import OfflineIndicator from "../pwa/OfflineIndicator.jsx";
 
 const AppDataContext = createContext(null);
 const LEGACY_ACTIVE_ENTRY_STORAGE_PREFIX = "bobs-bowl-games-active-entry";
@@ -82,13 +85,22 @@ export const AppDataProvider = ({ children }) => {
     user,
   } = useAuth();
   const isAdmin = role === "admin";
+  const offline = useOfflineStatus();
+  const { connectionStatus } = useScoreboard();
   const [entries, setEntries] = useState([]);
   const [entriesLoading, setEntriesLoading] = useState(false);
   const [entriesError, setEntriesError] = useState("");
+  const [entriesErrorIsConnectivity, setEntriesErrorIsConnectivity] = useState(false);
+  const [entriesRefreshError, setEntriesRefreshError] = useState("");
   const [loadedEntriesScope, setLoadedEntriesScope] = useState("");
+  const loadedEntriesScopeRef = useRef("");
+  const lastEntriesAttemptScopeRef = useRef("");
   const entriesRequestIdRef = useRef(0);
   const [picksLoading, setPicksLoading] = useState(false);
   const [picksError, setPicksError] = useState("");
+  const [picksErrorIsConnectivity, setPicksErrorIsConnectivity] = useState(false);
+  const [picksRefreshError, setPicksRefreshError] = useState("");
+  const [picksRetryKey, setPicksRetryKey] = useState(0);
   const [activeEntryId, setActiveEntryIdState] = useState("");
   const [hydratedEntryId, setHydratedEntryId] = useState("");
   const [savedSelectionsByGameId, setSavedSelectionsByGameId] = useState({});
@@ -131,8 +143,9 @@ export const AppDataProvider = ({ children }) => {
   );
   const tieBreakerGameId = tieBreakerGame?.id || "";
   const tieBreakerRequired = Boolean(seasonConfig?.tieBreakerRequired);
-  const currentEntry =
-    entries.find((entry) => entry.id === activeEntryId) || entries[0] || null;
+  const currentEntry = loadedEntriesScope === saveScope
+    ? entries.find((entry) => entry.id === activeEntryId) || entries[0] || null
+    : null;
 
   const resetActiveEntryState = useCallback(() => {
     setSavedSelectionsByGameId({});
@@ -145,6 +158,10 @@ export const AppDataProvider = ({ children }) => {
     activeEntryIdRef.current = normalizedEntryId;
     setActiveEntryIdState(normalizedEntryId);
   }, []);
+  const reloadPicks = useCallback(
+    () => setPicksRetryKey((current) => current + 1),
+    [],
+  );
 
   const loadEntries = useCallback(async () => {
     const scope = `${owner || "guest"}:${currentSeasonId || "none"}`;
@@ -153,7 +170,9 @@ export const AppDataProvider = ({ children }) => {
     const isCurrent = () =>
       entriesRequestIdRef.current === requestId &&
       saveScopeRef.current === scope;
-    setLoadedEntriesScope("");
+    const hadLoadedScope = loadedEntriesScopeRef.current === scope;
+    const sameAttemptScope = lastEntriesAttemptScopeRef.current === scope;
+    lastEntriesAttemptScopeRef.current = scope;
     // AUTH — SESSION RESTORATION — COGNITO
     // Player-owned Data queries wait for configuration, usable tokens, and a resolved season and owner.
     if (
@@ -164,21 +183,35 @@ export const AppDataProvider = ({ children }) => {
       !owner ||
       !currentSeasonId
     ) {
+      loadedEntriesScopeRef.current = "";
+      setLoadedEntriesScope("");
       setEntries([]);
       setEntriesLoading(false);
       setEntriesError("");
+      setEntriesErrorIsConnectivity(false);
+      setEntriesRefreshError("");
+      lastEntriesAttemptScopeRef.current = "";
       setActiveEntryId("");
+      setHydratedEntryId("");
+      setPicksError("");
+      setPicksErrorIsConnectivity(false);
+      setPicksRefreshError("");
       resetActiveEntryState();
       return;
     }
 
-    setEntriesLoading(true);
+    setEntriesLoading(!hadLoadedScope);
     setEntriesError("");
-    setActiveEntryId("");
-    setHydratedEntryId("");
-    setSavedSelectionsByGameId({});
-    setCurrentEntryStatus(PICK_SET_STATUS.DRAFT);
-    setStaleSavedPickIds([]);
+    if (!hadLoadedScope) {
+      if (!sameAttemptScope) setEntriesErrorIsConnectivity(false);
+      loadedEntriesScopeRef.current = "";
+      setLoadedEntriesScope("");
+      setEntries([]);
+      setEntriesRefreshError("");
+      setActiveEntryId("");
+      setHydratedEntryId("");
+      resetActiveEntryState();
+    }
 
     try {
       window.localStorage.removeItem(
@@ -193,16 +226,35 @@ export const AppDataProvider = ({ children }) => {
       const canonicalEntryId = canonicalEntry?.id || "";
 
       setEntries(nextEntries);
-      activeEntryIdRef.current = canonicalEntryId;
-      setActiveEntryIdState(canonicalEntryId);
+      if (activeEntryIdRef.current !== canonicalEntryId) {
+        setActiveEntryId(canonicalEntryId);
+        setHydratedEntryId("");
+        resetActiveEntryState();
+        setPicksError("");
+        setPicksErrorIsConnectivity(false);
+        setPicksRefreshError("");
+      } else if (hadLoadedScope && canonicalEntryId) {
+        setPicksRetryKey((current) => current + 1);
+      }
+      loadedEntriesScopeRef.current = scope;
       setLoadedEntriesScope(scope);
+      setEntriesErrorIsConnectivity(false);
+      setEntriesRefreshError("");
     } catch (error) {
       if (!isCurrent()) return;
-      setEntries([]);
-      setEntriesError(error?.message || "Unable to load your pick set.");
-      setActiveEntryId("");
-      setHydratedEntryId("");
-      resetActiveEntryState();
+      const connectivityFailure = isConnectivityFailure(error);
+      if (hadLoadedScope && connectivityFailure) {
+        setEntriesRefreshError(error?.message || "Unable to refresh your entry.");
+      } else {
+        if (!hadLoadedScope) {
+          setEntries([]);
+          setActiveEntryId("");
+          setHydratedEntryId("");
+          resetActiveEntryState();
+        }
+        setEntriesError(error?.message || "Unable to load your pick set.");
+        setEntriesErrorIsConnectivity(connectivityFailure);
+      }
     } finally {
       if (isCurrent()) setEntriesLoading(false);
     }
@@ -220,6 +272,16 @@ export const AppDataProvider = ({ children }) => {
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
+
+  useEffect(() => {
+    if (!entriesError && !entriesRefreshError && !picksError && !picksRefreshError) return;
+    const retryOnReconnect = () => {
+      if (entriesError || entriesRefreshError) void loadEntries();
+      else setPicksRetryKey((current) => current + 1);
+    };
+    window.addEventListener("online", retryOnReconnect);
+    return () => window.removeEventListener("online", retryOnReconnect);
+  }, [entriesError, entriesRefreshError, loadEntries, picksError, picksRefreshError]);
 
   useEffect(() => {
     activeEntryIdRef.current = activeEntryId;
@@ -242,6 +304,8 @@ export const AppDataProvider = ({ children }) => {
       resetActiveEntryState();
       setPicksLoading(false);
       setPicksError("");
+      setPicksErrorIsConnectivity(false);
+      setPicksRefreshError("");
       return;
     }
 
@@ -260,6 +324,8 @@ export const AppDataProvider = ({ children }) => {
     setPicksError("");
 
     if (isSelectedEntrySwitch) {
+      setPicksErrorIsConnectivity(false);
+      setPicksRefreshError("");
       setHydratedEntryId("");
       setSavedSelectionsByGameId({});
       setCurrentEntryStatus(PICK_SET_STATUS.DRAFT);
@@ -303,17 +369,25 @@ export const AppDataProvider = ({ children }) => {
           }),
         );
         setStaleSavedPickIds(savedPicks.stalePicks.map((pick) => pick.gameId));
+        setPicksErrorIsConnectivity(false);
+        setPicksRefreshError("");
       })
       .catch((error) => {
         if (!isCurrentRequest()) {
           return;
         }
 
+        const connectivityFailure = isConnectivityFailure(error);
+        if (!isSelectedEntrySwitch && connectivityFailure) {
+          setPicksRefreshError(error?.message || "Unable to refresh your picks.");
+          return;
+        }
         if (isSelectedEntrySwitch) {
           resetActiveEntryState();
           setHydratedEntryId("");
         }
         setPicksError(error?.message || "Unable to load your pick set.");
+        setPicksErrorIsConnectivity(connectivityFailure);
       })
       .finally(() => {
         if (isCurrentRequest()) {
@@ -335,6 +409,7 @@ export const AppDataProvider = ({ children }) => {
     resetActiveEntryState,
     tieBreakerRequired,
     hydratedEntryIdRef,
+    picksRetryKey,
   ]);
 
   const createSeasonEntry = useCallback(
@@ -574,6 +649,8 @@ export const AppDataProvider = ({ children }) => {
       defaultContactEmail: email || "",
       isAdmin,
       entriesError,
+      entriesErrorIsConnectivity,
+      entriesRefreshError,
       entriesLoading,
       entriesReady:
         loadedEntriesScope === saveScope && !entriesLoading && !entriesError,
@@ -583,9 +660,12 @@ export const AppDataProvider = ({ children }) => {
       hydratedEntryId,
       picksLoading,
       picksError,
+      picksErrorIsConnectivity,
+      picksRefreshError,
       picksLocked,
       picksLockAt,
       reloadEntries: loadEntries,
+      reloadPicks,
       queueCurrentPicksSave,
       saveCurrentPicks,
       savedSelectionsByGameId,
@@ -602,15 +682,20 @@ export const AppDataProvider = ({ children }) => {
       email,
       isAdmin,
       entriesError,
+      entriesErrorIsConnectivity,
+      entriesRefreshError,
       entriesLoading,
       loadedEntriesScope,
       saveScope,
       loadEntries,
+      reloadPicks,
       matchups,
       markCurrentPicksRevision,
       nextCurrentPicksRevision,
       hydratedEntryId,
       picksError,
+      picksErrorIsConnectivity,
+      picksRefreshError,
       picksLocked,
       picksLoading,
       picksLockAt,
@@ -624,7 +709,10 @@ export const AppDataProvider = ({ children }) => {
   );
 
   return (
-    <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>
+    <AppDataContext.Provider value={value}>
+      <OfflineIndicator status={offline ? "offline" : connectionStatus !== "ready" ? connectionStatus : entriesErrorIsConnectivity || picksErrorIsConnectivity || entriesRefreshError || picksRefreshError ? "unavailable" : "ready"} />
+      {children}
+    </AppDataContext.Provider>
   );
 };
 

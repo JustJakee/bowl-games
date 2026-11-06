@@ -31,7 +31,8 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request, { cache: "no-store" }).catch(async () => {
         const cache = await caches.open(CACHE_NAME);
-        return (await cache.match("/offline.html")) || Response.error();
+        return (await cache.match("/index.html")) ||
+          (await cache.match("/offline.html")) || Response.error();
       }),
     );
     return;

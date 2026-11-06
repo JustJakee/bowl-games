@@ -11,6 +11,8 @@ import { useAuth } from "../auth/AuthContext";
 import { loadSeasonBundle } from "../data/seasonRepository";
 import { selectPickableGames } from "../utils/scoreboardGames";
 import { createLatestLoadGuard } from "./latestLoad";
+import { browserIsOffline, useOfflineStatus } from "../pwa/useOfflineStatus.js";
+import { isConnectivityFailure } from "../pwa/networkError.js";
 
 const ScoreboardContext = createContext(null);
 
@@ -20,13 +22,19 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
     isAuthenticated,
     isConfigured,
     isLoading: authLoading,
+    isUnavailable: authUnavailable,
   } = useAuth();
+  const offline = useOfflineStatus();
   const [data, setData] = useState(null);
   const [allGames, setAllGames] = useState(null);
   const [season, setSeason] = useState(null);
   const [seasonConfig, setSeasonConfig] = useState(null);
   const [rawGames, setRawGames] = useState(null);
   const [error, setError] = useState("");
+  const [errorIsConnectivity, setErrorIsConnectivity] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(() =>
+    browserIsOffline() ? "offline" : "ready",
+  );
   const [loading, setLoading] = useState(true);
   const mounted = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,7 +52,6 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
     const initial = firstLoad.current;
     if (initial) setLoading(true);
     else setRefreshing(true);
-    setError("");
 
     try {
       const response = await loadSeasonBundle();
@@ -81,9 +88,19 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       setRawGames(response.rawGames || []);
       setData(filteredResponse);
       setAllGames(picksResponse);
+      setError("");
+      setErrorIsConnectivity(false);
+      setConnectionStatus(browserIsOffline() ? "offline" : "ready");
     } catch (err) {
       if (!mounted.current || !loadGuard.current.isCurrent(requestId)) return;
       setError(err?.message ?? "Failed to fetch scoreboard");
+      const connectivityFailure = isConnectivityFailure(err);
+      setErrorIsConnectivity(connectivityFailure);
+      setConnectionStatus(
+        connectivityFailure
+          ? browserIsOffline() ? "offline" : "unavailable"
+          : "ready",
+      );
     } finally {
       if (!mounted.current || !loadGuard.current.isCurrent(requestId)) return;
       if (initial) setLoading(false);
@@ -91,6 +108,18 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       firstLoad.current = false;
     }
   };
+
+  useEffect(() => {
+    setConnectionStatus((current) =>
+      offline ? "offline" : current === "offline" ? "checking" : current,
+    );
+  }, [offline]);
+
+  useEffect(() => {
+    if (!offline && !authLoading && !isAuthenticated && !authUnavailable) {
+      setConnectionStatus((current) => current === "checking" ? "ready" : current);
+    }
+  }, [authLoading, authUnavailable, isAuthenticated, offline]);
 
   useEffect(() => {
     mounted.current = true;
@@ -103,6 +132,7 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       setSeasonConfig(null);
       setRawGames(null);
       setError("");
+      setErrorIsConnectivity(false);
       setLoading(authLoading);
       setRefreshing(false);
       firstLoad.current = true;
@@ -115,10 +145,12 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
 
     load();
     const id = setInterval(load, pollMs);
+    window.addEventListener("online", load);
     return () => {
       mounted.current = false;
       loadGuard.current.invalidate();
       clearInterval(id);
+      window.removeEventListener("online", load);
     };
   }, [authLoading, canLoadData, pollMs]);
 
@@ -132,6 +164,8 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       loading,
       refreshing,
       error,
+      errorIsConnectivity,
+      connectionStatus,
       reload: load,
     }),
     [
@@ -143,6 +177,8 @@ export const ScoreboardProvider = ({ pollMs = 60_000, children }) => {
       loading,
       refreshing,
       error,
+      errorIsConnectivity,
+      connectionStatus,
     ],
   );
 

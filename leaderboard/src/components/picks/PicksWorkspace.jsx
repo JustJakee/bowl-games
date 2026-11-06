@@ -54,6 +54,7 @@ import {
   getDraftRevision,
   isDraftCacheReady,
   reconcilePickDraft,
+  requireManualSaveRetry,
   getMatchupSaveState,
 } from "./picksAutosaveState";
 import {
@@ -95,7 +96,13 @@ const buildDraftStorageKey = (profileIdOrEmail, seasonId) =>
 const readDraftCache = (storageKey) => {
   try {
     const parsed = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
-    return parsed && typeof parsed === "object" ? parsed : {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(
+      Object.entries(parsed).map(([entryId, draft]) => [
+        entryId,
+        draft?.dirty ? { ...draft, requiresManualRetry: true } : draft,
+      ]),
+    );
   } catch {
     return {};
   }
@@ -457,7 +464,7 @@ const PicksWorkspace = () => {
   const { email, role } = useAuth();
   const isAdmin = role === "admin";
   const { profile } = useUserProfile();
-  const { allGames, loading, error, reload } = useScoreboard();
+  const { allGames, season, loading, error, errorIsConnectivity, connectionStatus, reload } = useScoreboard();
   const {
     createSeasonEntry,
     currentEntry,
@@ -466,6 +473,8 @@ const PicksWorkspace = () => {
     currentSeasonYear,
     defaultContactEmail,
     entriesError,
+    entriesErrorIsConnectivity,
+    entriesRefreshError,
     entriesLoading,
     entriesReady,
     reloadEntries,
@@ -473,6 +482,9 @@ const PicksWorkspace = () => {
     nextCurrentPicksRevision,
     picksLoading,
     picksError,
+    picksErrorIsConnectivity,
+    picksRefreshError,
+    reloadPicks,
     picksLockAt,
     picksLocked,
     queueCurrentPicksSave,
@@ -633,6 +645,14 @@ const PicksWorkspace = () => {
       // label was what made desktop matchup labels disagree with mobile.
       const nextState = existingDraft?.clearError
         ? buildClearFailureState(existingDraft.clearError)
+        : existingDraft?.requiresManualRetry
+          ? currentState.state === "device" || currentState.state === "error"
+            ? currentState
+            : {
+                state: "device",
+                message: "Saved to device",
+                detail: "Use Retry to save these selections to your account.",
+              }
         : existingDraft?.dirty
           ? currentState.state === "device" || currentState.state === "error"
             ? currentState
@@ -678,7 +698,13 @@ const PicksWorkspace = () => {
         detail: draftStorageError,
       }
     : activeDraft?.dirty && saveState.state === "saved"
-      ? { state: "saving", message: "Saving...", detail: "" }
+      ? activeDraft.requiresManualRetry
+        ? {
+            state: "device",
+            message: "Saved to device",
+            detail: "Use Retry to save these selections to your account.",
+          }
+        : { state: "saving", message: "Saving...", detail: "" }
       : saveState;
   const selectedEntryId = currentEntry?.id || "";
   const pickView = buildPickSelectionView({
@@ -788,6 +814,7 @@ const PicksWorkspace = () => {
       hydratedEntryId !== currentEntry.id ||
       picksError ||
       !activeDraft?.dirty ||
+      activeDraft.requiresManualRetry ||
       activeDraft.clearError ||
       picksLocked ||
       picksLoading ||
@@ -867,6 +894,12 @@ const PicksWorkspace = () => {
           if (selectedEntryIdRef.current === entryId)
             setSaveState(buildClearFailureState(failedDraft.clearError));
         } else if (selectedEntryIdRef.current === entryId) {
+          setDraftsByEntryId((currentDrafts) => {
+            const latestDraft = currentDrafts[entryId];
+            return getDraftRevision(latestDraft) === revision
+              ? { ...currentDrafts, [entryId]: requireManualSaveRetry(latestDraft) }
+              : currentDrafts;
+          });
           setSaveState(buildAutosaveFailureState(outcome.error));
         }
       }
@@ -1162,6 +1195,12 @@ const PicksWorkspace = () => {
             "Confirmed changes were kept. Reload to check the remaining selections, then retry.",
         });
       } else {
+        setDraftsByEntryId((currentDrafts) => {
+          const latestDraft = currentDrafts[entryId];
+          return getDraftRevision(latestDraft) === revision
+            ? { ...currentDrafts, [entryId]: requireManualSaveRetry(latestDraft) }
+            : currentDrafts;
+        });
         setSaveState(buildAutosaveFailureState(operationError));
       }
       setBulkFeedback({
@@ -1268,7 +1307,7 @@ const PicksWorkspace = () => {
       return;
     }
 
-    if (activeDraft.clearError) {
+    if (activeDraft.clearError || activeDraft.requiresManualRetry) {
       const revision = nextCurrentPicksRevision(
         currentEntry.id,
         getDraftRevision(activeDraft),
@@ -1276,7 +1315,12 @@ const PicksWorkspace = () => {
       if (!Number.isSafeInteger(revision)) return;
       const nextDrafts = {
         ...draftsByEntryId,
-        [currentEntry.id]: { ...activeDraft, revision, clearError: null },
+        [currentEntry.id]: {
+          ...activeDraft,
+          revision,
+          clearError: null,
+          requiresManualRetry: false,
+        },
       };
       if (!persistDraftCache(storageKey, nextDrafts)) return;
       setDraftsByEntryId(nextDrafts);
@@ -1290,18 +1334,19 @@ const PicksWorkspace = () => {
   }
 
   if (entriesError) {
-    return <EntryStartState error={entriesError} onRetry={reloadEntries} />;
+    return <EntryStartState error={entriesErrorIsConnectivity ? "Your pick set is unavailable while disconnected." : entriesError} onRetry={reloadEntries} />;
   }
 
-  if (error || picksError) {
+  if ((error && !season) || picksError) {
     return (
       <Stack spacing={2}>
-        {error ? <Alert severity="error">{error}</Alert> : null}
-        {picksError ? <Alert severity="error">{picksError}</Alert> : null}
+        {error && !season ? <Alert severity={errorIsConnectivity ? "warning" : "error"}>{errorIsConnectivity ? "Games are unavailable while disconnected." : error}</Alert> : null}
+        {picksError ? <Alert severity={picksErrorIsConnectivity ? "warning" : "error"}>{picksErrorIsConnectivity ? "Your picks are unavailable while disconnected." : picksError}</Alert> : null}
         <Button
           onClick={() => {
             void reloadEntries();
             if (error) void reload();
+            if (picksError) reloadPicks();
           }}
         >
           Retry loading picks
@@ -1340,6 +1385,9 @@ const PicksWorkspace = () => {
       aria-busy={randomizeFeedback.isProcessing}
       sx={{ position: "relative" }}
     >
+      {connectionStatus === "ready" && ((error && !errorIsConnectivity) || entriesRefreshError || picksRefreshError) ? (
+        <Alert severity="warning">Some pick information could not be refreshed. Displayed information may be outdated.</Alert>
+      ) : null}
       <Box>
         <Typography
           variant="h3"

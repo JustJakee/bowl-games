@@ -16,6 +16,7 @@ import {
 import { NavLink, Navigate, Outlet } from "react-router-dom";
 import ListAltRoundedIcon from "@mui/icons-material/ListAltRounded";
 import SportsFootballRoundedIcon from "@mui/icons-material/SportsFootballRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
@@ -58,6 +59,7 @@ const AdminLayout = () => {
       icon: <HowToRegRoundedIcon />,
     },
     { to: "/admin/entries", label: "Entries", icon: <ListAltRoundedIcon /> },
+    { to: "/admin/payouts", label: "Payouts", icon: <EmojiEventsRoundedIcon /> },
     ...(testSeason
       ? [
           {
@@ -114,12 +116,6 @@ const AdminLayout = () => {
         }}
       >
         <Toolbar disableGutters sx={{ minHeight: 76, px: 2, py: 1.25 }}>
-          <Box
-            component="img"
-            src="/branding/icon-192.png"
-            alt=""
-            sx={{ width: 32, height: 32, mr: 1.25, flexShrink: 0 }}
-          />
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography
               sx={{ fontSize: "1.0625rem", fontWeight: 900, lineHeight: 1.2 }}

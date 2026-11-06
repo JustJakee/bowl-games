@@ -381,10 +381,13 @@ const MorePage = () => {
     currentEntry,
     currentSeasonId,
     entriesError,
+    entriesErrorIsConnectivity,
+    entriesRefreshError,
     entriesLoading,
     entriesReady,
+    reloadEntries,
   } = useAppData();
-  const { error: scoreboardError, loading: scoreboardLoading } =
+  const { error: scoreboardError, errorIsConnectivity: scoreboardErrorIsConnectivity, connectionStatus, loading: scoreboardLoading, reload: reloadScoreboard } =
     useScoreboard();
   const paymentState = resolveAccountPaymentState({
     currentEntry,
@@ -408,6 +411,27 @@ const MorePage = () => {
 
   return (
     <>
+      {(scoreboardError || entriesError || entriesRefreshError) &&
+        !((scoreboardErrorIsConnectivity || entriesErrorIsConnectivity || entriesRefreshError) && connectionStatus !== "ready") ? (
+        <Alert
+          severity="warning"
+          sx={{ mb: 2 }}
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              onClick={() => {
+                if (scoreboardError) void reloadScoreboard();
+                if (entriesError) void reloadEntries();
+              }}
+            >
+              Retry
+            </Button>
+          }
+        >
+          Season or entry data is unavailable. Payment status cannot be confirmed.
+        </Alert>
+      ) : null}
       <AccountSettingsView
         email={email || ""}
         favoriteTeam={favoriteTeam}

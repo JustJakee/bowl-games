@@ -7,7 +7,7 @@ import {
   isLeaderboardPageLoading,
   isPicksPageLoading,
 } from "./pageReadiness.js";
-import { createLeaderboardLoadState } from "../hooks/useSeasonLeaderboard.js";
+import { createLeaderboardLoadState, selectScopedLeaderboardState } from "../hooks/useSeasonLeaderboard.js";
 
 const readyEntryScope = {
   entriesError: "",
@@ -171,6 +171,7 @@ test("same-season leaderboard refresh preserves rows while season changes clear 
   const current = {
     loading: false,
     error: "",
+    errorIsConnectivity: false,
     rows: [{ rank: 1, username: "BowlFan" }],
     ready: true,
     seasonId: "season-1",
@@ -180,13 +181,33 @@ test("same-season leaderboard refresh preserves rows while season changes clear 
     ...current,
     loading: true,
   });
+  assert.equal(
+    createLeaderboardLoadState(
+      { ...current, error: "Could not refresh" },
+      "season-1",
+    ).error,
+    "Could not refresh",
+  );
   assert.deepEqual(createLeaderboardLoadState(current, "season-2"), {
     loading: true,
     error: "",
+    errorIsConnectivity: false,
     rows: [],
     ready: false,
     seasonId: "season-2",
   });
+});
+
+test("leaderboard rows are hidden immediately when account or season changes", () => {
+  const loaded = {
+    scope: "owner-1:season-1",
+    rows: [{ rank: 1, username: "Player One" }],
+    ready: true,
+  };
+  assert.equal(selectScopedLeaderboardState(loaded, "owner-1:season-1", "owner-1"), loaded);
+  assert.deepEqual(selectScopedLeaderboardState(loaded, "owner-2:season-1", "owner-2").rows, []);
+  assert.deepEqual(selectScopedLeaderboardState(loaded, "owner-1:season-2", "owner-1").rows, []);
+  assert.deepEqual(selectScopedLeaderboardState(loaded, "owner-1:season-1", "").rows, []);
 });
 
 const readyPicksScope = {

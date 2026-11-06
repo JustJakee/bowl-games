@@ -31,19 +31,27 @@ Alias for the Vite dev server.
 ### `npm run build`
 
 Builds the app for production into `dist/` and generates `dist/sw.js`.
-The service worker caches public app files for a reliable launch and shows
-`offline.html` when a navigation fails without a connection. It does not cache
-Amplify, ESPN, or account data. Players can open **Install App** below Rules in
+The service worker caches public app files and serves the cached app shell on
+offline navigation. If the shell is unavailable, it falls back to `offline.html`.
+It does not cache Amplify, ESPN, or account data; sign-in and live player data
+still require a working connection. Players can open **Install App** below Rules in
 the desktop sidebar or mobile drawer; browsers that support an install prompt
 show a button there, and other browsers show manual installation steps.
 
 The app icons are generated from `public/branding/bobs-bowl-games-icon.png`.
+
 After replacing that source image, run this from the `leaderboard` directory
 on Windows and commit the generated PNG and ICO files:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-brand-icons.ps1
 ```
+
+### Rules & Prizes
+
+The Rules page shows the effective pick deadline and the current $5-per-confirmed-paid-entry prize pool. A server-side `prizePoolSummary` query returns only the active season's aggregate count and amount; player payment records are not returned to the page. The count and payouts refresh while the page is open.
+
+Administrators can open **Admin → Payouts** to add winning places, enter percentages (up to two decimal places), and publish a distribution. Percentages must total exactly 100%. No distribution is prefilled or published for existing seasons. The backend validates every publication and stores it per season; the Rules and Leaderboard pages then show current amounts based on confirmed payments.
 
 ### `npm run preview`
 
@@ -52,5 +60,5 @@ Serves the production build locally from `dist/`.
 ### `npm test`
 
 Runs the focused entry, picks, leaderboard, schedule, dashboard, seed,
-secure-picks, registration, and season-experience suites. See the
+secure-picks, registration, season-experience, and PWA offline suites. See the
 [test map](../docs/gen2/testing.md).

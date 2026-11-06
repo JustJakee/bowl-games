@@ -66,7 +66,8 @@ test("dashboard surfaces scoped entry and pick errors instead of empty progress"
     source,
     /const scopedDataError = entriesError \|\| \(currentEntry \? picksError : ""\)/,
   );
-  assert.match(source, /<Alert severity="error">\{scopedDataError\}<\/Alert>/);
+  assert.match(source, /connectivityFailure \? "Your account data is unavailable while disconnected\." : scopedDataError/);
+  assert.match(source, /return <Alert severity=\{connectivityFailure \? "warning" : "error"\}>/);
 });
 
 test("favorite-team loading remains supplemental on Account", () => {

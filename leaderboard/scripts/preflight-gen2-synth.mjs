@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { readFile, realpath, readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -118,6 +119,14 @@ try {
   compileProject(path.join(projectRoot, "amplify"));
   await verifyRegistrationResolverContract(outputDir, projectRoot);
   await verifySecurePicksResolverContract(outputDir, projectRoot);
+  const prizeContract = spawnSync("node --test amplify/data/prizes/contract.test.mjs", {
+    cwd: projectRoot,
+    shell: true,
+    stdio: "inherit",
+  });
+  if (prizeContract.status !== 0) {
+    throw new Error("The synthesized prize operation handler contract failed.");
+  }
   console.log(
     "Amplify backend synthesized, Lambda bundled, and backend-local TypeScript validated.",
   );

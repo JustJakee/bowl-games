@@ -19,7 +19,7 @@ const ARROW_WIDTH = 44;
 const SCROLL_TOLERANCE = 2;
 
 const ScoreboardStrip = () => {
-  const { games, loading, error } = useScoreboard();
+  const { games, loading, error, season } = useScoreboard();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const viewportRef = useRef(null);
@@ -153,7 +153,7 @@ const ScoreboardStrip = () => {
           }}
         >
           <Stack direction="row" spacing={1.5} sx={{ minWidth: "max-content" }}>
-            {loading
+            {loading && !season
               ? [0, 1, 2, 3].map((item) => (
                   <Skeleton
                     key={item}
@@ -167,17 +167,17 @@ const ScoreboardStrip = () => {
                   />
                 ))
               : null}
-            {!loading && error ? (
+            {!season && !loading && error ? (
               <Typography variant="body2" color="error.main">
-                {error}
+                Game information is unavailable.
               </Typography>
             ) : null}
-            {!loading && !error && scoreboardGames.length === 0 ? (
+            {!loading && season && scoreboardGames.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
                 No live or upcoming bowl games right now.
               </Typography>
             ) : null}
-            {!loading && !error
+            {season
               ? scoreboardGames.map((game) => (
                   <ScoreboardGameCard key={game.id} game={game} />
                 ))

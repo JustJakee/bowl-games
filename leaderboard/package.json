@@ -51,13 +51,15 @@
     "test:entry": "tsx --test src/data/canonicalEntry.test.js src/data/entryRepository.test.js",
     "test:picks": "tsx --test src/app/singlePickSetWorkflow.test.js src/data/picksRepository.test.js src/data/seasonRepository.test.js src/components/picks/entryStartState.test.mjs src/components/picks/clearProgress.test.js src/components/picks/pickActions.test.js src/components/picks/PickActionOverlay.test.jsx src/components/picks/randomizeFeedback.test.js src/components/picks/picksAutosaveState.test.js src/components/picks/pickSelectionView.test.js src/components/picks/selectedEntryPickLoading.test.js src/components/picks/lockedPicksStatus.test.js src/utils/pickWindow.test.js",
     "test:leaderboard": "tsx --test src/data/leaderboardRepository.test.js src/data/adminEntriesRepository.test.js src/utils/leaderboardScoring.test.js",
+    "test:prizes": "node --test shared/prizeRules.test.mjs amplify/data/prizes/rules.test.mjs amplify/data/prizes/contract.test.mjs && tsx --test src/data/prizeRepository.test.js src/pages/RulesPage.test.jsx src/pages/AdminPayoutsPage.test.jsx src/features/leaderboard/leaderboardIdentity.test.jsx",
     "test:schedule": "tsx --test src/utils/gamePickSplits.test.js src/data/gamePickSplitsRepository.test.js",
-    "test:dashboard": "tsx --test src/utils/dashboardEntryProgress.test.js src/utils/adminGameManagement.test.js src/utils/scoreboardGames.test.js",
+    "test:dashboard": "tsx --test src/utils/dashboardEntryProgress.test.js src/utils/adminGameManagement.test.js src/utils/scoreboardGames.test.js src/utils/pageReadiness.test.js src/pages/pageLoadingIntegration.test.jsx",
     "test:seed:test26": "node --test scripts/test26/core.test.mjs",
     "test:secure-picks": "node --test amplify/data/secure-picks/rules.test.mjs amplify/data/secure-picks/contract.test.mjs",
     "test:registration": "node --test amplify/data/registration-admin/rules.test.mjs amplify/data/registration-admin/contract.test.mjs",
     "test:season-experience": "tsx --test src/utils/seasonExperience.test.js src/utils/previousSeason.test.js src/data/historicalResults.test.js",
-    "test": "npm run test:entry && npm run test:picks && npm run test:leaderboard && npm run test:schedule && npm run test:dashboard && npm run test:seed:test26 && npm run test:secure-picks && npm run test:registration && npm run test:season-experience"
+    "test:pwa": "tsx --test src/pwa/offline.test.jsx && node --test scripts/tests/pwa-offline.test.mjs",
+    "test": "npm run test:entry && npm run test:picks && npm run test:leaderboard && npm run test:prizes && npm run test:schedule && npm run test:dashboard && npm run test:seed:test26 && npm run test:secure-picks && npm run test:registration && npm run test:season-experience && npm run test:pwa"
   },
   "overrides": {
     "@ardatan/relay-compiler@12.0.0": {

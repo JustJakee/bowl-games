@@ -2,7 +2,7 @@ import LeaderboardIdentity from "./LeaderboardIdentity";
 import LeaderboardPrizeTag from "./LeaderboardPrizeTag";
 import { getPrizeForRank } from "./leaderboardPrizes";
 
-const LeaderboardMobileList = ({ entries, showFourthPrize, isLive }) => (
+const LeaderboardMobileList = ({ entries, payoutsByPosition = {}, isLive }) => (
   <div
     className={`leaderboard-mobile-list${
       isLive ? "" : " leaderboard-mobile-list--prelive"
@@ -15,8 +15,7 @@ const LeaderboardMobileList = ({ entries, showFourthPrize, isLive }) => (
       {isLive ? <span>Correct Picks</span> : null}
     </div>
     {entries.map((entry) => {
-      const prize =
-        showFourthPrize && entry.rank === 4 ? getPrizeForRank(4) : null;
+      const prize = getPrizeForRank(payoutsByPosition, entry.rank);
 
       return (
         <article className="leaderboard-mobile-row" key={entry.id}>
@@ -25,7 +24,7 @@ const LeaderboardMobileList = ({ entries, showFourthPrize, isLive }) => (
           {isLive ? (
             <div className="leaderboard-mobile-score">
               <strong>{entry.correctPicks}</strong>
-              <LeaderboardPrizeTag amount={prize} compact />
+              <LeaderboardPrizeTag amountCents={prize} compact />
             </div>
           ) : null}
         </article>

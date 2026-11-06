@@ -1,6 +1,6 @@
 // UI - DASHBOARD - REACT
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Box, useMediaQuery } from "@mui/material";
+import { Alert, Box, Button, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppData } from "../app/AppDataContext.jsx";
 import { useScoreboard } from "../context/NCAAFDataContext.jsx";
@@ -39,9 +39,12 @@ const ActiveDashboardPage = ({ showLeaderboard }) => {
   const {
     rows: leaderboardRows,
     error: leaderboardError,
+    errorIsConnectivity: leaderboardErrorIsConnectivity,
     ready: leaderboardReady,
     seasonId: leaderboardSeasonId,
+    reload: reloadLeaderboard,
   } = useSeasonLeaderboard();
+  const { connectionStatus } = useScoreboard();
   const theme = useTheme();
   const isDesktopDashboard = useMediaQuery(theme.breakpoints.up("lg"));
   const paymentState = getDashboardPaymentState(currentEntry);
@@ -136,8 +139,10 @@ const ActiveDashboardPage = ({ showLeaderboard }) => {
             <LeaderboardCard
               rows={dashboardLeaderboard}
               currentUsername={profile?.username}
-              error={leaderboardIsCurrent ? "" : leaderboardError}
+              error={leaderboardErrorIsConnectivity && connectionStatus !== "ready" ? "" : leaderboardError}
+              unavailable={leaderboardErrorIsConnectivity && connectionStatus !== "ready"}
               loading={!leaderboardIsCurrent && !leaderboardError}
+              onRetry={reloadLeaderboard}
             />
           </Box>
         ) : null}
@@ -149,7 +154,10 @@ const ActiveDashboardPage = ({ showLeaderboard }) => {
 const DashboardPage = () => {
   const {
     error: scoreboardError,
+    errorIsConnectivity: scoreboardErrorIsConnectivity,
+    connectionStatus,
     loading: scoreboardLoading,
+    reload: reloadScoreboard,
     season,
     seasonConfig,
     rawGames,
@@ -157,10 +165,14 @@ const DashboardPage = () => {
   const {
     currentEntry,
     entriesError,
+    entriesErrorIsConnectivity,
+    entriesRefreshError,
     entriesLoading,
     entriesReady,
     hydratedEntryId,
     picksError,
+    picksErrorIsConnectivity,
+    picksRefreshError,
     picksLoading,
   } = useAppData();
   const firstKickoffTime = getFirstKickoffTime(rawGames);
@@ -213,17 +225,37 @@ const DashboardPage = () => {
     return <PageLoading loading message="Loading your dashboard..." />;
   }
 
-  const scopedDataError = entriesError || (currentEntry ? picksError : "");
-  if (scopedDataError) {
-    return <Alert severity="error">{scopedDataError}</Alert>;
+  if (scoreboardError && !season) {
+    return (
+      <Alert
+        severity="error"
+        action={<Button color="inherit" size="small" onClick={reloadScoreboard}>Retry</Button>}
+      >
+        {scoreboardErrorIsConnectivity ? "Season data is unavailable while disconnected." : `Season data is unavailable. ${scoreboardError}`}
+      </Alert>
+    );
   }
 
-  return showSeasonPending ? (
-    <SeasonPendingPage season={season} seasonConfig={seasonConfig} />
-  ) : (
-    <ActiveDashboardPage
-      showLeaderboard={canShowDashboardLeaderboard(firstKickoffTime, now)}
-    />
+  const scopedDataError = entriesError || (currentEntry ? picksError : "");
+  if (scopedDataError) {
+    const connectivityFailure = entriesError ? entriesErrorIsConnectivity : picksErrorIsConnectivity;
+    return <Alert severity={connectivityFailure ? "warning" : "error"}>{connectivityFailure ? "Your account data is unavailable while disconnected." : scopedDataError}</Alert>;
+  }
+
+  const refreshError =
+    (!scoreboardErrorIsConnectivity && scoreboardError) ||
+    entriesRefreshError || picksRefreshError;
+  return (
+    <>
+      {refreshError && connectionStatus === "ready" ? (
+        <Alert severity="warning" sx={{ mb: 2 }}>Some dashboard information could not be refreshed. Displayed information may be outdated.</Alert>
+      ) : null}
+      {showSeasonPending ? (
+        <SeasonPendingPage season={season} seasonConfig={seasonConfig} />
+      ) : (
+        <ActiveDashboardPage showLeaderboard={canShowDashboardLeaderboard(firstKickoffTime, now)} />
+      )}
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 // UI - SCHEDULE GAME DETAIL - REACT
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import {
   Alert,
@@ -256,11 +256,10 @@ const AllPicksPanel = ({ pickSplit, onShowMore }) => {
 
 const GameDetailPage = () => {
   const { gameId } = useParams();
-  const { allGames: games, loading, error } = useScoreboard();
+  const { allGames: games, season, loading, error, errorIsConnectivity, connectionStatus, reload } = useScoreboard();
   const game = games.find((candidate) => candidate.id === gameId) || null;
-  const { viewsByGameId, error: picksError } = useGamePickSplitViews(
-    game ? [game] : [],
-  );
+  const detailGames = useMemo(() => game ? [game] : [], [game]);
+  const { viewsByGameId, error: picksError } = useGamePickSplitViews(detailGames);
   const pickSplit = game ? viewsByGameId[game.id] : null;
   const showScore =
     game?.state === "in" || game?.state === "post" || game?.isFinal;
@@ -270,10 +269,11 @@ const GameDetailPage = () => {
     return <div className="game-detail-page">Loading game...</div>;
   }
 
-  if (error) {
+  if (error && !season) {
     return (
       <div className="game-detail-page">
-        <Alert severity="error">Unable to load games.</Alert>
+        <Alert severity="warning">{errorIsConnectivity ? "Games are unavailable while disconnected." : "Unable to load games."}</Alert>
+        <Button onClick={reload}>Retry loading games</Button>
       </div>
     );
   }
@@ -300,6 +300,7 @@ const GameDetailPage = () => {
 
   return (
     <Box className="game-detail-page">
+      {error && !errorIsConnectivity && connectionStatus === "ready" ? <Alert severity="warning" sx={{ mb: 2 }}>Game information could not be refreshed. Displayed information may be outdated.</Alert> : null}
       <Button
         component={RouterLink}
         to="/schedule"
@@ -360,7 +361,7 @@ const GameDetailPage = () => {
         <aside className="game-detail-sidebar">
           <YourPicksPanel
             pickSplit={pickSplit}
-            unavailable={Boolean(picksError)}
+            unavailable={Boolean(picksError && !pickSplit)}
           />
         </aside>
       </div>

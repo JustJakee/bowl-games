@@ -1,5 +1,5 @@
 // UI — NAVIGATION — REACT
-import { Box, IconButton, Stack, Typography } from "@mui/material";
+import { IconButton, Stack, Typography } from "@mui/material";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 
 const MobileHeader = ({ onOpenMenu }) => {
@@ -10,22 +10,12 @@ const MobileHeader = ({ onOpenMenu }) => {
       justifyContent="space-between"
       sx={{ py: 1.5 }}
     >
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Box
-          component="img"
-          src="/branding/icon-192.png"
-          alt=""
-          sx={{ width: 24, height: 24, flexShrink: 0 }}
-        />
-        <Typography variant="subtitle1" sx={{ textTransform: "uppercase" }}>
-          Bob's Bowl Games
-        </Typography>
-      </Stack>
-      <Stack direction="row" spacing={1}>
-        <IconButton aria-label="Open navigation menu" onClick={onOpenMenu}>
-          <MenuRoundedIcon />
-        </IconButton>
-      </Stack>
+      <Typography variant="subtitle1" noWrap sx={{ textTransform: "uppercase", minWidth: 0 }}>
+        Bob's Bowl Games
+      </Typography>
+      <IconButton aria-label="Open navigation menu" onClick={onOpenMenu} sx={{ flexShrink: 0, ml: 1 }}>
+        <MenuRoundedIcon />
+      </IconButton>
     </Stack>
   );
 };

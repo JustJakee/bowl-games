@@ -5,6 +5,7 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { loadGamePickSplitViews } from "../data/gamePickSplitsRepository";
 import { useScoreboard } from "../context/NCAAFDataContext.jsx";
 import { getFirstKickoffTime } from "../utils/dashboardVisibility";
+import { isConnectivityFailure } from "../pwa/networkError.js";
 
 export const useGamePickSplitViews = (games = []) => {
   const { currentSeasonId, currentEntry } = useAppData();
@@ -16,7 +17,10 @@ export const useGamePickSplitViews = (games = []) => {
   const [viewsByGameId, setViewsByGameId] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [errorIsConnectivity, setErrorIsConnectivity] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const requestIdRef = useRef(0);
+  const loadedScopeRef = useRef("");
   const gameIdsKey = useMemo(
     () =>
       games
@@ -25,6 +29,7 @@ export const useGamePickSplitViews = (games = []) => {
         .join("|"),
     [games],
   );
+  const scope = `${owner}:${currentSeasonId || ""}:${currentEntry?.id || ""}:${gameIdsKey}`;
 
   useEffect(() => {
     setNow(Date.now());
@@ -38,16 +43,20 @@ export const useGamePickSplitViews = (games = []) => {
 
   useEffect(() => {
     if (!currentSeasonId || games.length === 0) {
+      loadedScopeRef.current = "";
       setViewsByGameId({});
       setLoading(false);
       setError("");
+      setErrorIsConnectivity(false);
       return;
     }
 
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+    if (loadedScopeRef.current !== scope) setViewsByGameId({});
     setLoading(true);
     setError("");
+    setErrorIsConnectivity(false);
 
     loadGamePickSplitViews({
       seasonId: currentSeasonId,
@@ -60,11 +69,19 @@ export const useGamePickSplitViews = (games = []) => {
       .then((nextViews) => {
         if (requestIdRef.current === requestId) {
           setViewsByGameId(nextViews);
+          loadedScopeRef.current = scope;
+          setError("");
+          setErrorIsConnectivity(false);
         }
       })
-      .catch(() => {
+      .catch((failure) => {
         if (requestIdRef.current === requestId) {
-          setError("Pick breakdown unavailable.");
+          const connectivityFailure = isConnectivityFailure(failure);
+          if (loadedScopeRef.current !== scope || !connectivityFailure) {
+            setViewsByGameId({});
+          }
+          setError(connectivityFailure ? "Pick breakdown unavailable while disconnected." : "Pick breakdown unavailable.");
+          setErrorIsConnectivity(connectivityFailure);
         }
       })
       .finally(() => {
@@ -72,11 +89,19 @@ export const useGamePickSplitViews = (games = []) => {
           setLoading(false);
         }
       });
-  }, [currentEntry, currentSeasonId, firstSeasonKickoff, gameIdsKey, games, now, owner]);
+  }, [currentEntry, currentSeasonId, firstSeasonKickoff, gameIdsKey, games, now, owner, retryKey, scope]);
+
+  useEffect(() => {
+    if (!error) return;
+    const retryOnReconnect = () => setRetryKey((current) => current + 1);
+    window.addEventListener("online", retryOnReconnect);
+    return () => window.removeEventListener("online", retryOnReconnect);
+  }, [error]);
 
   return {
-    viewsByGameId,
+    viewsByGameId: loadedScopeRef.current === scope ? viewsByGameId : {},
     loading,
     error,
+    errorIsConnectivity,
   };
 };

@@ -161,6 +161,8 @@ export const verifySecurePicksResolverContract = async (
       ...Object.keys(operations),
       "listPendingRegistrations",
       "approveRegistration",
+      "prizePoolSummary",
+      "publishSeasonPayouts",
     ].sort(),
     "Custom Lambda operation inventory changed: add a handler contract test before deployment",
   );

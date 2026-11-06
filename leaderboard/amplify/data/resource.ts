@@ -12,6 +12,11 @@ const securePicks = defineFunction({
   name: "secure-picks",
   entry: "./secure-picks/handler.js",
 });
+const prizes = defineFunction({
+  name: "prizes",
+  entry: "./prizes/handler.js",
+  timeoutSeconds: 30,
+});
 
 // Amplify's schema builder (`a`), deployment wrapper (`defineData`), and generated-client
 // type helper (`ClientSchema`) turn this definition into GraphQL/AppSync types, resolvers,
@@ -163,6 +168,17 @@ const schema = a
       .authorization((allow) => [
         allow.group("player").to(["read"]),
         allow.group("admin"),
+      ]),
+
+    // Payout writes are restricted to the validated prize function. Model-level
+    // authorization avoids granting admins an unvalidated direct update path.
+    SeasonPayout: a
+      .model({
+        seasonId: a.id().required(),
+        payoutConfigJson: a.string().required(),
+      })
+      .authorization((allow) => [
+        allow.groups(["player", "admin"]).to(["read"]),
       ]),
 
     // A scheduled bowl matchup and its live/final scoring metadata, maintained through admin or
@@ -438,6 +454,27 @@ const schema = a
       .returns(a.ref("VisibleSeasonPicks"))
       .authorization((allow) => [allow.group("player")])
       .handler(a.handler.function(securePicks)),
+    PrizePoolSummary: a.customType({
+      seasonId: a.id().required(),
+      confirmedPaidEntryCount: a.integer().required(),
+      prizePoolCents: a.integer().required(),
+      payoutConfigJson: a.string(),
+    }),
+    prizePoolSummary: a
+      .query()
+      .arguments({ seasonId: a.id().required() })
+      .returns(a.ref("PrizePoolSummary"))
+      .authorization((allow) => [allow.groups(["player", "admin"])])
+      .handler(a.handler.function(prizes)),
+    publishSeasonPayouts: a
+      .mutation()
+      .arguments({
+        seasonId: a.id().required(),
+        payoutConfigJson: a.string().required(),
+      })
+      .returns(a.string())
+      .authorization((allow) => [allow.group("admin")])
+      .handler(a.handler.function(prizes)),
     PendingRegistration: a.customType({
       username: a.string().required(),
       email: a.email().required(),
@@ -501,7 +538,7 @@ const schema = a
       // The `admin` group receives the default full operation set; players have no model access.
       .authorization((allow) => [allow.group("admin")]),
   })
-  .authorization((allow) => [allow.resource(securePicks)]);
+  .authorization((allow) => [allow.resource(securePicks), allow.resource(prizes)]);
 
 // Exposes generated model/operation types to frontend code without creating runtime behavior.
 export type Schema = ClientSchema<typeof schema>;

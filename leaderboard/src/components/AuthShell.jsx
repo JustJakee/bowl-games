@@ -41,6 +41,9 @@ import ConfirmResetPasswordForm from "../auth/ConfirmResetPasswordForm.jsx";
 import NewPasswordForm from "../auth/NewPasswordForm.jsx";
 import CompleteProfilePage from "../auth/CompleteProfilePage.jsx";
 import { mapAuthErrorMessage } from "../auth/authErrorMessages.js";
+import { useOfflineStatus } from "../pwa/useOfflineStatus.js";
+import { useScoreboard } from "../context/NCAAFDataContext.jsx";
+import { isConnectivityFailure } from "../pwa/networkError.js";
 
 const formatUserLabel = (user) => {
   return user?.signInDetails?.loginId || user?.username || "Signed-in user";
@@ -134,7 +137,9 @@ const GateFrame = ({ children }) => {
 const ProfileGate = ({ children }) => {
   const [completionWarning, setCompletionWarning] = useState("");
   const { email, role, signOut, user } = useAuth();
-  const { adoptCreatedProfile, status, error, profile } = useUserProfile();
+  const { adoptCreatedProfile, retryProfile, status, error, profile } = useUserProfile();
+  const offline = useOfflineStatus();
+  const { connectionStatus } = useScoreboard();
 
   const privateEmail = email || formatUserLabel(user);
   const handleProfileSubmit = async ({ favoriteTeamId, username }) => {
@@ -172,7 +177,7 @@ const ProfileGate = ({ children }) => {
     adoptCreatedProfile(result.profile);
   };
 
-  if (status === "loading" || status === "refreshing" || status === "idle") {
+  if (status === "loading" || (status === "refreshing" && !profile) || status === "idle") {
     return (
       <GateFrame>
         <Typography variant="h6">Loading your profile</Typography>
@@ -194,12 +199,15 @@ const ProfileGate = ({ children }) => {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Your account is signed in, but the profile data could not be loaded.
         </Typography>
-        <Alert severity="error" sx={{ mt: 3 }}>
-          {error}
+        <Alert severity={isConnectivityFailure(new Error(error), offline) ? "warning" : "error"} sx={{ mt: 3 }}>
+          {isConnectivityFailure(new Error(error), offline)
+            ? "Your profile is unavailable while disconnected. Retry when connected."
+            : error}
         </Alert>
-        <Button variant="outlined" onClick={signOut} sx={{ mt: 3 }}>
-          Sign out
-        </Button>
+        <Stack direction="row" spacing={1.5} sx={{ mt: 3 }}>
+          <Button variant="contained" onClick={retryProfile}>Retry</Button>
+          <Button variant="outlined" onClick={signOut}>Sign out</Button>
+        </Stack>
       </GateFrame>
     );
   }
@@ -218,6 +226,11 @@ const ProfileGate = ({ children }) => {
 
   return (
     <>
+      {status === "stale" && !offline && connectionStatus === "ready" ? (
+        <Alert severity="warning" sx={{ m: 2 }}>
+          Profile updates are unavailable. Showing the last loaded information.
+        </Alert>
+      ) : null}
       {children(profile)}
       <Snackbar
         open={Boolean(completionWarning)}
@@ -240,12 +253,15 @@ const ProfileGate = ({ children }) => {
 const AuthShell = ({ children }) => {
   const {
     isAuthenticated,
+    isUnavailable,
     isConfigured,
     isLoading,
+    retryAuth,
     role,
     email: signedInEmail,
     signOut,
   } = useAuth();
+  const offline = useOfflineStatus();
   const [authView, setAuthView] = useState("signIn");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -516,6 +532,21 @@ const AuthShell = ({ children }) => {
         <Alert severity="warning" sx={{ mt: 3 }}>
           `amplify_outputs.json` must be available for the frontend build.
         </Alert>
+      </GateFrame>
+    );
+  }
+
+  if (isUnavailable) {
+    return (
+      <GateFrame>
+        <Typography variant="h6">Connection unavailable</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          We could not verify your session. Reconnect and retry before accessing
+          your account.
+        </Typography>
+        <Button variant="contained" onClick={retryAuth} disabled={offline} sx={{ mt: 3 }}>
+          Retry connection
+        </Button>
       </GateFrame>
     );
   }

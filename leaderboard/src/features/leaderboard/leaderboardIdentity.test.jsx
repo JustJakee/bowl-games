@@ -65,7 +65,7 @@ test("public leaderboard rows retain canonical usernames and never map entry nam
 
 test("all three podium cards show only usernames with their scores and prizes", () => {
   const markup = renderToStaticMarkup(
-    <LeaderboardPodium entries={displayEntries.slice(0, 3)} />,
+    <LeaderboardPodium entries={displayEntries.slice(0, 3)} payoutsByPosition={{ 1: 500, 2: 300, 3: 200 }} />,
   );
   for (const username of ["Big-Jake", "BigDog", "Test_Create_User"]) {
     assert.match(markup, new RegExp(username));
@@ -83,7 +83,8 @@ test("all three podium cards show only usernames with their scores and prizes", 
   }
   assertPrivateNamesHidden(markup);
   assert.match(markup, /Correct Picks/);
-  assert.match(markup, /Winnings/);
+  assert.match(markup, /Current payout/);
+  assert.match(markup, /\$5\.00/);
 
   const missingUsername = renderToStaticMarkup(
     <LeaderboardPodium
@@ -100,14 +101,14 @@ test("desktop and mobile ranking rows use neutral fallback without entry subtitl
       <LeaderboardTable
         entries={displayEntries}
         isLive={isLive}
-        showFourthPrize
+        payoutsByPosition={{ 4: 125 }}
       />,
     );
     const mobile = renderToStaticMarkup(
       <LeaderboardMobileList
         entries={displayEntries}
         isLive={isLive}
-        showFourthPrize
+        payoutsByPosition={{ 4: 125 }}
       />,
     );
     for (const markup of [table, mobile]) {
